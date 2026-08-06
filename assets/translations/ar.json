@@ -1,0 +1,390 @@
+{
+  "welcome": {
+    "title": "مرحباً",
+    "appName": "va_bookats",
+    "tagline": "أفضل طريقة لإدارة أموالك",
+    "buttonText": "ابدأ",
+    "exitDialog": {
+      "title": "خروج من التطبيق",
+      "message": "هل أنت متأكد من رغبتك في الخروج من التطبيق؟"
+    }
+  },
+  "onboarding": {
+    "title": "تحويل الأموال",
+    "subTitle": "تحويل الأموال من بنك إلى بنك متاح أيضاً Swift و Wire",
+    "titleTwo": "السحب التلقائي",
+    "subTitleTwo": "يمكن للمشرف رفع قالب HTML كصفحة هبوط واستخدام تصميمه الخاص",
+    "titleThree": "بنك DPS",
+    "subTitleThree": "التطبيق يحتوي على نظام DPS",
+    "titleFour": "بنك FDR",
+    "subTitleFour": "التطبيق يحتوي على نظام FDR",
+    "skipButton": "تخطي",
+    "nextButton": "التالي"
+  },
+  "signIn": {
+    "noAccountText": "ليس لديك حساب؟",
+    "signUpButton": "اشتراك",
+    "welcomeText": "مرحباً بعودتك!",
+    "emailLabel": "البريد الإلكتروني أو اسم المستخدم",
+    "passwordLabel": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور",
+    "signInButton": "تسجيل الدخول",
+    "requiredMessage": "يرجى ملء هذا الحقل",
+    "exitDialog": {
+      "title": "خروج من التطبيق",
+      "message": "هل أنت متأكد من رغبتك في الخروج من التطبيق؟"
+    }
+  },
+  "forgotPassword": {
+    "title": "إعادة تعيين كلمة المرور",
+    "emailOrUsernameLabel": "البريد الإلكتروني أو اسم المستخدم",
+    "emailOrUsernameValidation": "يرجى ملء هذا الحقل",
+    "resetPasswordButton": "إعادة تعيين كلمة المرور",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "signUp": "اشتراك",
+    "reset_password": {
+      "already_have_account": "لديك حساب بالفعل؟",
+      "login_button": "تسجيل الدخول",
+      "screen_title": "إعادة تعيين كلمة المرور",
+      "password": "كلمة المرور",
+      "confirm_password": "تأكيد كلمة المرور",
+      "reset_button": "إعادة تعيين",
+      "password_required": "يرجى ملء هذا الحقل",
+      "confirm_password_required": "يرجى ملء هذا الحقل"
+    }
+  },
+  "pinCodeVerification": {
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "login": "تسجيل الدخول",
+    "verifyOtp": "التحقق من OTP",
+    "codeSent": "تم إرسال الكود الخاص بك عبر :email",
+    "enter6DigitsError": "أدخل 6 أرقام",
+    "verifyButton": "تحقق"
+  },
+  "signUp": {
+    "haveAccountText": "لديك حساب بالفعل؟",
+    "loginButton": "تسجيل الدخول",
+    "title": "إنشاء حساب",
+    "fields": {
+      "email": "البريد الإلكتروني",
+      "country": "البلد",
+      "phone": "الهاتف",
+      "referralCode": "رمز الإحالة",
+      "password": "كلمة المرور"
+    },
+    "validation": {
+      "required": "يرجى ملء هذا الحقل",
+      "phoneRequired": "حقل الهاتف مطلوب"
+    },
+    "countrySheet": {
+      "title": "اختر البلد"
+    },
+    "nextButton": "الخطوة التالية",
+    "toast": {
+      "phoneRequired": "حقل الهاتف مطلوب"
+    }
+  },
+  "finishUpAccount": {
+    "existingAccount": {
+      "text": "لديك حساب بالفعل؟",
+      "loginButton": {
+        "text": "تسجيل الدخول"
+      }
+    },
+    "mainContent": {
+      "title": "لقد أوشكنا على الانتهاء!",
+      "form": {
+        "username": {
+          "label": "اسم المستخدم",
+          "validation": {
+            "errorMessage": "يرجى ملء هذا الحقل"
+          }
+        },
+        "firstName": {
+          "label": "الاسم الأول",
+          "validation": {
+            "errorMessage": "يرجى ملء هذا الحقل"
+          }
+        },
+        "lastName": {
+          "label": "اسم العائلة",
+          "validation": {
+            "errorMessage": "يرجى ملء هذا الحقل"
+          }
+        },
+        "gender": {
+          "label": "الجنس",
+          "placeholder": "اختر الجنس",
+          "option": {
+            "male": "ذكر",
+            "female": "أنثى",
+            "others": "آخر"
+          },
+          "validation": {
+            "errorMessage": "يرجى ملء هذا الحقل"
+          }
+        }
+      },
+      "termsAgreement": {
+        "text": "أوافق على ",
+        "link": "الشروط والأحكام"
+      },
+      "submitButton": {
+        "text": "إنهاء الحساب"
+      }
+    }
+  },
+  "home": {
+    "exitDialog": {
+      "title": "خروج من التطبيق",
+      "message": "هل أنت متأكد من رغبتك في الخروج من التطبيق؟"
+    },
+    "title": "الرئيسية",
+    "filter": {
+      "reset": "إعادة تعيين الفلاتر",
+      "state": "الولاية"
+    },
+    "language": {
+      "title": "اللغة",
+      "select_language": "اختر اللغة"
+    },
+    "logOut": "تسجيل الخروج",
+    "settings": {
+      "title": "الإعدادات",
+      "menuItems": {
+        "profile": "إعدادات الملف الشخصي",
+        "password": "تغيير كلمة المرور",
+        "twoFA": "إعدادات الأمان",
+        "idVerification": "التحقق من الهوية",
+        "notifications": "جميع الإشعارات",
+        "helpSupport": "المساعدة والدعم",
+        "deleteAccount": "إغلاق الحساب",
+        "signOut": "تسجيل الخروج"
+      },
+      "kycStatus": {
+        "submit": "قدّم الآن",
+        "approved": "موافق عليه",
+        "pending": "قيد الانتظار"
+      },
+      "close_account_alert": {
+        "title": "هل أنت متأكد؟",
+        "subtitle": "هل تريد إغلاق هذا الحساب؟",
+        "reason_placeholder": "السبب (اختياري)",
+        "cancel": "إلغاء",
+        "confirm": "تأكيد"
+      }
+    },
+    "help_and_support": {
+      "title": "قائمة التذاكر الخاصة بي",
+      "search_field_hint": "الموضوع",
+      "filter_icon_alt": "تصفية",
+      "no_tickets": "لم يتم العثور على تذاكر",
+      "view_button": "عرض",
+      "replay_ticket": {
+        "title": "الرد على التذكرة",
+        "close_ticket": "إغلاق التذكرة",
+        "reopen_ticket": "إعادة فتح التذكرة",
+        "write_message_placeholder": "اكتب ردك هنا.....",
+        "add_attachment": "إضافة مرفق",
+        "send_button": "إرسال",
+        "message_required": "حقل الرسالة مطلوب",
+        "attachment_preview": "معاينة المرفق",
+        "attachments_label": "المرفقات",
+        "admin_name": "المشرف العام"
+      },
+      "create_ticket_dialog": {
+        "title": "فتح تذكرة جديدة",
+        "subject_label": "الموضوع",
+        "precedence_label": "الأولوية",
+        "precedence_placeholder": "اختر الأولوية",
+        "message_label": "رسالتك",
+        "attachments_label": "المرفقات",
+        "attach_file": "إرفاق ملف",
+        "close_button": "إغلاق",
+        "create_button": "إنشاء تذكرة",
+        "toast_required_fields": "املأ جميع الحقول المطلوبة",
+        "dropdown_title": "اختر الأولوية",
+        "precedence_options": {
+          "low": "منخفض",
+          "medium": "متوسط",
+          "high": "عالٍ"
+        }
+      },
+      "subject_input_section": {
+        "label": "الموضوع"
+      },
+      "ticket_history_filter_popup": {
+        "title": "التصفية",
+        "date_label": "التاريخ",
+        "dialog_title": "اختر نطاق التاريخ",
+        "cancel_button": "إلغاء",
+        "apply_button": "تطبيق",
+        "reset_button": "إعادة تعيين",
+        "search_button": "بحث"
+      }
+    },
+    "profileSettings": {
+      "title": "إعدادات الملف الشخصي",
+      "personalInfo": "المعلومات الشخصية",
+      "contactDetails": "بيانات الاتصال",
+      "buttons": {
+        "saveChanges": "حفظ التغييرات"
+      },
+      "formFields": {
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "username": "اسم المستخدم",
+        "gender": "الجنس",
+        "selectGender": "اختر الجنس",
+        "dateOfBirth": "تاريخ الميلاد",
+        "selectDate": "اختر التاريخ",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "country": "البلد",
+        "city": "المدينة",
+        "zip": "الرمز البريدي",
+        "address": "العنوان",
+        "joiningDate": "تاريخ الانضمام"
+      },
+      "genderOptions": {
+        "male": "ذكر",
+        "female": "أنثى",
+        "other": "آخر"
+      }
+    },
+    "changePassword": {
+      "title": "تغيير كلمة المرور",
+      "buttons": {
+        "changePassword": "تغيير كلمة المرور"
+      },
+      "formFields": {
+        "currentPassword": "كلمة المرور الحالية",
+        "newPassword": "كلمة المرور الجديدة",
+        "confirmPassword": "تأكيد كلمة المرور"
+      },
+      "validation": {
+        "currentPasswordRequired": "يرجى إدخال كلمة المرور الحالية",
+        "newPasswordRequired": "يرجى إدخال كلمة مرور جديدة",
+        "passwordLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
+        "passwordMismatch": "كلمات المرور غير متطابقة"
+      }
+    },
+    "securitySettings": {
+      "title": "إعدادات الأمان",
+      "2fa": {
+        "title": "التحقق بخطوتين",
+        "description": "عزز أمان حسابك باستخدام التحقق بخطوتين",
+        "buttonText": "إنشاء 2FA"
+      },
+      "passcode": {
+        "title": "رمز المرور",
+        "description": "إنشاء رمز مرور آمن للوصول السريع إلى حسابك",
+        "buttonText": "إنشاء رمز مرور"
+      },
+      "changePasscode": {
+        "title": "تغيير رمز المرور",
+        "fields": {
+          "old": "رمز المرور القديم",
+          "new": "رمز المرور الجديد",
+          "confirm": "تأكيد رمز المرور"
+        },
+        "buttons": {
+          "close": "إغلاق",
+          "change": "تغيير رمز المرور"
+        },
+        "toast": {
+          "fillAllFields": "املأ جميع الحقول المطلوبة",
+          "mismatch": "رموز المرور غير متطابقة"
+        }
+      },
+      "securitySettings": {
+        "passcode": {
+          "title": "رمز المرور",
+          "disable": "تعطيل رمز المرور",
+          "change": "تغيير رمز المرور"
+        },
+        "disablePopup": {
+          "title": "تأكيد كلمة المرور",
+          "passwordLabel": "كلمة المرور",
+          "close": "إغلاق",
+          "confirm": "تأكيد",
+          "passwordRequired": "حقل كلمة المرور مطلوب"
+        }
+      }
+    },
+    "notification": {
+      "title": "الإشعارات",
+      "header": "الإشعارات",
+      "mark_all_read": "وضع الكل كمقروء",
+      "no_data": "لم يتم العثور على إشعارات",
+      "sections": {
+        "today": "اليوم",
+        "yesterday": "أمس"
+      }
+    },
+    "common": {
+      "noDataFound": {
+        "noDataFound": "لم يتم العثور على بيانات!",
+        "refreshingText": "حاول التحديث أو تحقق لاحقاً.",
+        "tryAgainButtonText": "حاول مرة أخرى"
+      },
+      "imagePicker": {
+        "selectImageSource": "اختر مصدر الصورة",
+        "camera": "الكاميرا",
+        "gallery": "المعرض"
+      },
+      "confirm_passcode_popup": {
+        "title": "تأكيد رمز المرور",
+        "passcode_label": "رمز المرور",
+        "close_button": "إغلاق",
+        "confirm_button": "تأكيد"
+      },
+      "bottomNavBar": {
+        "home": "الرئيسية",
+        "card": "البطاقة",
+        "wallets": "المحافظ",
+        "reward": "المكافآت",
+        "settings": "الإعدادات"
+      },
+      "alertDialog": {
+        "unauthorizedTitle": "غير مصرح",
+        "unauthorizedMessage": "غير مصرح لك بالوصول إلى هذا المورد. يرجى تسجيل الدخول مرة أخرى!",
+        "cancelButton": "إلغاء",
+        "confirmButton": "تأكيد"
+      },
+      "search": "بحث",
+      "noResultsFound": "لا توجد نتائج",
+      "tryDifferentSearch": "جرب مصطلح بحث مختلف",
+      "noItemAvailable": "لا يوجد {item} متاح"
+    },
+    "login": {
+      "title": "تسجيل الدخول",
+      "working": "تسجيل الدخول يعمل"
+    }
+  },
+  "errors": {
+    "sessionExpired": {
+      "title": "انتهت الجلسة",
+      "message": "لقد انتهت جلستك. يرجى تسجيل الدخول مرة أخرى للمتابعة."
+    },
+    "connectionTimeout": "انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.",
+    "noInternet": "لا يوجد اتصال بالإنترنت. يرجى التحقق من شبكتك.",
+    "badResponse": "استجابة خاطئة من الخادم.",
+    "requestCancelled": "تم إلغاء الطلب.",
+    "unexpected": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+    "validationFailed": "فشل التحقق.",
+    "unauthorized": "غير مصرح. يرجى تسجيل الدخول مرة أخرى.",
+    "requestFailed": "فشل الطلب.",
+    "internalServerError": "خطأ داخلي في الخادم. يرجى المحاولة مرة أخرى لاحقاً.",
+    "emptyResponse": "استجابة فارغة من الخادم.",
+    "imagePickerGallery": "فشل في اختيار الصورة من المعرض",
+    "imagePickerCamera": "فشل في التقاط الصورة من الكاميرا",
+    "errorTitle": "خطأ",
+    "unexpectedShort": "حدث خطأ غير متوقع.",
+    "unexpectedResponse": "استجابة غير متوقعة من الخادم."
+  },
+  "user": {
+    "handyman": "حرفي"
+  }
+}

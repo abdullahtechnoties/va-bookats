@@ -1,0 +1,1017 @@
+{
+  "explore_title": "کاوش",
+  "explore_myStory": "داستان من",
+  "explore_addStory": "افزودن به داستان شما",
+  "explore_notifications": "اعلان‌ها",
+  "explore_storySalina": "سالینا",
+  "explore_storyLaisa": "لایسا",
+  "explore_storyNiaz": "نیاز",
+  "explore_storySalinaFullName": "سالینا اختر",
+  "explore_authorSuhana": "سوهانا خان",
+  "explore_minutesAgo": "{mins} دقیقه پیش",
+  "explore_captionLorem": "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است.",
+  "explore_likes": "{count}",
+  "explore_comments": "{count}",
+  "explore_postOptions": "گزینه‌های بیشتر",
+  "explore_bookmarkPost": "ذخیره پست",
+  "explore_composeNewPost": "ایجاد پست جدید",
+  "explore_playVideo": "پخش ویدیو",
+
+  "welcome": {
+    "title": "خوش آمدید به",
+    "appName": "عروسی",
+    "tagline": "بهترین راه برای مدیریت پول شما",
+    "buttonText": "شروع کنید",
+    "exitDialog": {
+      "title": "خروج از برنامه",
+      "message": "آیا مطمئن هستید که می‌خواهید از برنامه خارج شوید؟"
+    }
+  },
+  "forgotPassword": {
+    "title": "بازیابی رمز عبور",
+    "emailOrUsernameLabel": "ایمیل یا نام کاربری",
+    "emailOrUsernameValidation": "لطفاً این فیلد را پر کنید",
+    "resetPasswordButton": "بازیابی رمز عبور",
+    "dontHaveAccount": "حساب کاربری ندارید؟",
+    "signUp": "ثبت‌نام",
+    "reset_password": {
+      "already_have_account": "قبلاً حساب کاربری دارید؟",
+      "login_button": "ورود",
+      "screen_title": "بازیابی رمز عبور",
+      "password": "رمز عبور",
+      "confirm_password": "تأیید رمز عبور",
+      "reset_button": "بازیابی",
+      "password_required": "لطفاً این فیلد را پر کنید",
+      "confirm_password_required": "لطفاً این فیلد را پر کنید"
+    }
+  },
+  "pinCodeVerification": {
+    "alreadyHaveAccount": "قبلاً حساب کاربری دارید؟",
+    "login": "ورود",
+    "verifyOtp": "تأیید کد",
+    "codeSent": "کد شما از طریق :email ارسال شد",
+    "enter6DigitsError": "۶ رقم وارد کنید",
+    "verifyButton": "تأیید"
+  },
+  "signUp": {
+    "haveAccountText": "قبلاً حساب کاربری دارید؟",
+    "loginButton": "ورود",
+    "title": "ایجاد حساب کاربری",
+    "fields": {
+      "email": "ایمیل",
+      "country": "کشور",
+      "phone": "شماره تلفن",
+      "referralCode": "کد معرف",
+      "password": "رمز عبور"
+    },
+    "validation": {
+      "required": "لطفاً این فیلد را پر کنید",
+      "phoneRequired": "فیلد شماره تلفن الزامی است"
+    },
+    "countrySheet": {
+      "title": "انتخاب کشور"
+    },
+    "nextButton": "مرحله بعد",
+    "toast": {
+      "phoneRequired": "فیلد شماره تلفن الزامی است"
+    }
+  },
+  "finishUpAccount": {
+    "existingAccount": {
+      "text": "قبلاً حساب کاربری دارید؟",
+      "loginButton": {
+        "text": "ورود"
+      }
+    },
+    "mainContent": {
+      "title": "تقریباً تمام شد!",
+      "form": {
+        "username": {
+          "label": "نام کاربری",
+          "validation": {
+            "errorMessage": "لطفاً این فیلد را پر کنید"
+          }
+        },
+        "firstName": {
+          "label": "نام",
+          "validation": {
+            "errorMessage": "لطفاً این فیلد را پر کنید"
+          }
+        },
+        "lastName": {
+          "label": "نام خانوادگی",
+          "validation": {
+            "errorMessage": "لطفاً این فیلد را پر کنید"
+          }
+        },
+        "gender": {
+          "label": "جنسیت",
+          "placeholder": "انتخاب جنسیت",
+          "option": {
+            "male": "مرد",
+            "female": "زن",
+            "others": "سایر"
+          },
+          "validation": {
+            "errorMessage": "لطفاً این فیلد را پر کنید"
+          }
+        }
+      },
+      "termsAgreement": {
+        "text": "من با قوانین موافقم؟ ",
+        "link": "قوانین و شرایط"
+      },
+      "submitButton": {
+        "text": "تکمیل حساب کاربری"
+      }
+    }
+  },
+  "home": {
+    "tab": {
+      "flame": "شعله",
+      "discover": "کاوش"
+    },
+    "noMoreProfiles": "پروفایل دیگری وجود ندارد",
+    "checkBackLater": "بعداً برای مشاهده پروفایل‌های جدید مراجعه کنید",
+    "noDiscoverProfiles": "پروفایلی یافت نشد",
+    "tryAdjustingFilters": "فیلترهای خود را تغییر دهید",
+    "liked": "پسندیدید!",
+    "likedMessage": "شما این پروفایل را پسندیدید",
+    "filter": {
+      "basic": "پایه",
+      "advanced": "پیشرفته",
+      "ageRange": "محدوده سنی",
+      "distanceRange": "محدوده فاصله",
+      "years": "سال",
+      "country": "کشور",
+      "state": "استان",
+      "city": "شهر",
+      "partnerMaritalStatus": "وضعیت تأهل همسر",
+      "partnerReligion": "مذهب همسر",
+      "partnerEthnicity": "قومیت همسر",
+      "partnerSect": "مذهب همسر",
+      "partnerOccupation": "شغل همسر",
+      "partnerEducation": "مدرک تحصیلی همسر",
+      "bodyType": "نوع بدن خود را انتخاب کنید",
+      "selectHeight": "قد خود را انتخاب کنید",
+      "selectWeight": "وزن خود را انتخاب کنید",
+      "hairColor": "رنگ مو خود را انتخاب کنید",
+      "eyeColor": "رنگ چشم خود را انتخاب کنید",
+      "skinColor": "رنگ پوست خود را انتخاب کنید",
+      "apply": "اعمال فیلترها",
+      "cancel": "لغو",
+      "reset": "بازنشانی فیلترها"
+    },
+    "match": {
+      "itsAMatch": "این یک تطابق است",
+      "message": "پیام",
+      "keepSwiping": "ادامه اسلاید"
+    },
+    "exitDialog": {
+      "title": "خروج از برنامه",
+      "message": "آیا مطمئن هستید که می‌خواهید از برنامه خارج شوید؟"
+    },
+    "title": "خانه",
+    "language": {
+      "title": "زبان",
+      "select_language": "انتخاب زبان"
+    },
+    "logOut": "خروج",
+    "settings": {
+      "title": "تنظیمات",
+      "menuItems": {
+        "profile": "تنظیمات پروفایل",
+        "password": "تغییر رمز عبور",
+        "twoFA": "تنظیمات امنیتی",
+        "idVerification": "تأیید هویت",
+        "notifications": "همه اعلان‌ها",
+        "helpSupport": "راهنما و پشتیبانی",
+        "deleteAccount": "بستن حساب کاربری",
+        "signOut": "خروج"
+      },
+      "close_account_alert": {
+        "title": "آیا مطمئن هستید؟",
+        "subtitle": "آیا می‌خواهید این حساب را ببندید؟",
+        "reason_placeholder": "دلیل (اختیاری)",
+        "cancel": "لغو",
+        "confirm": "تأیید"
+      }
+    },
+    "help_and_support": {
+      "title": "لیست تیکت‌های من",
+      "search_field_hint": "موضوع",
+      "filter_icon_alt": "فیلتر",
+      "no_tickets": "تیکتی یافت نشد",
+      "view_button": "مشاهده",
+      "replay_ticket": {
+        "title": "پاسخ به تیکت",
+        "close_ticket": "بستن تیکت",
+        "reopen_ticket": "بازگشایی تیکت",
+        "write_message_placeholder": "پاسخ خود را اینجا بنویسید.....",
+        "add_attachment": "افزودن پیوست",
+        "send_button": "ارسال",
+        "message_required": "فیلد پیام الزامی است",
+        "attachment_preview": "پیش‌نمایش پیوست",
+        "attachments_label": "پیوست‌ها",
+        "admin_name": "مدیر ارشد"
+      },
+      "create_ticket_dialog": {
+        "title": "باز کردن تیکت جدید",
+        "subject_label": "موضوع",
+        "precedence_label": "اولویت",
+        "precedence_placeholder": "انتخاب اولویت",
+        "message_label": "پیام شما",
+        "attachments_label": "پیوست‌ها",
+        "attach_file": "افزودن فایل",
+        "close_button": "بستن",
+        "create_button": "ایجاد تیکت",
+        "toast_required_fields": "تمام فیلدهای الزامی را پر کنید",
+        "dropdown_title": "انتخاب اولویت",
+        "precedence_options": {
+          "low": "کم",
+          "medium": "متوسط",
+          "high": "بالا"
+        }
+      },
+      "subject_input_section": {
+        "label": "موضوع"
+      },
+      "ticket_history_filter_popup": {
+        "title": "فیلترها",
+        "date_label": "تاریخ",
+        "dialog_title": "انتخاب محدوده تاریخ",
+        "cancel_button": "لغو",
+        "apply_button": "اعمال",
+        "reset_button": "بازنشانی",
+        "search_button": "جستجو"
+      }
+    },
+    "profileSettings": {
+      "title": "تنظیمات پروفایل",
+      "personalInfo": "اطلاعات شخصی",
+      "contactDetails": "اطلاعات تماس",
+      "buttons": {
+        "saveChanges": "ذخیره تغییرات"
+      },
+      "formFields": {
+        "firstName": "نام",
+        "lastName": "نام خانوادگی",
+        "username": "نام کاربری",
+        "gender": "جنسیت",
+        "selectGender": "انتخاب جنسیت",
+        "dateOfBirth": "تاریخ تولد",
+        "selectDate": "انتخاب تاریخ",
+        "email": "آدرس ایمیل",
+        "phone": "شماره تلفن",
+        "country": "کشور",
+        "city": "شهر",
+        "zip": "کد پستی",
+        "address": "آدرس",
+        "joiningDate": "تاریخ عضویت"
+      },
+      "genderOptions": {
+        "male": "مرد",
+        "female": "زن",
+        "other": "سایر"
+      }
+    },
+    "changePassword": {
+      "title": "تغییر رمز عبور",
+      "buttons": {
+        "changePassword": "تغییر رمز عبور"
+      },
+      "formFields": {
+        "currentPassword": "رمز عبور فعلی",
+        "newPassword": "رمز عبور جدید",
+        "confirmPassword": "تأیید رمز عبور"
+      },
+      "validation": {
+        "currentPasswordRequired": "لطفاً رمز عبور فعلی خود را وارد کنید",
+        "newPasswordRequired": "لطفاً یک رمز عبور جدید وارد کنید",
+        "passwordLength": "رمز عبور باید حداقل ۸ کاراکتر باشد",
+        "confirmPasswordRequired": "لطفاً رمز عبور خود را تأیید کنید",
+        "passwordMismatch": "رمزهای عبور مطابقت ندارند"
+      }
+    },
+    "securitySettings": {
+      "title": "تنظیمات امنیتی",
+      "2fa": {
+        "title": "احراز هویت دو مرحله‌ای",
+        "description": "امنیت حساب خود را با احراز هویت دو مرحله‌ای افزایش دهید",
+        "buttonText": "ایجاد احراز هویت دو مرحله‌ای"
+      },
+      "passcode": {
+        "title": "رمز عبور",
+        "description": "یک رمز عبور امن برای دسترسی سریع به حساب خود ایجاد کنید",
+        "buttonText": "ایجاد رمز عبور"
+      },
+      "changePasscode": {
+        "title": "تغییر رمز عبور",
+        "fields": {
+          "old": "رمز عبور قدیمی",
+          "new": "رمز عبور جدید",
+          "confirm": "تأیید رمز عبور"
+        },
+        "buttons": {
+          "close": "بستن",
+          "change": "تغییر رمز عبور"
+        },
+        "toast": {
+          "fillAllFields": "تمام فیلدهای الزامی را پر کنید",
+          "mismatch": "رمزهای عبور مطابقت ندارند"
+        }
+      },
+      "securitySettings": {
+        "passcode": {
+          "title": "رمز عبور",
+          "disable": "غیرفعال کردن رمز عبور",
+          "change": "تغییر رمز عبور"
+        },
+        "disablePopup": {
+          "title": "رمز عبور خود را تأیید کنید",
+          "passwordLabel": "رمز عبور",
+          "close": "بستن",
+          "confirm": "تأیید",
+          "passwordRequired": "فیلد رمز عبور الزامی است"
+        }
+      }
+    },
+    "notification": {
+      "title": "اعلان",
+      "header": "اعلان",
+      "mark_all_read": "علامت‌گذاری همه به عنوان خوانده‌شده",
+      "no_data": "اعلانی یافت نشد",
+      "sections": {
+        "today": "امروز",
+        "yesterday": "دیروز"
+      }
+    },
+    "common": {
+      "noDataFound": {
+        "noDataFound": "داده‌ای یافت نشد!",
+        "refreshingText": "صفحه را به‌روزرسانی کنید یا بعداً مراجعه کنید.",
+        "tryAgainButtonText": "تلاش مجدد"
+      },
+      "imagePicker": {
+        "selectImageSource": "انتخاب منبع تصویر",
+        "camera": "دوربین",
+        "gallery": "گالری"
+      },
+      "confirm_passcode_popup": {
+        "title": "رمز عبور خود را تأیید کنید",
+        "passcode_label": "رمز عبور",
+        "close_button": "بستن",
+        "confirm_button": "تأیید"
+      },
+      "bottomNavBar": {
+        "home": "خانه",
+        "card": "کارت",
+        "wallets": "کیف پول‌ها",
+        "reward": "پاداش",
+        "settings": "تنظیمات"
+      },
+      "alertDialog": {
+        "unauthorizedTitle": "غیرمجاز",
+        "unauthorizedMessage": "شما مجاز به دسترسی به این منبع نیستید. لطفاً دوباره وارد شوید!",
+        "cancelButton": "لغو",
+        "confirmButton": "تأیید"
+      },
+      "search": "جستجو",
+      "noResultsFound": "نتیجه‌ای یافت نشد",
+      "tryDifferentSearch": "عبارت جستجوی متفاوتی امتحان کنید",
+      "noItemAvailable": "{item} در دسترس نیست",
+      "discardTitle": "تغییرات را حذف کنید؟",
+      "discardMessage": "با بازگشت، تمام اطلاعاتی که وارد کرده‌اید حذف می‌شود. آیا مطمئن هستید؟",
+      "cancel": "لغو",
+      "discard": "حذف"
+    },
+    "login": {
+      "title": "صفحه ورود",
+      "working": "صفحه ورود در حال کار است"
+    }
+  },
+  "errors": {
+    "sessionExpired": {
+      "title": "جلسه منقضی شد",
+      "message": "جلسه شما منقضی شده است. لطفاً دوباره وارد شوید."
+    },
+    "connectionTimeout": "اتصال با تأخیر مواجه شد. لطفاً دوباره تلاش کنید.",
+    "noInternet": "اتصال اینترنت وجود ندارد. لطفاً شبکه خود را بررسی کنید.",
+    "badResponse": "پاسخ نامناسب از سرور.",
+    "requestCancelled": "درخواست لغو شد.",
+    "unexpected": "خطای غیرمنتظره‌ای رخ داد. لطفاً دوباره تلاش کنید.",
+    "validationFailed": "اعتبارسنجی ناموفق بود.",
+    "unauthorized": "غیرمجاز. لطفاً دوباره وارد شوید.",
+    "requestFailed": "درخواست ناموفق بود.",
+    "internalServerError": "خطای داخلی سرور. لطفاً بعداً دوباره تلاش کنید.",
+    "emptyResponse": "پاسخ خالی از سرور.",
+    "imagePickerGallery": "انتخاب تصویر از گالری ناموفق بود",
+    "imagePickerCamera": "انتخاب تصویر از دوربین ناموفق بود",
+    "errorTitle": "خطا",
+    "unexpectedShort": "خطای غیرمنتظره‌ای رخ داد.",
+    "unexpectedResponse": "پاسخ غیرمنتظره از سرور."
+  },
+  "oath": {
+    "selectLanguage": "زبان خود را انتخاب کنید",
+    "language": "زبان",
+    "oath1": "من به خداوند سوگند می‌خورم که از این برنامه فقط برای اهداف شرافتمندانه و محترمانه، مطابق با ارزش‌های اسلامی استفاده کنم.",
+    "oath2": "با ادامه دادن، شما با",
+    "terms": "قوانین",
+    "and": "و",
+    "privacyPolicy": "سیاست حریم خصوصی",
+    "authorization": "مجوز",
+    "acceptOath": "لطفاً سوگند و سیاست حریم خصوصی را بپذیرید تا به استفاده از برنامه ادامه دهید"
+  },
+  "onboard": {
+    "bismillah": "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم",
+    "tagline": "نیمه دیگر دین خود را کامل کنید",
+    "headline": "بیایید با افراد جدید اطراف خود آشنا شویم",
+    "continueGoogle": "ادامه با گوگل",
+    "continueApple": "ادامه با اپل",
+    "continuePhone": "ادامه با شماره تلفن",
+    "noAccount": "حساب کاربری ندارید؟",
+    "signUp": "ثبت‌نام"
+  },
+  "login": {
+    "title": "ورود",
+    "emailOrPhone": "ایمیل یا شماره تلفن",
+    "password": "رمز عبور",
+    "forgotPassword": "رمز عبور را فراموش کرده‌اید؟",
+    "loginBtn": "ورود",
+    "noAccount": "حساب کاربری ندارید؟",
+    "signUp": "ثبت‌نام",
+    "errorTitle": "خطا",
+    "emptyFields": "لطفاً تمام فیلدها را پر کنید",
+    "successTitle": "موفقیت",
+    "successMsg": "با موفقیت وارد شدید",
+    "invalidEmail": "لطفاً یک آدرس ایمیل معتبر وارد کنید.",
+    "missingAccessToken": "توکن دسترسی در پاسخ وجود ندارد.",
+    "loginFailed": "خطایی در حین ورود رخ داد. لطفاً دوباره تلاش کنید.",
+    "resetCodeSent": "کد بازیابی با موفقیت ارسال شد.",
+    "resetCodeFailed": "ارسال کد بازیابی ناموفق بود."
+  },
+  "recovery": {
+    "title": "بازیابی حساب شما",
+    "subtitle": "ایمیل یا شماره تلفن خود را که با آن حساب ایجاد کرده‌اید وارد کنید",
+    "emailOrPhone": "ایمیل یا شماره تلفن",
+    "recoverBtn": "بازیابی",
+    "termsOfUse": "قوانین استفاده",
+    "privacyPolicy": "سیاست حریم خصوصی",
+    "errorTitle": "خطا",
+    "emptyField": "لطفاً ایمیل یا شماره تلفن خود را وارد کنید",
+    "successTitle": "موفقیت",
+    "successMsg": "لینک بازیابی با موفقیت ارسال شد"
+  },
+  "signup": {
+    "title": "ثبت‌نام",
+    "username": "نام کاربری",
+    "email": "ایمیل",
+    "phone": "شماره تلفن",
+    "password": "رمز عبور",
+    "repeatPassword": "تکرار رمز عبور",
+    "nextBtn": "بعدی",
+    "errorTitle": "خطا",
+    "emptyFields": "لطفاً تمام فیلدها را پر کنید",
+    "passwordMismatch": "رمزهای عبور مطابقت ندارند",
+    "successTitle": "موفقیت",
+    "successMsg": "حساب کاربری با موفقیت ایجاد شد"
+  },
+  "profile": {
+    "title": "عمومی",
+    "personalInfo": "اطلاعات شخصی",
+    "name": "نام",
+    "nameValue": "نیاز احمد",
+    "dob": "تاریخ تولد",
+    "dobValue": "۱۴ فوریه ۲۰۰۰",
+    "gender": "جنسیت",
+    "genderValue": "مرد",
+    "email": "آدرس ایمیل",
+    "emailValue": "Yourgmail@Mail.Com",
+    "phone": "شماره تلفن",
+    "phoneValue": "۰۸۲۹۴۱۹۵۲۱",
+    "changePassword": "تغییر رمز عبور",
+    "changePasswordSub": "اگر رمز عبور خود را فراموش کرده‌اید آن را تغییر دهید",
+    "appSettings": "تنظیمات برنامه",
+    "audioVideoMute": "قطع صدا / ویدیو",
+    "audioVideoMuteSub": "قطع تماس‌های صوتی و تصویری غیرضروری",
+    "privacySafety": "حریم خصوصی و امنیت",
+    "blockUnblock": "مسدود / رفع مسدودی کاربران",
+    "profileVisited": "پروفایل‌هایی که بازدید کردم",
+    "locationSettings": "تنظیمات موقعیت",
+    "notifications": "اعلان‌ها",
+    "matchNotifications": "روشن / خاموش کردن اعلان‌های تطابق",
+    "chatNotifications": "روشن / خاموش کردن اعلان‌های چت",
+    "emailSmsAlerts": "هشدارهای ایمیل و پیامک",
+    "subscriptionPayments": "اشتراک و پرداخت‌ها",
+    "manageSubscription": "مدیریت اشتراک",
+    "viewPaymentHistory": "مشاهده تاریخچه پرداخت",
+    "upgradePremium": "ارتقا به ویژه",
+    "languageRegion": "زبان و منطقه",
+    "selectLanguage": "انتخاب زبان برنامه",
+    "changeRegion": "تغییر منطقه یا موقعیت",
+    "helpSupport": "راهنما و پشتیبانی",
+    "faq": "سؤالات متداول",
+    "contactSupport": "تماس با پشتیبانی",
+    "reportProblem": "گزارش مشکل",
+    "legalPolicies": "قوانین و سیاست‌ها",
+    "termsOfUse": "قوانین استفاده",
+    "privacyPolicy": "سیاست حریم خصوصی",
+    "communityGuidelines": "دستورالعمل‌های جامعه",
+    "manageAccount": "مدیریت حساب",
+    "deleteAccount": "حذف یا غیرفعال کردن حساب",
+    "deleteAccountSub": "پس از حذف، قابل بازیابی نیست",
+    "logOut": "خروج",
+    "logoutDialog": {
+      "title": "خروج از حساب",
+      "message": "آیا مطمئن هستید که می‌خواهید از حساب خود خارج شوید؟",
+      "cancel": "لغو",
+      "confirm": "بله، خارج شو"
+    },
+    "deleteDialog": {
+      "title": "حذف حساب کاربری",
+      "message": "آیا مطمئن هستید که می‌خواهید حساب خود را حذف کنید؟",
+      "cancel": "لغو",
+      "confirm": "بله، حذف کن",
+      "deleteFailed": "حذف حساب کاربری ناموفق بود"
+    },
+    "section": {
+      "aboutMe": "درباره من",
+      "appearance": "ظاهر",
+      "religion": "اطلاعات مذهبی",
+      "personalInfo": "اطلاعات شخصی",
+      "interests": "علایق",
+      "posts": "پست‌ها",
+      "visitors": "بازدیدکنندگان پروفایل",
+      "seeAll": "مشاهده همه",
+      "visitorsMore": "مشاهده {count} مورد بیشتر"
+    },
+    "visitors": {
+      "none": "هنوز بازدیدکننده‌ای وجود ندارد",
+      "noneMessage": "اولین کسی باشید که ظاهر می‌شود — پروفایل خود را به اشتراک بگذارید!"
+    },
+    "time": {
+      "justNow": "همین الان",
+      "minutesAgo": "{count} دقیقه پیش",
+      "hoursAgo": "{count} ساعت پیش",
+      "daysAgo": "{count} روز پیش"
+    },
+    "wink": {
+      "button": "چشمک",
+      "title": "ارسال چشمک",
+      "subtitle": "یک پیام انتخاب کنید یا پیام خود را بنویسید",
+      "custom": "نوشتن پیام سفارشی...",
+      "customHint": "پیام خود را اینجا بنویسید...",
+      "sent": "چشمک ارسال شد!",
+      "sentMessage": "چشمک شما با موفقیت ارسال شد"
+    },
+    "ping": {
+      "sent": "پینگ ارسال شد!",
+      "sentMessage": "درخواست پیام شما ارسال شد"
+    },
+    "photo": {
+      "updated": "تصویر به‌روزرسانی شد",
+      "updatedMessage": "تصویر پروفایل شما به‌روزرسانی شد"
+    },
+    "privacy": {
+      "public": "عمومی",
+      "private": "خصوصی"
+    },
+    "private": {
+      "title": "پروفایل خصوصی",
+      "message": "این کاربر پروفایل خود را خصوصی کرده است. برای ارتباط یک چشمک بفرستید!"
+    },
+    "blurPhoto": "محو کردن تصویر من",
+    "currentLocation": "موقعیت فعلی",
+    "addMoreInfo": "افزودن اطلاعات بیشتر",
+    "loadError": "بارگذاری پروفایل ناموفق بود",
+    "retry": "تلاش مجدد",
+    "noPosts": "هنوز پستی وجود ندارد",
+    "appearance": {
+      "height": "قد",
+      "weight": "وزن",
+      "body": "بدن",
+      "hair": "مو",
+      "eye": "چشم",
+      "skin": "پوست"
+    },
+    "religion": {
+      "prayer": "نماز"
+    }
+  },
+  "splash": {
+    "headline": "سفر حلال خود به سوی نکاح را آغاز کنید",
+    "subheadline": "با برنامه ما",
+    "startBtn": "شروع"
+  },
+  "profileSetup": {
+    "basicDetails": "جزئیات پایه",
+    "basicIdentity": "هویت پایه",
+    "yourGender": "جنسیت شما؟",
+    "female": "زن",
+    "male": "مرد",
+    "confirm": "تأیید",
+    "continue": "ادامه",
+    "yourName": "نام شما؟",
+    "firstName": "نام",
+    "lastName": "نام خانوادگی",
+    "yourBirthDate": "تاریخ تولد شما؟",
+    "birthday": "تاریخ تولد",
+    "whereDoYouLive": "کجا زندگی می‌کنید؟",
+    "location": "موقعیت",
+    "selectEthnicity": "قومیت خود را انتخاب کنید",
+    "searchHere": "اینجا جستجو کنید...",
+    "searchEthnicity": "جستجوی قومیت",
+    "searchEducation": "جستجوی تحصیلات",
+    "searchOccupation": "جستجوی شغل",
+    "selectEducation": "تحصیلات خود را انتخاب کنید",
+    "selectEducationLevel": "مقطع تحصیلی را انتخاب کنید",
+    "selectProfession": "حرفه خود را انتخاب کنید",
+    "selectOccupation": "شغل خود را انتخاب کنید",
+    "errorTitle": "خطا",
+    "selectGender": "لطفاً جنسیت خود را انتخاب کنید",
+    "enterName": "لطفاً نام خود را وارد کنید",
+    "selectDob": "لطفاً تاریخ تولد خود را انتخاب کنید",
+    "selectLocation": "لطفاً موقعیت خود را انتخاب کنید",
+    "selectEthnicityError": "لطفاً قومیت خود را انتخاب کنید",
+    "selectEducationError": "لطفاً مقطع تحصیلی خود را انتخاب کنید",
+    "selectProfessionError": "لطفاً حرفه خود را انتخاب کنید",
+    "selectNationality": "انتخاب ملیت",
+    "searchNationality": "جستجوی ملیت",
+    "selectCountry": "انتخاب کشور",
+    "searchCountry": "جستجوی کشور",
+    "selectState": "انتخاب استان",
+    "searchState": "جستجوی استان",
+    "selectCity": "انتخاب شهر",
+    "searchCity": "جستجوی شهر",
+    "selectArea": "انتخاب منطقه",
+    "searchArea": "جستجوی منطقه",
+    "nationality": "ملیت",
+    "country": "کشور",
+    "state": "استان",
+    "city": "شهر",
+    "area": "منطقه",
+    "address": "آدرس",
+    "selectNationalityFirst": "ابتدا ملیت را انتخاب کنید",
+    "selectCountryFirst": "ابتدا کشور را انتخاب کنید",
+    "selectStateFirst": "ابتدا استان را انتخاب کنید",
+    "selectCityFirst": "ابتدا شهر را انتخاب کنید",
+    "completeLocationRequired": "لطفاً ملیت، کشور، استان، شهر، منطقه و آدرس را تکمیل کنید",
+    "noCountries": "کشوری در دسترس نیست",
+    "selectParentFirst": "ابتدا گزینه والد را انتخاب کنید",
+    "noOptionsAvailable": "گزینه‌ای در دسترس نیست",
+    "profileUpdateFailed": "به‌روزرسانی پروفایل ناموفق بود"
+  },
+  "additionalDetails": {
+    "skipHint1": "جزئیات اضافه کنید تا تطابق مناسب پیدا کنید.",
+    "skipHint2": "اطلاعات بیشتر یعنی ارتباطات بهتر",
+    "skipHint3": "به دیگران نشان دهید چه چیزی شما را منحصر به فرد می‌کند",
+    "skipHint4": "پروفایل‌های واضح پاسخ‌های بهتری دریافت می‌کنند.",
+    "skip": "رد کردن",
+    "confirm": "تأیید",
+    "bodyType": "نوع بدن",
+    "selectBodyType": "نوع بدن خود را انتخاب کنید",
+    "selectHeight": "قد خود را انتخاب کنید",
+    "selectWeight": "وزن خود را انتخاب کنید",
+    "cm": "سانتی‌متر",
+    "kg": "کیلوگرم",
+    "lbs": "پوند",
+    "selectHairColour": "رنگ موی خود را انتخاب کنید",
+    "selectEyeColour": "رنگ چشم خود را انتخاب کنید",
+    "selectSkinColour": "رنگ پوست خود را انتخاب کنید",
+    "religiousIdentity": "هویت مذهبی",
+    "selectReligion": "مذهب خود را انتخاب کنید",
+    "selectSect": "مذهب خود را انتخاب کنید",
+    "selectPrayerFrequency": "تکرار نماز را انتخاب کنید",
+    "selectDressCode": "پوشش خود را انتخاب کنید",
+    "selectDietaryPreference": "ترجیحات غذایی خود را انتخاب کنید",
+    "maritalHistory": "تاریخچه تأهل",
+    "selectMaritalStatus": "وضعیت تأهل خود را انتخاب کنید",
+    "selectDuration": "مدت را انتخاب کنید",
+    "doYouHaveChildren": "آیا فرزند دارید؟",
+    "doYouWantChildren": "آیا می‌خواهید فرزند داشته باشید؟",
+    "no": "خیر",
+    "yes": "بله",
+    "partnerPreferences": "ترجیحات همسر",
+    "partnerMaritalStatus": "وضعیت تأهل همسر",
+    "ageRange": "محدوده سنی",
+    "distanceRange": "محدوده فاصله",
+    "years": "سال",
+    "km": "کیلومتر",
+    "partnerReligion": "مذهب همسر",
+    "partnerEthnicity": "قومیت همسر",
+    "partnerSect": "مذهب همسر",
+    "partnerOccupation": "شغل همسر",
+    "partnerEducationLevel": "مدرک تحصیلی همسر",
+    "errorTitle": "خطا",
+    "selectBodyTypeError": "لطفاً نوع بدن خود را انتخاب کنید",
+    "selectReligionError": "لطفاً مذهب خود را انتخاب کنید",
+    "selectMaritalStatusError": "لطفاً وضعیت تأهل خود را انتخاب کنید",
+    "selectReligionFirst": "ابتدا مذهب را انتخاب کنید",
+    "noOptionsAvailable": "گزینه‌ای در دسترس نیست",
+    "profileUpdateFailed": "به‌روزرسانی پروفایل ناموفق بود",
+    "photoRequired": "لطفاً برای ادامه یک تصویر انتخاب کنید",
+    "uploadPhoto": "بارگذاری تصویر",
+    "tapToUpload": "برای بارگذاری تصویر خود ضربه بزنید",
+    "changePhoto": "تغییر تصویر",
+    "removePhoto": "حذف",
+    "makePhotoPublic": "این حساب را عمومی کنید",
+    "skipHint5": "بهترین تصویر خود را بارگذاری کنید"
+  },
+  "location": {
+    "title": "فعال‌سازی موقعیت",
+    "description": "موقعیت شما به ما کمک می‌کند تا تطابق‌های نزدیک شما را نشان دهیم و تجربه بهتری ارائه دهیم. می‌توانید آن را در تنظیمات فعال کنید.",
+    "openSettings": "باز کردن تنظیمات",
+    "notNow": "الان نه"
+  },
+  "otp": {
+    "timer": "۰۰:۲۳",
+    "subtitle": "کد تأیید خود را اینجا وارد کنید",
+    "sendAgain": "ارسال مجدد؟",
+    "confirm": "تأیید",
+    "errorTitle": "خطا",
+    "incompleteCode": "لطفاً کد ۶ رقمی کامل را وارد کنید",
+    "successTitle": "موفقیت",
+    "successMsg": "کد با موفقیت تأیید شد",
+    "resendSuccess": "کد با موفقیت مجدداً ارسال شد",
+    "emailRequired": "ایمیل برای ادامه الزامی است.",
+    "verifySuccess": "ایمیل با موفقیت تأیید شد.",
+    "resentSuccess": "کد با موفقیت مجدداً ارسال شد"
+  },
+  "app": {
+    "name": "عروسی"
+  },
+  "common": {
+    "yes": "بله",
+    "no": "خیر",
+    "success": "موفقیت",
+    "error": "خطا"
+  },
+  "newPassword": {
+    "title": "رمز عبور جدید",
+    "subtitle": "رمز عبور جدید خود را در زیر وارد کنید",
+    "password": "رمز عبور",
+    "confirmPassword": "تأیید رمز عبور",
+    "resetButton": "بازیابی رمز عبور",
+    "missingInfoTitle": "اطلاعات ناقص",
+    "missingVerificationInfo": "ایمیل یا کد تأیید وجود ندارد.",
+    "passwordRequired": "لطفاً رمز عبور جدید خود را وارد و تأیید کنید.",
+    "mismatchTitle": "عدم تطابق رمز عبور",
+    "mismatchMessage": "رمزهای عبور مطابقت ندارند.",
+    "resetSuccess": "رمز عبور با موفقیت بازیابی شد."
+  },
+  "createTicket": {
+    "title": "ایجاد تیکت پشتیبانی",
+    "subject": "موضوع",
+    "subjectHint": "موضوع تیکت را وارد کنید",
+    "description": "توضیحات",
+    "descriptionHint": "مشکل خود را با جزئیات توضیح دهید",
+    "validationError": "خطای اعتبارسنجی",
+    "subjectRequired": "لطفاً یک موضوع وارد کنید",
+    "descriptionRequired": "لطفاً توضیحات وارد کنید",
+    "createdSuccess": "تیکت با موفقیت ایجاد شد",
+    "createFailed": "ایجاد تیکت ناموفق بود",
+    "createError": "خطایی در حین ایجاد تیکت رخ داد",
+    "category": "دسته‌بندی",
+    "priority": "اولویت",
+    "submit": "ارسال تیکت",
+    "categories": {
+      "appIssue": "مشکل برنامه",
+      "account": "حساب کاربری",
+      "safety": "ایمنی",
+      "other": "سایر"
+    },
+    "priorities": {
+      "low": "کم",
+      "medium": "متوسط",
+      "high": "زیاد",
+      "urgent": "فوری"
+    }
+  },
+  "ticket": {
+    "supportChat": "گفت‌وگوی پشتیبانی",
+    "myTickets": "تیکت‌های من",
+    "newTicket": "تیکت جدید",
+    "createTicket": "ایجاد تیکت",
+    "retry": "تلاش مجدد",
+    "loadChatFailed": "بارگذاری گفت‌وگو ناموفق بود",
+    "loadTicketsFailed": "بارگذاری تیکت‌ها ناموفق بود",
+    "noMessages": "هنوز پیامی وجود ندارد",
+    "typeMessage": "پیام خود را بنویسید...",
+    "emptyTitle": "تیکت پشتیبانی ندارید",
+    "emptyMessage": "هنوز هیچ تیکت پشتیبانی ایجاد نکرده‌اید.\nبرای شروع، روی دکمه زیر بزنید.",
+    "sendMessageFailed": "ارسال پیام ناموفق بود",
+    "sendImageFailed": "ارسال تصویر ناموفق بود",
+    "sendFileFailed": "ارسال فایل ناموفق بود",
+    "sendVoiceFailed": "ارسال پیام صوتی ناموفق بود",
+    "permissionDenied": "دسترسی رد شد",
+    "microphonePermissionRequired": "برای ضبط پیام صوتی، دسترسی به میکروفون لازم است",
+    "categories": {
+      "payment": "پرداخت",
+      "booking": "رزرو",
+      "technical": "فنی",
+      "account": "حساب کاربری",
+      "other": "سایر"
+    },
+    "priorities": {
+      "low": "کم",
+      "medium": "متوسط",
+      "high": "زیاد",
+      "urgent": "فوری"
+    },
+    "status": {
+      "open": "باز",
+      "assigned": "در حال بررسی",
+      "resolved": "حل‌شده",
+      "closed": "بسته"
+    },
+    "time": {
+      "justNow": "همین حالا",
+      "minutesAgo": " :count دقیقه پیش",
+      "hoursAgo": " :count ساعت پیش",
+      "daysAgo": " :count روز پیش"
+    }
+  },
+  "chat": {
+    "typeMessage": "پیام خود را بنویسید…",
+    "recording": "در حال ضبط…",
+    "recordingStatus": "🎙️ در حال ضبط…",
+    "uploadingProgress": "در حال بارگذاری… :percent%",
+    "preparing": "در حال آماده‌سازی…",
+    "inbox": "صندوق ورودی",
+    "emptyTitle": "هنوز گفتگویی وجود ندارد",
+    "emptyMessage": "چت‌های شما پس از شروع گفتگو در اینجا نمایش داده می‌شوند.",
+    "user": "کاربر",
+    "startConversation": "گفتگو را شروع کنید!",
+    "greeting": "به :name سلام کنید",
+    "today": "امروز",
+    "yesterday": "دیروز",
+    "loadChatsFailed": "بارگذاری چت‌ها ناموفق بود",
+    "loadMessagesFailed": "بارگذاری پیام‌ها ناموفق بود",
+    "loadVoiceFailed": "بارگذاری پیام صوتی ممکن نبود",
+    "pickImageFailed": "انتخاب تصویر ممکن نبود",
+    "pickFileFailed": "انتخاب فایل ممکن نبود",
+    "fileUploadFailed": "بارگذاری فایل ناموفق بود",
+    "permission": "مجوز",
+    "microphonePermissionRequired": "مجوز میکروفون مورد نیاز است",
+    "startRecordingFailed": "شروع ضبط ممکن نبود",
+    "sendVoiceFailed": "ارسال پیام صوتی ممکن نبود",
+    "deleteMessageTitle": "حذف پیام",
+    "deleteMessageConfirm": "آیا مطمئن هستید که می‌خواهید این پیام را حذف کنید؟",
+    "photoPreview": "📷 تصویر",
+    "voicePreview": "🎙️ پیام صوتی",
+    "filePreview": "📎 :name",
+    "file": "فایل"
+  },
+  "user": {
+    "handyman": "کاربر"
+  },
+  "activity": {
+    "tab": {
+      "likesMe": "دوست دارند",
+      "liked": "دوست داشتم",
+      "passed": "رد شد",
+      "pings": "پینگ‌ها"
+    },
+    "noLikesMe": "هنوز کسی شما را دوست نداشته است.\nبه زودی مراجعه کنید!",
+    "noLiked": "هنوز کسی را دوست نداشته‌اید.\nاسلاید را شروع کنید!",
+    "noPassed": "هنوز پروفایل رد شده‌ای وجود ندارد.",
+    "noPings": "هنوز پینگی دریافت نشده است.",
+    "unknown": "ناشناس",
+    "accepted": "قبول شد",
+    "declined": "رد شد"
+  },
+  "social": {
+    "posts": "پست‌ها",
+    "stories": "داستان‌ها",
+    "myStory": "داستان من",
+    "addStory": "افزودن داستان",
+    "createPost": "ایجاد پست",
+    "createStory": "ایجاد داستان",
+    "whatsOnYourMind": "چه چیزی در ذهن دارید؟",
+    "post": "پست",
+    "visibility": {
+      "label": "قابلیت مشاهده",
+      "public": "عمومی",
+      "private": "خصوصی",
+      "matches": "تطابق‌ها"
+    },
+    "comments": "نظرات",
+    "noComments": "هنوز نظری وجود ندارد. اولین نفر باشید!",
+    "writeComment": "نظر بنویسید...",
+    "replyingTo": "پاسخ به",
+    "reply": "پاسخ",
+    "replies": "پاسخ‌ها",
+    "viewReplies": "مشاهده {count} پاسخ",
+    "hideReplies": "مخفی کردن پاسخ‌ها",
+    "like": "پسندیدن",
+    "liked": "پسندیده شد",
+    "save": "ذخیره",
+    "saved": "ذخیره شد",
+    "delete": "حذف",
+    "deletePost": "حذف پست",
+    "deletePostConfirm": "آیا مطمئن هستید که می‌خواهید این پست را حذف کنید؟",
+    "deleteComment": "حذف نظر",
+    "deleteCommentConfirm": "آیا مطمئن هستید که می‌خواهید این نظر را حذف کنید؟",
+    "postDeleted": "پست حذف شد",
+    "commentDeleted": "نظر حذف شد",
+    "storyViewers": "بینندگان داستان",
+    "noViewers": "هنوز بیننده‌ای وجود ندارد",
+    "viewedAt": "مشاهده شد",
+    "textStory": "متن",
+    "mediaStory": "رسانه",
+    "selectBackgroundColor": "انتخاب پس‌زمینه",
+    "enterStoryText": "متن داستان خود را بنویسید...",
+    "uploading": "در حال بارگذاری...",
+    "compressing": "در حال فشرده‌سازی رسانه...",
+    "postCreated": "پست با موفقیت ایجاد شد",
+    "storyCreated": "داستان با موفقیت ایجاد شد",
+    "noPosts": "هنوز پستی وجود ندارد",
+    "timeAgo": {
+      "justNow": "همین الان",
+      "minutesAgo": "{count} دقیقه پیش",
+      "hoursAgo": "{count} ساعت پیش",
+      "daysAgo": "{count} روز پیش",
+      "weeksAgo": "{count} هفته پیش"
+    },
+    "selectMedia": "انتخاب رسانه",
+    "image": "تصویر",
+    "video": "ویدیو",
+    "cancel": "لغو",
+    "confirm": "تأیید",
+    "report": "گزارش"
+  },
+  "block": {
+    "blockedUsers": "کاربران مسدود شده",
+    "block": "مسدود کردن",
+    "unblock": "رفع مسدودی",
+    "blocked": "مسدود شد",
+    "blockedMessage": "کاربر مسدود شد",
+    "unblocked": "رفع مسدودی شد",
+    "unblockedMessage": "مسدودی کاربر برطرف شد",
+    "blockedSince": "مسدود شده از",
+    "errorTitle": "ارسال پیام ممکن نیست",
+    "cannotMessage": "شما نمی‌توانید به این کاربر پیام ارسال کنید.",
+    "confirmBlockTitle": "مسدود کردن کاربر",
+    "confirmBlockMessage": "آیا مطمئن هستید که می‌خواهید این کاربر را مسدود کنید؟",
+    "blockedByYou": "شما این کاربر را مسدود کرده‌اید",
+    "blockedByYouMessage": "پروفایل این کاربر مخفی است. برای تعامل مجدد مسدودی را برطرف کنید.",
+    "blockedByOther": "این کاربر شما را مسدود کرده است",
+    "blockedByOtherMessage": "شما نمی‌توانید پروفایل این کاربر را مشاهده کنید یا پیام ارسال کنید.",
+    "noBlockedUsers": "کاربر مسدود شده‌ای وجود ندارد",
+    "noBlockedUsersMessage": "هنوز کسی را مسدود نکرده‌اید.",
+    "chatBlockedTitle": "شما نمی‌توانید در اینجا پیام ارسال کنید",
+    "chatBlockedBanner": "این گفتگو در حالی که کاربر مسدود است در دسترس نیست.",
+    "chatBlockedByYouMessage": "شما این کاربر را مسدود کرده‌اید. برای چت مجدد مسدودی را برطرف کنید.",
+    "chatBlockedByOtherMessage": "این کاربر شما را مسدود کرده است."
+  },
+  "report": {
+    "title": "گزارش",
+    "reporting": "در حال گزارش",
+    "options": "گزینه‌های بیشتر",
+    "report": "گزارش",
+    "delete": "حذف",
+    "deleteTitle": "حذف محتوا",
+    "deleteConfirm": "آیا مطمئن هستید که می‌خواهید این محتوا را حذف کنید؟",
+    "cancel": "لغو",
+    "categoryLabel": "دسته‌بندی",
+    "categoryHint": "یک دسته‌بندی انتخاب کنید",
+    "categoryRequired": "لطفاً یک دسته‌بندی انتخاب کنید",
+    "selectCategory": "انتخاب یک دسته‌بندی",
+    "messageLabel": "مشکل را توضیح دهید",
+    "messageHint": "به ما بگویید چه مشکلی با این محتوا وجود دارد...",
+    "messageRequired": "لطفاً مشکل را توضیح دهید",
+    "submit": "ارسال گزارش",
+    "successTitle": "گزارش ارسال شد",
+    "successMessage": "از شما برای حفظ امنیت جامعه سپاسگزاریم. تیم ما گزارش شما را بررسی خواهد کرد.",
+    "category": {
+      "spam": "اسپم یا گمراه‌کننده",
+      "harassment": "آزار و اذیت یا قلدری",
+      "inappropriate": "محتوای نامناسب",
+      "fake": "پروفایل جعلی",
+      "offensive": "محتوای توهین‌آمیز",
+      "other": "سایر"
+    }
+  },
+  "notifications": {
+    "title": "اعلان‌ها",
+    "markAllRead": "علامت‌گذاری همه به عنوان خوانده‌شده",
+    "allRead": "همه خوانده شد!",
+    "allReadMessage": "همه اعلان‌ها به عنوان خوانده‌شده علامت‌گذاری شدند.",
+    "defaultSender": "عروسی",
+    "tapToRead": "برای خواندن ضربه بزنید",
+    "status": {
+      "unread": "خوانده نشده",
+      "read": "خوانده شده"
+    },
+    "time": {
+      "justNow": "همین الان",
+      "minutesAgo": "{count} دقیقه پیش",
+      "hoursAgo": "{count} ساعت پیش",
+      "daysAgo": "{count} روز پیش"
+    },
+    "empty": {
+      "title": "هنوز اعلانی وجود ندارد",
+      "message": "وقتی کسی با پروفایل شما تعامل می‌کند یا پیامی می‌فرستد، ابتدا در اینجا مشاهده خواهید کرد."
+    }
+  }
+}

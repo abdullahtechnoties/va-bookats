@@ -1,0 +1,1082 @@
+{
+
+  "welcome": {
+    "title": "Welcome to",
+    "appName": "va_bookats",
+    "tagline": "The best way to manage your money",
+    "buttonText": "Get Start",
+    "exitDialog": {
+      "title": "Exit Application",
+      "message": "Are you sure you want to exit the application?"
+    }
+  },
+  "forgotPassword": {
+    "title": "Password Reset",
+    "emailOrUsernameLabel": "Email Or Username",
+    "emailOrUsernameValidation": "Please fill out this field",
+    "resetPasswordButton": "Reset Password",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign Up",
+    "reset_password": {
+      "already_have_account": "Already have an account?",
+      "login_button": "Login",
+      "screen_title": "Reset Password",
+      "password": "Password",
+      "confirm_password": "Confirm Password",
+      "reset_button": "Reset",
+      "password_required": "Please fill in this field",
+      "confirm_password_required": "Please fill in this field"
+    }
+  },
+  "pinCodeVerification": {
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Login",
+    "verifyOtp": "Verify OTP",
+    "codeSent": "Your code was sent to you via :email",
+    "enter6DigitsError": "Enter 6 digits",
+    "verifyButton": "Verify"
+  },
+  "signUp": {
+    "haveAccountText": "Already have an account?",
+    "loginButton": "Login",
+    "title": "Create an account",
+    "fields": {
+      "email": "Email",
+      "country": "Country",
+      "phone": "Phone",
+      "referralCode": "Referral Code",
+      "password": "Password"
+    },
+    "validation": {
+      "required": "Please fill out this field",
+      "phoneRequired": "The phone field is required"
+    },
+    "countrySheet": {
+      "title": "Select Country"
+    },
+    "nextButton": "Next Step",
+    "toast": {
+      "phoneRequired": "The phone field is required"
+    }
+  },
+  "finishUpAccount": {
+    "existingAccount": {
+      "text": "Already have an account?",
+      "loginButton": {
+        "text": "Login"
+      }
+    },
+    "mainContent": {
+      "title": "We're almost there!",
+      "form": {
+        "username": {
+          "label": "Username",
+          "validation": {
+            "errorMessage": "Please fill out this field"
+          }
+        },
+        "firstName": {
+          "label": "First Name",
+          "validation": {
+            "errorMessage": "Please fill out this field"
+          }
+        },
+        "lastName": {
+          "label": "Last Name",
+          "validation": {
+            "errorMessage": "Please fill out this field"
+          }
+        },
+        "gender": {
+          "label": "Gender",
+          "placeholder": "Select Gender",
+          "option": {
+            "male": "Male",
+            "female": "Female",
+            "others": "Others"
+          },
+          "validation": {
+            "errorMessage": "Please fill out this field"
+          }
+        }
+      },
+      "termsAgreement": {
+        "text": "I agree with the? ",
+        "link": "Trams & Condition"
+      },
+      "submitButton": {
+        "text": "Finish up Account"
+      }
+    }
+  },
+  "home": {
+    "greeting": "Agencira Awaits:",
+    "greetingSubtitle": "Book Your Appointment Today!",
+    "searchHint": "Search Something",
+    "todayBooking": "Today Booking",
+    "viewAll": "View All",
+    "menu": {
+      "booking": "Booking",
+      "inventory": "Inventory",
+      "user": "User",
+      "reporting": "Reporting"
+    },
+  "booking": {
+    "title": "All Booking",
+    "tabs": {
+      "active": "Active",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "card": {
+      "id": "ID:",
+      "date": "Date",
+      "totalAmount": "Total Amount",
+      "service": "Service:",
+      "bookingStatus": "Booking Status",
+      "viewDetails": "View Details",
+      "active": "Active",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "bookingDetails": {
+    "title": "Booking Details",
+    "id": "ID:",
+    "service": "Service:",
+    "timeDuration": "Time Duration:",
+    "email": "Email:",
+    "phoneNumber": "Phone Number:",
+    "customerInfo": "Customer info:",
+    "name": "Name:",
+    "totalPrice": "Total Price",
+    "services": "Services",
+    "staff": "Staff",
+    "categories": "Categories",
+    "variation": "Variation",
+    "price": "Price",
+    "qty": "Qty",
+    "total": "Total",
+    "discount": "Discount",
+    "afterDiscount": "After Discount",
+    "grandTotal": "Grand Total",
+    "customerName": "Customer Name",
+    "customerEmail": "Customer Email",
+    "customerPhone": "Customer Phone",
+    "branch": "Branch",
+    "paid": "Paid",
+    "remaining": "Remaining",
+    "viewDetails": "View Details"
+  },
+  "payments": {
+    "title": "Payments",
+    "filterBy": "Filter By",
+    "grandTotal": "Grand Total",
+    "paid": "Paid",
+    "customerName": "Customer Name",
+    "customerEmail": "Customer Email",
+    "customerPhone": "Customer Phone",
+    "branch": "Branch",
+    "total": "Total",
+    "remaining": "Remaining",
+    "viewDetails": "View Details"
+  },
+    "tab": {
+      "flame": "Flame",
+      "discover": "Discover"
+    },    
+    "exitDialog": {
+      "title": "Exit Application",
+      "message": "Are you sure you want to exit the application?"
+    },
+    "title": "Home",
+    "language": {
+      "title": "Language",
+      "select_language": "Select Language"
+    },
+    "logOut": "Logout",
+    "settings": {
+      "title": "Settings",
+      "menuItems": {
+        "profile": "Profile Settings",
+        "password": "Change Password",
+        "twoFA": "Security Settings",
+        "idVerification": "ID Verification",
+        "notifications": "All Notification",
+        "helpSupport": "Help & Support",
+        "deleteAccount": "Account Closing",
+        "signOut": "Sign out"
+      },
+      "close_account_alert": {
+        "title": "Are you sure?",
+        "subtitle": "You want to close this account?",
+        "reason_placeholder": "Reason (optional)",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      }
+    },
+    "help_and_support": {
+      "title": "My Ticket List",
+      "search_field_hint": "Subject",
+      "filter_icon_alt": "Filter",
+      "no_tickets": "No tickets found",
+      "view_button": "View",
+      "replay_ticket": {
+        "title": "Reply Ticket",
+        "close_ticket": "Close Ticket",
+        "reopen_ticket": "Reopen Ticket",
+        "write_message_placeholder": "Write your reply here.....",
+        "add_attachment": "Add Attachment",
+        "send_button": "Send",
+        "message_required": "Message fields is required",
+        "attachment_preview": "Attachment Preview",
+        "attachments_label": "Attachments",
+        "admin_name": "Super Admin"
+      },
+      "create_ticket_dialog": {
+        "title": "Open a New Ticket",
+        "subject_label": "Subject",
+        "precedence_label": "Precedence",
+        "precedence_placeholder": "Select Precedence",
+        "message_label": "Your Message",
+        "attachments_label": "Attachments",
+        "attach_file": "Attach File",
+        "close_button": "Close",
+        "create_button": "Create Ticket",
+        "toast_required_fields": "Fill up all required fields",
+        "dropdown_title": "Select Precedence",
+        "precedence_options": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        }
+      },
+      "subject_input_section": {
+        "label": "Subject"
+      },
+      "ticket_history_filter_popup": {
+        "title": "Filters",
+        "date_label": "Date",
+        "dialog_title": "Select Date Range",
+        "cancel_button": "Cancel",
+        "apply_button": "Apply",
+        "reset_button": "Reset",
+        "search_button": "Search"
+      }
+    },
+    "profileSettings": {
+      "title": "Profile Settings",
+      "personalInfo": "Personal Information",
+      "contactDetails": "Contact Details",
+      "buttons": {
+        "saveChanges": "Save Changes"
+      },
+      "formFields": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "username": "Username",
+        "gender": "Gender",
+        "selectGender": "Select Gender",
+        "dateOfBirth": "Date of Birth",
+        "selectDate": "Select Date",
+        "email": "Email Address",
+        "phone": "Phone",
+        "country": "Country",
+        "city": "City",
+        "zip": "Zip",
+        "address": "Address",
+        "joiningDate": "Joining Date"
+      },
+      "genderOptions": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other"
+      }
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "buttons": {
+        "changePassword": "Change Password"
+      },
+      "formFields": {
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password"
+      },
+      "validation": {
+        "currentPasswordRequired": "Please enter your current password",
+        "newPasswordRequired": "Please enter a new password",
+        "passwordLength": "Password must be at least 8 characters",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordMismatch": "Passwords do not match"
+      }
+    },
+    "securitySettings": {
+      "title": "Security Settings",
+      "2fa": {
+        "title": "2FA Authentication",
+        "description": "Enhance your account security with two-factor authentication",
+        "buttonText": "Generate 2FA"
+      },
+      "passcode": {
+        "title": "Passcode",
+        "description": "Create a secure passcode for quick access to your account",
+        "buttonText": "Generate Passcode"
+      },
+      "changePasscode": {
+        "title": "Change Passcode",
+        "fields": {
+          "old": "Old Passcode",
+          "new": "New Passcode",
+          "confirm": "Confirm Passcode"
+        },
+        "buttons": {
+          "close": "Close",
+          "change": "Change Passcode"
+        },
+        "toast": {
+          "fillAllFields": "Fill up all required fields",
+          "mismatch": "Passcode do not match"
+        }
+      },
+      "securitySettings": {
+        "passcode": {
+          "title": "Passcode",
+          "disable": "Disable Passcode",
+          "change": "Change Passcode"
+        },
+        "disablePopup": {
+          "title": "Confirm Your Password",
+          "passwordLabel": "Password",
+          "close": "Close",
+          "confirm": "Confirm",
+          "passwordRequired": "Password field is required"
+        }
+      }
+    },
+    "notification": {
+      "title": "Notification",
+      "header": "Notification",
+      "mark_all_read": "Mark all read",
+      "no_data": "No notifications found",
+      "sections": {
+        "today": "Today",
+        "yesterday": "Yesterday"
+      }
+    },
+    "common": {
+      "noDataFound": {
+        "noDataFound": "No Data Found!",
+        "refreshingText": "Try refreshing or check back later.",
+        "tryAgainButtonText": "Try Again"
+      },
+      "imagePicker": {
+        "selectImageSource": "Select Image Source",
+        "camera": "Camera",
+        "gallery": "Gallery"
+      },
+      "confirm_passcode_popup": {
+        "title": "Confirm Your Passcode",
+        "passcode_label": "Passcode",
+        "close_button": "Close",
+        "confirm_button": "Confirm"
+      },
+      "bottomNavBar": {
+        "home": "Home",
+        "card": "Card",
+        "wallets": "Wallets",
+        "reward": "Reward",
+        "settings": "Settings"
+      },
+      "alertDialog": {
+        "unauthorizedTitle": "Unauthorized",
+        "unauthorizedMessage": "You are not authorized to access this resource. Please log in again!",
+        "cancelButton": "Cancel",
+        "confirmButton": "Confirm"
+      },
+      "search": "Search",
+      "noResultsFound": "No results found",
+      "tryDifferentSearch": "Try a different search term",
+      "noItemAvailable": "No {item} available",
+      "discardTitle": "Discard Changes?",
+      "discardMessage": "Going back will discard all the information you have entered. Are you sure?",
+      "cancel": "Cancel",
+      "discard": "Discard"
+    },
+    "login": {
+      "title": "LoginView",
+      "working": "LoginView is working"
+    }
+  },
+  "errors": {
+    "sessionExpired": {
+      "title": "Session Expired",
+      "message": "Your session has expired. Please login again to continue."
+    },
+    "connectionTimeout": "Connection timed out. Please try again.",
+    "noInternet": "No internet connection. Please check your network.",
+    "badResponse": "Bad response from server.",
+    "requestCancelled": "Request was cancelled.",
+    "unexpected": "An unexpected error occurred. Please try again.",
+    "validationFailed": "Validation failed.",
+    "unauthorized": "Unauthorised. Please login again.",
+    "requestFailed": "Request failed.",
+    "internalServerError": "Internal server error. Please try again later.",
+    "emptyResponse": "Empty response from server.",
+    "imagePickerGallery": "Failed to pick image from gallery",
+    "imagePickerCamera": "Failed to pick image from camera",
+    "errorTitle": "Error",
+    "unexpectedShort": "An unexpected error occurred.",
+    "unexpectedResponse": "Unexpected response from server."
+  },
+  "login": {
+    "title": "Log In",
+    "emailOrPhone": "Email or Phone number",
+    "password": "Password",
+    "forgotPassword": "Forgot password ?",
+    "loginBtn": "Log In",
+    "noAccount": "Don't have account ?",
+    "signUp": "Sign up",
+    "errorTitle": "Error",
+    "emptyFields": "Please fill in all fields",
+    "successTitle": "Success",
+    "successMsg": "Logged in successfully",
+    "invalidEmail": "Please enter a valid email address.",
+    "missingAccessToken": "Missing access token in response.",
+    "loginFailed": "An error occurred during login. Please try again.",
+    "resetCodeSent": "Reset code sent successfully.",
+    "resetCodeFailed": "Failed to send reset code."
+  },
+  "recovery": {
+    "title": "Recover your account",
+    "subtitle": "Enter your existing email or phone number by which you created your account",
+    "emailOrPhone": "email or phone number",
+    "recoverBtn": "Recover",
+    "termsOfUse": "Terms of use",
+    "privacyPolicy": "Privacy Policy",
+    "errorTitle": "Error",
+    "emptyField": "Please enter your email or phone number",
+    "successTitle": "Success",
+    "successMsg": "Recovery link sent successfully"
+  },
+  "signup": {
+    "title": "Sign Up",
+    "username": "User name",
+    "email": "Email",
+    "phone": "Phone",
+    "password": "Password",
+    "repeatPassword": "Repeat Password",
+    "nextBtn": "Next",
+    "errorTitle": "Error",
+    "emptyFields": "Please fill in all fields",
+    "passwordMismatch": "Passwords do not match",
+    "successTitle": "Success",
+    "successMsg": "Account created successfully"
+  },
+  "profile": {
+    "title": "General",
+    "personalInfo": "Personal information",
+    "name": "Name",
+    "nameValue": "Niaz Ahmed",
+    "dob": "Date Of Birth",
+    "dobValue": "February 14, 2000",
+    "gender": "Gender",
+    "genderValue": "Male",
+    "email": "Email Address",
+    "emailValue": "Yourgmail@Mail.Com",
+    "phone": "Phone Number",
+    "phoneValue": "0829419521",
+    "changePassword": "Change Password",
+    "changePasswordSub": "Change Your Password If You Forgot It",
+    "appSettings": "App Settings",
+    "audioVideoMute": "Audio / Video Mute",
+    "audioVideoMuteSub": "Mute Unnecessary Audio And Video Calls",
+    "privacySafety": "Privacy & Safety",
+    "blockUnblock": "Block / Unblock Users",
+    "profileVisited": "Profile I Visited",
+    "locationSettings": "Locations Setting",
+    "notifications": "Notifications",
+    "matchNotifications": "Turn On/Off Matches Notifications",
+    "chatNotifications": "Turn On/Off Chat Notifications",
+    "emailSmsAlerts": "Email & Sms Alerts",
+    "subscriptionPayments": "Subscription & Payments",
+    "manageSubscription": "Manage Subscription",
+    "viewPaymentHistory": "View Payment History",
+    "upgradePremium": "Upgrade To Premium",
+    "languageRegion": "Language & Region",
+    "selectLanguage": "Select App Language",
+    "changeRegion": "Change Region Or Location",
+    "helpSupport": "Help & Support",
+    "faq": "FAQ",
+    "contactSupport": "Contact Support",
+    "reportProblem": "Report A Problem",
+    "legalPolicies": "Legal & Policies",
+    "termsOfUse": "Terms Of Use",
+    "privacyPolicy": "Privacy Policy",
+    "communityGuidelines": "Community Guidelines",
+    "manageAccount": "Manage Account",
+    "deleteAccount": "Delete Or Deactivate Account",
+    "deleteAccountSub": "Once You Delete It You Can't Get It Back",
+    "logOut": "Log Out",
+    "logoutDialog": {
+      "title": "Log Out",
+      "message": "Are you sure you want to log out of your account?",
+      "cancel": "Cancel",
+      "confirm": "Yes, log out"
+    },
+    "deleteDialog": {
+      "title": "Delete Account",
+      "message": "Are you sure you want to delete your account?",
+      "cancel": "Cancel",
+      "confirm": "Yes, delete",
+      "deleteFailed": "Failed to delete account"
+    },
+    "section": {
+      "aboutMe": "About Me",
+      "appearance": "Appearance",
+      "religion": "Religion details",
+      "personalInfo": "Personal Info",
+      "interests": "Interests",
+      "posts": "Posts",
+      "visitors": "Profile Visitors",
+      "seeAll": "See all",
+      "visitorsMore": "See {count} more"
+    },
+    "visitors": {
+      "none": "No visitors yet",
+      "noneMessage": "Be the first to appear — share your profile!"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago"
+    },
+    "photo": {
+      "updated": "Photo updated",
+      "updatedMessage": "Your profile photo has been updated"
+    },
+    "privacy": {
+      "public": "Public",
+      "private": "Private"
+    },
+    "private": {
+      "title": "Private Profile",
+      "message": "This user has set their profile to private. Send a wink to connect!"
+    },
+    "blurPhoto": "Blur my Photo",
+    "currentLocation": "Current location",
+    "addMoreInfo": "Add more information",
+    "loadError": "Failed to load profile",
+    "retry": "Retry"
+
+  },
+  "splash": {
+    "headline": "Begin your halal journey to Nikah",
+    "subheadline": "with our app",
+    "startBtn": "Start"
+  },
+  "profileSetup": {
+    "basicDetails": "Basic details",
+    "basicIdentity": "Basic Identity",
+    "yourGender": "Your gender ?",
+    "female": "Female",
+    "male": "Male",
+    "confirm": "Confirm",
+    "continue": "Continue",
+    "yourName": "Your name ?",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "yourBirthDate": "Your birth date ?",
+    "birthday": "Birthday",
+    "whereDoYouLive": "Where do you live ?",
+    "location": "Location",
+    "selectEthnicity": "Select your Ethnicity",
+    "searchHere": "Search here...",
+    "searchEthnicity": "Search ethnicity",
+    "searchEducation": "Search education",
+    "searchOccupation": "Search occupation",
+    "selectEducation": "Select your education",
+    "selectEducationLevel": "Select education level",
+    "selectProfession": "Select your profession",
+    "selectOccupation": "Select your occupation",
+    "errorTitle": "Error",
+    "selectGender": "Please select your gender",
+    "enterName": "Please enter your name",
+    "selectDob": "Please select your birth date",
+    "selectLocation": "Please select your location",
+    "selectEthnicityError": "Please select your ethnicity",
+    "selectEducationError": "Please select your education level",
+    "selectProfessionError": "Please select your profession",
+    "selectNationality": "Select nationality",
+    "searchNationality": "Search nationality",
+    "selectCountry": "Select country",
+    "searchCountry": "Search country",
+    "selectState": "Select state",
+    "searchState": "Search state",
+    "selectCity": "Select city",
+    "searchCity": "Search city",
+    "selectArea": "Select area",
+    "searchArea": "Search area",
+    "nationality": "Nationality",
+    "country": "Country",
+    "state": "State",
+    "city": "City",
+    "area": "Area",
+    "address": "Address",
+    "selectNationalityFirst": "Select nationality first",
+    "selectCountryFirst": "Select country first",
+    "selectStateFirst": "Select state first",
+    "selectCityFirst": "Select city first",
+    "completeLocationRequired": "Please complete nationality, country, state, city, area and address",
+    "noCountries": "No countries available",
+    "selectParentFirst": "Select the parent option first",
+    "noOptionsAvailable": "No options available",
+    "profileUpdateFailed": "Profile update failed"
+  },
+  "additionalDetails": {
+    "skipHint1": "Add details to attract the right match.",
+    "skipHint2": "More info means better connections",
+    "skipHint3": "Let others know what makes you unique",
+    "skipHint4": "Clear profiles get better responses.",
+    "skip": "Skip",
+    "confirm": "Confirm",
+    "bodyType": "Body Type",
+    "selectBodyType": "Select your Body type",
+    "selectHeight": "Select your height",
+    "selectWeight": "Select your weight",
+    "cm": "cm",
+    "kg": "kg",
+    "lbs": "lbs",
+    "selectHairColour": "Select your Hair colour",
+    "selectEyeColour": "Select your Eye colour",
+    "selectSkinColour": "Select your Skin colour",
+    "religiousIdentity": "Religious Identity",
+    "selectReligion": "Select your religion",
+    "selectSect": "Select your Sect",
+    "selectPrayerFrequency": "Select prayer frequency",
+    "selectDressCode": "Select your dress code",
+    "selectDietaryPreference": "Select your dietary preferance",
+    "maritalHistory": "Marital History",
+    "selectMaritalStatus": "Select your marital status",
+    "selectDuration": "Select duration",
+    "doYouHaveChildren": "Do you have children ?",
+    "doYouWantChildren": "Do you want children ?",
+    "no": "No",
+    "yes": "Yes",
+    "partnerPreferences": "Partner Preferences",
+    "partnerMaritalStatus": "partner  marital status",
+    "ageRange": "Age range",
+    "distanceRange": "Distance range",
+    "years": "years",
+    "km": "km",
+    "partnerReligion": "partner religion",
+    "partnerEthnicity": "partner Ethnicity",
+    "partnerSect": "partner Sect",
+    "partnerOccupation": "partner occupation",
+    "partnerEducationLevel": "partner education level",
+    "errorTitle": "Error",
+    "selectBodyTypeError": "Please select your body type",
+    "selectReligionError": "Please select your religion",
+    "selectMaritalStatusError": "Please select your marital status",
+    "selectReligionFirst": "Select religion first",
+    "noOptionsAvailable": "No options available",
+    "profileUpdateFailed": "Profile update failed",
+    "photoRequired": "Please select a photo to continue",
+    "uploadPhoto": "Upload Photo",
+    "tapToUpload": "Tap to upload your photo",
+    "changePhoto": "Change Photo",
+    "removePhoto": "Remove",
+    "makePhotoPublic": "Make this account public",
+    "skipHint5": "Upload your best photo"
+  },
+  "location": {
+    "title": "Enable Location",
+    "description": "Your location helps us show you matches near you and provide a better experience. You can enable it in settings.",
+    "openSettings": "Open Settings",
+    "notNow": "Not Now"
+  },
+  "otp": {
+    "timer": "00:23",
+    "subtitle": "Type your verification code here",
+    "sendAgain": "Send again?",
+    "confirm": "Confirm",
+    "errorTitle": "Error",
+    "incompleteCode": "Please enter the complete 6-digit code",
+    "successTitle": "Success",
+    "successMsg": "Code verified successfully",
+    "resendSuccess": "Code resent successfully",
+    "emailRequired": "Email is required to continue.",
+    "verifySuccess": "Email verified successfully.",
+    "resentSuccess": "Code resent successfully"
+  },
+  "app": {
+    "name": "va_bookats"
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "success": "Success",
+    "error": "Error"
+  },
+  "newPassword": {
+    "title": "New Password",
+    "subtitle": "Enter your new password below",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "resetButton": "Reset Password",
+    "missingInfoTitle": "Missing information",
+    "missingVerificationInfo": "Email or verification code is missing.",
+    "passwordRequired": "Please enter and confirm your new password.",
+    "mismatchTitle": "Password mismatch",
+    "mismatchMessage": "Passwords do not match.",
+    "resetSuccess": "Password reset successfully."
+  },
+  "createTicket": {
+    "title": "Create Support Ticket",
+    "subject": "Subject",
+    "subjectHint": "Enter ticket subject",
+    "description": "Description",
+    "descriptionHint": "Describe your issue in detail",
+    "validationError": "Validation Error",
+    "subjectRequired": "Please enter a subject",
+    "descriptionRequired": "Please enter a description",
+    "createdSuccess": "Ticket created successfully",
+    "createFailed": "Failed to create ticket",
+    "createError": "An error occurred while creating the ticket",
+    "category": "Category",
+    "priority": "Priority",
+    "submit": "Submit Ticket",
+    "categories": {
+      "appIssue": "App Issue",
+      "account": "Account",
+      "safety": "Safety",
+      "other": "Other"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    }
+  },
+  "ticket": {
+    "supportChat": "Support Chat",
+    "myTickets": "My Tickets",
+    "newTicket": "New Ticket",
+    "createTicket": "Create Ticket",
+    "retry": "Retry",
+    "loadChatFailed": "Failed to load chat",
+    "loadTicketsFailed": "Failed to load tickets",
+    "noMessages": "No messages yet",
+    "typeMessage": "Type a message...",
+    "emptyTitle": "No Support Tickets",
+    "emptyMessage": "You haven't created any support tickets yet.\nTap the button below to get started.",
+    "sendMessageFailed": "Failed to send message",
+    "sendImageFailed": "Failed to send image",
+    "sendFileFailed": "Failed to send file",
+    "sendVoiceFailed": "Failed to send voice message",
+    "permissionDenied": "Permission Denied",
+    "microphonePermissionRequired": "Microphone permission is required to record voice messages",
+    "categories": {
+      "payment": "Payment",
+      "booking": "Booking",
+      "technical": "Technical",
+      "account": "Account",
+      "other": "Other"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "status": {
+      "open": "Open",
+      "assigned": "In Progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": ":countm ago",
+      "hoursAgo": ":counth ago",
+      "daysAgo": ":countd ago"
+    }
+  },
+  "chat": {
+    "typeMessage": "Type a message…",
+    "recording": "Recording…",
+    "recordingStatus": "🎙️ Recording…",
+    "uploadingProgress": "Uploading… :percent%",
+    "preparing": "Preparing…",
+    "inbox": "Inbox",
+    "emptyTitle": "No conversations yet",
+    "emptyMessage": "Your chats will appear here once they reach out.",
+    "user": "User",
+    "startConversation": "Start the conversation!",
+    "greeting": "Say hi to :name",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "loadChatsFailed": "Failed to load chats",
+    "loadMessagesFailed": "Failed to load messages",
+    "loadVoiceFailed": "Could not load voice message",
+    "pickImageFailed": "Could not pick image",
+    "pickFileFailed": "Could not pick file",
+    "fileUploadFailed": "File upload failed",
+    "permission": "Permission",
+    "microphonePermissionRequired": "Microphone permission required",
+    "startRecordingFailed": "Could not start recording",
+    "sendVoiceFailed": "Could not send voice",
+    "deleteMessageTitle": "Delete Message",
+    "deleteMessageConfirm": "Are you sure you want to delete this message?",
+    "photoPreview": "📷 Photo",
+    "voicePreview": "🎙️ Voice message",
+    "filePreview": "📎 :name",
+    "file": "File"
+  },
+  "user": {
+    "handyman": "User"
+  },
+  "activity": {
+    "tab": {
+      "likesMe": "Likes me",
+      "liked": "liked",
+      "passed": "Passed",
+      "pings": "Pings"
+    },
+    "noLikesMe": "No one has liked you yet.\nCheck back soon!",
+    "noLiked": "You haven't liked anyone yet.\nStart swiping!",
+    "noPassed": "No passed profiles yet.",
+    "noPings": "No pings received yet.",
+    "unknown": "Unknown",
+    "accepted": "Accepted",
+    "declined": "Declined"
+  },
+  "social": {
+    "posts": "Posts",
+    "stories": "Stories",
+    "myStory": "My Story",
+    "addStory": "Add Story",
+    "createPost": "Create Post",
+    "createStory": "Create Story",
+    "whatsOnYourMind": "What's on your mind?",
+    "post": "Post",
+    "visibility": {
+      "label": "Visibility",
+      "public": "Public",
+      "private": "Private",
+      "matches": "Matches"
+    },
+    "comments": "Comments",
+    "noComments": "No comments yet. Be the first!",
+    "writeComment": "Write a comment...",
+    "replyingTo": "Replying to",
+    "reply": "Reply",
+    "replies": "replies",
+    "viewReplies": "View {count} replies",
+    "hideReplies": "Hide replies",
+    "like": "Like",
+    "liked": "Liked",
+    "save": "Save",
+    "saved": "Saved",
+    "delete": "Delete",
+    "deletePost": "Delete Post",
+    "deletePostConfirm": "Are you sure you want to delete this post?",
+    "deleteComment": "Delete Comment",
+    "deleteCommentConfirm": "Are you sure you want to delete this comment?",
+    "postDeleted": "Post deleted",
+    "commentDeleted": "Comment deleted",
+    "storyViewers": "Story Viewers",
+    "noViewers": "No viewers yet",
+    "viewedAt": "Viewed",
+    "textStory": "Text",
+    "mediaStory": "Media",
+    "selectBackgroundColor": "Select Background Color",
+    "enterStoryText": "Type your story text...",
+    "uploading": "Uploading...",
+    "compressing": "Compressing media...",
+    "postCreated": "Post created successfully",
+    "storyCreated": "Story created successfully",
+    "noPosts": "No posts yet",
+    "timeAgo": {
+      "justNow": "Just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago",
+      "weeksAgo": "{count}w ago"
+    },
+    "selectMedia": "Select Media",
+    "image": "Image",
+    "video": "Video",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "report": "Report"
+  },
+  "block": {
+    "blockedUsers": "Blocked Users",
+    "block": "Block",
+    "unblock": "Unblock",
+    "blocked": "Blocked",
+    "blockedMessage": "User has been blocked",
+    "unblocked": "Unblocked",
+    "unblockedMessage": "User has been unblocked",
+    "blockedSince": "Blocked",
+    "errorTitle": "Unable to send message",
+    "cannotMessage": "You cannot send messages to this user.",
+    "confirmBlockTitle": "Block User",
+    "confirmBlockMessage": "Are you sure you want to block this user?",
+    "blockedByYou": "You blocked this user",
+    "blockedByYouMessage": "This user's profile is hidden. Unblock them to interact again.",
+    "blockedByOther": "This user has blocked you",
+    "blockedByOtherMessage": "You cannot view this user's profile or send them messages.",
+    "noBlockedUsers": "No blocked users",
+    "noBlockedUsersMessage": "You haven't blocked anyone yet.",
+    "chatBlockedTitle": "You can't send messages here",
+    "chatBlockedBanner": "This conversation is unavailable while the user is blocked.",
+    "chatBlockedByYouMessage": "You blocked this user. Unblock to chat again.",
+    "chatBlockedByOtherMessage": "This user has blocked you."
+  },
+  "report": {
+    "title": "Report",
+    "reporting": "Reporting",
+    "options": "More options",
+    "report": "Report",
+    "delete": "Delete",
+    "deleteTitle": "Delete content",
+    "deleteConfirm": "Are you sure you want to delete this content?",
+    "cancel": "Cancel",
+    "categoryLabel": "Category",
+    "categoryHint": "Select a category",
+    "categoryRequired": "Please select a category",
+    "selectCategory": "Select a category",
+    "messageLabel": "Describe the issue",
+    "messageHint": "Tell us what's wrong with this content...",
+    "messageRequired": "Please describe the issue",
+    "submit": "Submit Report",
+    "successTitle": "Report submitted",
+    "successMessage": "Thank you for keeping the community safe. Our team will review your report.",
+    "category": {
+        "spam": "Spam or misleading",
+        "harassment": "Harassment or bullying",
+        "inappropriate": "Inappropriate content",
+        "fake": "Fake profile",
+        "offensive": "Offensive content",
+        "other": "Other"
+      }
+    },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "allRead": "All caught up!",
+    "allReadMessage": "Every notification has been marked as read.",
+    "defaultSender": "va_bookats",
+    "tapToRead": "Tap to read",
+    "status": {
+      "unread": "Unread",
+      "read": "Read"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago"
+    },
+    "empty": {
+      "title": "No notifications yet",
+      "message": "When someone interacts with your profile or messages you, you'll see it here first."
+    }
+  },
+  "createBooking": {
+    "title": "Add New Booking",
+    "next": "Next",
+    "save": "Save",
+    "step1": {
+      "title": "Booking Information",
+      "branch": "Branch",
+      "selectBranch": "Select Branch",
+      "bookingType": "Booking Type",
+      "selectBookingType": "Select Booking Type",
+      "customer": "Customer",
+      "addCustomer": "+ Add Customer",
+      "selectCustomerType": "Select Customer Type",
+      "date": "Date",
+      "datePlaceholder": "00:00 PM",
+      "startTime": "Start Time",
+      "startTimePlaceholder": "00:00 PM",
+      "endTime": "End Time",
+      "endTimePlaceholder": "Select Branch",
+      "note": "Note",
+      "notePlaceholder": "Write something....",
+      "serviceType": "Service Type",
+      "packages": "Packages",
+      "services": "Services",
+      "products": "Products"
+    },
+    "step2": {
+      "addPackage": "Add Package",
+      "packagesInfo": "Packages Information",
+      "package": "Package",
+      "selectPackage": "Select Package",
+      "employee": "Employee",
+      "selectEmployee": "Select Employee",
+      "amount": "Amount",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "step3": {
+      "addService": "Add Service",
+      "serviceInfo": "Service Information",
+      "service": "Service",
+      "selectService": "Select Service",
+      "variation": "Variation",
+      "selectVariation": "Select Variation",
+      "employee": "Employee",
+      "selectEmployee": "Select Employee",
+      "amount": "Amount",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "step4": {
+      "addProducts": "Add Products",
+      "productInfo": "Product Information",
+      "product": "Product",
+      "selectProduct": "Select Product",
+      "variation": "Variation",
+      "selectVariation": "Select Variation",
+      "stock": "Stock",
+      "selectStock": "Select",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "total": "Total",
+      "discount": "Discount",
+      "totalAfterDiscount": "Total After Discount"
+    },
+    "step5": {
+      "paymentInfo": "Payment Information",
+      "totalAmount": "Total Amount",
+      "discount": "Discount",
+      "balance": "Balance",
+      "amountPaid": "Amount Paid",
+      "paymentMethod": "Payment Method",
+      "selectPaymentMethod": "Select Payment Method",
+      "bookingStatus": "Booking Status",
+      "selectBookingStatus": "Select Booking Status",
+      "paymentSlip": "Payment Slip",
+      "chooseFile": "Choose File",
+      "noFileChosen": "No File Chosen",
+      "transactionId": "Transaction ID",
+      "transactionPlaceholder": "0000-0000-0000"
+    },
+    "addCustomer": {
+      "title": "Add Customer",
+      "fullName": "Full Name",
+      "enterFullName": "Enter Full Name",
+      "phoneNumber": "Phone Number",
+      "enterPhone": "Enter Phone Number",
+      "emailAddress": "Email Address",
+      "enterEmail": "Enter Email Address",
+      "addNow": "Add Now"
+    }
+  }  
+}
