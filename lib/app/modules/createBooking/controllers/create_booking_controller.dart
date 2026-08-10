@@ -250,7 +250,6 @@ class CreateBookingController extends GetxController {
 
   // ── Payment Slip ─────────────────────────────────────────────────────────
   void pickPaymentSlip() {
-    // TODO: integrate file_picker
     paymentSlipFileName.value = 'payment_slip.jpg';
   }
 

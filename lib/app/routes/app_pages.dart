@@ -1,17 +1,33 @@
 import 'package:get/get.dart';
 
+import '../modules/addPackage/bindings/add_package_binding.dart';
+import '../modules/addPackage/views/add_package_view.dart';
+import '../modules/addService/bindings/add_service_binding.dart';
+import '../modules/addService/views/add_service_view.dart';
+import '../modules/addServiceCategory/bindings/add_service_category_binding.dart';
+import '../modules/addServiceCategory/views/add_service_category_view.dart';
 import '../modules/allBooking/bindings/all_booking_binding.dart';
 import '../modules/allBooking/views/all_booking_view.dart';
 import '../modules/bookingDetails/bindings/booking_details_binding.dart';
 import '../modules/bookingDetails/views/booking_details_view.dart';
 import '../modules/createBooking/bindings/create_booking_binding.dart';
 import '../modules/createBooking/views/create_booking_view.dart';
+import '../modules/customers/bindings/customers_binding.dart';
+import '../modules/customers/views/customers_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/packages/bindings/packages_binding.dart';
+import '../modules/packages/views/packages_view.dart';
 import '../modules/payments/bindings/payments_binding.dart';
 import '../modules/payments/views/payments_view.dart';
+import '../modules/revenueReport/bindings/revenue_report_binding.dart';
+import '../modules/revenueReport/views/revenue_report_view.dart';
+import '../modules/serviceCategories/bindings/service_categories_binding.dart';
+import '../modules/serviceCategories/views/service_categories_view.dart';
+import '../modules/services/bindings/services_binding.dart';
+import '../modules/services/views/services_view.dart';
 
 part 'app_routes.dart';
 
@@ -50,6 +66,46 @@ class AppPages {
       name: _Paths.CREATE_BOOKING,
       page: () => const CreateBookingView(),
       binding: CreateBookingBinding(),
+    ),
+    GetPage(
+      name: _Paths.SERVICES,
+      page: () => const ServicesView(),
+      binding: ServicesBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_SERVICE,
+      page: () => const AddServiceView(),
+      binding: AddServiceBinding(),
+    ),
+    GetPage(
+      name: _Paths.SERVICE_CATEGORIES,
+      page: () => const ServiceCategoriesView(),
+      binding: ServiceCategoriesBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_SERVICE_CATEGORY,
+      page: () => const AddServiceCategoryView(),
+      binding: AddServiceCategoryBinding(),
+    ),
+    GetPage(
+      name: _Paths.PACKAGES,
+      page: () => const PackagesView(),
+      binding: PackagesBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_PACKAGE,
+      page: () => const AddPackageView(),
+      binding: AddPackageBinding(),
+    ),
+    GetPage(
+      name: _Paths.CUSTOMERS,
+      page: () => const CustomersView(),
+      binding: CustomersBinding(),
+    ),
+    GetPage(
+      name: _Paths.REVENUE_REPORT,
+      page: () => const RevenueReportView(),
+      binding: RevenueReportBinding(),
     ),
   ];
 }

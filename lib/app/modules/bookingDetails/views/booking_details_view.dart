@@ -38,7 +38,7 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                                 children: [
                                   TextSpan(
                                     text:
-                                        '${'bookingDetails.id'.trns()} ',
+                                        '${'home.bookingDetails.id'.trns()} ',
                                     style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
@@ -117,22 +117,22 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
 
                         // Detail Rows
                         _DetailLabelRow(
-                          label: 'bookingDetails.service'.trns(),
+                          label: 'home.bookingDetails.service'.trns(),
                           value: controller.services.join('  |  '),
                         ),
                         const SizedBox(height: 8),
                         _DetailLabelRow(
-                          label: 'bookingDetails.timeDuration'.trns(),
+                          label: 'home.bookingDetails.timeDuration'.trns(),
                           value: controller.timeDuration,
                         ),
                         const SizedBox(height: 8),
                         _DetailLabelRow(
-                          label: 'bookingDetails.email'.trns(),
+                          label: 'home.bookingDetails.email'.trns(),
                           value: controller.email,
                         ),
                         const SizedBox(height: 8),
                         _DetailLabelRow(
-                          label: 'bookingDetails.phoneNumber'.trns(),
+                          label: 'home.bookingDetails.phoneNumber'.trns(),
                           value: controller.phoneNumber,
                         ),
                       ],
@@ -151,7 +151,7 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'bookingDetails.customerInfo'.trns(),
+                                'home.bookingDetails.customerInfo'.trns(),
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -180,18 +180,18 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                                     children: [
                                       const SizedBox(height: 12),
                                       _DetailLabelRow(
-                                        label: 'bookingDetails.name'.trns(),
+                                        label: 'home.bookingDetails.name'.trns(),
                                         value: controller.customerName,
                                       ),
                                       const SizedBox(height: 8),
                                       _DetailLabelRow(
-                                        label: 'bookingDetails.email'.trns(),
+                                        label: 'home.bookingDetails.email'.trns(),
                                         value: controller.customerEmail,
                                       ),
                                       const SizedBox(height: 8),
                                       _DetailLabelRow(
                                         label:
-                                            'bookingDetails.phoneNumber'.trns(),
+                                            'home.bookingDetails.phoneNumber'.trns(),
                                         value: controller.customerPhone,
                                       ),
                                     ],
@@ -210,7 +210,7 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'bookingDetails.totalPrice'.trns(),
+                          'home.bookingDetails.totalPrice'.trns(),
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFF888888),
@@ -228,39 +228,39 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                         ),
                         const SizedBox(height: 14),
                         _PriceRow(
-                          label: 'bookingDetails.services'.trns(),
+                          label: 'home.bookingDetails.services'.trns(),
                           value: controller.servicesDetail,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.staff'.trns(),
+                          label: 'home.bookingDetails.staff'.trns(),
                           value: controller.staff,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.categories'.trns(),
+                          label: 'home.bookingDetails.categories'.trns(),
                           value: controller.categories,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.variation'.trns(),
+                          label: 'home.bookingDetails.variation'.trns(),
                           value: controller.variation,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.price'.trns(),
+                          label: 'home.bookingDetails.price'.trns(),
                           value: controller.price,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.qty'.trns(),
+                          label: 'home.bookingDetails.qty'.trns(),
                           value: controller.qty,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.total'.trns(),
+                          label: 'home.bookingDetails.total'.trns(),
                           value: controller.total,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.discount'.trns(),
+                          label: 'home.bookingDetails.discount'.trns(),
                           value: controller.discount,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.afterDiscount'.trns(),
+                          label: 'home.bookingDetails.afterDiscount'.trns(),
                           value: controller.afterDiscount,
                           isLast: true,
                         ),
@@ -283,7 +283,7 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'bookingDetails.grandTotal'.trns(),
+                                  'home.bookingDetails.grandTotal'.trns(),
                                   style: const TextStyle(
                                     fontSize: 13,
                                     color: Color(0xFF888888),
@@ -324,35 +324,35 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                         ),
                         const SizedBox(height: 14),
                         _PriceRow(
-                          label: 'bookingDetails.customerName'.trns(),
+                          label: 'home.bookingDetails.customerName'.trns(),
                           value: controller.grandCustomerName,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.customerEmail'.trns(),
+                          label: 'home.bookingDetails.customerEmail'.trns(),
                           value: controller.grandCustomerEmail,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.customerPhone'.trns(),
+                          label: 'home.bookingDetails.customerPhone'.trns(),
                           value: controller.grandCustomerPhone,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.branch'.trns(),
+                          label: 'home.bookingDetails.branch'.trns(),
                           value: controller.branch,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.total'.trns(),
+                          label: 'home.bookingDetails.total'.trns(),
                           value: controller.grandTotalTotal,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.paid'.trns(),
+                          label: 'home.bookingDetails.paid'.trns(),
                           value: controller.paid,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.remaining'.trns(),
+                          label: 'home.bookingDetails.remaining'.trns(),
                           value: controller.remaining,
                         ),
                         _PriceRow(
-                          label: 'bookingDetails.grandTotal'.trns(),
+                          label: 'home.bookingDetails.grandTotal'.trns(),
                           value: controller.grandTotal,
                           isLast: true,
                         ),
@@ -380,7 +380,7 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'bookingDetails.viewDetails'.trns(),
+                                  'home.bookingDetails.viewDetails'.trns(),
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -447,7 +447,7 @@ class _BookingDetailsHeader extends StatelessWidget {
               ),
               Expanded(
                 child: Text(
-                  'bookingDetails.title'.trns(),
+                  'home.bookingDetails.title'.trns(),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.white,

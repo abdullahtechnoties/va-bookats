@@ -98,7 +98,7 @@ class BookingCard extends StatelessWidget {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: '${'booking.card.id'.trns()} ',
+                        text: '${'home.booking.card.id'.trns()} ',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -203,7 +203,7 @@ class BookingCard extends StatelessWidget {
                             Row(
                               children: [
                                 Text(
-                                  'booking.card.date'.trns(),
+                                  'home.booking.card.date'.trns(),
                                   style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -254,7 +254,7 @@ class BookingCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'booking.card.totalAmount'.trns(),
+                              'home.booking.card.totalAmount'.trns(),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF888888),
@@ -276,7 +276,7 @@ class BookingCard extends StatelessWidget {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: '${'booking.card.service'.trns()} ',
+                    text: '${'home.booking.card.service'.trns()} ',
                     style: const TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
@@ -307,7 +307,7 @@ class BookingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'booking.card.bookingStatus'.trns(),
+                      'home.booking.card.bookingStatus'.trns(),
                       style: const TextStyle(
                         fontSize: 11,
                         color: Color(0xFF888888),
@@ -350,7 +350,7 @@ class BookingCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      'booking.card.viewDetails'.trns(),
+                      'home.booking.card.viewDetails'.trns(),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,

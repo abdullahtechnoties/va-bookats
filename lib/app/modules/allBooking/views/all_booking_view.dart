@@ -75,7 +75,7 @@ class _AllBookingHeader extends StatelessWidget {
               ),
               Expanded(
                 child: Text(
-                  'booking.title'.trns(),
+                  'home.booking.title'.trns(),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.white,
@@ -127,9 +127,9 @@ class _TabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tabs = [
-      '${  'booking.tabs.active'.trns()} (21)',
-      '${'booking.tabs.completed'.trns()}(15)',
-      '${'booking.tabs.cancelled'.trns()} (6)',
+      '${  'home.booking.tabs.active'.trns()} (21)',
+      '${'home.booking.tabs.completed'.trns()}(15)',
+      '${'home.booking.tabs.cancelled'.trns()} (6)',
     ];
 
     return Container(
