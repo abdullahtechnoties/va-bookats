@@ -1,12 +1,12 @@
 class ApiPath {
   // // Common Endpoints
-  static const String baseUrl = 'https://va_bookats.screenlinktechnologies.com/api';
-  static const String imageUrl = 'https://va_bookats.screenlinktechnologies.com/storage';
+  // static const String baseUrl = 'https://va_bookats.screenlinktechnologies.com/api/admin';
+  // static const String imageUrl = 'https://va_bookats.screenlinktechnologies.com/storage';
   // Local Endpoints
-  // static const String baseUrl =
-  //     'https://subregular-lauretta-nonprovocatively.ngrok-free.dev/api';
-  // static const String imageUrl =
-  //     'https://subregular-lauretta-nonprovocatively.ngrok-free.dev/storage';
+  static const String baseUrl =
+      'https://subregular-lauretta-nonprovocatively.ngrok-free.dev/api/admin';
+  static const String imageUrl =
+      'https://subregular-lauretta-nonprovocatively.ngrok-free.dev/storage';
 
   // Common Endpoints
   static const String getSetupFcm = '/users/fcm-token';
@@ -41,6 +41,19 @@ class ApiPath {
   static const String profileUpdate = '/profile/update';
   static const String profileComplete = '/profile/complete';
   static const String sendResetCode = '/resend-code';
+
+  // Data / Lookups
+  static const String branches = '/data/branches';
+
+  // Service Categories
+  static const String serviceCategories = '/service-categories';
+  static String serviceCategory(int id) => '/service-categories/$id';
+  static String serviceCategoryStatus(int id) => '/service-categories/$id/status';
+
+  // Services
+  static const String services = '/services';
+  static String service(int id) => '/services/$id';
+  static String serviceStatus(int id) => '/services/$id/status';
 
   static const String winkTemplates = '/wink-templates';
   static const String winks = '/winks';

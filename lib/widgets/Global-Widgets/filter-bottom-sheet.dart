@@ -21,7 +21,7 @@ class FilterField {
   });
 }
 
-enum FilterFieldType { date, dropdown }
+enum FilterFieldType { text, date, dropdown }
 
 class FilterBottomSheet extends StatelessWidget {
   final List<FilterField> fields;
@@ -269,12 +269,50 @@ class FilterBottomSheet extends StatelessWidget {
             controller: field.controller,
             onTap: () => _pickDate(context, field.controller),
           )
-        else
+        else if (field.type == FilterFieldType.dropdown)
           _DropdownField(
             controller: field.controller,
             onTap: () => _showDropdownSheet(context, field),
-          ),
+          )
+        else
+          _TextField(controller: field.controller),
       ],
+    );
+  }
+}
+
+// ─── Text Field ───────────────────────────────────────────────────────────────
+
+class _TextField extends StatelessWidget {
+  final TextEditingController controller;
+
+  const _TextField({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: AppColors.black.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: TextField(
+        controller: controller,
+        style: const TextStyle(
+          fontSize: 13,
+          color: AppColors.black,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          isDense: true,
+          contentPadding: EdgeInsets.symmetric(vertical: 14),
+        ),
+      ),
     );
   }
 }
@@ -305,12 +343,15 @@ class _DateField extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(
-                controller.text.isEmpty ? '' : controller.text,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w500,
+              child: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: controller,
+                builder: (context, value, _) => Text(
+                  value.text.isEmpty ? '' : value.text,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -352,12 +393,15 @@ class _DropdownField extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(
-                controller.text.isEmpty ? '' : controller.text,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w500,
+              child: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: controller,
+                builder: (context, value, _) => Text(
+                  value.text.isEmpty ? '' : value.text,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -434,20 +478,22 @@ class _FilterDropdownSheet extends StatelessWidget {
           ),
           Expanded(
             child: Obx(
-              () => ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  final isSelected = selectedValue.value == item;
-                  return GestureDetector(
-                    onTap: () {
-                      selectedValue.value = item;
-                      controller.text = item;
-                      Get.back();
-                    },
+              () {
+                final current = selectedValue.value;
+                return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 8),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    final isSelected = current == item;
+                    return GestureDetector(
+                      onTap: () {
+                        selectedValue.value = item;
+                        controller.text = item;
+                        Get.back();
+                      },
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 3),
                       padding: const EdgeInsets.symmetric(
@@ -492,8 +538,8 @@ class _FilterDropdownSheet extends StatelessWidget {
                     ),
                   );
                 },
-              ),
-            ),
+              );
+            }),
           ),
         ],
       ),

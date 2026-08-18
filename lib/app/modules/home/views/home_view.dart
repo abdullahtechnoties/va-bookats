@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
+import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
@@ -25,14 +26,12 @@ class HomeView extends GetView<HomeController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
                   _QuickMenuGrid(),
-                  const SizedBox(height: 20),
                   _TodayBookingHeader(controller: controller),
-                  const SizedBox(height: 8),
                   Obx(
                     () => ListView.builder(
                       shrinkWrap: true,
+
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: controller.todayBookings.length,
                       itemBuilder: (context, index) {
@@ -86,7 +85,7 @@ class _HomeHeader extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () => Get.find<BottomnavController>().openDrawer(),
                     child: const Icon(
                       Icons.menu,
                       color: AppColors.white,
@@ -229,8 +228,9 @@ class _QuickMenuGrid extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: GridView.count(
+        padding: EdgeInsets.zero,
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,

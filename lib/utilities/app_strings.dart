@@ -5,6 +5,7 @@ class AppStrings {
   static String authenticated = "authenticated";
   static String userAuthToken = "auth_token";
   static String userKey = "user";
+  static String userCompanyId = "company_id";
   static String appLocale = "locale";
   static String notificationsKey = "notifications";
   static String appCurrency = "currency";

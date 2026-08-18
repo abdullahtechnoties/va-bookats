@@ -96,8 +96,8 @@ class CommonTextInputFieldState extends State<CommonTextInputField> {
           color:
               widget.textColor ??
               (themeController.isDarkMode.value
-                  ? AppColors.primary
-                  : AppColors.primary),
+                  ? AppColors.grey
+                  : AppColors.grey),
           fontSize: widget.textFontSize ?? 12,
           fontWeight: widget.textFontWeight ?? FontWeight.w500,
         ),
@@ -113,8 +113,8 @@ class CommonTextInputFieldState extends State<CommonTextInputField> {
             color:
                 widget.hintTextColor ??
                 (themeController.isDarkMode.value
-                    ? AppColors.primary
-                    : AppColors.primary),
+                    ? AppColors.grey
+                    : AppColors.grey),
             fontWeight: FontWeight.w500,
             fontSize: widget.hintTextSize,
           ),

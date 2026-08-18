@@ -59,6 +59,83 @@
       "phoneRequired": "The phone field is required"
     }
   },
+  "auth": {
+    "login": {
+      "title": "Let's Sign You In",
+      "subtitle": "Welcome back, you've\nbeen missed!",
+      "loginLabel": "Email or Phone",
+      "loginHint": "Enter your email or phone number",
+      "companyIdLabel": "Company Id",
+      "companyIdHint": "Enter your company id",
+      "emailLabel": "Email Address",
+      "emailHint": "hannah.turin@email.com",
+      "passwordLabel": "Password",
+      "passwordHint": "••••••",
+      "rememberMe": "Remember Me",
+      "forgotPassword": "Forgot Password ?",
+      "loginBtn": "Login",
+      "or": "OR",
+      "continueWithGoogle": "Continue with Google",
+      "noAccount": "Don't have an account ?",
+      "signUp": "Sign Up",
+      "successTitle": "Welcome Back!",
+      "successMessage": "You have successfully logged in.",
+      "errorTitle": "Login Failed",
+      "googleTitle": "Google Sign In",
+      "googleMessage": "Redirecting to Google authentication..."
+    },
+    "signup": {
+      "title": "Getting Started",
+      "subtitle": "Seems you are new here,\nLet's set up your profile.",
+      "fullNameLabel": "Full Name",
+      "emailLabel": "Email Address",
+      "addressLabel": "Current Address",
+      "zipCodeLabel": "Zip Code",
+      "stateLabel": "State",
+      "selectState": "Select State",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "termsPrefix": "By creating an account, you agree to our",
+      "termsLink": "Term and Conditions",
+      "signUpBtn": "Sign Up",
+      "haveAccount": "Already have an account ?",
+      "login": "Login",
+      "successTitle": "Account Created!",
+      "successMessage": "Your account has been successfully created.",
+      "errorTitle": "Error",
+      "termsError": "Please agree to the Terms and Conditions to continue."
+    },
+    "validation": {
+      "loginRequired": "Email or phone number is required",
+      "loginInvalid": "Please enter a valid email or phone number",
+      "companyIdRequired": "Company id is required",
+      "fullNameRequired": "Full name is required",
+      "emailRequired": "Email address is required",
+      "emailInvalid": "Please enter a valid email address",
+      "addressRequired": "Address is required",
+      "zipRequired": "Zip code is required",
+      "stateRequired": "Please select a state",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordMismatch": "Passwords do not match"
+    }
+  },
+    "onboard": {
+    "continue": "Continue",
+    "slide1": {
+      "title": "Easy Process",
+      "desc": "Find all your house needs in one place. We provide every service to make your home experience smooth."
+    },
+    "slide2": {
+      "title": "Book Instantly",
+      "desc": "Schedule appointments with top professionals in just a few taps, anytime and anywhere."
+    },
+    "slide3": {
+      "title": "Relax & Enjoy",
+      "desc": "Sit back and let our trusted experts take care of everything you need at your doorstep."
+    }
+  },
   "finishUpAccount": {
     "existingAccount": {
       "text": "Already have an account?",
@@ -110,7 +187,7 @@
     }
   },
   "home": {
-    "greeting": "Agencira Awaits:",
+    "greeting": "Bookats Awaits:",
     "greetingSubtitle": "Book Your Appointment Today!",
     "searchHint": "Search Something",
     "todayBooking": "Today Booking",
@@ -781,7 +858,7 @@
       "bookingType": "Booking Type",
       "selectBookingType": "Select Booking Type",
       "customer": "Customer",
-      "addCustomer": "+ Add Customer",
+      "addCustomer": "Add Customer",
       "selectCustomerType": "Select Customer Type",
       "date": "Date",
       "datePlaceholder": "00:00 PM",
@@ -875,17 +952,43 @@
       "status": "Status",
       "active": "Active",
       "inactive": "Inactive",
-      "editService": "Edit Service"
-    }
+      "editService": "Edit Service",
+      "variationsLabel": "Variations"
+    },
+    "filter": {
+      "search": "Search",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branches": "Branches",
+      "type": "Type",
+      "category": "Category",
+      "allBranches": "All Branches",
+      "allTypes": "All Types",
+      "allCategories": "All Categories"
+    },
+    "errorTitle": "Error",
+    "loadError": "Failed to load services.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "empty": "No services found",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Service",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Service deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status"
   },
   "addService": {
     "title": "Add New Service",
     "editTitle": "Edit Service",
     "formTitle": "Service Information",
+    "editFormTitle": "Edit Service Information",
     "branch": "Branch",
     "selectBranch": "Select Branch",
     "categories": "Categories",
-    "addCategory": "+ Add Category",
+    "addCategory": "Add Category",
     "selectCategories": "Select Categories",
     "name": "Name",
     "enterFullName": "Enter Full Name",
@@ -898,25 +1001,72 @@
     "selectStatus": "Select Status",
     "type": "Type",
     "selectType": "Select Type",
+    "defaultPrice": "Default Price",
+    "pricePlaceholder": "Enter Price",
+    "variations": "Service Variations",
+    "addVariation": "Add Variation",
+    "variationName": "Variation Name",
+    "variationPrice": "Price",
+    "noVariations": "No variations added. Add at least one variation.",
+    "variationCount": "variation(s)",
     "description": "Description",
     "writeSomething": "Write something....",
-    "save": "Save"
+    "save": "Save",
+    "update": "Update",
+    "errorTitle": "Error",
+    "createSuccessTitle": "Created",
+    "createSuccessMessage": "Service created successfully!",
+    "updateSuccessTitle": "Updated",
+    "updateSuccessMessage": "Service updated successfully!",
+    "validation": {
+      "branchRequired": "Please select a branch",
+      "categoryRequired": "Please select a category",
+      "nameRequired": "Please enter service name",
+      "priceRequired": "Please enter a price",
+      "priceInvalid": "Please enter a valid price",
+      "variationAtLeastOne": "Add at least one variation for a variation type service",
+      "variationRequired": "Every variation needs a name and a price"
+    }
   },
   "addServiceCategory": {
     "dialogTitle": "Add Service Category",
     "pageTitle": "Add New Service Category",
+    "editTitle": "Edit Service Category",
     "formTitle": "Add Service Category",
+    "editFormTitle": "Edit Service Category",
     "branch": "Branch",
     "selectBranch": "Select Branch",
     "name": "Name",
     "enterFullName": "Enter Full Name",
-    "save": "Save"
+    "save": "Save",
+    "update": "Update",
+    "errorTitle": "Error",
+    "createSuccessTitle": "Created",
+    "createSuccessMessage": "Service category created successfully!",
+    "updateSuccessTitle": "Updated",
+    "updateSuccessMessage": "Service category updated successfully!",
+    "validation": {
+      "branchRequired": "Please select a branch",
+      "nameRequired": "Please enter category name"
+    }
   },
   "serviceCategories": {
     "title": "All Service Categories",
     "addNewCategory": "Add New Category",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "errorTitle": "Error",
+    "loadError": "Failed to load categories.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Category",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Service category deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status"
   },
   "packages": {
     "title": "Packages",
@@ -1033,6 +1183,75 @@
     "previous": "« Previous",
     "next": "Next »"
   }
+},
+"drawer": {
+  "booking": "Booking",
+  "inventory": "Inventory",
+  "customers": "Customers",
+  "reporting": "Reporting",
+  "profile": "Profile",
+  "subItems": {
+    "allBookings": "All Bookings",
+    "addBooking": "Add Booking",
+    "products": "Products",
+    "services": "Services",
+    "packages": "Packages",
+    "branchComparison": "Branch Comparison",
+    "revenueReport": "Revenue Report",
+    "servicesRevenue": "Services Revenue Report",
+    "productsRevenue": "Products Revenue Report",
+    "packagesRevenue": "Packages Revenue Report",
+    "commissionsReport": "Commissions Report",
+    "expensesReport": "Expenses Report",
+    "customersReport": "Customers Report"
+  }
+},
+"profile": {
+  "title": "Profile",
+  "personalInfo": "Personal Information",
+  "updatePassword": "Update Password"
+},
+"personalInfo": {
+  "title": "Personal Information",
+  "profileInformation": "Profile Information",
+  "profileSubtitle": "Update your account's profile information and email address.",
+  "name": "Name",
+  "enterName": "Enter Name Here",
+  "emailPrimary": "Email Primary",
+  "customer": "Customer",
+  "phonePrimary": "Phone Primary",
+  "phoneSecondary": "Phone Secondary",
+  "image": "Image",
+  "chooseFile": "Choose File",
+  "dateOfBirth": "Date of Birth",
+  "qualification": "Qualification",
+  "qualificationHint": "Qualification",
+  "country": "Country",
+  "city": "City",
+  "state": "State",
+  "zipCode": "Zip Code",
+  "address": "Address",
+  "addressHint": "Write address here...",
+  "save": "Save",
+  "savedSuccess": "Profile updated successfully"
+},
+"updatePassword": {
+  "appBarTitle": "Update Password",
+  "title": "Update Password",
+  "subtitle": "Ensure your account is using a strong password to stay secure.",
+  "currentPassword": "Current Password",
+  "enterCurrentPassword": "Enter Current Password",
+  "newPassword": "New Password",
+  "enterNewPassword": "Enter New Password",
+  "confirmPassword": "Confirm Password",
+  "confirmPasswordHint": "Confirm Password",
+  "save": "Save",
+  "currentRequired": "Please enter your current password",
+  "newRequired": "Please enter a new password",
+  "minLength": "Password must be at least 8 characters",
+  "confirmRequired": "Please confirm your password",
+  "mismatch": "Passwords do not match",
+  "savedSuccess": "Password updated successfully"
 }
 
 }

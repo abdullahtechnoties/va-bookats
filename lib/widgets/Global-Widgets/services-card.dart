@@ -1,7 +1,7 @@
 // lib/app/widgets/service_card.dart
 
 import 'package:flutter/material.dart';
-import 'package:va_bookats/app/modules/services/controllers/services_controller.dart';
+import 'package:va_bookats/models/service_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
@@ -10,12 +10,16 @@ class ServiceCard extends StatelessWidget {
   final ServiceModel service;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onStatusTap;
+  final bool isBusy;
 
   const ServiceCard({
     super.key,
     required this.service,
     this.onEdit,
     this.onDelete,
+    this.onStatusTap,
+    this.isBusy = false,
   });
 
   @override
@@ -63,7 +67,7 @@ class ServiceCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        service.name,
+                        service.name ?? '',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -73,7 +77,7 @@ class ServiceCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      service.category,
+                      service.categoryName,
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
@@ -94,7 +98,7 @@ class ServiceCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 3),
                     Text(
-                      service.branch,
+                      service.branchName,
                       style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF888888),
@@ -133,7 +137,7 @@ class ServiceCard extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 3),
                                 Text(
-                                  service.duration,
+                                  service.serviceDuration ?? '',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
@@ -158,7 +162,7 @@ class ServiceCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Rs: ${service.price}',
+                                  service.priceOrVariationsDisplay,
                                   style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -201,22 +205,46 @@ class ServiceCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 5),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary.withValues(alpha: 0.13),
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                            child: Text(
-                              service.status,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.secondary,
+                          GestureDetector(
+                            onTap: isBusy ? null : onStatusTap,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 6,
                               ),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary
+                                    .withValues(alpha: 0.13),
+                                borderRadius: BorderRadius.circular(7),
+                              ),
+                              child: isBusy
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.secondary,
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          service.statusDisplay,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.secondary,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        const Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 16,
+                                          color: AppColors.secondary,
+                                        ),
+                                      ],
+                                    ),
                             ),
                           ),
                         ],
@@ -225,7 +253,7 @@ class ServiceCard extends StatelessWidget {
 
                     // Delete button
                     GestureDetector(
-                      onTap: onDelete,
+                      onTap: isBusy ? null : onDelete,
                       child: Container(
                         width: 46,
                         height: 46,
@@ -236,8 +264,10 @@ class ServiceCard extends StatelessWidget {
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(
-                          Icons.delete_outline,
+                        child: Icon(
+                          isBusy
+                              ? Icons.hourglass_empty
+                              : Icons.delete_outline,
                           color: AppColors.secondary,
                           size: 20,
                         ),
@@ -247,7 +277,7 @@ class ServiceCard extends StatelessWidget {
 
                     // Edit Service button
                     GestureDetector(
-                      onTap: onEdit,
+                      onTap: isBusy ? null : onEdit,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,

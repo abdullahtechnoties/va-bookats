@@ -94,7 +94,7 @@ class _AllBookingHeader extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               GestureDetector(
-                onTap: () {},
+                onTap: () => Get.toNamed(Routes.CREATE_BOOKING),
                 child: Container(
                   width: 30,
                   height: 30,

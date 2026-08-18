@@ -47,6 +47,7 @@ class AddCustomerDialog extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               CommonTextInputField(
+                hintTextColor: AppColors.grey,
                 hintText: 'createBooking.addCustomer.enterFullName'.trns(),
                 controller: controller.addCustomerNameCtrl,
                 height: 52,
@@ -65,6 +66,7 @@ class AddCustomerDialog extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               CommonTextInputField(
+                hintTextColor: AppColors.grey,
                 hintText: 'createBooking.addCustomer.enterPhone'.trns(),
                 controller: controller.addCustomerPhoneCtrl,
                 keyboardType: TextInputType.phone,
@@ -84,6 +86,7 @@ class AddCustomerDialog extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               CommonTextInputField(
+                hintTextColor: AppColors.grey,
                 hintText: 'createBooking.addCustomer.enterEmail'.trns(),
                 controller: controller.addCustomerEmailCtrl,
                 keyboardType: TextInputType.emailAddress,

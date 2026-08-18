@@ -1,4 +1,3 @@
-
 import 'package:va_bookats/utilities/translation_extention.dart';
 import '../network/api/api_path.dart';
 
@@ -6,169 +5,104 @@ class UserModel {
   UserModel({
     this.id,
     this.name,
-    this.firstName,
-    this.lastName,
     this.email,
-    this.phone,
-    this.gender,
-    this.dob,
-    this.nationalityId,
-    this.profileImage,
+    this.emailVerifiedAt,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.emailSecondary,
+    this.phonePrimary,
+    this.phoneSecondary,
     this.countryId,
     this.stateId,
     this.cityId,
     this.areaId,
-    this.ethnicityId,
-    this.educationId,
-    this.occupationId,
-    this.bodyTypeId,
-    this.height,
-    this.heightUnit,
-    this.weight,
-    this.weightUnit,
-    this.hairColourId,
-    this.eyeColourId,
-    this.skinColourId,
-    this.religionId,
-    this.sectId,
-    this.prayerFrequencyId,
-    this.dressCodeId,
-    this.dietaryPreferenceId,
-    this.maritalStatusId,
-    this.maritalStatusDurationYears,
-    this.hasChildren,
-    this.wantChildren,
-    this.partnerMaritalStatusId,
-    this.ageMin,
-    this.ageMax,
-    this.distanceRange,
-    this.partnerReligionId,
-    this.partnerEthnicityId,
-    this.partnerSectId,
-    this.partnerOccupationId,
-    this.partnerEducationId,
     this.zipCode,
-    this.longitude,
-    this.latitude,
-    this.facebook,
-    this.skype,
-    this.linkedin,
-    this.twitter,
-    this.whatsapp,
-    this.instagram,
-    this.occupation,
-    this.description,
-    this.nic,
+    this.address,
+    this.status,
+    this.image,
+    this.dateOfBirth,
+    this.serviceType,
+    this.gender,
+    this.qualification,
     this.nicFront,
     this.nicBack,
-    this.isActive,
-    this.emailVerifiedAt,
-    this.address,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
+    this.salary,
+    this.salaryType,
+    this.commissionType,
+    this.commission,
+    this.joiningDate,
+    this.customerSerial,
+    this.staffSerial,
+    this.branchId,
+    this.shiftId,
+    this.designationId,
+    this.longitude,
+    this.latitude,
     this.roles,
   });
 
   final int? id;
   final String? name;
-  final String? firstName;
-  final String? lastName;
   final String? email;
-  final String? phone;
-  final String? gender;
-  final String? dob;
-  final int? nationalityId;
-  final String? profileImage;
-  final int? countryId;
-  final int? stateId;
-  final int? cityId;
-  final int? areaId;
-  final int? ethnicityId;
-  final int? educationId;
-  final int? occupationId;
-  final int? bodyTypeId;
-  final String? height;
-  final String? heightUnit;
-  final String? weight;
-  final String? weightUnit;
-  final int? hairColourId;
-  final int? eyeColourId;
-  final int? skinColourId;
-  final int? religionId;
-  final int? sectId;
-  final int? prayerFrequencyId;
-  final int? dressCodeId;
-  final int? dietaryPreferenceId;
-  final int? maritalStatusId;
-  final int? maritalStatusDurationYears;
-  final String? hasChildren;
-  final String? wantChildren;
-  final int? partnerMaritalStatusId;
-  final int? ageMin;
-  final int? ageMax;
-  final int? distanceRange;
-  final int? partnerReligionId;
-  final int? partnerEthnicityId;
-  final int? partnerSectId;
-  final int? partnerOccupationId;
-  final int? partnerEducationId;
-  final String? zipCode;
-  final String? facebook;
-  final String? skype;
-  final String? linkedin;
-  final String? twitter;
-  final String? whatsapp;
-  final String? instagram;
-  final String? occupation;
-  final String? description;
-  final String? nic;
-  final String? nicFront;
-  final String? nicBack;
-  final bool? isActive;
-  final String? address;
-  final String? longitude;
-  final String? latitude;
   final String? emailVerifiedAt;
   final String? createdAt;
   final String? updatedAt;
   final String? deletedAt;
+  final String? emailSecondary;
+  final String? phonePrimary;
+  final String? phoneSecondary;
+  final int? countryId;
+  final int? stateId;
+  final int? cityId;
+  final int? areaId;
+  final String? zipCode;
+  final String? address;
+  final String? status;
+  final String? image; // full URL after processing
+  final String? dateOfBirth;
+  final String? serviceType;
+  final String? gender;
+  final String? qualification;
+  final String? nicFront;
+  final String? nicBack;
+  final String? salary;
+  final String? salaryType;
+  final String? commissionType;
+  final String? commission;
+  final String? joiningDate;
+  final String? customerSerial;
+  final String? staffSerial;
+  final int? branchId;
+  final int? shiftId;
+  final int? designationId;
+  final String? longitude;
+  final String? latitude;
   final List<Role>? roles;
 
+  // Full name – now just the `name` field
+  String get fullName => name?.trim() ?? '';
+
+  // Display name with fallback translation
   String get displayName =>
-      (fullName.trim().isNotEmpty) ? fullName.trim() : 'user.handyman'.trns();
+      (fullName.isNotEmpty) ? fullName : 'user.handyman'.trns();
 
-    String get fullName {
-    final combined = [firstName, lastName]
-      .where((part) => part != null && part.trim().isNotEmpty)
-      .map((part) => part!.trim())
-      .join(' ')
-      .trim();
-    if (combined.isNotEmpty) return combined;
-    return name?.trim() ?? '';
-    }
-
-    bool get hasBasicDetails =>
-      firstName != null && firstName!.trim().isNotEmpty &&
-      lastName != null && lastName!.trim().isNotEmpty &&
+  // Basic details: name, email, phone, gender, date of birth are present
+  bool get hasBasicDetails =>
+      name != null && name!.trim().isNotEmpty &&
+      email != null && email!.trim().isNotEmpty &&
+      phonePrimary != null && phonePrimary!.trim().isNotEmpty &&
       gender != null && gender!.trim().isNotEmpty &&
-      dob != null && dob!.trim().isNotEmpty &&
-      nationalityId != null &&
-      countryId != null &&
-      stateId != null &&
-      cityId != null &&
-      areaId != null &&
-      ethnicityId != null &&
-      educationId != null &&
-      occupationId != null;
+      dateOfBirth != null && dateOfBirth!.trim().isNotEmpty;
 
-    bool get hasCompletedProfile =>
+  // Profile considered complete if basic details + image + address are set
+  bool get hasCompletedProfile =>
       hasBasicDetails &&
-      religionId != null &&
-      sectId != null &&
-      bodyTypeId != null;
+      image != null && image!.trim().isNotEmpty &&
+      address != null && address!.trim().isNotEmpty;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    // Helper to build full image URL
     String? getImage(String? image) {
       if (image == null) return null;
       if (image.startsWith('http')) return image;
@@ -178,69 +112,40 @@ class UserModel {
     return UserModel(
       id: json['id'] as int?,
       name: json['name']?.toString(),
-      firstName: json['first_name']?.toString(),
-      lastName: json['last_name']?.toString(),
       email: json['email']?.toString(),
-      phone: json['phone']?.toString(),
-      gender: json['gender']?.toString(),
-      dob: json['dob']?.toString(),
-      nationalityId: _parseInt(json['nationality_id']),
-      profileImage: getImage(json['photo_path']?.toString()),
-      countryId: _parseInt(json['country_id']),
-      stateId: _parseInt(json['state_id']),
-      cityId: _parseInt(json['city_id']),
-      areaId: _parseInt(json['area_id']),
-      ethnicityId: _parseInt(json['ethnicity_id']),
-      educationId: _parseInt(json['education_id']),
-      occupationId: _parseInt(json['occupation_id']),
-      bodyTypeId: _parseInt(json['body_type_id']),
-      height: json['height']?.toString(),
-      heightUnit: json['height_unit']?.toString(),
-      weight: json['weight']?.toString(),
-      weightUnit: json['weight_unit']?.toString(),
-      hairColourId: _parseInt(json['hair_colour_id']),
-      eyeColourId: _parseInt(json['eye_colour_id']),
-      skinColourId: _parseInt(json['skin_colour_id']),
-      religionId: _parseInt(json['religion_id']),
-      sectId: _parseInt(json['sect_id']),
-      prayerFrequencyId: _parseInt(json['prayer_frequency_id']),
-      dressCodeId: _parseInt(json['dress_code_id']),
-      dietaryPreferenceId: _parseInt(json['dietary_preference_id']),
-      maritalStatusId: _parseInt(json['marital_status_id']),
-      maritalStatusDurationYears: _parseInt(
-        json['marital_status_duration_years'],
-      ),
-      hasChildren: json['has_children']?.toString(),
-      wantChildren: json['want_children']?.toString(),
-      partnerMaritalStatusId: _parseInt(json['partner_marital_status_id']),
-      ageMin: _parseInt(json['age_min']),
-      ageMax: _parseInt(json['age_max']),
-      distanceRange: _parseInt(json['distance_range']),
-      partnerReligionId: _parseInt(json['partner_religion_id']),
-      partnerEthnicityId: _parseInt(json['partner_ethnicity_id']),
-      partnerSectId: _parseInt(json['partner_sect_id']),
-      partnerOccupationId: _parseInt(json['partner_occupation_id']),
-      partnerEducationId: _parseInt(json['partner_education_id']),
-      zipCode: json['zip_code']?.toString(),
-      facebook: json['facebook']?.toString(),
-      longitude: json['longitude'] as String?,
-      latitude: json['latitude'] as String?,
-      skype: json['skype']?.toString(),
-      linkedin: json['linkedin']?.toString(),
-      twitter: json['twitter']?.toString(),
-      whatsapp: json['whatsapp']?.toString(),
-      instagram: json['instagram']?.toString(),
-      occupation: json['occupation_id']?.toString(),
-      description: json['description']?.toString(),
-      nic: json['nic']?.toString(),
-      nicFront: getImage(json['nic_f']?.toString()),
-      nicBack: getImage(json['nic_b']?.toString()),
-      isActive: json['is_active'] as bool?,
-      address: json['address']?.toString(),
       emailVerifiedAt: json['email_verified_at']?.toString(),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
       deletedAt: json['deleted_at']?.toString(),
+      emailSecondary: json['email_secondary']?.toString(),
+      phonePrimary: json['phone_primary']?.toString(),
+      phoneSecondary: json['phone_secondary']?.toString(),
+      countryId: _parseInt(json['country_id']),
+      stateId: _parseInt(json['state_id']),
+      cityId: _parseInt(json['city_id']),
+      areaId: _parseInt(json['area_id']),
+      zipCode: json['zip_code']?.toString(),
+      address: json['address']?.toString(),
+      status: json['status']?.toString(),
+      image: getImage(json['image']?.toString()),
+      dateOfBirth: json['date_of_birth']?.toString(),
+      serviceType: json['service_type']?.toString(),
+      gender: json['gender']?.toString(),
+      qualification: json['qualification']?.toString(),
+      nicFront: getImage(json['nic_front']?.toString()),
+      nicBack: getImage(json['nic_back']?.toString()),
+      salary: json['salary']?.toString(),
+      salaryType: json['salary_type']?.toString(),
+      commissionType: json['commission_type']?.toString(),
+      commission: json['commission']?.toString(),
+      joiningDate: json['joining_date']?.toString(),
+      customerSerial: json['customer_serial']?.toString(),
+      staffSerial: json['staff_serial']?.toString(),
+      branchId: _parseInt(json['branch_id']),
+      shiftId: _parseInt(json['shift_id']),
+      designationId: _parseInt(json['designation_id']),
+      longitude: json['longitude']?.toString(),
+      latitude: json['latitude']?.toString(),
       roles: (json['roles'] as List?)
           ?.map((roleJson) => Role.fromJson(roleJson))
           .toList(),
@@ -248,6 +153,7 @@ class UserModel {
   }
 
   Map<String, dynamic> toJson() {
+    // Helper to strip full URL back to relative path (if needed)
     String? getImage(String? image) {
       if (image == null) return null;
       if (image.startsWith('http')) return image;
@@ -257,67 +163,40 @@ class UserModel {
     return {
       'id': id,
       'name': name,
-      'first_name': firstName,
-      'last_name': lastName,
       'email': email,
-      'phone': phone,
-      'gender': gender,
-      'dob': dob,
-      'nationality_id': _parseInt(nationalityId),
-      'photo_path': getImage(profileImage),
-      'country_id': _parseInt(countryId),
-      'state_id': _parseInt(stateId),
-      'city_id': _parseInt(cityId),
-      'area_id': _parseInt(areaId),
-      'ethnicity_id': _parseInt(ethnicityId),
-      'education_id': _parseInt(educationId),
-      'occupation_id': _parseInt(occupationId),
-      'body_type_id': _parseInt(bodyTypeId),
-      'height': height,
-      'height_unit': heightUnit,
-      'weight': weight,
-      'weight_unit': weightUnit,
-      'hair_colour_id': _parseInt(hairColourId),
-      'eye_colour_id': _parseInt(eyeColourId),
-      'skin_colour_id': _parseInt(skinColourId),
-      'religion_id': _parseInt(religionId),
-      'sect_id': _parseInt(sectId),
-      'prayer_frequency_id': _parseInt(prayerFrequencyId),
-      'dress_code_id': _parseInt(dressCodeId),
-      'dietary_preference_id': _parseInt(dietaryPreferenceId),
-      'marital_status_id': _parseInt(maritalStatusId),
-      'marital_status_duration_years': _parseInt(maritalStatusDurationYears),
-      'has_children': hasChildren,
-      'want_children': wantChildren,
-      'partner_marital_status_id': _parseInt(partnerMaritalStatusId),
-      'age_min': _parseInt(ageMin),
-      'age_max': _parseInt(ageMax),
-      'distance_range': _parseInt(distanceRange),
-      'partner_religion_id': _parseInt(partnerReligionId),
-      'partner_ethnicity_id': _parseInt(partnerEthnicityId),
-      'partner_sect_id': _parseInt(partnerSectId),
-      'partner_occupation_id': _parseInt(partnerOccupationId),
-      'partner_education_id': _parseInt(partnerEducationId),
-      'zip_code': zipCode,
-      'longitude': longitude,
-      'latitude': latitude,
-      'facebook': facebook,
-      'skype': skype,
-      'linkedin': linkedin,
-      'twitter': twitter,
-      'whatsapp': whatsapp,
-      'instagram': instagram,
-      'occupation': occupation,
-      'description': description,
-      'address': address,
-      'nic': nic,
-      'nic_f': getImage(nicFront),
-      'nic_b': getImage(nicBack),
-      'is_active': isActive,
       'email_verified_at': emailVerifiedAt,
       'created_at': createdAt,
       'updated_at': updatedAt,
       'deleted_at': deletedAt,
+      'email_secondary': emailSecondary,
+      'phone_primary': phonePrimary,
+      'phone_secondary': phoneSecondary,
+      'country_id': countryId,
+      'state_id': stateId,
+      'city_id': cityId,
+      'area_id': areaId,
+      'zip_code': zipCode,
+      'address': address,
+      'status': status,
+      'image': getImage(image),
+      'date_of_birth': dateOfBirth,
+      'service_type': serviceType,
+      'gender': gender,
+      'qualification': qualification,
+      'nic_front': getImage(nicFront),
+      'nic_back': getImage(nicBack),
+      'salary': salary,
+      'salary_type': salaryType,
+      'commission_type': commissionType,
+      'commission': commission,
+      'joining_date': joiningDate,
+      'customer_serial': customerSerial,
+      'staff_serial': staffSerial,
+      'branch_id': branchId,
+      'shift_id': shiftId,
+      'designation_id': designationId,
+      'longitude': longitude,
+      'latitude': latitude,
       'roles': roles?.map((role) => role.toJson()).toList(),
     };
   }

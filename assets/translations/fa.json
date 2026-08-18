@@ -1013,5 +1013,38 @@
       "title": "هنوز اعلانی وجود ندارد",
       "message": "وقتی کسی با پروفایل شما تعامل می‌کند یا پیامی می‌فرستد، ابتدا در اینجا مشاهده خواهید کرد."
     }
+  },
+  "auth": {
+    "login": {
+      "title": "ورود",
+      "subtitle": "خوش آمدید، دلتنگ\nشما بودیم!",
+      "loginLabel": "ایمیل یا شماره تلفن",
+      "loginHint": "ایمیل یا شماره تلفن خود را وارد کنید",
+      "companyIdLabel": "شناسه شرکت",
+      "companyIdHint": "شناسه شرکت خود را وارد کنید",
+      "emailLabel": "ایمیل",
+      "emailHint": "hannah.turin@email.com",
+      "passwordLabel": "رمز عبور",
+      "passwordHint": "••••••",
+      "rememberMe": "مرا به خاطر بسپار",
+      "forgotPassword": "رمز عبور را فراموش کرده‌اید؟",
+      "loginBtn": "ورود",
+      "or": "یا",
+      "continueWithGoogle": "ادامه با گوگل",
+      "noAccount": "حساب کاربری ندارید؟",
+      "signUp": "ثبت‌نام",
+      "successTitle": "خوش آمدید!",
+      "successMessage": "با موفقیت وارد شدید.",
+      "errorTitle": "ورود ناموفق",
+      "googleTitle": "ورود با گوگل",
+      "googleMessage": "در حال انتقال به احراز هویت گوگل..."
+    },
+    "validation": {
+      "loginRequired": "ایمیل یا شماره تلفن الزامی است",
+      "loginInvalid": "لطفاً ایمیل یا شماره تلفن معتبر وارد کنید",
+      "companyIdRequired": "شناسه شرکت الزامی است",
+      "passwordRequired": "رمز عبور الزامی است",
+      "passwordMinLength": "رمز عبور باید حداقل 6 کاراکتر باشد"
+    }
   }
 }

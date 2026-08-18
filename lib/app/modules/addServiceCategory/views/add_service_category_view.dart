@@ -20,10 +20,12 @@ class AddServiceCategoryView extends GetView<AddServiceCategoryController> {
       builder: (_) => CommonDropdownBottomSheet(
         title: 'addServiceCategory.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.45,
-        dropdownItems: controller.branches,
+        dropdownItems: controller.branchLabels,
+        selectedValue: controller.branchValues,
         selectedItem: controller.selectedBranch,
         textController: controller.branchCtrl,
         currentlySelectedValue: controller.selectedBranch.value,
+        onValueSelected: controller.onBranchSelected,
         showSearch: false,
       ),
     );
@@ -36,7 +38,7 @@ class AddServiceCategoryView extends GetView<AddServiceCategoryController> {
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────
-          _AddServiceCategoryHeader(),
+          const _AddServiceCategoryHeader(),
 
           // ── Form ────────────────────────────────────────────────────────
           Expanded(
@@ -61,52 +63,80 @@ class AddServiceCategoryView extends GetView<AddServiceCategoryController> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Form Title
-                      Text(
-                        'addServiceCategory.formTitle'.trns(),
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.black,
+                  child: Form(
+                    key: controller.formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Form Title
+                        Obx(
+                          () => Text(
+                            controller.isEditMode
+                                ? 'addServiceCategory.editFormTitle'.trns()
+                                : 'addServiceCategory.formTitle'.trns(),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.black,
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 22),
+                        const SizedBox(height: 22),
 
-                      // Branch
-                      _FieldLabel('addServiceCategory.branch'.trns()),
-                      const SizedBox(height: 8),
-                      Obx(
-                        () => CommonTextInputField(
-                          hintText: 'addServiceCategory.selectBranch'.trns(),
-                          controller: controller.branchCtrl,
-                          readOnly: true,
+                        // Branch — only for owner role
+                        Obx(
+                          () => controller.showBranch
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _FieldLabel(
+                                      'addServiceCategory.branch'.trns(),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    CommonTextInputField(
+                                      hintText:
+                                          'addServiceCategory.selectBranch'
+                                              .trns(),
+                                      controller: controller.branchCtrl,
+                                      readOnly: true,
+                                      height: 52,
+                                      hintTextSize: 13,
+                                      validator: controller.validateBranch,
+                                      onTap: () => _showBranchDropdown(context),
+                                    ),
+                                    const SizedBox(height: 20),
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Name
+                        _FieldLabel('addServiceCategory.name'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: 'addServiceCategory.enterFullName'.trns(),
+                          controller: controller.nameCtrl,
                           height: 52,
                           hintTextSize: 13,
-                          onTap: () => _showBranchDropdown(context),
+                          validator: controller.validateName,
                         ),
-                      ),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 28),
 
-                      // Name
-                      _FieldLabel('addServiceCategory.name'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: 'addServiceCategory.enterFullName'.trns(),
-                        controller: controller.nameCtrl,
-                        height: 52,
-                        hintTextSize: 13,
-                      ),
-                      const SizedBox(height: 28),
-
-                      // Save Button
-                      MainBtn(
-                        text: 'addServiceCategory.save'.trns(),
-                        onPressed: controller.save,
-                      ),
-                    ],
+                        // Save Button
+                        Obx(
+                          () => MainBtn(
+                            text: controller.isEditMode
+                                ? 'addServiceCategory.update'.trns()
+                                : 'addServiceCategory.save'.trns(),
+                            onPressed: controller.isSaving.value
+                                ? null
+                                : () => controller.save(context),
+                            isLoading: controller.isSaving.value,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -136,7 +166,7 @@ class _AddServiceCategoryHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 16, 20),
+          padding: const EdgeInsets.fromLTRB(8, 8, 16, 10),
           child: Row(
             children: [
               IconButton(
@@ -148,13 +178,17 @@ class _AddServiceCategoryHeader extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Text(
-                  'addServiceCategory.pageTitle'.trns(),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                child: Obx(
+                  () => Text(
+                    Get.find<AddServiceCategoryController>().isEditMode
+                        ? 'addServiceCategory.editTitle'.trns()
+                        : 'addServiceCategory.pageTitle'.trns(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),

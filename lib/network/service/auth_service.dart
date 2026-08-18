@@ -10,8 +10,19 @@ class AuthService extends GetxService {
 
   final Rx<String?> accessToken = Rx<String?>(null);
   final Rx<UserModel?> currentUser = Rx<UserModel?>(null);
+  final Rx<String?> companyId = Rx<String?>(null);
   late final Future<void> ready;
   static final RxBool _logoutInProgress = false.obs;
+
+
+    // Role helpers
+  // bool get isVendor => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'vendor') ?? false;
+  // bool get isCompany => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'company') ?? false;
+  bool get isCustomer => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'Customer') ?? false;
+  bool get isOwner => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'owner') ?? false;
+
+  // Check if user has allowed role for this app
+  bool get hasAllowedRole => isOwner;
 
 
   @override
@@ -21,8 +32,14 @@ class AuthService extends GetxService {
   }
 
   Future<void> _bootstrap() async {
-    await Future.wait([_loadAccessToken(), _loadCurrentUser()]);
-    print({'AuthService init': '${accessToken.value}, ${currentUser.value}'});
+    await Future.wait([
+      _loadAccessToken(),
+      _loadCurrentUser(),
+      _loadCompanyId(),
+    ]);
+    print({
+      'AuthService init': '${accessToken.value}, ${currentUser.value}, ${companyId.value}'
+    });
   }
 
   Future<void> _loadAccessToken() async {
@@ -46,6 +63,12 @@ class AuthService extends GetxService {
       print('Failed to decode user data: $raw');
       currentUser.value = null;
     }
+  }
+
+  Future<void> _loadCompanyId() async {
+    final id = await getSavedCompanyId();
+    companyId.value = (id == null || id.isEmpty) ? null : id;
+    print('Loaded company id: ${companyId.value}');
   }
 
   Future<void> setAccessToken(String token) async {
@@ -100,6 +123,21 @@ class AuthService extends GetxService {
       AppStrings.userAuthToken,
       token,
     );
+  }
+
+  /// Persists the company id and exposes it reactively so the network
+  /// interceptor can attach `X-Company-Id` to every outgoing request.
+  Future<void> setCompanyId(String? id) async {
+    await setSavedCompanyId(id ?? '');
+    companyId.value = (id == null || id.isEmpty) ? null : id;
+  }
+
+  static Future<bool> setSavedCompanyId(String id) async {
+    return LocalStorageService.prefs!.setString(AppStrings.userCompanyId, id);
+  }
+
+  static Future<String?> getSavedCompanyId() async {
+    return LocalStorageService.prefs?.getString(AppStrings.userCompanyId);
   }
 
   static Future<void> saveLocale(String locale) async {

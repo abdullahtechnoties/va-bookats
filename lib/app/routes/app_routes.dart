@@ -17,6 +17,13 @@ abstract class Routes {
   static const ADD_PACKAGE = _Paths.ADD_PACKAGE;
   static const CUSTOMERS = _Paths.CUSTOMERS;
   static const REVENUE_REPORT = _Paths.REVENUE_REPORT;
+  static const BOTTOMNAV = _Paths.BOTTOMNAV;
+  static const ONBOARD = _Paths.ONBOARD;
+  static const SPLASH = _Paths.SPLASH;
+  static const PROFILE = _Paths.PROFILE;
+  static const APP_DRAWER = _Paths.APP_DRAWER;
+  static const PERSONAL_INFO = _Paths.PERSONAL_INFO;
+  static const UPDATE_PASSWORD = _Paths.UPDATE_PASSWORD;
 }
 
 abstract class _Paths {
@@ -35,4 +42,11 @@ abstract class _Paths {
   static const ADD_PACKAGE = '/add-package';
   static const CUSTOMERS = '/customers';
   static const REVENUE_REPORT = '/revenue-report';
+  static const BOTTOMNAV = '/bottomnav';
+  static const ONBOARD = '/onboard';
+  static const SPLASH = '/splash';
+  static const PROFILE = '/profile';
+  static const APP_DRAWER = '/app-drawer';
+  static const PERSONAL_INFO = '/personal-info';
+  static const UPDATE_PASSWORD = '/update-password';
 }

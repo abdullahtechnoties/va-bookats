@@ -386,5 +386,38 @@
   },
   "user": {
     "handyman": "حرفي"
+  },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "subtitle": "مرحباً بعودتك، لقد\nافتقدناك!",
+      "loginLabel": "البريد الإلكتروني أو الهاتف",
+      "loginHint": "أدخل بريدك الإلكتروني أو رقم هاتفك",
+      "companyIdLabel": "معرّف الشركة",
+      "companyIdHint": "أدخل معرّف شركتك",
+      "emailLabel": "البريد الإلكتروني",
+      "emailHint": "hannah.turin@email.com",
+      "passwordLabel": "كلمة المرور",
+      "passwordHint": "••••••",
+      "rememberMe": "تذكرني",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "loginBtn": "تسجيل الدخول",
+      "or": "أو",
+      "continueWithGoogle": "المتابعة عبر جوجل",
+      "noAccount": "ليس لديك حساب؟",
+      "signUp": "إنشاء حساب",
+      "successTitle": "مرحباً بعودتك!",
+      "successMessage": "تم تسجيل دخولك بنجاح.",
+      "errorTitle": "فشل تسجيل الدخول",
+      "googleTitle": "تسجيل الدخول عبر جوجل",
+      "googleMessage": "جارٍ إعادة التوجيه إلى مصادقة جوجل..."
+    },
+    "validation": {
+      "loginRequired": "البريد الإلكتروني أو رقم الهاتف مطلوب",
+      "loginInvalid": "يرجى إدخال بريد إلكتروني أو رقم هاتف صحيح",
+      "companyIdRequired": "معرّف الشركة مطلوب",
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "passwordMinLength": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل"
+    }
   }
 }

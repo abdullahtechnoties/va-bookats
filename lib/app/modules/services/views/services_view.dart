@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/services/controllers/services_controller.dart';
-import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/services-card.dart';
@@ -17,82 +16,65 @@ class ServicesView extends GetView<ServicesController> {
       backgroundColor: const Color(0xFFF5F5F5),
       body: Column(
         children: [
-          // ── Header ──────────────────────────────────────────────────────
           _ServicesHeader(controller: controller),
-
-          // ── Tab Bar ─────────────────────────────────────────────────────
           _ServicesTabBar(controller: controller),
-
-          // ── Content ─────────────────────────────────────────────────────
           Expanded(
             child: Obx(
-              () => ListView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(top: 12, bottom: 30),
-                children: [
-                  // Add New Service Button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 4,
+              () {
+                if (controller.isLoading.value &&
+                    controller.currentServices.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.secondary,
                     ),
-                    child: GestureDetector(
-                      onTap: () => Get.toNamed(Routes.ADD_SERVICE),
-                      child: Container(
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 22,
-                              height: 22,
-                              decoration: BoxDecoration(
-                                color: AppColors.white.withValues(alpha: 0.25),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                color: AppColors.white,
-                                size: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              'services.addNewService'.trns(),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  );
+                }
+                if (controller.loadFailed.value &&
+                    controller.currentServices.isEmpty) {
+                  return _ErrorState(onRetry: controller.retry);
+                }
+                return RefreshIndicator(
+                  onRefresh: controller.handleRefresh,
+                  color: AppColors.secondary,
+                  child: ListView(
+                    controller: controller.scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
                     ),
+                    padding: const EdgeInsets.only(top: 12, bottom: 30),
+                    children: [
+                      _AddServiceButton(onTap: () => controller.openAddPage()),
+                      const SizedBox(height: 8),
+                      if (controller.currentServices.isEmpty)
+                        _EmptyState()
+                      else
+                        ...controller.currentServices.map(
+                          (service) => ServiceCard(
+                            service: service,
+                            isBusy:
+                                controller.busyServiceId.value == service.id,
+                            onStatusTap: () =>
+                                controller.updateStatus(service),
+                            onEdit: () => controller.openAddPage(
+                              service: service,
+                            ),
+                            onDelete: () => controller.deleteService(service),
+                          ),
+                        ),
+                      if (controller.isLoadingMore.value)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.secondary,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-
-                  // Service Cards
-                  if (controller.currentServices.isEmpty)
-                    _EmptyState()
-                  else
-                    ...controller.currentServices.map(
-                      (service) => ServiceCard(
-                        service: service,
-                        onEdit: () => Get.toNamed(
-                          Routes.ADD_SERVICE,
-                          arguments: service,
-                        ),
-                        onDelete: () =>
-                            controller.deleteService(service.id),
-                      ),
-                    ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -121,7 +103,7 @@ class _ServicesHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 16, 20),
+          padding: const EdgeInsets.fromLTRB(8, 8, 16, 10),
           child: Row(
             children: [
               IconButton(
@@ -153,7 +135,7 @@ class _ServicesHeader extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               GestureDetector(
-                onTap: () => Get.toNamed(Routes.ADD_SERVICE),
+                onTap: () => controller.openAddPage(),
                 child: Container(
                   width: 30,
                   height: 30,
@@ -185,51 +167,119 @@ class _ServicesTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = [
-      'services.tabs.active'.trns(),
-      'services.tabs.inactive'.trns(),
-    ];
-
     return Container(
       color: AppColors.white,
       child: Obx(
         () => Row(
-          children: tabs.asMap().entries.map((entry) {
-            final index = entry.key;
-            final label = entry.value;
-            final isSelected = controller.selectedTab.value == index;
+          children: [
+            _TabItem(
+              label:
+                  '${'services.tabs.active'.trns()} (${controller.activeCount})',
+              isSelected: controller.selectedTab.value == 0,
+              onTap: () => controller.changeTab(0),
+            ),
+            _TabItem(
+              label:
+                  '${'services.tabs.inactive'.trns()} (${controller.inactiveCount})',
+              isSelected: controller.selectedTab.value == 1,
+              onTap: () => controller.changeTab(1),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => controller.selectedTab.value = index,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: isSelected
-                            ? AppColors.secondary
-                            : Colors.transparent,
-                        width: 2.5,
-                      ),
-                    ),
-                  ),
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected
-                          ? AppColors.black
-                          : const Color(0xFF888888),
-                    ),
-                  ),
+class _TabItem extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _TabItem({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: isSelected ? AppColors.secondary : Colors.transparent,
+                width: 2.5,
+              ),
+            ),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected
+                  ? AppColors.black
+                  : const Color(0xFF888888),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Add Button ───────────────────────────────────────────────────────────────
+
+class _AddServiceButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AddServiceButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 54,
+          decoration: BoxDecoration(
+            color: AppColors.secondary,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: AppColors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: AppColors.white,
+                  size: 16,
                 ),
               ),
-            );
-          }).toList(),
+              const SizedBox(width: 10),
+              Text(
+                'services.addNewService'.trns(),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -241,24 +291,81 @@ class _ServicesTabBar extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 80),
+    return Padding(
+      padding: const EdgeInsets.only(top: 80),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.content_cut_outlined,
               size: 60,
               color: Color(0xFFCCCCCC),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'No services found',
-              style: TextStyle(
+              'services.empty'.trns(),
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF888888),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Error State ─────────────────────────────────────────────────────────────
+
+class _ErrorState extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _ErrorState({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: 60,
+              color: Color(0xFFCCCCCC),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'services.loadError'.trns(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF888888),
+              ),
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: onRetry,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'services.retry'.trns(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.white,
+                  ),
+                ),
               ),
             ),
           ],

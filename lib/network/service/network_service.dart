@@ -56,6 +56,10 @@ class NetworkService extends GetxService {
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
+    final companyId = _auth.companyId.value;
+    if (companyId != null && companyId.isNotEmpty) {
+      options.headers['X-Company-Id'] = companyId;
+    }
     _log(options.headers.toString());
     _log('${options.method}  ${options.uri}', icon: '📤');
     if (options.data != null) _log('Body → ${options.data}', icon: '📦');
@@ -82,6 +86,24 @@ class NetworkService extends GetxService {
     try {
       final response = await _dio.get(endpoint, queryParameters: queryParams);
       return _processResponse(response);
+    } on DioException catch (e) {
+      return _processDioException(e);
+    } catch (e) {
+      return _processUnknownException(e);
+    }
+  }
+
+  /// HTTP GET returning a raw (untyped) payload.
+  ///
+  /// Use this for endpoints whose body is a top-level JSON array (or any
+  /// shape that isn't a plain object), e.g. `/data/branches`.
+  Future<ApiResponse<dynamic>> getRaw({
+    required String endpoint,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      final response = await _dio.get(endpoint, queryParameters: queryParams);
+      return _processRawResponse(response);
     } on DioException catch (e) {
       return _processDioException(e);
     } catch (e) {
@@ -238,28 +260,30 @@ class NetworkService extends GetxService {
     }
 
     final body = raw is Map<String, dynamic> ? raw : <String, dynamic>{};
-    final String message = (() {
-      final m = body['message'];
-      if (m == null) return '';
-      if (m is String) return m;
-      if (m is Map || m is List) return '';
-      return m.toString();
-    })();
+    final String message = _messageFromBody(body);
 
     // ── 2xx ──────────────────────────────────────────────────────────────────
     if (statusCode != null && statusCode >= 200 && statusCode < 300) {
       // Server may return {"status": false} even on HTTP 200 (soft failure).
-      // Some endpoints use `success` instead of `status`.
-      final bool bodyStatus = body['status'] == true || body['success'] == true;
+      // Some endpoints use `success` instead of `status`, and some return
+      // plain payloads (e.g. token/user) with no flag at all — those are
+      // treated as success.
+      // final bool hasStatusFlag =
+      //     body.containsKey('status') || body.containsKey('success');
+      // final bool bodyStatus =
+      //     body['status'] == true ||
+      //     body['status'] == 1 ||
+      //     body['success'] == true ||
+      //     body['success'] == 1;
 
-      if (bodyStatus) {
+      // if (!hasStatusFlag || bodyStatus) {
         _log('Success: $message', icon: '✅');
         return ApiResponse.completed(body, message: message);
-      } else {
-        _log('Soft failure: $message', icon: '⚠️');
-        _showError(message);
-        return ApiResponse.error(message);
-      }
+      // } else {
+      //   _log('Soft failure: $message', icon: '⚠️');
+      //   _showError(message);
+      //   return ApiResponse.error(message);
+      // }
     }
 
     // ── 400 Validation errors ─────────────────────────────────────────────────
@@ -273,11 +297,15 @@ class NetworkService extends GetxService {
 
     // ── 401 Unauthorised → dialog + redirect ──────────────────────────────────
     if (statusCode == 401) {
+      final display = message.isNotEmpty ? message : 'errors.unauthorized'.trns();
       _log('Unauthorised — redirecting to login', icon: '🔒');
+      // Already on the login screen (e.g. failed credentials) → just snackbar.
+      if (Get.currentRoute == Routes.LOGIN) {
+        _showError(display);
+        return ApiResponse.error(display);
+      }
       _showUnauthorisedDialog();
-      return ApiResponse.error(
-        message.isNotEmpty ? message : 'errors.unauthorized'.trns(),
-      );
+      return ApiResponse.error(display);
     }
 
     // ── 403 / 404 / 422 ───────────────────────────────────────────────────────
@@ -304,6 +332,46 @@ class NetworkService extends GetxService {
     _log('Unexpected response (HTTP $statusCode).', icon: '❓');
     _showError(fallback);
     return ApiResponse.error(fallback);
+  }
+
+  /// Response handler for raw (non-map) payloads, e.g. top-level JSON arrays.
+  /// Errors are delegated to [_processResponse] so messaging stays consistent.
+  ApiResponse<dynamic> _processRawResponse(Response response) {
+    final int? statusCode = response.statusCode;
+    final dynamic raw = response.data;
+
+    _log('Processing raw [$statusCode]', icon: '🔍');
+
+    if (statusCode != null && statusCode >= 200 && statusCode < 300) {
+      final body = raw is Map<String, dynamic> ? raw : <String, dynamic>{};
+      final bool hasStatusFlag =
+          body.containsKey('status') || body.containsKey('success');
+      final bool bodyStatus =
+          body['status'] == true ||
+          body['status'] == 1 ||
+          body['success'] == true ||
+          body['success'] == 1;
+
+      if (!hasStatusFlag || bodyStatus) {
+        _log('Success (raw)', icon: '✅');
+        return ApiResponse.completed(raw);
+      }
+
+      final message = _messageFromBody(body);
+      _log('Soft failure: $message', icon: '⚠️');
+      _showError(message);
+      return ApiResponse.error(message);
+    }
+
+    return _processResponse(response);
+  }
+
+  String _messageFromBody(Map<String, dynamic> body) {
+    final m = body['message'];
+    if (m == null) return '';
+    if (m is String) return m;
+    if (m is Map || m is List) return '';
+    return m.toString();
   }
 
   // ─── Exception Handlers ─────────────────────────────────────────────────────

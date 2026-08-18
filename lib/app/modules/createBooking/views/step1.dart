@@ -76,6 +76,8 @@ class Step1BookingInfo extends StatelessWidget {
             const SizedBox(height: 8),
             Obx(
               () => CommonTextInputField(
+                hintTextColor: AppColors.grey,
+
                 hintText: 'createBooking.step1.selectBranch'.trns(),
                 controller: controller.branchCtrl,
                 readOnly: true,
@@ -97,6 +99,8 @@ class Step1BookingInfo extends StatelessWidget {
             _FieldLabel('createBooking.step1.bookingType'.trns()),
             const SizedBox(height: 8),
             CommonTextInputField(
+                hintTextColor: AppColors.grey,
+
               hintText: 'createBooking.step1.selectBookingType'.trns(),
               controller: controller.bookingTypeCtrl,
               readOnly: true,
@@ -151,6 +155,8 @@ class Step1BookingInfo extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             CommonTextInputField(
+                hintTextColor: AppColors.grey,
+
               hintText: 'createBooking.step1.selectCustomerType'.trns(),
               controller: controller.customerCtrl,
               readOnly: true,
@@ -177,6 +183,8 @@ class Step1BookingInfo extends StatelessWidget {
             _FieldLabel('createBooking.step1.date'.trns()),
             const SizedBox(height: 8),
             CommonTextInputField(
+                hintTextColor: AppColors.grey,
+
               hintText: 'createBooking.step1.datePlaceholder'.trns(),
               controller: controller.dateCtrl,
               readOnly: true,
@@ -209,6 +217,8 @@ class Step1BookingInfo extends StatelessWidget {
             _FieldLabel('createBooking.step1.startTime'.trns()),
             const SizedBox(height: 8),
             CommonTextInputField(
+                hintTextColor: AppColors.grey,
+
               hintText: 'createBooking.step1.startTimePlaceholder'.trns(),
               controller: controller.startTimeCtrl,
               readOnly: true,
@@ -238,6 +248,8 @@ class Step1BookingInfo extends StatelessWidget {
             _FieldLabel('createBooking.step1.endTime'.trns()),
             const SizedBox(height: 8),
             CommonTextInputField(
+                hintTextColor: AppColors.grey,
+
               hintText: 'createBooking.step1.endTimePlaceholder'.trns(),
               controller: controller.endTimeCtrl,
               readOnly: true,
@@ -267,6 +279,8 @@ class Step1BookingInfo extends StatelessWidget {
             _FieldLabel('createBooking.step1.note'.trns()),
             const SizedBox(height: 8),
             CommonTextInputField(
+                hintTextColor: AppColors.grey,
+
               hintText: 'createBooking.step1.notePlaceholder'.trns(),
               controller: controller.noteCtrl,
               maxLines: 4,

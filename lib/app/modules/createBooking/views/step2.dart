@@ -141,6 +141,7 @@ class _PackageCard extends StatelessWidget {
           _FieldLabel('createBooking.step2.package'.trns()),
           const SizedBox(height: 8),
           CommonTextInputField(
+            hintTextColor: AppColors.grey,
             hintText: 'createBooking.step2.selectPackage'.trns(),
             controller: item.packageCtrl,
             readOnly: true,
@@ -160,6 +161,7 @@ class _PackageCard extends StatelessWidget {
           _FieldLabel('createBooking.step2.employee'.trns()),
           const SizedBox(height: 8),
           CommonTextInputField(
+            hintTextColor: AppColors.grey,
             hintText: 'createBooking.step2.selectEmployee'.trns(),
             controller: item.employeeCtrl,
             readOnly: true,
@@ -179,6 +181,7 @@ class _PackageCard extends StatelessWidget {
           _FieldLabel('createBooking.step2.amount'.trns()),
           const SizedBox(height: 8),
           CommonTextInputField(
+            hintTextColor: AppColors.grey,
             hintText: '00',
             controller: item.amountCtrl,
             keyboardType: TextInputType.number,
@@ -191,6 +194,7 @@ class _PackageCard extends StatelessWidget {
           _FieldLabel('createBooking.step2.discount'.trns()),
           const SizedBox(height: 8),
           CommonTextInputField(
+            hintTextColor: AppColors.grey,
             hintText: '00',
             controller: item.discountCtrl,
             keyboardType: TextInputType.number,
@@ -203,6 +207,7 @@ class _PackageCard extends StatelessWidget {
           _FieldLabel('createBooking.step2.total'.trns()),
           const SizedBox(height: 8),
           CommonTextInputField(
+            hintTextColor: AppColors.grey,
             hintText: '00',
             controller: item.totalCtrl,
             keyboardType: TextInputType.number,
