@@ -1,3 +1,5 @@
+// lib/app/modules/reports/revenue/views/revenue_report_view.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/revenueReport/controllers/revenue_report_controller.dart';
@@ -15,21 +17,39 @@ class RevenueReportView extends GetView<RevenueReportController> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: _buildAppBar(context),
-      body: Column(
-        children: [
-          _buildFilterRow(context),
-          const SizedBox(height: 12),
-          _buildColumnSelectorRow(context),
-          const SizedBox(height: 16),
-          Expanded(child: _buildTableSection(context)),
-          _buildPagination(),
-          const SizedBox(height: 20),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () => controller.fetchRevenueReport(isRefresh: true),
+        color: AppColors.primary,
+        child: Column(
+          children: [
+            _buildFilterRow(context),
+            const SizedBox(height: 12),
+            _buildColumnSelectorRow(context),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: RevenueTableWidget(controller: controller),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            _buildPagination(),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
 
-  // ── App Bar ─────────────────────────────────────────────────────────────
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.primary,
@@ -62,18 +82,13 @@ class RevenueReportView extends GetView<RevenueReportController> {
           padding: const EdgeInsets.only(right: 16),
           child: GestureDetector(
             onTap: () => _openFilterSheet(context),
-            child: const Icon(
-              Icons.filter_alt_outlined,
-              color: AppColors.white,
-              size: 24,
-            ),
+            child: const Icon(Icons.filter_alt_outlined, color: AppColors.white, size: 24),
           ),
         ),
       ],
     );
   }
 
-  // ── Date Range + Filter Button ───────────────────────────────────────────
   Widget _buildFilterRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -86,17 +101,11 @@ class RevenueReportView extends GetView<RevenueReportController> {
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppColors.black.withValues(alpha: 0.15),
-                    ),
+                    border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.calendar_today_outlined,
-                        size: 16,
-                        color: Color(0xFF9CA3AF),
-                      ),
+                      const Icon(Icons.calendar_today_outlined, size: 16, color: Color(0xFF9CA3AF)),
                       const SizedBox(width: 8),
                       Text(
                         controller.dateRangeLabel,
@@ -122,7 +131,7 @@ class RevenueReportView extends GetView<RevenueReportController> {
               ),
               alignment: Alignment.center,
               child: Text(
-                'revenue.filter.title'.trns(),
+                'reports.revenue.filter.button'.trns(),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -136,7 +145,6 @@ class RevenueReportView extends GetView<RevenueReportController> {
     );
   }
 
-  // ── Column Selector Row ──────────────────────────────────────────────────
   Widget _buildColumnSelectorRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -148,21 +156,15 @@ class RevenueReportView extends GetView<RevenueReportController> {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: AppColors.black.withValues(alpha: 0.15),
-                ),
+                border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.calendar_view_week_outlined,
-                    size: 16,
-                    color: Color(0xFF9CA3AF),
-                  ),
+                  const Icon(Icons.calendar_view_week_outlined, size: 16, color: Color(0xFF9CA3AF)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '${'revenue.columns.selected'.trns()} (${controller.selectedColumnCount})',
+                      '${'reports.revenue.columns.selected'.trns()} (${controller.selectedColumnCount})',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -170,11 +172,7 @@ class RevenueReportView extends GetView<RevenueReportController> {
                       ),
                     ),
                   ),
-                  const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 20,
-                    color: Color(0xFF9CA3AF),
-                  ),
+                  const Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Color(0xFF9CA3AF)),
                 ],
               ),
             ),
@@ -182,56 +180,28 @@ class RevenueReportView extends GetView<RevenueReportController> {
     );
   }
 
-  // ── Table Section ────────────────────────────────────────────────────────
-  Widget _buildTableSection(BuildContext context) {
-    return Obx(() {
-      final rows = controller.pagedData;
-      return SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: RevenueTableWidget(
-                  controller: controller,
-                  rows: rows,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-  }
-
-  // ── Pagination ───────────────────────────────────────────────────────────
   Widget _buildPagination() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Obx(() => Row(
             children: [
               _PaginationBtn(
-                label: '« Previous',
-                onTap: controller.currentPage.value > 1
-                    ? controller.prevPage
-                    : null,
+                label: '« ${'reports.revenue.pagination.previous'.trns()}',
+                onTap: controller.currentPage.value > 1 ? controller.prevPage : null,
               ),
               const SizedBox(width: 8),
               _PaginationBtn(
-                label: 'Next »',
+                label: '${'reports.revenue.pagination.next'.trns()} »',
+                isPrimary: true,
                 onTap: controller.currentPage.value < controller.totalPages
                     ? controller.nextPage
                     : null,
-                isPrimary: true,
               ),
             ],
           )),
     );
   }
 
-  // ── Sheet Openers ────────────────────────────────────────────────────────
   void _openFilterSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -251,7 +221,6 @@ class RevenueReportView extends GetView<RevenueReportController> {
   }
 }
 
-// ── Pagination Button ────────────────────────────────────────────────────────
 class _PaginationBtn extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;

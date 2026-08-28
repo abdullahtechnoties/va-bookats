@@ -1,3 +1,5 @@
+// lib/app/modules/reports/revenue/views/widgets/revenue_filter_sheet.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/revenueReport/controllers/revenue_report_controller.dart';
@@ -29,7 +31,7 @@ class RevenueFilterSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // drag handle
+          // Drag handle
           Center(
             child: Container(
               width: 40,
@@ -41,12 +43,13 @@ class RevenueFilterSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          // header
+
+          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'revenue.filter.title'.trns(),
+                'reports.revenue.filter.title'.trns(),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -63,7 +66,7 @@ class RevenueFilterSheet extends StatelessWidget {
 
           // From Date
           Text(
-            'revenue.filter.fromDate'.trns(),
+            'reports.revenue.filter.fromDate'.trns(),
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -86,7 +89,7 @@ class RevenueFilterSheet extends StatelessWidget {
 
           // To Date
           Text(
-            'revenue.filter.toDate'.trns(),
+            'reports.revenue.filter.toDate'.trns(),
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -107,40 +110,39 @@ class RevenueFilterSheet extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Branches
-          Text(
-            'revenue.filter.branches'.trns(),
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF6B7280),
+          // Branch (only if owner)
+          if (controller.isOwner) ...[
+            Text(
+              'reports.revenue.filter.branch'.trns(),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF6B7280),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Obx(() => _DropdownField(
-                value: controller.tempBranch.value,
-                onTap: () {
-                  _showBranchPicker(context, controller);
-                },
-              )),
+            const SizedBox(height: 8),
+            Obx(() => _DropdownField(
+                  value: controller.tempBranchLabel.value,
+                  onTap: () => _showBranchPicker(context, controller),
+                )),
+            const SizedBox(height: 16),
+          ],
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
 
           // Buttons
           Row(
             children: [
               Expanded(
                 child: _OutlineBtn(
-                  label: 'revenue.filter.reset'.trns(),
-                  onTap: () {
-                    controller.resetFilter();
-                  },
+                  label: 'reports.revenue.filter.reset'.trns(),
+                  onTap: controller.resetFilter,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: MainBtn(
-                  text: 'revenue.filter.apply'.trns(),
+                  text: 'reports.revenue.filter.apply'.trns(),
                   onPressed: () {
                     controller.applyFilter();
                     Get.back();
@@ -182,7 +184,7 @@ class RevenueFilterSheet extends StatelessWidget {
   }
 }
 
-// ── small date field ────────────────────────────────────────────────────────
+// ── Date Field ───────────────────────────────────────────────────────────────
 class _DateField extends StatelessWidget {
   final DateTime value;
   final VoidCallback onTap;
@@ -207,9 +209,7 @@ class _DateField extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: AppColors.black.withValues(alpha: 0.15),
-          ),
+          border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
@@ -235,7 +235,7 @@ class _DateField extends StatelessWidget {
   }
 }
 
-// ── small dropdown field ────────────────────────────────────────────────────
+// ── Dropdown Field ───────────────────────────────────────────────────────────
 class _DropdownField extends StatelessWidget {
   final String value;
   final VoidCallback onTap;
@@ -252,9 +252,7 @@ class _DropdownField extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: AppColors.black.withValues(alpha: 0.15),
-          ),
+          border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
@@ -280,7 +278,7 @@ class _DropdownField extends StatelessWidget {
   }
 }
 
-// ── outline button ──────────────────────────────────────────────────────────
+// ── Outline Button ───────────────────────────────────────────────────────────
 class _OutlineBtn extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
@@ -313,9 +311,10 @@ class _OutlineBtn extends StatelessWidget {
   }
 }
 
-// ── branch picker inside the filter sheet ──────────────────────────────────
+// ── Branch Picker Sheet ──────────────────────────────────────────────────────
 class _BranchPickerSheet extends StatelessWidget {
   final RevenueReportController controller;
+
   const _BranchPickerSheet({required this.controller});
 
   @override
@@ -340,7 +339,7 @@ class _BranchPickerSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'revenue.filter.branches'.trns(),
+                  'reports.revenue.filter.selectBranch'.trns(),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -354,28 +353,36 @@ class _BranchPickerSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          ...controller.branches.map(
-            (b) => Obx(() => ListTile(
-                  title: Text(b,
+          Obx(() => ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controller.branchOptions.length,
+                itemBuilder: (ctx, i) {
+                  final option = controller.branchOptions[i];
+                  final isSelected =
+                      controller.tempBranchId.value == option.value;
+
+                  return ListTile(
+                    title: Text(
+                      option.label,
                       style: TextStyle(
                         fontSize: 14,
-                        color: controller.tempBranch.value == b
-                            ? AppColors.primary
-                            : AppColors.black,
-                        fontWeight: controller.tempBranch.value == b
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                      )),
-                  trailing: controller.tempBranch.value == b
-                      ? const Icon(Icons.check_rounded,
-                          color: AppColors.primary, size: 20)
-                      : null,
-                  onTap: () {
-                    controller.tempBranch.value = b;
-                    Get.back();
-                  },
-                )),
-          ),
+                        color: isSelected ? AppColors.primary : AppColors.black,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(Icons.check_rounded,
+                            color: AppColors.primary, size: 20)
+                        : null,
+                    onTap: () {
+                      controller.selectBranch(option);
+                      Get.back();
+                    },
+                  );
+                },
+              )),
           const SizedBox(height: 8),
         ],
       ),

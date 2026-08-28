@@ -1,5 +1,4 @@
 {
-
   "welcome": {
     "title": "Welcome to",
     "appName": "va_bookats",
@@ -121,7 +120,7 @@
       "passwordMismatch": "Passwords do not match"
     }
   },
-    "onboard": {
+  "onboard": {
     "continue": "Continue",
     "slide1": {
       "title": "Easy Process",
@@ -198,70 +197,70 @@
       "user": "User",
       "reporting": "Reporting"
     },
-  "booking": {
-    "title": "All Booking",
-    "tabs": {
-      "active": "Active",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
+    "booking": {
+      "title": "All Booking",
+      "tabs": {
+        "active": "Active",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "card": {
+        "id": "ID:",
+        "date": "Date",
+        "totalAmount": "Total Amount",
+        "service": "Service:",
+        "bookingStatus": "Booking Status",
+        "viewDetails": "View Details",
+        "active": "Active",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      }
     },
-    "card": {
+    "bookingDetails": {
+      "title": "Booking Details",
       "id": "ID:",
-      "date": "Date",
-      "totalAmount": "Total Amount",
       "service": "Service:",
-      "bookingStatus": "Booking Status",
-      "viewDetails": "View Details",
-      "active": "Active",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
-    }
-  },
-  "bookingDetails": {
-    "title": "Booking Details",
-    "id": "ID:",
-    "service": "Service:",
-    "timeDuration": "Time Duration:",
-    "email": "Email:",
-    "phoneNumber": "Phone Number:",
-    "customerInfo": "Customer info:",
-    "name": "Name:",
-    "totalPrice": "Total Price",
-    "services": "Services",
-    "staff": "Staff",
-    "categories": "Categories",
-    "variation": "Variation",
-    "price": "Price",
-    "qty": "Qty",
-    "total": "Total",
-    "discount": "Discount",
-    "afterDiscount": "After Discount",
-    "grandTotal": "Grand Total",
-    "customerName": "Customer Name",
-    "customerEmail": "Customer Email",
-    "customerPhone": "Customer Phone",
-    "branch": "Branch",
-    "paid": "Paid",
-    "remaining": "Remaining",
-    "viewDetails": "View Details"
-  },
-  "payments": {
-    "title": "Payments",
-    "filterBy": "Filter By",
-    "grandTotal": "Grand Total",
-    "paid": "Paid",
-    "customerName": "Customer Name",
-    "customerEmail": "Customer Email",
-    "customerPhone": "Customer Phone",
-    "branch": "Branch",
-    "total": "Total",
-    "remaining": "Remaining",
-    "viewDetails": "View Details"
-  },
+      "timeDuration": "Time Duration:",
+      "email": "Email:",
+      "phoneNumber": "Phone Number:",
+      "customerInfo": "Customer info:",
+      "name": "Name:",
+      "totalPrice": "Total Price",
+      "services": "Services",
+      "staff": "Staff",
+      "categories": "Categories",
+      "variation": "Variation",
+      "price": "Price",
+      "qty": "Qty",
+      "total": "Total",
+      "discount": "Discount",
+      "afterDiscount": "After Discount",
+      "grandTotal": "Grand Total",
+      "customerName": "Customer Name",
+      "customerEmail": "Customer Email",
+      "customerPhone": "Customer Phone",
+      "branch": "Branch",
+      "paid": "Paid",
+      "remaining": "Remaining",
+      "viewDetails": "View Details"
+    },
+    "payments": {
+      "title": "Payments",
+      "filterBy": "Filter By",
+      "grandTotal": "Grand Total",
+      "paid": "Paid",
+      "customerName": "Customer Name",
+      "customerEmail": "Customer Email",
+      "customerPhone": "Customer Phone",
+      "branch": "Branch",
+      "total": "Total",
+      "remaining": "Remaining",
+      "viewDetails": "View Details"
+    },
     "tab": {
       "flame": "Flame",
       "discover": "Discover"
-    },    
+    },
     "exitDialog": {
       "title": "Exit Application",
       "message": "Are you sure you want to exit the application?"
@@ -571,7 +570,7 @@
     "resentSuccess": "Code resent successfully"
   },
   "app": {
-    "name": "va_bookats"
+    "name": "VA-Bookats"
   },
   "common": {
     "yes": "Yes",
@@ -817,14 +816,14 @@
     "successTitle": "Report submitted",
     "successMessage": "Thank you for keeping the community safe. Our team will review your report.",
     "category": {
-        "spam": "Spam or misleading",
-        "harassment": "Harassment or bullying",
-        "inappropriate": "Inappropriate content",
-        "fake": "Fake profile",
-        "offensive": "Offensive content",
-        "other": "Other"
-      }
-    },
+      "spam": "Spam or misleading",
+      "harassment": "Harassment or bullying",
+      "inappropriate": "Inappropriate content",
+      "fake": "Fake profile",
+      "offensive": "Offensive content",
+      "other": "Other"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",
@@ -938,7 +937,7 @@
       "enterEmail": "Enter Email Address",
       "addNow": "Add Now"
     }
-  }, 
+  },
   "services": {
     "title": "Services",
     "addNewService": "Add New Service",
@@ -1079,19 +1078,34 @@
       "status": "Status:",
       "name": "Name:",
       "branch": "Branch:",
+      "price": "Price:",
       "active": "Active",
       "inactive": "Inactive",
       "viewOrEdit": "View or Edit Details"
     },
     "filter": {
       "title": "Filter",
+      "search": "Search",
       "fromDate": "From Date",
       "toDate": "To Date",
       "branches": "Branches",
       "allBranches": "All Branches",
       "reset": "Reset",
       "applyFilter": "Apply Filter"
-    }
+    },
+    "errorTitle": "Error",
+    "loadError": "Failed to load packages.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "empty": "No packages found",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Package",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Package deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status"
   },
   "addPackage": {
     "title": "Add New Package",
@@ -1106,15 +1120,33 @@
     "datePlaceholder": "mm/dd/yyyy",
     "status": "Status",
     "selectStatus": "Select Status",
+    "service": "Service",
     "addService": "Add Service",
     "selectService": "Select Service",
-    "price": "Price",
-    "totalPriceAuto": "Total Price (Auto)",
-    "packagePriceCustom": "Package Price (Custom)",
+    "selectVariation": "Select Variation",
+    "totalPrice": "Total Price",
+    "packagePrice": "Package Price",
+    "packagePricePlaceholder": "Enter Package Price",
     "delete": "Delete",
     "description": "Description",
     "writeSomething": "Write something....",
-    "save": "Save"
+    "save": "Save",
+    "update": "Update",
+    "errorTitle": "Error",
+    "createSuccessTitle": "Created",
+    "createSuccessMessage": "Package created successfully!",
+    "updateSuccessTitle": "Updated",
+    "updateSuccessMessage": "Package updated successfully!",
+    "validation": {
+      "branchRequired": "Please select a branch",
+      "nameRequired": "Please enter package name",
+      "startingFromRequired": "Please select a start date",
+      "endingOnRequired": "Please select an end date",
+      "statusRequired": "Please select a status",
+      "priceRequired": "Please enter a package price",
+      "atLeastOneService": "Please add at least one service",
+      "variationRequired": "Please select a variation for variation-type services"
+    }
   },
   "customers": {
     "title": "Customers",
@@ -1143,115 +1175,216 @@
     }
   },
   "revenue": {
-  "title": "Revenue Report",
-  "branchComparison": "Branch Comparison",
-  "filter": {
-    "title": "Filter",
-    "fromDate": "From Date",
-    "toDate": "To Date",
-    "branches": "Branches",
-    "allBranches": "All Branches",
-    "reset": "Reset",
-    "apply": "Apply Filter"
-  },
-  "columns": {
-    "title": "Selected Data",
-    "selected": "Selected Data",
-    "fromDate": "From Date",
-    "selectAll": "Select All",
-    "branch": "Branch",
-    "totalAmount": "Total Amount",
-    "cashCount": "Cash Count",
-    "onlinePayment": "Online Payment",
-    "serviceAmount": "Service Amount",
-    "productAmount": "Product Amount",
-    "packageAmount": "Package Amount"
-  },
-  "table": {
-    "hash": "#",
-    "branch": "Branch",
-    "from": "From",
-    "to": "To",
-    "totalAmount": "Total Amount",
-    "totalDiscount": "Total Discount",
-    "totalPaidAmount": "Total Paid Amount",
-    "totalBalanceAmount": "Total Balance Amount",
-    "actions": "Actions",
-    "viewDetails": "View Details"
-  },
-  "pagination": {
-    "previous": "« Previous",
-    "next": "Next »"
-  }
-},
-"drawer": {
-  "booking": "Booking",
-  "inventory": "Inventory",
-  "customers": "Customers",
-  "reporting": "Reporting",
-  "profile": "Profile",
-  "subItems": {
-    "allBookings": "All Bookings",
-    "addBooking": "Add Booking",
-    "products": "Products",
-    "services": "Services",
-    "packages": "Packages",
+    "title": "Revenue Report",
     "branchComparison": "Branch Comparison",
-    "revenueReport": "Revenue Report",
-    "servicesRevenue": "Services Revenue Report",
-    "productsRevenue": "Products Revenue Report",
-    "packagesRevenue": "Packages Revenue Report",
-    "commissionsReport": "Commissions Report",
-    "expensesReport": "Expenses Report",
-    "customersReport": "Customers Report"
-  }
-},
-"profile": {
-  "title": "Profile",
-  "personalInfo": "Personal Information",
-  "updatePassword": "Update Password"
-},
-"personalInfo": {
-  "title": "Personal Information",
-  "profileInformation": "Profile Information",
-  "profileSubtitle": "Update your account's profile information and email address.",
-  "name": "Name",
-  "enterName": "Enter Name Here",
-  "emailPrimary": "Email Primary",
-  "customer": "Customer",
-  "phonePrimary": "Phone Primary",
-  "phoneSecondary": "Phone Secondary",
-  "image": "Image",
-  "chooseFile": "Choose File",
-  "dateOfBirth": "Date of Birth",
-  "qualification": "Qualification",
-  "qualificationHint": "Qualification",
-  "country": "Country",
-  "city": "City",
-  "state": "State",
-  "zipCode": "Zip Code",
-  "address": "Address",
-  "addressHint": "Write address here...",
-  "save": "Save",
-  "savedSuccess": "Profile updated successfully"
-},
-"updatePassword": {
-  "appBarTitle": "Update Password",
-  "title": "Update Password",
-  "subtitle": "Ensure your account is using a strong password to stay secure.",
-  "currentPassword": "Current Password",
-  "enterCurrentPassword": "Enter Current Password",
-  "newPassword": "New Password",
-  "enterNewPassword": "Enter New Password",
-  "confirmPassword": "Confirm Password",
-  "confirmPasswordHint": "Confirm Password",
-  "save": "Save",
-  "currentRequired": "Please enter your current password",
-  "newRequired": "Please enter a new password",
-  "minLength": "Password must be at least 8 characters",
-  "confirmRequired": "Please confirm your password",
-  "mismatch": "Passwords do not match",
-  "savedSuccess": "Password updated successfully"
-}
+    "filter": {
+      "title": "Filter",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branches": "Branches",
+      "allBranches": "All Branches",
+      "reset": "Reset",
+      "apply": "Apply Filter"
+    },
+    "columns": {
+      "title": "Selected Data",
+      "selected": "Selected Data",
+      "fromDate": "From Date",
+      "selectAll": "Select All",
+      "branch": "Branch",
+      "totalAmount": "Total Amount",
+      "cashCount": "Cash Count",
+      "onlinePayment": "Online Payment",
+      "serviceAmount": "Service Amount",
+      "productAmount": "Product Amount",
+      "packageAmount": "Package Amount"
+    },
+    "table": {
+      "hash": "#",
+      "branch": "Branch",
+      "from": "From",
+      "to": "To",
+      "totalAmount": "Total Amount",
+      "totalDiscount": "Total Discount",
+      "totalPaidAmount": "Total Paid Amount",
+      "totalBalanceAmount": "Total Balance Amount",
+      "actions": "Actions",
+      "viewDetails": "View Details"
+    },
+    "pagination": {
+      "previous": "« Previous",
+      "next": "Next »"
+    }
+  },
+  "drawer": {
+    "booking": "Booking",
+    "inventory": "Inventory",
+    "customers": "Customers",
+    "reporting": "Reporting",
+    "profile": "Profile",
+    "subItems": {
+      "allBookings": "All Bookings",
+      "addBooking": "Add Booking",
+      "products": "Products",
+      "services": "Services",
+      "packages": "Packages",
+      "branchComparison": "Branch Comparison",
+      "revenueReport": "Revenue Report",
+      "servicesRevenue": "Services Revenue Report",
+      "productsRevenue": "Products Revenue Report",
+      "packagesRevenue": "Packages Revenue Report",
+      "commissionsReport": "Commissions Report",
+      "expensesReport": "Expenses Report",
+      "customersReport": "Customers Report"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "updatePassword": "Update Password"
+  },
+  "personalInfo": {
+    "title": "Personal Information",
+    "profileInformation": "Profile Information",
+    "profileSubtitle": "Update your account's profile information and email address.",
+    "name": "Name",
+    "enterName": "Enter Name Here",
+    "emailPrimary": "Email Primary",
+    "customer": "Customer",
+    "phonePrimary": "Phone Primary",
+    "phoneSecondary": "Phone Secondary",
+    "image": "Image",
+    "chooseFile": "Choose File",
+    "dateOfBirth": "Date of Birth",
+    "qualification": "Qualification",
+    "qualificationHint": "Qualification",
+    "country": "Country",
+    "city": "City",
+    "state": "State",
+    "zipCode": "Zip Code",
+    "address": "Address",
+    "addressHint": "Write address here...",
+    "save": "Save",
+    "savedSuccess": "Profile updated successfully"
+  },
+  "updatePassword": {
+    "appBarTitle": "Update Password",
+    "title": "Update Password",
+    "subtitle": "Ensure your account is using a strong password to stay secure.",
+    "currentPassword": "Current Password",
+    "enterCurrentPassword": "Enter Current Password",
+    "newPassword": "New Password",
+    "enterNewPassword": "Enter New Password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordHint": "Confirm Password",
+    "save": "Save",
+    "currentRequired": "Please enter your current password",
+    "newRequired": "Please enter a new password",
+    "minLength": "Password must be at least 8 characters",
+    "confirmRequired": "Please confirm your password",
+    "mismatch": "Passwords do not match",
+    "savedSuccess": "Password updated successfully"
+  },
+  "paymentDetails": {
+    "title": "Payment Details",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "returned": "Return"
+  },
+  "mediaLibrary": {
+    "title": "Media Library",
+    "uploadImage": "Upload Image",
+    "recentFile": "Recent File",
+    "selectSource": "Select Image Source",
+    "gallery": "Gallery",
+    "camera": "Camera",
+    "searchHint": "Search files...",
+    "uploaded": "Uploaded:",
+    "size": "Size:",
+    "dimensions": "Dimensions:",
+    "deletePermanently": "Delete Permanently",
+    "cancel": "Cancel",
+    "select": "Select",
+    "selected": "Selected",
+    "uploadSuccess": "Image uploaded successfully",
+    "deleteSuccess": "Image deleted successfully"
+  },
+  "reports": {
+    "revenue": {
+      "title": "Revenue Report",
+      "noData": "No Revenue Data",
+      "noDataDesc": "No revenue records found for the selected period",
+      "viewDetails": "View Details",
 
+      "filter": {
+        "title": "Filter Revenue",
+        "button": "Filter",
+        "fromDate": "From Date",
+        "toDate": "To Date",
+        "branch": "Branch",
+        "allBranches": "All Branches",
+        "selectBranch": "Select Branch",
+        "apply": "Apply Filter",
+        "reset": "Reset"
+      },
+
+      "columns": {
+        "title": "Select Columns",
+        "selected": "Columns Selected",
+        "fromDate": "From Date",
+        "selectAll": "Select All",
+        "branch": "Branch",
+        "from": "From",
+        "to": "To",
+        "totalAmount": "Total Amount",
+        "totalDiscount": "Total Discount",
+        "totalRevenue": "Total Revenue",
+        "totalBalance": "Total Balance",
+        "cashPayment": "Cash Payment",
+        "cardPayment": "Card Payment",
+        "onlinePayment": "Online Payment",
+        "serviceRevenue": "Service Revenue",
+        "productRevenue": "Product Revenue",
+        "packageRevenue": "Package Revenue",
+        "totalCount": "Total Count",
+        "paidCount": "Paid Count",
+        "unpaidCount": "Unpaid Count",
+        "returnCount": "Return Count",
+        "actions": "Actions"
+      },
+
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+
+    "paymentDetails": {
+      "title": "Payment Details",
+      "noPayments": "No Payments Found",
+      "noPaymentsDesc": "No payment records for this period",
+
+      "tabs": {
+        "paid": "Paid",
+        "unpaid": "Unpaid",
+        "returned": "Returned"
+      },
+
+      "columns": {
+        "customer": "Customer",
+        "bookingId": "Booking ID",
+        "date": "Date",
+        "totalAmount": "Total Amount",
+        "paidAmount": "Paid Amount",
+        "balance": "Balance",
+        "paymentMethod": "Payment Method",
+        "status": "Status"
+      },
+
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next"
+      }
+    }
+  }
 }

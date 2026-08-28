@@ -5,7 +5,6 @@ import 'package:va_bookats/app/modules/appDrawer/views/app_drawer_view.dart';
 import 'package:va_bookats/app/modules/allBooking/views/all_booking_view.dart';
 import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
 import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
-import 'package:va_bookats/app/modules/payments/views/payments_view.dart';
 import 'package:va_bookats/app/modules/profile/controllers/profile_controller.dart';
 import 'package:va_bookats/app/modules/profile/views/profile_view.dart';
 import 'package:va_bookats/app/modules/services/controllers/services_controller.dart';

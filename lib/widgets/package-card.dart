@@ -1,44 +1,25 @@
 // lib/app/widgets/package_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:va_bookats/models/package_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
-
-class PackageModel {
-  final String id;
-  final String name;
-  final String branch;
-  final String status;
-
-  const PackageModel({
-    required this.id,
-    required this.name,
-    required this.branch,
-    required this.status,
-  });
-}
 
 class PackageCard extends StatelessWidget {
   final PackageModel package;
   final VoidCallback? onViewEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onStatusTap;
+  final bool isBusy;
 
   const PackageCard({
     super.key,
     required this.package,
     this.onViewEdit,
     this.onDelete,
+    this.onStatusTap,
+    this.isBusy = false,
   });
-
-  Color get _statusBgColor =>
-      package.status.toLowerCase() == 'active'
-          ? AppColors.secondary.withValues(alpha: 0.12)
-          : Colors.grey.withValues(alpha: 0.15);
-
-  Color get _statusTextColor =>
-      package.status.toLowerCase() == 'active'
-          ? AppColors.secondary
-          : Colors.grey;
 
   @override
   Widget build(BuildContext context) {
@@ -72,30 +53,59 @@ class PackageCard extends StatelessWidget {
                   color: AppColors.black,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 7),
-                decoration: BoxDecoration(
-                  color: _statusBgColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  package.status,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: _statusTextColor,
+              GestureDetector(
+                onTap: isBusy ? null : onStatusTap,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: package.isActive
+                        ? AppColors.secondary.withValues(alpha: 0.12)
+                        : Colors.grey.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: isBusy
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.secondary,
+                          ),
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              package.statusDisplay,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: package.isActive
+                                    ? AppColors.secondary
+                                    : Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              size: 16,
+                              color: package.isActive
+                                  ? AppColors.secondary
+                                  : Colors.grey,
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
 
-          // Name Row with divider
+          // Name Row
           _InfoRow(
             label: 'packages.card.name'.trns(),
-            value: package.name,
+            value: package.name ?? '',
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
@@ -111,7 +121,23 @@ class PackageCard extends StatelessWidget {
           // Branch Row
           _InfoRow(
             label: 'packages.card.branch'.trns(),
-            value: package.branch,
+            value: package.branchName,
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Divider(
+              height: 1,
+              thickness: 0.8,
+              color: Color(0xFFF0F0F0),
+              indent: 0,
+              endIndent: 0,
+            ),
+          ),
+
+          // Price Row
+          _InfoRow(
+            label: 'packages.card.price'.trns(),
+            value: package.priceDisplay,
           ),
           const SizedBox(height: 16),
 
@@ -120,7 +146,7 @@ class PackageCard extends StatelessWidget {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: onViewEdit,
+                  onTap: isBusy ? null : onViewEdit,
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
@@ -145,7 +171,7 @@ class PackageCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               GestureDetector(
-                onTap: onDelete,
+                onTap: isBusy ? null : onDelete,
                 child: Container(
                   width: 48,
                   height: 48,
@@ -153,8 +179,8 @@ class PackageCard extends StatelessWidget {
                     color: AppColors.secondary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.delete_outline,
+                  child: Icon(
+                    isBusy ? Icons.hourglass_empty : Icons.delete_outline,
                     color: AppColors.white,
                     size: 20,
                   ),

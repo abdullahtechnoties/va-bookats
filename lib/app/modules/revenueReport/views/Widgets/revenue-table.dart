@@ -1,16 +1,16 @@
+// lib/app/modules/reports/revenue/views/widgets/revenue_table.dart
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/revenueReport/controllers/revenue_report_controller.dart';
+import 'package:va_bookats/models/revenue_data_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/translation_extention.dart';
 
 class RevenueTableWidget extends StatelessWidget {
   final RevenueReportController controller;
-  final List<RevenueRow> rows;
 
-  const RevenueTableWidget({
-    super.key,
-    required this.controller,
-    required this.rows,
-  });
+  const RevenueTableWidget({super.key, required this.controller});
 
   static const double _indexColWidth = 44.0;
   static const double _actionsColWidth = 110.0;
@@ -19,30 +19,84 @@ class RevenueTableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cols = controller.selectedColumns;
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return _buildLoader();
+      }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: MediaQuery.of(context).size.width - 32,
+      if (controller.revenueDataList.isEmpty) {
+        return _buildEmptyState();
+      }
+
+      final cols = controller.selectedColumns;
+      final rows = controller.pagedData;
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width - 32,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _TableHeader(cols: cols),
+              ...rows.asMap().entries.map((entry) {
+                final isEven = entry.key % 2 == 0;
+                return _TableDataRow(
+                  row: entry.value,
+                  cols: cols,
+                  isEven: isEven,
+                  controller: controller,
+                );
+              }),
+            ],
+          ),
         ),
+      );
+    });
+  }
+
+  Widget _buildLoader() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(40),
+        child: CircularProgressIndicator(color: AppColors.primary),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // ── header row ──────────────────────────────────────────────
-            _TableHeader(cols: cols),
-            // ── data rows ───────────────────────────────────────────────
-            ...rows.asMap().entries.map((entry) {
-              final isEven = entry.key % 2 == 0;
-              return _TableDataRow(
-                row: entry.value,
-                cols: cols,
-                isEven: isEven,
-                controller: controller,
-              );
-            }),
+            Icon(
+              Icons.receipt_long_outlined,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'reports.revenue.noData'.trns(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'reports.revenue.noDataDesc'.trns(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade500,
+              ),
+            ),
           ],
         ),
       ),
@@ -50,7 +104,7 @@ class RevenueTableWidget extends StatelessWidget {
   }
 }
 
-// ── Header ──────────────────────────────────────────────────────────────────
+// ── Header ───────────────────────────────────────────────────────────────────
 class _TableHeader extends StatelessWidget {
   final List<RevenueColumn> cols;
 
@@ -60,26 +114,23 @@ class _TableHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: RevenueTableWidget._headerHeight,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.primary,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
         ),
       ),
       child: Row(
         children: [
-          // # col
           _HeaderCell(
             label: '#',
             width: RevenueTableWidget._indexColWidth,
             isFirst: true,
           ),
-          // dynamic cols
-          ...cols.map((c) => _HeaderCell(label: c.label, width: c.width)),
-          // actions col
+          ...cols.map((c) => _HeaderCell(label: c.label.trns(), width: c.width)),
           _HeaderCell(
-            label: 'Actions',
+            label: 'reports.revenue.columns.actions'.trns(),
             width: RevenueTableWidget._actionsColWidth,
             isLast: true,
           ),
@@ -133,9 +184,9 @@ class _HeaderCell extends StatelessWidget {
   }
 }
 
-// ── Data Row ────────────────────────────────────────────────────────────────
+// ── Data Row ─────────────────────────────────────────────────────────────────
 class _TableDataRow extends StatelessWidget {
-  final RevenueRow row;
+  final RevenueData row;
   final List<RevenueColumn> cols;
   final bool isEven;
   final RevenueReportController controller;
@@ -149,29 +200,26 @@ class _TableDataRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor =
-        isEven ? AppColors.white : const Color(0xFFFFF5F2);
+    final bgColor = isEven ? AppColors.white : const Color(0xFFFFF5F2);
 
     return Container(
       height: RevenueTableWidget._rowHeight,
       color: bgColor,
       child: Row(
         children: [
-          // index
           _DataCell(
             width: RevenueTableWidget._indexColWidth,
             showDivider: true,
             child: Text(
-              '${row.index}',
+              '${controller.revenueDataList.indexOf(row) + 1}',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
               ),
             ),
           ),
-          // dynamic columns
           ...cols.map(
             (c) => _DataCell(
               width: c.width,
@@ -188,16 +236,13 @@ class _TableDataRow extends StatelessWidget {
               ),
             ),
           ),
-          // actions
           _DataCell(
             width: RevenueTableWidget._actionsColWidth,
             showDivider: false,
             child: GestureDetector(
-              onTap: () {
-                // navigate to detail
-              },
+              onTap: () => controller.navigateToDetails(row),
               child: Text(
-                'View Details',
+                'reports.revenue.viewDetails'.trns(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 11,
@@ -234,15 +279,9 @@ class _DataCell extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           right: showDivider
-              ? BorderSide(
-                  color: const Color(0xFFE5E7EB),
-                  width: 0.5,
-                )
+              ? const BorderSide(color: Color(0xFFE5E7EB), width: 0.5)
               : BorderSide.none,
-          bottom: BorderSide(
-            color: const Color(0xFFE5E7EB),
-            width: 0.5,
-          ),
+          bottom: const BorderSide(color: Color(0xFFE5E7EB), width: 0.5),
         ),
       ),
       child: child,

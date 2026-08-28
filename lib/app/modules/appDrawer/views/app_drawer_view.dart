@@ -52,7 +52,6 @@ class AppDrawerView extends StatelessWidget {
                         // controller.inventorySubItems[0] == null;
                         // Get.toNamed(Routes.SERVICES);
                         _openTab(2);
-
                         return;
                       } else if (item == "Service Categories"){
                         // controller

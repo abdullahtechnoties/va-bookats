@@ -24,6 +24,8 @@ abstract class Routes {
   static const APP_DRAWER = _Paths.APP_DRAWER;
   static const PERSONAL_INFO = _Paths.PERSONAL_INFO;
   static const UPDATE_PASSWORD = _Paths.UPDATE_PASSWORD;
+  static const PAYMENT_DETAILS = _Paths.PAYMENT_DETAILS;
+  static const MEDIA_LIBRARY = _Paths.MEDIA_LIBRARY;
 }
 
 abstract class _Paths {
@@ -49,4 +51,6 @@ abstract class _Paths {
   static const APP_DRAWER = '/app-drawer';
   static const PERSONAL_INFO = '/personal-info';
   static const UPDATE_PASSWORD = '/update-password';
+  static const PAYMENT_DETAILS = '/payment-details';
+  static const MEDIA_LIBRARY = '/media-library';
 }

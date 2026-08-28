@@ -16,6 +16,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   get: ^4.7.3
+  collection: ^1.18.0
   shared_preferences: ^2.5.5
   google_fonts: ^8.1.0
   carousel_slider: ^5.1.2

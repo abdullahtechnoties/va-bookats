@@ -22,10 +22,14 @@ import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/mediaLibrary/bindings/media_library_binding.dart';
+import '../modules/mediaLibrary/views/media_library_view.dart';
 import '../modules/onboard/bindings/onboard_binding.dart';
 import '../modules/onboard/views/onboard_view.dart';
 import '../modules/packages/bindings/packages_binding.dart';
 import '../modules/packages/views/packages_view.dart';
+import '../modules/paymentDetails/bindings/payment_details_binding.dart';
+import '../modules/paymentDetails/views/payment_details_view.dart';
 import '../modules/payments/bindings/payments_binding.dart';
 import '../modules/payments/views/payments_view.dart';
 import '../modules/personalInfo/bindings/personal_info_binding.dart';
@@ -155,6 +159,16 @@ class AppPages {
       name: _Paths.UPDATE_PASSWORD,
       page: () => const UpdatePasswordView(),
       binding: UpdatePasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.PAYMENT_DETAILS,
+      page: () => const PaymentDetailsView(),
+      binding: PaymentDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.MEDIA_LIBRARY,
+      page: () => const MediaLibraryView(),
+      binding: MediaLibraryBinding(),
     ),
   ];
 }
