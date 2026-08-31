@@ -26,6 +26,7 @@ abstract class Routes {
   static const UPDATE_PASSWORD = _Paths.UPDATE_PASSWORD;
   static const PAYMENT_DETAILS = _Paths.PAYMENT_DETAILS;
   static const MEDIA_LIBRARY = _Paths.MEDIA_LIBRARY;
+  static const BRANCH_COMPARISON = _Paths.BRANCH_COMPARISON;
 }
 
 abstract class _Paths {
@@ -53,4 +54,5 @@ abstract class _Paths {
   static const UPDATE_PASSWORD = '/update-password';
   static const PAYMENT_DETAILS = '/payment-details';
   static const MEDIA_LIBRARY = '/media-library';
+  static const BRANCH_COMPARISON = '/branch-comparison';
 }

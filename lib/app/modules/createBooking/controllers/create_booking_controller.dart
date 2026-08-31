@@ -281,9 +281,15 @@ class CreateBookingController extends GetxController {
     paymentMethodCtrl.dispose();
     bookingStatusCtrl.dispose();
     transactionIdCtrl.dispose();
-    for (final p in packageItems) p.dispose();
-    for (final s in serviceItems) s.dispose();
-    for (final pr in productItems) pr.dispose();
+    for (final p in packageItems) {
+      p.dispose();
+    }
+    for (final s in serviceItems) {
+      s.dispose();
+    }
+    for (final pr in productItems) {
+      pr.dispose();
+    }
     super.onClose();
   }
 }

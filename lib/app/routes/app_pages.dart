@@ -14,6 +14,8 @@ import '../modules/bookingDetails/bindings/booking_details_binding.dart';
 import '../modules/bookingDetails/views/booking_details_view.dart';
 import '../modules/bottomnav/bindings/bottomnav_binding.dart';
 import '../modules/bottomnav/views/bottomnav_view.dart';
+import '../modules/branchComparison/bindings/branch_comparison_binding.dart';
+import '../modules/branchComparison/views/branch_comparison_view.dart';
 import '../modules/createBooking/bindings/create_booking_binding.dart';
 import '../modules/createBooking/views/create_booking_view.dart';
 import '../modules/customers/bindings/customers_binding.dart';
@@ -169,6 +171,11 @@ class AppPages {
       name: _Paths.MEDIA_LIBRARY,
       page: () => const MediaLibraryView(),
       binding: MediaLibraryBinding(),
+    ),
+    GetPage(
+      name: _Paths.BRANCH_COMPARISON,
+      page: () => const BranchComparisonView(),
+      binding: BranchComparisonBinding(),
     ),
   ];
 }
