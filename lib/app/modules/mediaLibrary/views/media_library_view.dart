@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/mediaLibrary/controllers/media_library_controller.dart';
@@ -84,48 +83,97 @@ class MediaLibraryBody extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Upload zone
-                _UploadZone(controller: controller),
-                const SizedBox(height: 24),
-                // Recent files label
-                Text(
-                  'mediaLibrary.recentFile'.trns(),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.black,
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: controller.handleRefresh,
+            child: SingleChildScrollView(
+              controller: controller.scrollController,
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Upload zone
+                  _UploadZone(controller: controller),
+                  const SizedBox(height: 24),
+                  // Recent files label
+                  Text(
+                    'mediaLibrary.recentFile'.trns(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                // Grid
-                Obx(() {
-                  final items = controller.filteredItems;
-                  return GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 4,
-                      mainAxisSpacing: 4,
-                      childAspectRatio: 1,
-                    ),
-                    itemCount: items.length,
-                    itemBuilder: (ctx, i) => _MediaGridItem(
-                      item: items[i],
-                      controller: controller,
-                      isSheet: isSheet,
-                    ),
-                  );
-                }),
-                const SizedBox(height: 16),
-              ],
+                  const SizedBox(height: 12),
+                  // Grid states
+                  Obx(() {
+                    if (controller.isLoading.value &&
+                        controller.mediaItems.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 60),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      );
+                    }
+                    if (controller.loadFailed.value &&
+                        controller.mediaItems.isEmpty) {
+                      return _MediaErrorState(
+                        onRetry: controller.retry,
+                      );
+                    }
+                    final items = controller.filteredItems;
+                    if (items.isEmpty) {
+                      return const _MediaEmptyState();
+                    }
+                    return Column(
+                      children: [
+                        GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 4,
+                            mainAxisSpacing: 4,
+                            childAspectRatio: 1,
+                          ),
+                          itemCount: items.length,
+                          itemBuilder: (ctx, i) => _MediaGridItem(
+                            item: items[i],
+                            controller: controller,
+                            isSheet: isSheet,
+                          ),
+                        ),
+                        Obx(() {
+                          if (!controller.isLoadingMore.value) {
+                            return const SizedBox(height: 16);
+                          }
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 8),
+                      ],
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
         ),
@@ -140,6 +188,87 @@ class MediaLibraryBody extends StatelessWidget {
           _SheetActionButtons(controller: controller),
         ],
       ],
+    );
+  }
+}
+
+class _MediaEmptyState extends StatelessWidget {
+  const _MediaEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(Icons.image_outlined,
+                size: 56, color: Color(0xFFCCCCCC)),
+            const SizedBox(height: 12),
+            Text(
+              'mediaLibrary.empty'.trns() == 'mediaLibrary.empty'
+                  ? 'No media found'
+                  : 'mediaLibrary.empty'.trns(),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF888888),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MediaErrorState extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _MediaErrorState({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(Icons.error_outline,
+                size: 52, color: Color(0xFFCCCCCC)),
+            const SizedBox(height: 12),
+            Text(
+              'services.loadError'.trns(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF888888),
+              ),
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: onRetry,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 26, vertical: 11),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'services.retry'.trns(),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -349,14 +478,7 @@ class _MediaGridItem extends StatelessWidget {
     return Obx(() {
       final selected = controller.isSelected(item.id);
       return GestureDetector(
-        onTap: () {
-          if (isSheet) {
-            controller.toggleSelection(item.id);
-          } else {
-            // Full page: single tap = select/deselect for preview
-            controller.toggleSelection(item.id);
-          }
-        },
+        onTap: () => controller.toggleSelection(item.id),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           decoration: BoxDecoration(
@@ -370,13 +492,10 @@ class _MediaGridItem extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(selected ? 6 : 8),
-                child: item.isLocal
-                    ? Image.file(item.localFile!,
-                        fit: BoxFit.cover)
-                    : AppCachedImage(
-                        imageUrl: item.networkUrl,
-                        fit: BoxFit.cover,
-                      ),
+                child: AppCachedImage(
+                  imageUrl: item.thumbnailUrl ?? item.networkUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
               if (selected)
                 Positioned(
@@ -426,17 +545,12 @@ class _SelectionDetail extends StatelessWidget {
               // Thumbnail
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: item.isLocal
-                    ? Image.file(item.localFile!,
-                        width: 90,
-                        height: 80,
-                        fit: BoxFit.cover)
-                    : AppCachedImage(
-                        imageUrl: item.networkUrl,
-                        width: 90,
-                        height: 80,
-                        fit: BoxFit.cover,
-                      ),
+                child: AppCachedImage(
+                  imageUrl: item.thumbnailUrl ?? item.networkUrl,
+                  width: 90,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
               ),
               const SizedBox(width: 14),
               // Info
@@ -451,6 +565,8 @@ class _SelectionDetail extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: AppColors.black,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     _InfoRow(
@@ -463,24 +579,40 @@ class _SelectionDetail extends StatelessWidget {
                         label: 'mediaLibrary.dimensions'.trns(),
                         value: item.dimensions),
                     const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () => controller.deleteItem(item.id),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.delete_outline,
-                              size: 16, color: AppColors.primary),
-                          const SizedBox(width: 4),
-                          Text(
-                            'mediaLibrary.deletePermanently'.trns(),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.primary,
+                    Obx(() {
+                      final busy =
+                          controller.busyDeleteId.value == item.id;
+                      return GestureDetector(
+                        onTap: busy
+                            ? null
+                            : () => controller.deleteItem(item.id),
+                        child: Row(
+                          children: [
+                            if (busy)
+                              const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primary,
+                                ),
+                              )
+                            else
+                              const Icon(Icons.delete_outline,
+                                  size: 16, color: AppColors.primary),
+                            const SizedBox(width: 4),
+                            Text(
+                              'mediaLibrary.deletePermanently'.trns(),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primary,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
+                          ],
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),

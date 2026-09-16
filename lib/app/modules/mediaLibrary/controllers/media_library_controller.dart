@@ -1,88 +1,202 @@
+// lib/app/modules/mediaLibrary/controllers/media_library_controller.dart
+
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:va_bookats/app/modules/mediaLibrary/repositories/media_repository.dart';
+import 'package:va_bookats/models/media_model.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
+/// UI wrapper around [MediaModel] so the existing grid/detail UI keeps working
+/// while the data is now fully dynamic (media_id based).
 class MediaItem {
-  final String id;
+  final int id;
   final String? networkUrl;
-  final File? localFile;
+  final String? thumbnailUrl;
   final String name;
   final String uploadedDate;
   final String size;
   final String dimensions;
+  final MediaModel? raw;
 
   MediaItem({
     required this.id,
     this.networkUrl,
-    this.localFile,
+    this.thumbnailUrl,
     required this.name,
     required this.uploadedDate,
     required this.size,
     required this.dimensions,
+    this.raw,
   });
 
-  bool get isLocal => localFile != null;
+  factory MediaItem.fromModel(MediaModel m) {
+    return MediaItem(
+      id: m.id,
+      networkUrl: m.url,
+      thumbnailUrl: m.displayUrl,
+      name: m.fileName.isEmpty ? 'media_${m.id}' : m.fileName,
+      uploadedDate: m.uploadedLabel,
+      size: m.sizeLabel,
+      dimensions: m.dimensionsLabel,
+      raw: m,
+    );
+  }
+
+  /// Backwards-compat for callers that used String ids before.
+  String get stringId => id.toString();
+
+  bool get isLocal => false;
+  File? get localFile => null;
+
+  /// Media id to send to other APIs (`media_id`).
+  int get mediaId => id;
 }
 
 class MediaLibraryController extends GetxController {
-  final RxList<MediaItem> mediaItems = <MediaItem>[].obs;
-  final RxList<String> selectedIds = <String>[].obs;
-  final RxString searchQuery = ''.obs;
-  final RxBool isUploading = false.obs;
-  final searchController = TextEditingController();
-
-  final ImagePicker _picker = ImagePicker();
-
-  // Callback when selecting from sheet mode
-  final Function(List<MediaItem>)? onSelectionConfirmed;
-  final bool isSheetMode;
-
   MediaLibraryController({
     this.onSelectionConfirmed,
     this.isSheetMode = false,
-  });
+    this.allowMultiple = true,
+    List<int> initialSelectedIds = const [],
+    MediaRepository? repository,
+  })  : _repository = repository,
+        _initialSelected = List<int>.from(initialSelectedIds);
+
+  final Function(List<MediaItem>)? onSelectionConfirmed;
+  final bool isSheetMode;
+  final bool allowMultiple;
+  final List<int> _initialSelected;
+  final MediaRepository? _repository;
+
+  MediaRepository get _repo {
+    final repo = _repository;
+    if (repo != null) return repo;
+    if (Get.isRegistered<MediaRepository>()) {
+      return Get.find<MediaRepository>();
+    }
+    return MediaRepository();
+  }
+
+  final RxList<MediaItem> mediaItems = <MediaItem>[].obs;
+  final RxList<int> selectedIds = <int>[].obs;
+  final RxString searchQuery = ''.obs;
+  final RxBool isUploading = false.obs;
+  final RxBool isLoading = false.obs;
+  final RxBool isLoadingMore = false.obs;
+  final RxBool loadFailed = false.obs;
+  final RxBool hasMore = false.obs;
+  final RxnInt busyDeleteId = RxnInt();
+  final searchController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
+
+  final ImagePicker _picker = ImagePicker();
+  Timer? _searchDebounce;
+  int _currentPage = 1;
+  int _lastPage = 1;
 
   @override
   void onInit() {
     super.onInit();
-    _loadDummyData();
+    selectedIds.assignAll(_initialSelected);
+    scrollController.addListener(_onScroll);
+    // Debounced server search — typing filters via API.
+    debounce<String>(
+      searchQuery,
+      (_) => fetchFirstPage(),
+      time: const Duration(milliseconds: 500),
+    );
+    fetchFirstPage();
   }
 
-  void _loadDummyData() {
-    // Dummy network images (salon-themed unsplash)
-    final dummyUrls = [
-      'https://images.unsplash.com/photo-1560066984-138daaa5fd72?w=400',
-      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400',
-      'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=400',
-      'https://images.unsplash.com/photo-1559599101-f09722fb4948?w=400',
-      'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400',
-      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400',
-      'https://images.unsplash.com/photo-1634449571010-02389ed0f9b0?w=400',
-      'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400',
-      'https://images.unsplash.com/photo-1470259078422-826894b933aa?w=400',
-    ];
-
-    mediaItems.value = dummyUrls.asMap().entries.map((e) {
-      return MediaItem(
-        id: 'item_${e.key}',
-        networkUrl: e.value,
-        name: 'temp${e.key + 1}.webp',
-        uploadedDate: 'Aug 27, 2026',
-        size: '${(30 + e.key * 7).toStringAsFixed(2)} KB',
-        dimensions: '1920 x 1080',
-      );
-    }).toList();
+  @override
+  void onClose() {
+    _searchDebounce?.cancel();
+    searchController.dispose();
+    scrollController.dispose();
+    super.onClose();
   }
+
+  void _onScroll() {
+    if (!scrollController.hasClients) return;
+    if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 300 &&
+        hasMore.value &&
+        !isLoadingMore.value &&
+        !isLoading.value) {
+      loadMore();
+    }
+  }
+
+  // ─── Fetching ──────────────────────────────────────────────────────────
+
+  Future<void> fetchFirstPage() async {
+    isLoading.value = true;
+    loadFailed.value = false;
+    final response = await _repo.getMedia(
+      page: 1,
+      search: searchQuery.value.trim().isEmpty
+          ? null
+          : searchQuery.value.trim(),
+    );
+    if (!response.isCompleted || response.data == null) {
+      loadFailed.value = true;
+      isLoading.value = false;
+      // NetworkService already shows a snackbar; don't double-notify on
+      // silent background refreshes — only when list is empty.
+      if (mediaItems.isEmpty) {
+        SnackbarService.showError(
+          title: 'common.error'.trns(),
+          message: response.message ?? 'errors.requestFailed'.trns(),
+        );
+      }
+      return;
+    }
+    final page = response.data!;
+    _currentPage = page.meta.currentPage;
+    _lastPage = page.meta.lastPage;
+    hasMore.value = page.meta.hasNextPage;
+    mediaItems.assignAll(page.items.map(MediaItem.fromModel).toList());
+    // Drop selections that no longer exist (e.g. after delete).
+    selectedIds.retainWhere((id) => mediaItems.any((m) => m.id == id));
+    isLoading.value = false;
+  }
+
+  Future<void> handleRefresh() async => fetchFirstPage();
+
+  Future<void> loadMore() async {
+    if (_currentPage >= _lastPage || isLoadingMore.value) return;
+    isLoadingMore.value = true;
+    final response = await _repo.getMedia(
+      page: _currentPage + 1,
+      search: searchQuery.value.trim().isEmpty
+          ? null
+          : searchQuery.value.trim(),
+    );
+    if (response.isCompleted && response.data != null) {
+      final page = response.data!;
+      _currentPage = page.meta.currentPage;
+      _lastPage = page.meta.lastPage;
+      hasMore.value = page.meta.hasNextPage;
+      mediaItems.addAll(page.items.map(MediaItem.fromModel).toList());
+    }
+    isLoadingMore.value = false;
+  }
+
+  void retry() => fetchFirstPage();
 
   List<MediaItem> get filteredItems {
-    if (searchQuery.value.isEmpty) return mediaItems;
-    return mediaItems
-        .where((m) =>
-            m.name.toLowerCase().contains(searchQuery.value.toLowerCase()))
-        .toList();
+    // Server already filters by `search`; keep a light client filter so the
+    // in-sheet search dialog feels instant while the debounce fires.
+    final q = searchController.text.trim().toLowerCase();
+    if (q.isEmpty) return mediaItems;
+    // If server returned a filtered set, client filtering is a no-op pass.
+    final clientHit =
+        mediaItems.where((m) => m.name.toLowerCase().contains(q)).toList();
+    return clientHit.isEmpty ? mediaItems : clientHit;
   }
 
   MediaItem? get firstSelected {
@@ -94,43 +208,41 @@ class MediaLibraryController extends GetxController {
     }
   }
 
-  bool isSelected(String id) => selectedIds.contains(id);
+  List<MediaItem> get selectedItems =>
+      mediaItems.where((m) => selectedIds.contains(m.id)).toList();
 
-  void toggleSelection(String id) {
+  bool isSelected(int id) => selectedIds.contains(id);
+
+  /// Backwards-compat overload — old UI passed String ids.
+  bool isSelectedString(String id) =>
+      selectedIds.contains(int.tryParse(id) ?? -1);
+
+  void toggleSelection(int id) {
     if (selectedIds.contains(id)) {
       selectedIds.remove(id);
     } else {
+      if (!allowMultiple) selectedIds.clear();
       selectedIds.add(id);
     }
   }
 
+  /// Backwards-compat for old String-based callers.
+  void toggleSelectionString(String id) {
+    final parsed = int.tryParse(id);
+    if (parsed == null) return;
+    toggleSelection(parsed);
+  }
+
   void clearSelection() => selectedIds.clear();
+
+  // ─── Upload ────────────────────────────────────────────────────────────
 
   Future<void> uploadFromGallery() async {
     try {
       final List<XFile> files = await _picker.pickMultiImage();
       if (files.isEmpty) return;
-      isUploading.value = true;
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      for (final file in files) {
-        final newItem = MediaItem(
-          id: 'local_${DateTime.now().millisecondsSinceEpoch}_${file.name}',
-          localFile: File(file.path),
-          name: file.name,
-          uploadedDate: _todayFormatted(),
-          size: '${((await File(file.path).length()) / 1024).toStringAsFixed(2)} KB',
-          dimensions: 'Unknown',
-        );
-        mediaItems.insert(0, newItem);
-      }
-      isUploading.value = false;
-      SnackbarService.showSuccess(
-        title: 'common.success'.trns(),
-        message: 'mediaLibrary.uploadSuccess'.trns(),
-      );
+      await _uploadFiles(files.map((f) => File(f.path)).toList());
     } catch (_) {
-      isUploading.value = false;
       SnackbarService.showError(
         title: 'common.error'.trns(),
         message: 'errors.imagePickerGallery'.trns(),
@@ -143,53 +255,101 @@ class MediaLibraryController extends GetxController {
       final XFile? file =
           await _picker.pickImage(source: ImageSource.camera);
       if (file == null) return;
-      isUploading.value = true;
-      await Future.delayed(const Duration(milliseconds: 600));
-
-      final newItem = MediaItem(
-        id: 'cam_${DateTime.now().millisecondsSinceEpoch}',
-        localFile: File(file.path),
-        name: file.name,
-        uploadedDate: _todayFormatted(),
-        size: '${((await File(file.path).length()) / 1024).toStringAsFixed(2)} KB',
-        dimensions: 'Unknown',
-      );
-      mediaItems.insert(0, newItem);
-      isUploading.value = false;
+      await _uploadFiles([File(file.path)]);
     } catch (_) {
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: 'errors.imagePickerCamera'.trns(),
+      );
+    }
+  }
+
+  Future<void> _uploadFiles(List<File> files) async {
+    isUploading.value = true;
+    try {
+      final response = await _repo.uploadMedia(files);
+      if (!response.isCompleted || response.data == null) {
+        SnackbarService.showError(
+          title: 'common.error'.trns(),
+          message: response.message ?? 'errors.requestFailed'.trns(),
+        );
+        return;
+      }
+      final uploaded =
+          response.data!.map(MediaItem.fromModel).toList();
+      // Newest first — matches the API's recent-first ordering.
+      mediaItems.insertAll(0, uploaded);
+      // Auto-select uploads so the sheet reflects the new image instantly.
+      if (!allowMultiple && uploaded.isNotEmpty) {
+        selectedIds.assignAll([uploaded.first.id]);
+      } else {
+        for (final item in uploaded) {
+          if (!selectedIds.contains(item.id)) selectedIds.add(item.id);
+        }
+      }
+      SnackbarService.showSuccess(
+        title: 'common.success'.trns(),
+        message: 'mediaLibrary.uploadSuccess'.trns(),
+      );
+    } finally {
       isUploading.value = false;
     }
   }
 
-  void deleteItem(String id) {
-    mediaItems.removeWhere((m) => m.id == id);
-    selectedIds.remove(id);
-    SnackbarService.showSuccess(
-      title: 'common.success'.trns(),
-      message: 'mediaLibrary.deleteSuccess'.trns(),
-    );
+  // ─── Delete ────────────────────────────────────────────────────────────
+
+  Future<void> deleteItem(int id) async {
+    busyDeleteId.value = id;
+    final response = await _repo.deleteMedia([id]);
+    busyDeleteId.value = null;
+    if (response.isCompleted) {
+      mediaItems.removeWhere((m) => m.id == id);
+      selectedIds.remove(id);
+      SnackbarService.showSuccess(
+        title: 'common.success'.trns(),
+        message: 'mediaLibrary.deleteSuccess'.trns(),
+      );
+    } else {
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: response.message ?? 'errors.requestFailed'.trns(),
+      );
+    }
   }
+
+  /// Backwards-compat for old String-based callers.
+  Future<void> deleteItemString(String id) async {
+    final parsed = int.tryParse(id);
+    if (parsed == null) return;
+    return deleteItem(parsed);
+  }
+
+  Future<void> deleteSelected() async {
+    if (selectedIds.isEmpty) return;
+    final ids = List<int>.from(selectedIds);
+    busyDeleteId.value = ids.first;
+    final response = await _repo.deleteMedia(ids);
+    busyDeleteId.value = null;
+    if (response.isCompleted) {
+      mediaItems.removeWhere((m) => ids.contains(m.id));
+      selectedIds.clear();
+      SnackbarService.showSuccess(
+        title: 'common.success'.trns(),
+        message: 'mediaLibrary.deleteSuccess'.trns(),
+      );
+    } else {
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: response.message ?? 'errors.requestFailed'.trns(),
+      );
+    }
+  }
+
+  // ─── Selection ─────────────────────────────────────────────────────────
 
   void confirmSelection() {
-    final selected = mediaItems
-        .where((m) => selectedIds.contains(m.id))
-        .toList();
+    final selected = selectedItems;
     onSelectionConfirmed?.call(selected);
     Get.back();
-  }
-
-  String _todayFormatted() {
-    final now = DateTime.now();
-    const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[now.month]} ${now.day}, ${now.year}';
-  }
-
-  @override
-  void onClose() {
-    searchController.dispose();
-    super.onClose();
   }
 }

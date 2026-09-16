@@ -1,6 +1,5 @@
 // lib/app/modules/services/repositories/service_repository.dart
 
-import 'dart:io';
 import 'package:get/get.dart';
 import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/models/service_category_model.dart';
@@ -173,6 +172,7 @@ class ServiceRepository {
   }
 
   /// POST /services — create a service (owner only, multipart/form-data).
+  /// Image is now a WordPress-style media library reference (`media_id`).
   Future<ApiResponse<ServiceModel>> createService({
     int? branchId,
     required int? categoryId,
@@ -183,7 +183,7 @@ class ServiceRepository {
     String? defaultPrice,
     String? description,
     List<VariationDraft> variations = const [],
-    File? imageFile,
+    int? mediaId,
   }) async {
     final response = await _network.postForm(
       endpoint: ApiPath.services,
@@ -197,8 +197,8 @@ class ServiceRepository {
         defaultPrice: defaultPrice,
         description: description,
         variations: variations,
+        mediaId: mediaId,
       ),
-      files: imageFile == null ? null : {'image': imageFile},
     );
     return _mapSingleService(response);
   }
@@ -215,7 +215,7 @@ class ServiceRepository {
     String? defaultPrice,
     String? description,
     List<VariationDraft> variations = const [],
-    File? imageFile,
+    int? mediaId,
   }) async {
     final response = await _network.postForm(
       endpoint: ApiPath.service(id),
@@ -231,9 +231,9 @@ class ServiceRepository {
           defaultPrice: defaultPrice,
           description: description,
           variations: variations,
+          mediaId: mediaId,
         ),
       },
-      files: imageFile == null ? null : {'image': imageFile},
     );
     return _mapSingleService(response);
   }
@@ -267,6 +267,7 @@ class ServiceRepository {
   /// - `default_price` is only ever sent for `normal` services.
   /// - Variations are only sent for `variation` services, using the indexed
   ///   `variations[i][name]` / `variations[i][price]` keys Laravel parses.
+  /// - `media_id` references the media-library selection (replaces raw upload).
   Map<String, dynamic> _buildFields({
     int? branchId,
     required int? categoryId,
@@ -277,6 +278,7 @@ class ServiceRepository {
     String? defaultPrice,
     String? description,
     required List<VariationDraft> variations,
+    int? mediaId,
   }) {
     return {
       'branch_id': branchId,
@@ -290,6 +292,7 @@ class ServiceRepository {
         'default_price': defaultPrice,
       if (description != null && description.isNotEmpty)
         'description': description,
+      if (mediaId != null) 'media_id': mediaId,
       if (type == 'variation')
         for (var i = 0; i < variations.length; i++) ...{
           'variations[$i][name]': variations[i].name,

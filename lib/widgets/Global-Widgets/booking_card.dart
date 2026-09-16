@@ -1,10 +1,15 @@
 // lib/app/widgets/booking_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
+export 'package:va_bookats/models/booking_model.dart';
+
+/// Legacy stub kept so old static call sites still compile until migrated.
+/// New code should build cards directly from [BookingModel].
 class BookingCardModel {
   final String id;
   final String dateTime;
@@ -30,25 +35,30 @@ class BookingCardModel {
 }
 
 class BookingCard extends StatelessWidget {
-  final BookingCardModel booking;
+  final BookingModel booking;
   final VoidCallback? onViewDetails;
+  final VoidCallback? onStatusTap;
+  final VoidCallback? onEdit;
+  final bool isBusy;
   final bool showShadow;
 
   const BookingCard({
     super.key,
     required this.booking,
     this.onViewDetails,
+    this.onStatusTap,
+    this.onEdit,
+    this.isBusy = false,
     this.showShadow = true,
   });
 
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'active':
-        return AppColors.secondary.withValues(alpha: 0.15);
       case 'completed':
         return Colors.green.withValues(alpha: 0.15);
       case 'cancelled':
         return AppColors.error.withValues(alpha: 0.15);
+      case 'pending':
       default:
         return AppColors.secondary.withValues(alpha: 0.15);
     }
@@ -56,12 +66,11 @@ class BookingCard extends StatelessWidget {
 
   Color _statusTextColor(String status) {
     switch (status.toLowerCase()) {
-      case 'active':
-        return AppColors.secondary;
       case 'completed':
         return Colors.green;
       case 'cancelled':
         return AppColors.error;
+      case 'pending':
       default:
         return AppColors.secondary;
     }
@@ -69,6 +78,7 @@ class BookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final services = booking.serviceNames;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
@@ -106,7 +116,7 @@ class BookingCard extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: '#${booking.id}',
+                        text: '#${booking.serial ?? booking.id}',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -117,7 +127,7 @@ class BookingCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  booking.dateTime,
+                  booking.dateTimeLabel,
                   style: const TextStyle(
                     fontSize: 11.5,
                     color: Color(0xFF888888),
@@ -134,7 +144,7 @@ class BookingCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: AppCachedImage(
-                    imageUrl: booking.imageUrl,
+                    imageUrl: booking.displayImage,
                     width: 72,
                     height: 72,
                     fit: BoxFit.cover,
@@ -146,7 +156,7 @@ class BookingCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        booking.name,
+                        booking.displayName,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -164,7 +174,9 @@ class BookingCard extends StatelessWidget {
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
-                              booking.location,
+                              booking.displayLocation.isEmpty
+                                  ? '—'
+                                  : booking.displayLocation,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF888888),
@@ -220,7 +232,9 @@ class BookingCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              booking.date,
+                              booking.dateLabel.isEmpty
+                                  ? '—'
+                                  : booking.dateLabel,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF888888),
@@ -245,7 +259,7 @@ class BookingCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Rs: ${booking.totalAmount}',
+                              'Rs: ${booking.totalAmount ?? '0'}',
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -272,31 +286,32 @@ class BookingCard extends StatelessWidget {
             const SizedBox(height: 10),
 
             // Services
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: '${'home.booking.card.service'.trns()} ',
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.black,
-                    ),
-                  ),
-                  ...booking.services.asMap().entries.map((entry) {
-                    final isLast = entry.key == booking.services.length - 1;
-                    return TextSpan(
-                      text: isLast ? entry.value : '${entry.value}  |  ',
+            if (services.isNotEmpty)
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${'home.booking.card.service'.trns()} ',
                       style: const TextStyle(
                         fontSize: 12.5,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF888888),
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.black,
                       ),
-                    );
-                  }),
-                ],
+                    ),
+                    ...services.asMap().entries.map((entry) {
+                      final isLast = entry.key == services.length - 1;
+                      return TextSpan(
+                        text: isLast ? entry.value : '${entry.value}  |  ',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF888888),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 12),
 
             // Status + View Details
@@ -315,49 +330,101 @@ class BookingCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _statusColor(booking.status),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        booking.status,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: _statusTextColor(booking.status),
+                    GestureDetector(
+                      onTap: isBusy ? null : onStatusTap,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 5,
                         ),
+                        decoration: BoxDecoration(
+                          color: _statusColor(booking.status),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: isBusy
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    booking.status,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: _statusTextColor(booking.status),
+                                    ),
+                                  ),
+                                  if (onStatusTap != null) ...[
+                                    const SizedBox(width: 2),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      size: 16,
+                                      color:
+                                          _statusTextColor(booking.status),
+                                    ),
+                                  ],
+                                ],
+                              ),
                       ),
                     ),
                   ],
                 ),
-                GestureDetector(
-                  onTap: onViewDetails,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 22,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AppColors.secondary,
-                        width: 1.5,
+                Row(
+                  children: [
+                    if (onEdit != null && booking.isEditable)
+                      GestureDetector(
+                        onTap: isBusy ? null : onEdit,
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            'Edit',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.white,
+                            ),
+                          ),
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      'home.booking.card.viewDetails'.trns(),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.secondary,
+                    GestureDetector(
+                      onTap: onViewDetails,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 22,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColors.secondary,
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'home.booking.card.viewDetails'.trns(),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.secondary,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),

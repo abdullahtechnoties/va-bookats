@@ -95,10 +95,13 @@ class AddCustomerDialog extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              MainBtn(
-                text: 'createBooking.addCustomer.addNow'.trns(),
-                onPressed: controller.addCustomer,
-              ),
+              Obx(() => MainBtn(
+                    text: 'createBooking.addCustomer.addNow'.trns(),
+                    onPressed: controller.isAddingCustomer.value
+                        ? null
+                        : controller.quickAddCustomer,
+                    isLoading: controller.isAddingCustomer.value,
+                  )),
             ],
           ),
         ),

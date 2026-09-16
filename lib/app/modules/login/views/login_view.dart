@@ -105,7 +105,7 @@ class LoginView extends GetView<LoginController> {
                           () => CommonTextInputField(
                             hintText: 'auth.login.passwordHint'.trns(),
                             controller: controller.passwordController,
-                            obscureText: controller.obscurePassword.value,
+                            obscureText: !controller.obscurePassword.value,
                             height: 56,
                             hintTextSize: 14,
                             validator: controller.validatePassword,

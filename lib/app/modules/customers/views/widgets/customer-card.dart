@@ -1,51 +1,37 @@
-// lib/app/widgets/customer_card.dart
+// lib/app/modules/customers/views/widgets/customer-card.dart
 
 import 'package:flutter/material.dart';
+import 'package:va_bookats/models/customer_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
-class CustomerModel {
-  final String id;
-  final String name;
-  final String phone;
-  final String status;
-  final String branch;
-  final String shift;
-  final String designation;
-  final String email;
-  final String address;
-  final String imageUrl;
-
-  const CustomerModel({
-    required this.id,
-    required this.name,
-    required this.phone,
-    required this.status,
-    required this.branch,
-    required this.shift,
-    required this.designation,
-    required this.email,
-    required this.address,
-    required this.imageUrl,
-  });
-}
+export 'package:va_bookats/models/customer_model.dart';
 
 class CustomerCard extends StatelessWidget {
   final CustomerModel customer;
   final VoidCallback? onTap;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onStatusTap;
+  final bool isBusy;
 
-  const CustomerCard({super.key, required this.customer, this.onTap});
+  const CustomerCard({
+    super.key,
+    required this.customer,
+    this.onTap,
+    this.onEdit,
+    this.onDelete,
+    this.onStatusTap,
+    this.isBusy = false,
+  });
 
-  Color get _statusBgColor =>
-      customer.status.toLowerCase() == 'active'
-          ? AppColors.secondary.withValues(alpha: 0.12)
-          : Colors.grey.withValues(alpha: 0.15);
+  Color get _statusBgColor => customer.isActive
+      ? AppColors.secondary.withValues(alpha: 0.12)
+      : Colors.grey.withValues(alpha: 0.15);
 
   Color get _statusTextColor =>
-      customer.status.toLowerCase() == 'active'
-          ? AppColors.secondary
-          : Colors.grey;
+      customer.isActive ? AppColors.secondary : Colors.grey;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +62,7 @@ class CustomerCard extends StatelessWidget {
                 children: [
                   ClipOval(
                     child: AppCachedImage(
-                      imageUrl: customer.imageUrl,
+                      imageUrl: customer.displayImage,
                       width: 54,
                       height: 54,
                       fit: BoxFit.cover,
@@ -88,7 +74,7 @@ class CustomerCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          customer.name,
+                          customer.name.isEmpty ? '—' : customer.name,
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -97,30 +83,68 @@ class CustomerCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          customer.phone,
+                          customer.phonePrimary.isEmpty
+                              ? '—'
+                              : customer.phonePrimary,
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFF888888),
                             fontWeight: FontWeight.w400,
                           ),
                         ),
+                        if (customer.customerSerial != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            '#${customer.customerSerial}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFFAAAAAA),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: _statusBgColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      customer.status,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: _statusTextColor,
+                  GestureDetector(
+                    onTap: isBusy ? null : onStatusTap,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: _statusBgColor,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: isBusy
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.secondary,
+                              ),
+                            )
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  customer.isActive
+                                      ? 'customers.card.active'.trns()
+                                      : 'customers.card.inactive'.trns(),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: _statusTextColor,
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 16,
+                                  color: _statusTextColor,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 ],
@@ -134,31 +158,82 @@ class CustomerCard extends StatelessWidget {
                     color: Color(0xFFF0F0F0)),
               ),
 
-              // Details
-              _DetailRow(
-                label: 'customers.card.branch'.trns(),
-                value: customer.branch,
-              ),
-              _DetailDivider(),
-              _DetailRow(
-                label: 'customers.card.shift'.trns(),
-                value: customer.shift,
-              ),
-              _DetailDivider(),
-              _DetailRow(
-                label: 'customers.card.designation'.trns(),
-                value: customer.designation,
-              ),
-              _DetailDivider(),
+              // Details (only fields the API actually returns)
               _DetailRow(
                 label: 'customers.card.email'.trns(),
-                value: customer.email,
+                value: customer.email.isEmpty ? '—' : customer.email,
               ),
               _DetailDivider(),
               _DetailRow(
                 label: 'customers.card.address'.trns(),
-                value: customer.address,
+                value: customer.addressLabel,
               ),
+              if ((customer.country?.name ?? '').isNotEmpty) ...[
+                _DetailDivider(),
+                _DetailRow(
+                  label: 'customers.filter.country'.trns(),
+                  value: customer.country!.name!,
+                ),
+              ],
+
+              // Actions — edit / delete (status toggles via the pill above)
+              if (onEdit != null || onDelete != null) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Spacer(),
+                    if (onDelete != null)
+                      GestureDetector(
+                        onTap: isBusy ? null : onDelete,
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.secondary,
+                              width: 1.4,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            isBusy
+                                ? Icons.hourglass_empty
+                                : Icons.delete_outline,
+                            color: AppColors.secondary,
+                            size: 19,
+                          ),
+                        ),
+                      ),
+                    if (onDelete != null && onEdit != null)
+                      const SizedBox(width: 10),
+                    if (onEdit != null)
+                      GestureDetector(
+                        onTap: isBusy ? null : onEdit,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'customers.card.edit'.trns() ==
+                                    'customers.card.edit'
+                                ? 'Edit'
+                                : 'customers.card.edit'.trns(),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

@@ -1,24 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/mediaLibrary/controllers/media_library_controller.dart';
+import 'package:va_bookats/app/modules/mediaLibrary/repositories/media_repository.dart';
 import 'package:va_bookats/app/modules/mediaLibrary/views/media_library_view.dart';
 import 'package:va_bookats/utilities/colors.dart';
 
-/// Call this anywhere to open the media selector sheet
+/// Call this anywhere to open the media selector sheet.
 /// Returns selected [MediaItem] list via [onConfirmed] callback.
+///
+/// - [allowMultiple]: false = single-select (profile/service image).
+/// - [initialSelectedIds]: pre-check already-chosen media ids.
 class MediaSelectorSheet {
   MediaSelectorSheet._();
 
   static void show(
     BuildContext context, {
     required Function(List<MediaItem>) onConfirmed,
+    bool allowMultiple = true,
+    List<int> initialSelectedIds = const [],
   }) {
+    final MediaRepository repository;
+    if (Get.isRegistered<MediaRepository>()) {
+      repository = Get.find<MediaRepository>();
+    } else {
+      repository = MediaRepository();
+    }
+
+    final tag = 'sheet_${DateTime.now().millisecondsSinceEpoch}';
     final ctrl = Get.put(
       MediaLibraryController(
         onSelectionConfirmed: onConfirmed,
         isSheetMode: true,
+        allowMultiple: allowMultiple,
+        initialSelectedIds: initialSelectedIds,
+        repository: repository,
       ),
-      tag: 'sheet_${DateTime.now().millisecondsSinceEpoch}',
+      tag: tag,
     );
 
     showModalBottomSheet(
@@ -26,11 +43,16 @@ class MediaSelectorSheet {
       isScrollControlled: true,
       backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => _MediaSelectorSheetContent(controller: ctrl),
-    );
+    ).whenComplete(() {
+      // Dispose the tagged sheet controller so repeated opens never leak or
+      // reuse stale selections.
+      if (Get.isRegistered<MediaLibraryController>(tag: tag)) {
+        Get.delete<MediaLibraryController>(tag: tag);
+      }
+    });
   }
 }
 

@@ -1,50 +1,124 @@
-// lib/app/modules/booking_details/controllers/booking_details_controller.dart
+// lib/app/modules/bookingDetails/controllers/booking_details_controller.dart
 
 import 'package:get/get.dart';
+import 'package:va_bookats/app/modules/bookings/repositories/booking_repository.dart';
+import 'package:va_bookats/app/routes/app_pages.dart';
+import 'package:va_bookats/models/booking_model.dart';
+import 'package:va_bookats/utilities/snackbar_service.dart';
+import 'package:va_bookats/utilities/translation_extention.dart';
 
 class BookingDetailsController extends GetxController {
+  BookingDetailsController({BookingRepository? repository})
+      : _repository = repository;
+
+  final BookingRepository? _repository;
+  BookingRepository get _repo {
+    final r = _repository;
+    if (r != null) return r;
+    if (Get.isRegistered<BookingRepository>()) {
+      return Get.find<BookingRepository>();
+    }
+    return BookingRepository();
+  }
+
   final RxBool isCustomerInfoExpanded = true.obs;
+  final Rxn<BookingModel> booking = Rxn<BookingModel>();
+  final RxBool isLoading = true.obs;
+  final RxBool loadFailed = false.obs;
+  final RxnInt busyStatus = RxnInt();
 
-  // Booking Info
-  final String bookingId = '456';
-  final String bookingDateTime = 'Jan 24, 2026 | 01:30 PM';
-  final String branchName = 'Branch Name';
-  final String branchLocation = 'Nazimabad';
-  final String branchImageUrl = '';
-  final List<String> services = ['Haircut', 'Facial', 'Waxing', 'Massage'];
-  final String timeDuration = '5:00 PM - 6:00 PM';
-  final String email = 'demo@owner.com';
-  final String phoneNumber = '07576775';
+  int? _bookingId;
 
-  // Customer Info
-  final String customerName = 'Shahid Mirza';
-  final String customerEmail = 'demo@owner.com';
-  final String customerPhone = '07576775';
+  @override
+  void onInit() {
+    super.onInit();
+    _readArguments();
+    if (_bookingId != null) fetchDetail();
+  }
 
-  // Price Breakdown
-  final String totalPrice = '2300.00';
-  final String servicesDetail = 'Hair Cut & Blow Dry';
-  final String staff = 'shahidmirza123@gmail.com';
-  final String categories = '0345-6789100';
-  final String variation = 'Nazimabad';
-  final String price = '2500.00';
-  final String qty = '1000.00';
-  final String total = '1300.00';
-  final String discount = '2500.00';
-  final String afterDiscount = '2300.00';
+  void _readArguments() {
+    final args = Get.arguments;
+    if (args is int) {
+      _bookingId = args;
+    } else if (args is BookingModel) {
+      _bookingId = args.id;
+      booking.value = args;
+    }
+  }
 
-  // Grand Total
-  final String grandTotal = '2500.00';
-  final String paymentStatus = 'Paid';
-  final String grandCustomerName = 'Shahid Mirza';
-  final String grandCustomerEmail = 'shahidmirza123@gmail.com';
-  final String grandCustomerPhone = '0345-6789100';
-  final String branch = 'Nazimabad';
-  final String grandTotalTotal = '2500.00';
-  final String paid = '1000.00';
-  final String remaining = '1300.00';
+  Future<void> fetchDetail() async {
+    final id = _bookingId ?? booking.value?.id;
+    if (id == null) return;
+    isLoading.value = true;
+    loadFailed.value = false;
+    final res = await _repo.getBookingDetail(id);
+    if (!res.isCompleted || res.data == null) {
+      loadFailed.value = true;
+      isLoading.value = false;
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: res.message ?? 'errors.requestFailed'.trns(),
+      );
+      return;
+    }
+    booking.value = res.data;
+    isLoading.value = false;
+  }
+
+  void retry() => fetchDetail();
 
   void toggleCustomerInfo() {
     isCustomerInfoExpanded.value = !isCustomerInfoExpanded.value;
+  }
+
+  Future<void> openEdit() async {
+    final current = booking.value;
+    if (current == null || !current.isEditable) {
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: 'Only pending bookings can be edited',
+      );
+      return;
+    }
+    final result =
+        await Get.toNamed(Routes.CREATE_BOOKING, arguments: current);
+    if (result is BookingModel) {
+      booking.value = result;
+    } else {
+      fetchDetail();
+    }
+  }
+
+  Future<void> changeStatus(
+    String newStatus, {
+    String? returnAmount,
+    String? paymentMethod,
+    String? transactionId,
+    int? mediaId,
+  }) async {
+    final current = booking.value;
+    if (current == null || newStatus == current.status) return;
+    busyStatus.value = current.id;
+    final res = await _repo.changeBookingStatus(
+      id: current.id,
+      status: newStatus,
+      returnAmount: returnAmount,
+      paymentMethod: paymentMethod,
+      transactionId: transactionId,
+      mediaId: mediaId,
+    );
+    busyStatus.value = null;
+    if (res.isCompleted && res.data != null) {
+      booking.value = res.data;
+      SnackbarService.showSuccess(
+        title: 'common.success'.trns(),
+        message: res.message ?? 'Status updated successfully!',
+      );
+    } else {
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: res.message ?? 'errors.requestFailed'.trns(),
+      );
+    }
   }
 }

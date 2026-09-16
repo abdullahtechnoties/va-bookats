@@ -242,6 +242,28 @@ class NetworkService extends GetxService {
     }
   }
 
+  /// HTTP DELETE with multipart/form-data — for endpoints like `DELETE /media`
+  /// that expect `ids[0]`, `ids[1]` … as form fields.
+  Future<ApiResponse<Map<String, dynamic>>> deleteForm({
+    required String endpoint,
+    Map<String, dynamic>? fields,
+  }) async {
+    try {
+      final formData = await _buildFormData(fields: fields);
+      final response = await _dio.delete(
+        endpoint,
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
+      );
+      _log('Response → ${response.data.toString()}', icon: '📥');
+      return _processResponse(response);
+    } on DioException catch (e) {
+      return _processDioException(e);
+    } catch (e) {
+      return _processUnknownException(e);
+    }
+  }
+
   // ─── Response Processing ────────────────────────────────────────────────────
 
   /// Central response handler — every HTTP response flows through here.

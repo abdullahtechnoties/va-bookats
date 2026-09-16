@@ -570,7 +570,7 @@ class _AddServiceHeader extends StatelessWidget {
   }
 }
 
-// ─── Image Picker Field ───────────────────────────────────────────────────────
+// ─── Image Picker Field (media library) ─────────────────────────────────────────
 
 class _ImagePickerField extends StatelessWidget {
   final AddServiceController controller;
@@ -580,8 +580,10 @@ class _ImagePickerField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final file = controller.selectedImage.value;
-      final imageUrl = controller.existingImageUrl;
+      final media = controller.selectedMedia.value;
+      final imageUrl = media?.thumbnailUrl ??
+          media?.networkUrl ??
+          controller.existingImageUrl;
       final fileName = controller.imageFileName.value;
       return Row(
         children: [
@@ -595,9 +597,7 @@ class _ImagePickerField extends StatelessWidget {
               border: Border.all(color: const Color(0xFFE4E4E4), width: 1),
             ),
             clipBehavior: Clip.antiAlias,
-            child: file != null
-                ? Image.file(file, fit: BoxFit.cover)
-                : imageUrl != null
+            child: imageUrl != null
                 ? AppCachedImage(imageUrl: imageUrl, fit: BoxFit.cover)
                 : const Icon(
                     Icons.image_outlined,
@@ -621,7 +621,7 @@ class _ImagePickerField extends StatelessWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
                   fileName.isEmpty
-                      ? imageUrl ?? 'addService.noFileChosen'.trns()
+                      ? (imageUrl ?? 'addService.noFileChosen'.trns())
                       : fileName,
                   style: const TextStyle(
                     fontSize: 12,
@@ -635,7 +635,7 @@ class _ImagePickerField extends StatelessWidget {
           const SizedBox(width: 10),
           AppTouchable(
             child: GestureDetector(
-              onTap: controller.pickImage,
+              onTap: () => controller.pickImage(context),
               child: Container(
                 height: 52,
                 padding: const EdgeInsets.symmetric(horizontal: 18),

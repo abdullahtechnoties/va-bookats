@@ -21,12 +21,18 @@ class UserModel {
     this.address,
     this.status,
     this.image,
+    this.imageUrl,
+    this.imageThumbUrl,
     this.dateOfBirth,
     this.serviceType,
     this.gender,
     this.qualification,
     this.nicFront,
     this.nicBack,
+    this.nicFrontUrl,
+    this.nicFrontThumbUrl,
+    this.nicBackUrl,
+    this.nicBackThumbUrl,
     this.salary,
     this.salaryType,
     this.commissionType,
@@ -40,6 +46,10 @@ class UserModel {
     this.longitude,
     this.latitude,
     this.roles,
+    this.country,
+    this.state,
+    this.city,
+    this.area,
   });
 
   final int? id;
@@ -60,12 +70,18 @@ class UserModel {
   final String? address;
   final String? status;
   final String? image; // full URL after processing
+  final String? imageUrl;
+  final String? imageThumbUrl;
   final String? dateOfBirth;
   final String? serviceType;
   final String? gender;
   final String? qualification;
   final String? nicFront;
   final String? nicBack;
+  final String? nicFrontUrl;
+  final String? nicFrontThumbUrl;
+  final String? nicBackUrl;
+  final String? nicBackThumbUrl;
   final String? salary;
   final String? salaryType;
   final String? commissionType;
@@ -79,6 +95,10 @@ class UserModel {
   final String? longitude;
   final String? latitude;
   final List<Role>? roles;
+  final GeoName? country;
+  final GeoName? state;
+  final GeoName? city;
+  final GeoName? area;
 
   // Full name – now just the `name` field
   String get fullName => name?.trim() ?? '';
@@ -100,6 +120,11 @@ class UserModel {
       hasBasicDetails &&
       image != null && image!.trim().isNotEmpty &&
       address != null && address!.trim().isNotEmpty;
+
+  /// Best profile image URL — prefers the explicit `image_url` from the API,
+  /// falls back to the legacy `image` field.
+  String? get bestImageUrl => imageUrl ?? image;
+  String? get bestImageThumbUrl => imageThumbUrl ?? image;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     // Helper to build full image URL
@@ -128,12 +153,18 @@ class UserModel {
       address: json['address']?.toString(),
       status: json['status']?.toString(),
       image: getImage(json['image']?.toString()),
+      imageUrl: json['image_url']?.toString(),
+      imageThumbUrl: json['image_thumb_url']?.toString(),
       dateOfBirth: json['date_of_birth']?.toString(),
       serviceType: json['service_type']?.toString(),
       gender: json['gender']?.toString(),
       qualification: json['qualification']?.toString(),
       nicFront: getImage(json['nic_front']?.toString()),
       nicBack: getImage(json['nic_back']?.toString()),
+      nicFrontUrl: json['nic_front_url']?.toString(),
+      nicFrontThumbUrl: json['nic_front_thumb_url']?.toString(),
+      nicBackUrl: json['nic_back_url']?.toString(),
+      nicBackThumbUrl: json['nic_back_thumb_url']?.toString(),
       salary: json['salary']?.toString(),
       salaryType: json['salary_type']?.toString(),
       commissionType: json['commission_type']?.toString(),
@@ -149,6 +180,18 @@ class UserModel {
       roles: (json['roles'] as List?)
           ?.map((roleJson) => Role.fromJson(roleJson))
           .toList(),
+      country: json['country'] is Map
+          ? GeoName.fromJson(Map<String, dynamic>.from(json['country']))
+          : null,
+      state: json['state'] is Map
+          ? GeoName.fromJson(Map<String, dynamic>.from(json['state']))
+          : null,
+      city: json['city'] is Map
+          ? GeoName.fromJson(Map<String, dynamic>.from(json['city']))
+          : null,
+      area: json['area'] is Map
+          ? GeoName.fromJson(Map<String, dynamic>.from(json['area']))
+          : null,
     );
   }
 
@@ -179,12 +222,18 @@ class UserModel {
       'address': address,
       'status': status,
       'image': getImage(image),
+      'image_url': imageUrl,
+      'image_thumb_url': imageThumbUrl,
       'date_of_birth': dateOfBirth,
       'service_type': serviceType,
       'gender': gender,
       'qualification': qualification,
       'nic_front': getImage(nicFront),
       'nic_back': getImage(nicBack),
+      'nic_front_url': nicFrontUrl,
+      'nic_front_thumb_url': nicFrontThumbUrl,
+      'nic_back_url': nicBackUrl,
+      'nic_back_thumb_url': nicBackThumbUrl,
       'salary': salary,
       'salary_type': salaryType,
       'commission_type': commissionType,
@@ -198,8 +247,30 @@ class UserModel {
       'longitude': longitude,
       'latitude': latitude,
       'roles': roles?.map((role) => role.toJson()).toList(),
+      'country': country?.toJson(),
+      'state': state?.toJson(),
+      'city': city?.toJson(),
+      'area': area?.toJson(),
     };
   }
+}
+
+/// Lightweight geo object returned inside the user response:
+/// `{"id": 1, "name": "Pakistan"}`
+class GeoName {
+  final int? id;
+  final String? name;
+
+  const GeoName({this.id, this.name});
+
+  factory GeoName.fromJson(Map<String, dynamic> json) {
+    return GeoName(
+      id: json['id'] as int?,
+      name: json['name']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'id': id, 'name': name};
 }
 
 class Role {

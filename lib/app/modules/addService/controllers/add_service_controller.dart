@@ -1,17 +1,17 @@
 // lib/app/modules/addService/controllers/add_service_controller.dart
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:va_bookats/app/modules/mediaLibrary/controllers/media_library_controller.dart';
 import 'package:va_bookats/app/modules/services/repositories/service_repository.dart';
 import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/models/service_category_model.dart';
 import 'package:va_bookats/models/service_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
-import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/navigation_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/Global-Widgets/media-selector-sheet.dart';
 
 /// A single editable variation row (name + price).
 class VariationInput {
@@ -64,10 +64,14 @@ class AddServiceController extends GetxController {
   final RxBool isLoadingCategories = false.obs;
   final RxBool isSaving = false.obs;
 
-  // ─── Image ───────────────────────────────────────────────────────────────
-  final Rxn<File> selectedImage = Rxn<File>();
+  // ─── Image (media-library based) ─────────────────────────────────────────
+  /// WordPress-style selection — UI reflects the chosen library item and only
+  /// its `media_id` is sent to the API (no raw file upload).
+  final Rxn<MediaItem> selectedMedia = Rxn<MediaItem>();
   final RxString imageFileName = RxString('');
   String? existingImageUrl;
+
+  int? get selectedMediaId => selectedMedia.value?.mediaId;
 
   // ─── Variations ──────────────────────────────────────────────────────────
   final RxList<VariationInput> variationInputs = <VariationInput>[].obs;
@@ -316,64 +320,32 @@ class AddServiceController extends GetxController {
     return null;
   }
 
-  // ─── Image picking ───────────────────────────────────────────────────────
+  // ─── Image picking (media library) ───────────────────────────────────────
 
-  Future<void> pickImage() async {
-    final source = await _chooseImageSource();
-    if (source == null) return;
-    try {
-      final picked = await ImagePicker().pickImage(
-        source: source,
-        imageQuality: 80,
-      );
-      if (picked != null) {
-        selectedImage.value = File(picked.path);
-        imageFileName.value = picked.name;
+  /// Opens the WordPress-style media library sheet (single-select). The user
+  /// can upload a new image there — it appears in realtime — or pick an
+  /// existing one. UI reflects the selection; only `media_id` is sent.
+  void pickImage(BuildContext context) {
+    MediaSelectorSheet.show(
+      context,
+      allowMultiple: false,
+      initialSelectedIds: selectedMedia.value == null
+          ? const []
+          : [selectedMedia.value!.mediaId],
+      onConfirmed: (items) {
+        if (items.isEmpty) return;
+        selectedMedia.value = items.first;
+        imageFileName.value = items.first.name;
         existingImageUrl = null;
-      }
-    } catch (_) {
-      SnackbarService.showError(
-        title: 'errors.errorTitle'.trns(),
-        message: 'errors.imagePickerGallery'.trns(),
-      );
-    }
+      },
+    );
   }
 
-  Future<ImageSource?> _chooseImageSource() {
-    return Get.bottomSheet<ImageSource>(
-      SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Text(
-              'app.common.imagePicker.selectImageSource'.trns(),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.black,
-              ),
-            ),
-            const SizedBox(height: 8),
-            _ImageSourceOption(
-              icon: Icons.photo_library_outlined,
-              label: 'app.common.imagePicker.gallery'.trns(),
-              onTap: () => Get.back(result: ImageSource.gallery),
-            ),
-            _ImageSourceOption(
-              icon: Icons.camera_alt_outlined,
-              label: 'app.common.imagePicker.camera'.trns(),
-              onTap: () => Get.back(result: ImageSource.camera),
-            ),
-            const SizedBox(height: 12),
-          ],
-        ),
-      ),
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-    );
+  void clearImage() {
+    selectedMedia.value = null;
+    imageFileName.value = '';
+    // In edit mode clearing reveals the original URL again? No — treat clear
+    // as "remove override"; existingImageUrl stays for display fallback.
   }
 
   // ─── Save ────────────────────────────────────────────────────────────────
@@ -425,7 +397,7 @@ class AddServiceController extends GetxController {
               defaultPrice: defaultPrice,
               description: descriptionCtrl.text.trim(),
               variations: variations,
-              imageFile: selectedImage.value,
+              mediaId: selectedMediaId,
             )
           : await _repository.updateService(
               id: id,
@@ -438,7 +410,7 @@ class AddServiceController extends GetxController {
               defaultPrice: defaultPrice,
               description: descriptionCtrl.text.trim(),
               variations: variations,
-              imageFile: selectedImage.value,
+              mediaId: selectedMediaId,
             );
 
       if (response.isCompleted) {
@@ -452,9 +424,10 @@ class AddServiceController extends GetxController {
                   ? 'addService.createSuccessMessage'.trns()
                   : 'addService.updateSuccessMessage'.trns()),
         );
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
+        // Let the snackbar paint before popping — avoids the GetX race where
+        // going back instantly swallows/dismisses the success toast.
+        if (!context.mounted) return;
+        await NavigationHelper.safePop(context);
       } else {
         SnackbarService.showError(
           title: 'addService.errorTitle'.trns(),
@@ -480,47 +453,5 @@ class AddServiceController extends GetxController {
       input.dispose();
     }
     super.onClose();
-  }
-}
-
-class _ImageSourceOption extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _ImageSourceOption({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFEEEEEE)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.secondary, size: 22),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppColors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

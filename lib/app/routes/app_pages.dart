@@ -1,5 +1,18 @@
 import 'package:get/get.dart';
+import 'package:va_bookats/app/modules/reporting/branch_comparison/paymentDetails/bindings/payment_details_binding.dart';
+import 'package:va_bookats/app/modules/reporting/branch_comparison/paymentDetails/views/payment_details_view.dart';
+import 'package:va_bookats/app/modules/reporting/commision_report/commisionReportDetails/bindings/commissions_detail_binding.dart';
+import 'package:va_bookats/app/modules/reporting/commision_report/commisionReportDetails/views/commissions_detail_view.dart';
+import 'package:va_bookats/app/modules/reporting/commision_report/commissionReport/bindings/commissions_report_binding.dart';
+import 'package:va_bookats/app/modules/reporting/commision_report/commissionReport/views/commision_report_view.dart';
+import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueDetails/bindings/product_revenue_details_binding.dart';
+import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueDetails/views/product_revenue_details_view.dart';
+import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueReport/bindings/product_revenue_report_binding.dart';
+import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueReport/views/product_revenue_report_view.dart';
+import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceRevenueReport/views/service_revenue_report_view.dart';
 
+import '../modules/addCustomer/bindings/add_customer_binding.dart';
+import '../modules/addCustomer/views/add_customer_view.dart';
 import '../modules/addPackage/bindings/add_package_binding.dart';
 import '../modules/addPackage/views/add_package_view.dart';
 import '../modules/addService/bindings/add_service_binding.dart';
@@ -14,8 +27,8 @@ import '../modules/bookingDetails/bindings/booking_details_binding.dart';
 import '../modules/bookingDetails/views/booking_details_view.dart';
 import '../modules/bottomnav/bindings/bottomnav_binding.dart';
 import '../modules/bottomnav/views/bottomnav_view.dart';
-import '../modules/branchComparison/bindings/branch_comparison_binding.dart';
-import '../modules/branchComparison/views/branch_comparison_view.dart';
+import '../modules/reporting/branch_comparison/branchComparison/bindings/branch_comparison_binding.dart';
+import '../modules/reporting/branch_comparison/branchComparison/views/branch_comparison_view.dart';
 import '../modules/createBooking/bindings/create_booking_binding.dart';
 import '../modules/createBooking/views/create_booking_view.dart';
 import '../modules/customers/bindings/customers_binding.dart';
@@ -30,16 +43,23 @@ import '../modules/onboard/bindings/onboard_binding.dart';
 import '../modules/onboard/views/onboard_view.dart';
 import '../modules/packages/bindings/packages_binding.dart';
 import '../modules/packages/views/packages_view.dart';
-import '../modules/paymentDetails/bindings/payment_details_binding.dart';
-import '../modules/paymentDetails/views/payment_details_view.dart';
+import '../modules/reporting/package_revenue_report/packageRevenueReport/bindings/package_revenue_report_binding.dart';
+import '../modules/reporting/package_revenue_report/packageRevenueReport/views/package_revenue_report_view.dart';
+import '../modules/reporting/package_revenue_report/packageRevenueReportDetails/bindings/package_revenue_details_binding.dart';
+import '../modules/reporting/package_revenue_report/packageRevenueReportDetails/views/package_revenue_details_view.dart';
+import '../modules/reporting/revenue_report/paymentDetails/bindings/payment_details_binding.dart';
+import '../modules/reporting/revenue_report/paymentDetails/views/payment_details_view.dart';
 import '../modules/payments/bindings/payments_binding.dart';
 import '../modules/payments/views/payments_view.dart';
 import '../modules/personalInfo/bindings/personal_info_binding.dart';
 import '../modules/personalInfo/views/personal_info_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
-import '../modules/revenueReport/bindings/revenue_report_binding.dart';
-import '../modules/revenueReport/views/revenue_report_view.dart';
+import '../modules/reporting/revenue_report/revenueReport/bindings/revenue_report_binding.dart';
+import '../modules/reporting/revenue_report/revenueReport/views/revenue_report_view.dart';
+import '../modules/reporting/service_revenue_report/serviceRevenueDetails/bindings/service_revenue_details.dart';
+import '../modules/reporting/service_revenue_report/serviceRevenueDetails/views/service_revenue_details.dart';
+import '../modules/reporting/service_revenue_report/serviceRevenueReport/bindings/service_revenue_report.dart';
 import '../modules/serviceCategories/bindings/service_categories_binding.dart';
 import '../modules/serviceCategories/views/service_categories_view.dart';
 import '../modules/services/bindings/services_binding.dart';
@@ -123,6 +143,11 @@ class AppPages {
       binding: CustomersBinding(),
     ),
     GetPage(
+      name: _Paths.ADD_CUSTOMER,
+      page: () => const AddCustomerView(),
+      binding: AddCustomerBinding(),
+    ),
+    GetPage(
       name: _Paths.REVENUE_REPORT,
       page: () => const RevenueReportView(),
       binding: RevenueReportBinding(),
@@ -173,9 +198,54 @@ class AppPages {
       binding: MediaLibraryBinding(),
     ),
     GetPage(
-      name: _Paths.BRANCH_COMPARISON,
-      page: () => const BranchComparisonView(),
-      binding: BranchComparisonBinding(),
+      name: _Paths.BRANCH_COMPARISON_REPORT,
+      page: () => const BranchComparisonReportView(),
+      binding: BranchComparisonReportBinding(),
+    ),
+    GetPage(
+      name: _Paths.BRANCH_COMPARISON_REPORT_DETAILS,
+      page: () => const BranchComparisonReportDetailsView(),
+      binding: BranchComparisonReportDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.SERVICE_REVENUE_REPORT,
+      page: () => const ServiceRevenueReportView(),
+      binding: ServiceRevenueReportBinding(),
+    ),
+    GetPage(
+      name: _Paths.SERVICE_REVENUE_DETAILS,
+      page: () => const ServiceRevenueDetailsView(),
+      binding: ServiceRevenueDetailsBinding(),
+    ),
+    GetPage(
+      name: Routes.PRODUCT_REVENUE_REPORT,
+      page: () => const ProductRevenueReportView(),
+      binding: ProductRevenueReportBinding(),
+    ),
+    GetPage(
+      name: Routes.PRODUCT_REVENUE_DETAILS,
+      page: () => const ProductRevenueDetailsView(),
+      binding: ProductRevenueDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.PACKAGE_REVENUE_REPORT,
+      page: () => const PackageRevenueReportView(),
+      binding: PackageRevenueReportBinding(),
+    ),
+    GetPage(
+      name: _Paths.PACKAGE_REVENUE_DETAILS,
+      page: () => const PackageRevenueDetailsView(),
+      binding: PackageRevenueDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.COMMISSIONS_REPORT,
+      page: () => const CommissionsReportView(),
+      binding: CommissionsReportBinding(),
+    ),
+    GetPage(
+      name: _Paths.COMMISSIONS_DETAIL,
+      page: () => const CommissionsDetailView(),
+      binding: CommissionsDetailBinding(),
     ),
   ];
 }

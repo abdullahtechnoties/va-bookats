@@ -2,12 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
+import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/booking_card.dart';
+import 'package:va_bookats/widgets/Global-Widgets/booking_status_sheet.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -21,36 +23,88 @@ class HomeView extends GetView<HomeController> {
         children: [
           _HomeHeader(controller: controller),
           Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _QuickMenuGrid(),
-                  _TodayBookingHeader(controller: controller),
-                  Obx(
-                    () => ListView.builder(
-                      shrinkWrap: true,
-
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: controller.todayBookings.length,
-                      itemBuilder: (context, index) {
-                        return BookingCard(
-                          booking: controller.todayBookings[index],
-                          onViewDetails: () {
-                            Get.toNamed(Routes.BOOKING_DETAILS);
-                          },
+            child: RefreshIndicator(
+              color: AppColors.secondary,
+              onRefresh: controller.handleRefresh,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _QuickMenuGrid(),
+                    _TodayBookingHeader(controller: controller),
+                    Obx(() {
+                      if (controller.isLoading.value) {
+                        return const _BookingShimmerList();
+                      }
+                      if (controller.loadFailed.value &&
+                          controller.todayBookings.isEmpty) {
+                        return _HomeErrorState(
+                          onRetry: controller.retry,
                         );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                      }
+                      if (controller.todayBookings.isEmpty) {
+                        return const _HomeEmptyState();
+                      }
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: controller.todayBookings.length,
+                        itemBuilder: (context, index) {
+                          final booking = controller.todayBookings[index];
+                          return Obx(() => BookingCard(
+                                booking: booking,
+                                isBusy:
+                                    controller.busyBookingId.value ==
+                                        booking.id,
+                                onViewDetails: () =>
+                                    controller.openDetails(booking),
+                                onEdit: () => _openEdit(booking),
+                                onStatusTap: () =>
+                                    _showStatusSheet(context, booking),
+                              ));
+                        },
+                      );
+                    }),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _openEdit(BookingModel booking) {
+    Get.toNamed(Routes.CREATE_BOOKING, arguments: booking)?.then((_) {
+      controller.handleRefresh();
+    });
+  }
+
+  void _showStatusSheet(BuildContext context, BookingModel booking) {
+    BookingStatusSheet.show(
+      context,
+      currentStatus: booking.status,
+      onConfirmed: ({
+        required String status,
+        String? returnAmount,
+        String? paymentMethod,
+        String? transactionId,
+        int? mediaId,
+      }) {
+        controller.changeStatus(
+          booking,
+          status,
+          returnAmount: returnAmount,
+          paymentMethod: paymentMethod,
+          transactionId: transactionId,
+          mediaId: mediaId,
+        );
+      },
     );
   }
 }
@@ -94,39 +148,43 @@ class _HomeHeader extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      Stack(
-                        children: [
-                          GestureDetector(
-                            onTap: () {},
-                            child: const Icon(
-                              Icons.notifications_outlined,
-                              color: AppColors.white,
-                              size: 26,
-                            ),
-                          ),
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: AppColors.white,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      // Stack(
+                      //   children: [
+                      //     GestureDetector(
+                      //       onTap: () {},
+                      //       child: const Icon(
+                      //         Icons.notifications_outlined,
+                      //         color: AppColors.white,
+                      //         size: 26,
+                      //       ),
+                      //     ),
+                      //     Positioned(
+                      //       right: 0,
+                      //       top: 0,
+                      //       child: Container(
+                      //         width: 8,
+                      //         height: 8,
+                      //         decoration: const BoxDecoration(
+                      //           color: AppColors.white,
+                      //           shape: BoxShape.circle,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                       const SizedBox(width: 14),
-                      ClipOval(
-                        child: AppCachedImage(
-                          imageUrl: controller.vendorProfileImage,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                      Obx(() {
+                        final img =
+                            controller.userImage;
+                        return ClipOval(
+                          child: AppCachedImage(
+                            imageUrl: img,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ],
@@ -143,45 +201,47 @@ class _HomeHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                'home.greetingSubtitle'.trns(),
-                style: const TextStyle(
-                  color: AppColors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+              Obx(() {
+                final name = controller.userName;
+                final subtitle = 'home.greetingSubtitle'.trns();
+                return Text(
+                  name.isEmpty ? subtitle : '$subtitle\n$name',
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                );
+              }),
               const SizedBox(height: 20),
 
-              // Search bar
-              Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: TextField(
-                  onChanged: (v) => controller.searchQuery.value = v,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.black,
+              // Search bar → navigates to AllBookings with search focused
+              GestureDetector(
+                onTap: controller.openSearch,
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  decoration: InputDecoration(
-                    hintText: 'home.searchHint'.trns(),
-                    hintStyle: const TextStyle(
-                      color: Color(0xFFAAAAAA),
-                      fontSize: 13,
-                    ),
-                    suffixIcon: const Icon(
-                      Icons.search,
-                      color: Color(0xFFAAAAAA),
-                      size: 20,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 15,
-                    ),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'home.searchHint'.trns(),
+                          style: const TextStyle(
+                            color: Color(0xFFAAAAAA),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      const Icon(
+                        Icons.search,
+                        color: Color(0xFFAAAAAA),
+                        size: 20,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -344,7 +404,9 @@ class _TodayBookingHeader extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () => Get.toNamed(Routes.ALL_BOOKING),
+            onTap: () => Get.toNamed(Routes.ALL_BOOKING,
+                arguments: {'autoFocusSearch': false}),
+            
             child: Text(
               'home.viewAll'.trns(),
               style: const TextStyle(
@@ -356,6 +418,116 @@ class _TodayBookingHeader extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Shimmer / Empty / Error ────────────────────────────────────────────────
+
+class _BookingShimmerList extends StatelessWidget {
+  const _BookingShimmerList();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(
+        3,
+        (_) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade200,
+            highlightColor: Colors.grey.shade100,
+            child: Container(
+              height: 210,
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeEmptyState extends StatelessWidget {
+  const _HomeEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(Icons.calendar_today_outlined,
+                size: 56, color: Color(0xFFCCCCCC)),
+            const SizedBox(height: 12),
+            Text(
+              'home.booking.empty'.trns() == 'home.booking.empty'
+                  ? 'No bookings for today'
+                  : 'home.booking.empty'.trns(),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF888888),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeErrorState extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _HomeErrorState({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(Icons.error_outline,
+                size: 52, color: Color(0xFFCCCCCC)),
+            const SizedBox(height: 12),
+            const Text(
+              'Failed to load bookings.\nPull to refresh or try again.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF888888),
+              ),
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: onRetry,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 26, vertical: 11),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

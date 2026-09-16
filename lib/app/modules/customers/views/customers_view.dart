@@ -21,101 +21,142 @@ class CustomersView extends GetView<CustomersController> {
 
           // ── Content ───────────────────────────────────────────────────
           Expanded(
-            child: Obx(
-              () => ListView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(top: 14, bottom: 30),
-                children: [
-                  // Date Filter Bar
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                    child: _DateFilterBar(controller: controller),
+            child: Obx(() {
+              if (controller.isLoading.value &&
+                  controller.customers.isEmpty) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.secondary,
                   ),
+                );
+              }
+              if (controller.loadFailed.value &&
+                  controller.customers.isEmpty) {
+                return _CustomersErrorState(
+                  onRetry: controller.retry,
+                );
+              }
+              return RefreshIndicator(
+                color: AppColors.secondary,
+                onRefresh: controller.handleRefresh,
+                child: ListView(
+                  controller: controller.scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  padding: const EdgeInsets.only(top: 14, bottom: 30),
+                  children: [
+                    // Date Filter Bar
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      child: _DateFilterBar(controller: controller),
+                    ),
 
-                  // Add New Customer button
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: GestureDetector(
-                      onTap: () {
-                        // TODO: navigate to add customer
-                      },
-                      child: Container(
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(12),
+                    // Add New Customer button
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: GestureDetector(
+                        onTap: () => controller.openAddPage(),
+                        child: Container(
+                          height: 54,
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: AppColors.white
+                                      .withValues(alpha: 0.25),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: AppColors.white,
+                                  size: 16,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'customers.addNewCustomer'.trns(),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 22,
-                              height: 22,
-                              decoration: BoxDecoration(
-                                color: AppColors.white
-                                    .withValues(alpha: 0.25),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                color: AppColors.white,
-                                size: 16,
-                              ),
+                      ),
+                    ),
+
+                    // Total Customer count
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'customers.totalCustomer'.trns(),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.black,
                             ),
-                            const SizedBox(width: 10),
-                            Text(
-                              'customers.addNewCustomer'.trns(),
+                          ),
+                          Obx(
+                            () => Text(
+                              '${controller.totalCustomers.value}',
                               style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.black,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
 
-                  // Total Customer count
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'customers.totalCustomer'.trns(),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.black,
-                          ),
+                    // Customer Cards
+                    if (controller.customers.isEmpty)
+                      const _CustomersEmptyState()
+                    else
+                      ...controller.customers.map(
+                        (customer) => CustomerCard(
+                          customer: customer,
+                          isBusy: controller.busyCustomerId.value ==
+                              customer.id,
+                          onTap: () =>
+                              controller.openAddPage(customer: customer),
+                          onEdit: () =>
+                              controller.openAddPage(customer: customer),
+                          onDelete: () =>
+                              controller.deleteCustomer(customer),
+                          onStatusTap: () =>
+                              controller.toggleStatus(customer),
                         ),
-                        Text(
-                          '${controller.totalCustomers}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Customer Cards
-                  if (controller.customers.isEmpty)
-                    _CustomersEmptyState()
-                  else
-                    ...controller.customers.map(
-                      (customer) => CustomerCard(
-                        customer: customer,
-                        onTap: () {},
                       ),
-                    ),
-                ],
-              ),
-            ),
+
+                    if (controller.isLoadingMore.value)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.secondary,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -175,7 +216,7 @@ class _CustomersHeader extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               GestureDetector(
-                onTap: () {},
+                onTap: () => controller.openAddPage(),
                 child: Container(
                   width: 30,
                   height: 30,
@@ -238,15 +279,22 @@ class _DateFilterBar extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Obx(
-                    () => Text(
-                      controller.displayDateRange.value,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    () {
+                      final range = controller.displayDateRange.value;
+                      final search = controller.searchCtrl.text.trim();
+                      final label = range.isNotEmpty
+                          ? range
+                          : (search.isNotEmpty ? search : 'Filter');
+                      return Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    },
                   ),
                 ),
               ],
@@ -263,12 +311,10 @@ class _DateFilterBar extends StatelessWidget {
               color: AppColors.secondary,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Center(
+            child: const Center(
               child: Text(
-                'customers.filter.applyFilter'.trns().split(' ').last == 'Filter'
-                    ? 'Filter'
-                    : 'Filter',
-                style: const TextStyle(
+                'Filter',
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: AppColors.white,
@@ -285,6 +331,8 @@ class _DateFilterBar extends StatelessWidget {
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
 class _CustomersEmptyState extends StatelessWidget {
+  const _CustomersEmptyState();
+
   @override
   Widget build(BuildContext context) {
     return const Padding(
@@ -300,6 +348,58 @@ class _CustomersEmptyState extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF888888),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CustomersErrorState extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _CustomersErrorState({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline,
+                size: 60, color: Color(0xFFCCCCCC)),
+            const SizedBox(height: 16),
+            const Text(
+              'Failed to load customers.\nPull to refresh or try again.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF888888),
+              ),
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: onRetry,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 28, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.white,
+                  ),
+                ),
               ),
             ),
           ],

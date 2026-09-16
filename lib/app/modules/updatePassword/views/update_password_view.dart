@@ -9,203 +9,247 @@ import 'package:va_bookats/widgets/main_btn.dart';
 class UpdatePasswordView extends GetView<UpdatePasswordController> {
   const UpdatePasswordView({super.key});
 
+  String _t(String key, String fallback) {
+    final v = key.trns();
+    return v == key ? fallback : v;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: _buildAppBar(),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
-        child: Form(
-          key: controller.formKey,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ── Heading ───────────────────────────────────────────────
-                Text(
-                  'updatePassword.title'.trns(),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'updatePassword.subtitle'.trns(),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // ── Current Password ──────────────────────────────────────
-                _FieldLabel(label: 'updatePassword.currentPassword'.trns()),
-                Obx(
-                  () => CommonTextInputField(
-                    hintTextColor: AppColors.grey,
-                    hintText: 'updatePassword.enterCurrentPassword'.trns(),
-                    controller: controller.currentPasswordController,
-                    obscureText: !controller.showCurrent.value,
-                    showSuffixIcon: true,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.showCurrent.value
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                        size: 18,
-                        color: const Color(0xFF9CA3AF),
-                      ),
-                      onPressed: () => controller.showCurrent.toggle(),
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: Column(
+        children: [
+          _UpdatePasswordHeader(
+            title: _t('changePassword.title', 'Change Password'),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFEEEEEE), width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) {
-                        return 'updatePassword.currentRequired'.trns();
-                      }
-                      return null;
-                    },
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-
-                // ── New Password ──────────────────────────────────────────
-                _FieldLabel(label: 'updatePassword.newPassword'.trns()),
-                Obx(
-                  () => CommonTextInputField(
-                    hintTextColor: AppColors.grey,
-                    hintText: 'updatePassword.enterNewPassword'.trns(),
-                    controller: controller.newPasswordController,
-                    obscureText: !controller.showNew.value,
-                    showSuffixIcon: true,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.showNew.value
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                        size: 18,
-                        color: const Color(0xFF9CA3AF),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _t('changePassword.formTitle', 'Update Your Password'),
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.black,
+                        ),
                       ),
-                      onPressed: () => controller.showNew.toggle(),
-                    ),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) {
-                        return 'updatePassword.newRequired'.trns();
-                      }
-                      if (v.length < 8) {
-                        return 'updatePassword.minLength'.trns();
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
+                      const SizedBox(height: 22),
 
-                // ── Confirm Password ──────────────────────────────────────
-                _FieldLabel(label: 'updatePassword.confirmPassword'.trns()),
-                Obx(
-                  () => CommonTextInputField(
-                    hintTextColor: AppColors.grey,
-                    hintText: 'updatePassword.confirmPasswordHint'.trns(),
-                    controller: controller.confirmPasswordController,
-                    obscureText: !controller.showConfirm.value,
-                    showSuffixIcon: true,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.showConfirm.value
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                        size: 18,
-                        color: const Color(0xFF9CA3AF),
+                      // Current Password
+                      _FieldLabel(_t('changePassword.currentPassword', 'Current Password')),
+                      const SizedBox(height: 8),
+                      Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonTextInputField(
+                              hintTextColor: AppColors.grey,
+                              hintText: _t('changePassword.enterCurrent', 'Enter current password'),
+                              controller: controller.currentPasswordController,
+                              height: 52,
+                              hintTextSize: 13,
+                              obscureText: !controller.currentPasswordVisible.value,
+                              showSuffixIcon: true,
+                              suffixIcon: GestureDetector(
+                                onTap: controller.toggleCurrentPasswordVisibility,
+                                child: Icon(
+                                  controller.currentPasswordVisible.value
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: AppColors.grey,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                            if (controller.currentPasswordError.value.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6, left: 4),
+                                child: Text(
+                                  controller.currentPasswordError.value,
+                                  style: const TextStyle(
+                                    color: AppColors.error,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                      onPressed: () => controller.showConfirm.toggle(),
-                    ),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) {
-                        return 'updatePassword.confirmRequired'.trns();
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 28),
+                      const SizedBox(height: 18),
 
-                // ── Save Button ───────────────────────────────────────────
-                Obx(
-                  () => MainBtn(
-                    text: 'updatePassword.save'.trns(),
-                    isLoading: controller.isLoading.value,
-                    onPressed: controller.save,
+                      // New Password
+                      _FieldLabel(_t('changePassword.newPassword', 'New Password')),
+                      const SizedBox(height: 8),
+                      Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonTextInputField(
+                              hintTextColor: AppColors.grey,
+                              hintText: _t('changePassword.enterNew', 'Enter new password'),
+                              controller: controller.newPasswordController,
+                              height: 52,
+                              hintTextSize: 13,
+                              obscureText: !controller.newPasswordVisible.value,
+                              showSuffixIcon: true,
+                              suffixIcon: GestureDetector(
+                                onTap: controller.toggleNewPasswordVisibility,
+                                child: Icon(
+                                  controller.newPasswordVisible.value
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: AppColors.grey,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                            if (controller.newPasswordError.value.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6, left: 4),
+                                child: Text(
+                                  controller.newPasswordError.value,
+                                  style: const TextStyle(
+                                    color: AppColors.error,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // Confirm New Password
+                      _FieldLabel(_t('changePassword.confirmPassword', 'Confirm Password')),
+                      const SizedBox(height: 8),
+                      Obx(
+                        () => CommonTextInputField(
+                          hintTextColor: AppColors.grey,
+                          hintText: _t('changePassword.enterConfirm', 'Confirm new password'),
+                          controller: controller.confirmPasswordController,
+                          height: 52,
+                          hintTextSize: 13,
+                          obscureText: !controller.confirmPasswordVisible.value,
+                          showSuffixIcon: true,
+                          suffixIcon: GestureDetector(
+                            onTap: controller.toggleConfirmPasswordVisibility,
+                            child: Icon(
+                              controller.confirmPasswordVisible.value
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: AppColors.grey,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Save Button
+                      Obx(
+                        () => MainBtn(
+                          text: _t('changePassword.updateBtn', 'Update Password'),
+                          onPressed: controller.isLoading.value ? null : controller.updatePassword,
+                          isLoading: controller.isLoading.value,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.primary,
-      elevation: 0,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
-      ),
-      leadingWidth: 60,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: GestureDetector(
-          onTap: () => Get.back(),
-          child: const Icon(
-            Icons.chevron_left,
-            color: AppColors.white,
-            size: 28,
-          ),
-        ),
-      ),
-      title: Text(
-        'updatePassword.appBarTitle'.trns(),
-        style: const TextStyle(
-          color: AppColors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      centerTitle: true,
     );
   }
 }
 
-// ── Field Label ────────────────────────────────────────────────────────────────
-class _FieldLabel extends StatelessWidget {
-  final String label;
-  const _FieldLabel({required this.label});
+// ─── Header ──────────────────────────────────────────────────────────────────
+
+class _UpdatePasswordHeader extends StatelessWidget {
+  final String title;
+
+  const _UpdatePasswordHeader({required this.title});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: AppColors.black,
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.secondary,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
         ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 16, 10),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => Get.back(),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: AppColors.white,
+                  size: 20,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Field Label ─────────────────────────────────────────────────────────────
+
+class _FieldLabel extends StatelessWidget {
+  final String text;
+  const _FieldLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        color: AppColors.black,
       ),
     );
   }

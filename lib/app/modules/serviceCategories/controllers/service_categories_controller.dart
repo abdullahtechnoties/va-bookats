@@ -255,7 +255,6 @@ class ServiceCategoriesController extends GetxController {
   }
 
   void onFilter() {
-    // TODO: open filter sheet
     print(_authService.currentUser.value?.roles?.first.name);
     print(_authService.isOwner);
     print("abc + $showBranch");

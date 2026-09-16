@@ -16,6 +16,7 @@ abstract class Routes {
   static const PACKAGES = _Paths.PACKAGES;
   static const ADD_PACKAGE = _Paths.ADD_PACKAGE;
   static const CUSTOMERS = _Paths.CUSTOMERS;
+  static const ADD_CUSTOMER = _Paths.ADD_CUSTOMER;
   static const REVENUE_REPORT = _Paths.REVENUE_REPORT;
   static const BOTTOMNAV = _Paths.BOTTOMNAV;
   static const ONBOARD = _Paths.ONBOARD;
@@ -27,6 +28,16 @@ abstract class Routes {
   static const PAYMENT_DETAILS = _Paths.PAYMENT_DETAILS;
   static const MEDIA_LIBRARY = _Paths.MEDIA_LIBRARY;
   static const BRANCH_COMPARISON = _Paths.BRANCH_COMPARISON;
+  static const BRANCH_COMPARISON_REPORT = _Paths.BRANCH_COMPARISON_REPORT;
+  static const BRANCH_COMPARISON_REPORT_DETAILS = _Paths.BRANCH_COMPARISON_REPORT_DETAILS;
+  static const SERVICE_REVENUE_REPORT = _Paths.SERVICE_REVENUE_REPORT;
+  static const SERVICE_REVENUE_DETAILS = _Paths.SERVICE_REVENUE_DETAILS;
+  static const PRODUCT_REVENUE_REPORT = _Paths.PRODUCT_REVENUE_REPORT;
+  static const PRODUCT_REVENUE_DETAILS = _Paths.PRODUCT_REVENUE_DETAILS;
+  static const PACKAGE_REVENUE_REPORT = _Paths.PACKAGE_REVENUE_REPORT;
+  static const PACKAGE_REVENUE_DETAILS = _Paths.PACKAGE_REVENUE_DETAILS;
+  static const COMMISSIONS_REPORT = _Paths.COMMISSIONS_REPORT;
+  static const COMMISSIONS_DETAIL = _Paths.COMMISSIONS_DETAIL;
 }
 
 abstract class _Paths {
@@ -44,6 +55,7 @@ abstract class _Paths {
   static const PACKAGES = '/packages';
   static const ADD_PACKAGE = '/add-package';
   static const CUSTOMERS = '/customers';
+  static const ADD_CUSTOMER = '/add-customer';
   static const REVENUE_REPORT = '/revenue-report';
   static const BOTTOMNAV = '/bottomnav';
   static const ONBOARD = '/onboard';
@@ -55,4 +67,14 @@ abstract class _Paths {
   static const PAYMENT_DETAILS = '/payment-details';
   static const MEDIA_LIBRARY = '/media-library';
   static const BRANCH_COMPARISON = '/branch-comparison';
+  static const BRANCH_COMPARISON_REPORT = '/branch-comparison-report';
+  static const BRANCH_COMPARISON_REPORT_DETAILS = '/branch-comparison-report-details';
+  static const SERVICE_REVENUE_REPORT = '/service-revenue-report';
+  static const SERVICE_REVENUE_DETAILS = '/service-revenue-details';
+  static const PRODUCT_REVENUE_REPORT = '/product-revenue-report';
+  static const PRODUCT_REVENUE_DETAILS = '/product-revenue-details';
+  static const PACKAGE_REVENUE_REPORT = '/package-revenue-report';
+  static const PACKAGE_REVENUE_DETAILS = '/package-revenue-details';
+  static const COMMISSIONS_REPORT = '/commissions-report';
+  static const COMMISSIONS_DETAIL = '/commissions-detail';
 }

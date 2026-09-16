@@ -67,6 +67,7 @@ class AppDrawerView extends StatelessWidget {
                     label: 'drawer.customers'.trns(),
                     onTap: () {
                       Get.find<BottomnavController>().closeDrawer();
+                      Get.toNamed(Routes.CUSTOMERS);
                     },
                   ),
                   _DrawerExpandable(
@@ -127,7 +128,7 @@ class AppDrawerView extends StatelessWidget {
   void _handleReportNavigation(String item) {
     switch (item) {
       case 'Branch Comparison':
-        Get.toNamed('/revenue-report',
+        Get.toNamed(Routes.BRANCH_COMPARISON_REPORT,
             arguments: {'title': 'revenue.branchComparison'});
         break;
       case 'Revenue Report':

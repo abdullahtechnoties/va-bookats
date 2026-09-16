@@ -199,8 +199,10 @@
     },
     "booking": {
       "title": "All Booking",
+      "empty": "No bookings for today",
       "tabs": {
         "active": "Active",
+        "pending": "Pending",
         "completed": "Completed",
         "cancelled": "Cancelled"
       },
@@ -1152,6 +1154,15 @@
     "title": "Customers",
     "addNewCustomer": "Add New Customer",
     "totalCustomer": "Total Customer",
+    "errorTitle": "Error",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Customer",
+    "deleteDialogMessage": "Are you sure you want to delete \"{name}\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Customer deleted successfully.",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Customer status updated successfully.",
     "card": {
       "branch": "Branch:",
       "shift": "Shift:",
@@ -1159,10 +1170,12 @@
       "email": "Email:",
       "address": "Address:",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "edit": "Edit"
     },
     "filter": {
       "title": "Filter",
+      "search": "Search",
       "fromDate": "From Date",
       "toDate": "To Date",
       "branches": "Branches",
@@ -1172,6 +1185,46 @@
       "allCountry": "All Country",
       "reset": "Reset",
       "applyFilter": "Apply Filter"
+    }
+  },
+  "addCustomer": {
+    "title": "Add New Customer",
+    "editTitle": "Edit Customer",
+    "formTitle": "Customer Information",
+    "editFormTitle": "Edit Customer Information",
+    "name": "Full Name",
+    "enterName": "Enter Full Name",
+    "email": "Email Address",
+    "enterEmail": "Enter Email Address",
+    "phone": "Phone Number",
+    "enterPhone": "Enter Phone Number",
+    "gender": "Gender",
+    "selectGender": "Select Gender",
+    "profileImage": "Profile Image",
+    "country": "Country",
+    "selectCountry": "Select Country",
+    "state": "State",
+    "selectState": "Select State",
+    "city": "City",
+    "selectCity": "Select City",
+    "area": "Area",
+    "selectArea": "Select Area",
+    "zip": "Zip Code",
+    "enterZip": "Enter Zip Code",
+    "address": "Address",
+    "enterAddress": "Enter Address",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "save": "Save",
+    "update": "Update",
+    "createSuccess": "Customer created successfully.",
+    "updateSuccess": "Customer updated successfully.",
+    "validation": {
+      "nameRequired": "Please enter customer name",
+      "emailRequired": "Please enter email address",
+      "emailInvalid": "Please enter a valid email address",
+      "phoneRequired": "Please enter phone number",
+      "attachmentIncomplete": "Each attachment needs both a title and an image."
     }
   },
   "revenue": {
@@ -1307,9 +1360,140 @@
     "select": "Select",
     "selected": "Selected",
     "uploadSuccess": "Image uploaded successfully",
-    "deleteSuccess": "Image deleted successfully"
+    "deleteSuccess": "Image deleted successfully",
+    "empty": "No media found"
   },
   "reports": {
+    "product": {
+      "title": "Product Revenue Report",
+      "filter": {
+        "title": "Filter",
+        "fromDate": "From Date",
+        "toDate": "To Date",
+        "branch": "Branch",
+        "product": "Product",
+        "allBranches": "All Branches",
+        "allProducts": "All Products",
+        "apply": "Apply Filter",
+        "reset": "Reset"
+      },
+      "columns": {
+        "title": "Select Columns",
+        "selected": "Selected Columns",
+        "selectAll": "Select All",
+        "selectColumns": "Select columns to display",
+        "branch": "Branch",
+        "from": "From",
+        "to": "To",
+        "totalAmount": "Total Amount",
+        "totalDiscount": "Total Discount",
+        "netRevenue": "Net Revenue",
+        "actions": "Actions",
+        "viewDetails": "View Details"
+      },
+      "empty": {
+        "title": "No Data Available",
+        "message": "There are no product revenue records for the selected filters. Try adjusting your date range or filters."
+      },
+      "error": {
+        "title": "Failed to Load",
+        "message": "Unable to load product revenue report. Please try again.",
+        "retry": "Retry"
+      },
+      "errors": {
+        "title": "Error",
+        "fetchFailed": "Failed to fetch product revenue report",
+        "detailsFetchFailed": "Failed to fetch product revenue details",
+        "unexpected": "An unexpected error occurred"
+      },
+      "details": {
+        "title": "Product Revenue Details",
+        "branchInfo": "Branch Information",
+        "branchName": "Branch Name",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "productInfo": "Product Information",
+        "productName": "Product",
+        "dateRange": "Date Range",
+        "product": "Product",
+        "quantity": "Quantity",
+        "unitPrice": "Unit Price",
+        "totalAmount": "Total Amount",
+        "discount": "Discount",
+        "netRevenue": "Net Revenue",
+        "page": "Page :current of :total",
+        "previous": "Previous",
+        "next": "Next",
+        "empty": {
+          "title": "No Details Available",
+          "message": "There are no product sales details for this period."
+        },
+        "error": {
+          "title": "Failed to Load Details",
+          "message": "Unable to load product revenue details. Please try again.",
+          "retry": "Retry"
+        }
+      }
+    },
+    "serviceRevenue": {
+      "title": "Service Revenue Report",
+      "columns": {
+        "branch": "Branch",
+        "from": "From",
+        "to": "To",
+        "totalAmount": "Total Amount",
+        "totalDiscount": "Total Discount",
+        "netRevenue": "Net Revenue"
+      },
+      "details": {
+        "title": "Service Revenue Details",
+        "serviceName": "Service Name",
+        "totalCustomers": "Total Customers",
+        "serviceAmount": "Service Amount",
+        "totalAmount": "Total Amount",
+        "totalDiscount": "Total Discount",
+        "netRevenue": "Net Revenue"
+      }
+    },
+    "filter": {
+      "title": "Filter",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branch": "Branch",
+      "service": "Service",
+      "allBranches": "All Branches",
+      "allServices": "All Services",
+      "apply": "Apply Filter",
+      "reset": "Reset"
+    },
+    "columns": {
+      "title": "Select Columns",
+      "selected": "Columns Selected",
+      "selectColumns": "Select Columns",
+      "selectAll": "Select All"
+    },
+    "common": {
+      "index": "#",
+      "page": "Page",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "errors": {
+      "title": "Error",
+      "fetchFailed": "Failed to fetch report data",
+      "loadFailed": "Failed to load data",
+      "tryAgain": "Please try again",
+      "unexpected": "An unexpected error occurred"
+    },
+    "actions": {
+      "retry": "Retry"
+    },
+    "empty": {
+      "title": "No Data Available",
+      "message": "No report data found for the selected filters",
+      "details": "No details available for this period"
+    },
     "revenue": {
       "title": "Revenue Report",
       "noData": "No Revenue Data",
@@ -1384,6 +1568,170 @@
       "pagination": {
         "previous": "Previous",
         "next": "Next"
+      }
+    }
+  },
+  "branchComparison": {
+    "title": "Branch Comparison Report",
+    "empty": "No branch comparison data available",
+    "retry": "Retry",
+    "filter": {
+      "title": "Filter",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branches": "Branches",
+      "selectBranches": "Select Branches",
+      "branchesSelected": "branches selected",
+      "reset": "Reset",
+      "apply": "Apply Filter"
+    },
+    "columns": {
+      "title": "Select Columns",
+      "selected": "Columns Selected",
+      "selectColumns": "Select columns to display",
+      "selectAll": "Select All",
+      "branchName": "Branch Name",
+      "from": "From",
+      "to": "To",
+      "totalRevenue": "Total Revenue",
+      "totalAmount": "Total Amount",
+      "totalDiscount": "Total Discount",
+      "totalBalance": "Total Balance",
+      "cashPayment": "Cash Payment",
+      "cardPayment": "Card Payment",
+      "onlinePayment": "Online Payment",
+      "serviceRevenue": "Service Revenue",
+      "productRevenue": "Product Revenue",
+      "packageRevenue": "Package Revenue",
+      "unpaidAmount": "Unpaid Amount"
+    },
+    "details": {
+      "title": "Branch Details",
+      "approved": "Approved",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "empty": "No daily closings found for this tab"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch branch comparison report",
+      "fetchDetailsFailed": "Failed to fetch branch details",
+      "unexpected": "An unexpected error occurred"
+    }
+  },
+  "packageRevenue": {
+    "title": "Package Revenue Report",
+    "filter": {
+      "title": "Filter",
+      "filterBtn": "Filter",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branch": "Branch",
+      "selectBranch": "Select Branch",
+      "allBranches": "All Branches",
+      "selectPackage": "Select Package",
+      "allPackages": "All Packages",
+      "reset": "Reset",
+      "apply": "Apply Filter"
+    },
+    "columns": {
+      "title": "Select Columns",
+      "selected": "Columns Selected",
+      "selectColumns": "Select columns to display",
+      "selectAll": "Select All"
+    },
+    "table": {
+      "branch": "Branch",
+      "from": "From",
+      "to": "To",
+      "totalAmount": "Total Amount",
+      "totalDiscount": "Total Discount",
+      "netRevenue": "Net Revenue",
+      "actions": "Actions",
+      "viewDetails": "View Details"
+    },
+    "empty": {
+      "title": "No Data Found",
+      "message": "No package revenue data available for the selected filters."
+    }
+  },
+  "packageRevenueDetails": {
+    "title": "Package Revenue Details",
+    "table": {
+      "package": "Package",
+      "customers": "Customers",
+      "quantity": "Quantity",
+      "packageAmount": "Package Amount",
+      "totalAmount": "Total Amount",
+      "discount": "Discount",
+      "netRevenue": "Net Revenue"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "empty": {
+      "title": "No Details Found",
+      "message": "No daily package summaries available."
+    }
+  },
+  "commissions": {
+    "title": "Staff Commissions Report",
+    "filter": {
+      "title": "Filter",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branch": "Branch",
+      "staff": "Staff",
+      "selectBranch": "Select Branch",
+      "selectStaff": "Select Staff",
+      "reset": "Reset",
+      "apply": "Apply Filter"
+    },
+    "columns": {
+      "title": "Select Columns",
+      "selected": "Columns Selected",
+      "selectColumns": "Select Columns",
+      "selectAll": "Select All"
+    },
+    "table": {
+      "branch": "Branch",
+      "from": "From",
+      "to": "To",
+      "totalServices": "Total Services",
+      "totalPackages": "Total Packages",
+      "serviceCommission": "Service Commission",
+      "packageCommission": "Package Commission",
+      "totalCommission": "Total Commission",
+      "actions": "Actions",
+      "viewDetails": "View Details"
+    },
+    "empty": {
+      "title": "No Data Available",
+      "message": "No commission data found for selected filters. Try adjusting your filters."
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch commission report",
+      "parseFailed": "Failed to parse commission data"
+    },
+    "retry": "Retry",
+    "detail": {
+      "title": "Commission Details",
+      "table": {
+        "staffName": "Staff Name",
+        "totalServices": "Total Services",
+        "totalPackages": "Total Packages",
+        "serviceCommission": "Service Commission",
+        "packageCommission": "Package Commission",
+        "totalCommission": "Total Commission"
+      },
+      "pagination": {
+        "info": "Page :from of :to (Total: :total)",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "empty": {
+        "title": "No Details Available",
+        "message": "No commission details found for this period."
       }
     }
   }
