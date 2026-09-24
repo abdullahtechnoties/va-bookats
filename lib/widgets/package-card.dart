@@ -11,6 +11,7 @@ class PackageCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onStatusTap;
   final bool isBusy;
+  final bool isDeleting;
 
   const PackageCard({
     super.key,
@@ -19,6 +20,7 @@ class PackageCard extends StatelessWidget {
     this.onDelete,
     this.onStatusTap,
     this.isBusy = false,
+    this.isDeleting = false,
   });
 
   @override
@@ -57,11 +59,11 @@ class PackageCard extends StatelessWidget {
                 onTap: isBusy ? null : onStatusTap,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 7),
+                    horizontal: 16,
+                    vertical: 7,
+                  ),
                   decoration: BoxDecoration(
-                    color: package.isActive
-                        ? AppColors.secondary.withValues(alpha: 0.12)
-                        : Colors.grey.withValues(alpha: 0.15),
+                    color: AppColors.secondary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: isBusy
@@ -78,21 +80,17 @@ class PackageCard extends StatelessWidget {
                           children: [
                             Text(
                               package.statusDisplay,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: package.isActive
-                                    ? AppColors.secondary
-                                    : Colors.grey,
+                                color: AppColors.secondary,
                               ),
                             ),
                             const SizedBox(width: 4),
-                            Icon(
+                            const Icon(
                               Icons.arrow_drop_down,
                               size: 16,
-                              color: package.isActive
-                                  ? AppColors.secondary
-                                  : Colors.grey,
+                              color: AppColors.secondary,
                             ),
                           ],
                         ),
@@ -146,7 +144,7 @@ class PackageCard extends StatelessWidget {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: isBusy ? null : onViewEdit,
+                  onTap: isBusy || isDeleting ? null : onViewEdit,
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
@@ -171,7 +169,7 @@ class PackageCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               GestureDetector(
-                onTap: isBusy ? null : onDelete,
+                onTap: isBusy || isDeleting ? null : onDelete,
                 child: Container(
                   width: 48,
                   height: 48,
@@ -179,11 +177,22 @@ class PackageCard extends StatelessWidget {
                     color: AppColors.secondary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    isBusy ? Icons.hourglass_empty : Icons.delete_outline,
-                    color: AppColors.white,
-                    size: 20,
-                  ),
+                  child: isDeleting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.white,
+                            ),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.white,
+                          size: 20,
+                        ),
                 ),
               ),
             ],

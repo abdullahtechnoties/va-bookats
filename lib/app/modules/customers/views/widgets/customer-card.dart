@@ -15,6 +15,7 @@ class CustomerCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onStatusTap;
   final bool isBusy;
+  final bool isDeleting;
 
   const CustomerCard({
     super.key,
@@ -24,14 +25,15 @@ class CustomerCard extends StatelessWidget {
     this.onDelete,
     this.onStatusTap,
     this.isBusy = false,
+    this.isDeleting = false,
   });
 
   Color get _statusBgColor => customer.isActive
       ? AppColors.secondary.withValues(alpha: 0.12)
-      : Colors.grey.withValues(alpha: 0.15);
+      : AppColors.secondary.withValues(alpha: 0.12);
 
   Color get _statusTextColor =>
-      customer.isActive ? AppColors.secondary : Colors.grey;
+      customer.isActive ? AppColors.secondary : AppColors.secondary;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +112,9 @@ class CustomerCard extends StatelessWidget {
                     onTap: isBusy ? null : onStatusTap,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
                       decoration: BoxDecoration(
                         color: _statusBgColor,
                         borderRadius: BorderRadius.circular(8),
@@ -153,9 +157,10 @@ class CustomerCard extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 10),
                 child: Divider(
-                    height: 1,
-                    thickness: 0.8,
-                    color: Color(0xFFF0F0F0)),
+                  height: 1,
+                  thickness: 0.8,
+                  color: Color(0xFFF0F0F0),
+                ),
               ),
 
               // Details (only fields the API actually returns)
@@ -163,11 +168,13 @@ class CustomerCard extends StatelessWidget {
                 label: 'customers.card.email'.trns(),
                 value: customer.email.isEmpty ? '—' : customer.email,
               ),
-              _DetailDivider(),
-              _DetailRow(
-                label: 'customers.card.address'.trns(),
-                value: customer.addressLabel,
-              ),
+              if ((customer.address ?? '').trim().isNotEmpty) ...[
+                _DetailDivider(),
+                _DetailRow(
+                  label: 'customers.card.address'.trns(),
+                  value: customer.address!.trim(),
+                ),
+              ],
               if ((customer.country?.name ?? '').isNotEmpty) ...[
                 _DetailDivider(),
                 _DetailRow(
@@ -184,7 +191,7 @@ class CustomerCard extends StatelessWidget {
                     const Spacer(),
                     if (onDelete != null)
                       GestureDetector(
-                        onTap: isBusy ? null : onDelete,
+                        onTap: isBusy || isDeleting ? null : onDelete,
                         child: Container(
                           width: 44,
                           height: 44,
@@ -195,20 +202,27 @@ class CustomerCard extends StatelessWidget {
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(
-                            isBusy
-                                ? Icons.hourglass_empty
-                                : Icons.delete_outline,
-                            color: AppColors.secondary,
-                            size: 19,
-                          ),
+                          child: isDeleting
+                              ? const SizedBox(
+                                  width: 19,
+                                  height: 19,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.secondary,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.delete_outline,
+                                  color: AppColors.secondary,
+                                  size: 19,
+                                ),
                         ),
                       ),
                     if (onDelete != null && onEdit != null)
                       const SizedBox(width: 10),
                     if (onEdit != null)
                       GestureDetector(
-                        onTap: isBusy ? null : onEdit,
+                        onTap: isBusy || isDeleting ? null : onEdit,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 22,
@@ -282,10 +296,6 @@ class _DetailRow extends StatelessWidget {
 class _DetailDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Divider(
-      height: 1,
-      thickness: 0.8,
-      color: Color(0xFFF5F5F5),
-    );
+    return const Divider(height: 1, thickness: 0.8, color: Color(0xFFF5F5F5));
   }
 }

@@ -111,6 +111,8 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
             border: Border.all(color: const Color(0xFFE5E7EB)),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
@@ -123,31 +125,7 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
                 ),
               ),
               const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      branch.name,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.black,
-                      ),
-                    ),
-                    if (controller.detailData?.serviceName != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        controller.detailData!.serviceName,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+              
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -167,6 +145,16 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
                     '${controller.formatDate(controller.fromDate)} - ${controller.formatDate(controller.toDate)}',
                     style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
                   ),
+                  if (controller.detailData?.serviceName != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      controller.detailData!.serviceName,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ],

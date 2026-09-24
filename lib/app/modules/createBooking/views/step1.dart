@@ -42,13 +42,15 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
   }
 
   Widget _loaderSuffix() {
-    return const SizedBox(
-      width: 20,
-      height: 20,
-      child: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.secondary,
+    return SizedBox(
+        width: 20,
+        height: 20,
+      child: const FittedBox(
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.secondary,
+          ),
         ),
       ),
     );
@@ -87,70 +89,70 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
               const SizedBox(height: 20),
 
               // Branch — owner only
-              Obx(() => controller.showBranch
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _FieldLabel(
-                            'createBooking.step1.branch'.trns()),
-                        const SizedBox(height: 8),
-                        Obx(() => CommonTextInputField(
+              Obx(
+                () => controller.showBranch
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _FieldLabel('createBooking.step1.branch'.trns()),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => CommonTextInputField(
                               hintTextColor: AppColors.grey,
-                              hintText:
-                                  'createBooking.step1.selectBranch'.trns(),
+                              hintText: 'createBooking.step1.selectBranch'
+                                  .trns(),
                               controller: controller.branchCtrl,
                               readOnly: true,
                               height: 50,
                               hintTextSize: 13,
                               showSuffixIcon: true,
-                              suffixIcon:
-                                  controller.isLoadingBranches.value
-                                      ? _loaderSuffix()
-                                      : const Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          color: Color(0xFF888888),
-                                        ),
-                              validator: (_) => controller.showBranch &&
-                                      controller.selectedBranchId.value ==
-                                          null
+                              suffixIcon: controller.isLoadingBranches.value
+                                  ? _loaderSuffix()
+                                  : const Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: Color(0xFF888888),
+                                    ),
+                              validator: (_) =>
+                                  controller.showBranch &&
+                                      controller.selectedBranchId.value == null
                                   ? 'Please select a branch'
                                   : null,
                               onTap: controller.isLoadingBranches.value
                                   ? null
                                   : () => _showThree(
-                                        context,
-                                        title:
-                                            'createBooking.step1.branch'
-                                                .trns(),
-                                        items: controller.branchLabels,
-                                        selectedItem: controller
-                                            .selectedBranchValue,
-                                        textCtrl: controller.branchCtrl,
-                                        values: controller.branchValues,
-                                        onSelected: (v) {
-                                          controller.onBranchSelected(v);
-                                          // Keep the visible label in sync.
-                                          final idx = controller.branchValues
-                                              .indexOf(v?.toString() ?? '');
-                                          if (idx != -1) {
-                                            controller.selectedBranch.value =
-                                                controller.branchLabels[idx];
-                                          }
-                                        },
-                                      ),
-                            )),
-                        const SizedBox(height: 16),
-                      ],
-                    )
-                  : const SizedBox.shrink()),
+                                      context,
+                                      title: 'createBooking.step1.branch'
+                                          .trns(),
+                                      items: controller.branchLabels,
+                                      selectedItem:
+                                          controller.selectedBranchValue,
+                                      textCtrl: controller.branchCtrl,
+                                      values: controller.branchValues,
+                                      onSelected: (v) {
+                                        controller.onBranchSelected(v);
+                                        // Keep the visible label in sync.
+                                        final idx = controller.branchValues
+                                            .indexOf(v?.toString() ?? '');
+                                        if (idx != -1) {
+                                          controller.selectedBranch.value =
+                                              controller.branchLabels[idx];
+                                        }
+                                      },
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
 
               // Booking Type (static: Guest / Customer)
               _FieldLabel('createBooking.step1.bookingType'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
                 hintTextColor: AppColors.grey,
-                hintText:
-                    'createBooking.step1.selectBookingType'.trns(),
+                hintText: 'createBooking.step1.selectBookingType'.trns(),
                 controller: controller.bookingTypeCtrl,
                 readOnly: true,
                 height: 50,
@@ -160,10 +162,9 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                   Icons.keyboard_arrow_down_rounded,
                   color: Color(0xFF888888),
                 ),
-                validator: (_) =>
-                    controller.selectedBookingType.value.isEmpty
-                        ? 'Please select a booking type'
-                        : null,
+                validator: (_) => controller.selectedBookingType.value.isEmpty
+                    ? 'Please select a booking type'
+                    : null,
                 onTap: () => _showThree(
                   context,
                   title: 'createBooking.step1.bookingType'.trns(),
@@ -171,90 +172,86 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                   selectedItem: controller.selectedBookingType,
                   textCtrl: controller.bookingTypeCtrl,
                   showSearch: false,
-                  onSelected: (v) => controller
-                      .onBookingTypeSelected(v?.toString() ?? ''),
+                  onSelected: (v) =>
+                      controller.onBookingTypeSelected(v?.toString() ?? ''),
                 ),
               ),
               const SizedBox(height: 16),
 
               // Customer — only when type is Customer
-              Obx(() => controller.isCustomerType
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                          children: [
-                            _FieldLabel('createBooking.step1.customer'
-                                .trns()),
-                            GestureDetector(
-                              onTap: () =>
-                                  Get.dialog(const AddCustomerDialog()),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.secondary,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: const Icon(
-                                      Icons.add,
-                                      color: AppColors.white,
-                                      size: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'createBooking.step1.addCustomer'
-                                        .trns(),
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.secondary,
-                                    ),
-                                  ),
-                                ],
+              Obx(
+                () => controller.isCustomerType
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _FieldLabel(
+                                'createBooking.step1.customer'.trns(),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Obx(() => CommonTextInputField(
+                              GestureDetector(
+                                onTap: () =>
+                                    Get.dialog(const AddCustomerDialog()),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 18,
+                                      height: 18,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.secondary,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Icon(
+                                        Icons.add,
+                                        color: AppColors.white,
+                                        size: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'createBooking.step1.addCustomer'.trns(),
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.secondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => CommonTextInputField(
                               hintTextColor: AppColors.grey,
-                              hintText:
-                                  'createBooking.step1.selectCustomerType'
-                                      .trns(),
+                              hintText: 'createBooking.step1.selectCustomerType'
+                                  .trns(),
                               controller: controller.customerCtrl,
                               readOnly: true,
                               height: 50,
                               hintTextSize: 13,
                               showSuffixIcon: true,
-                              suffixIcon:
-                                  controller.isLoadingCustomers.value
-                                      ? _loaderSuffix()
-                                      : const Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          color: Color(0xFF888888),
-                                        ),
+                              suffixIcon: controller.isLoadingCustomers.value
+                                  ? _loaderSuffix()
+                                  : const Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: Color(0xFF888888),
+                                    ),
                               validator: (_) =>
                                   controller.isCustomerType &&
-                                          controller.selectedCustomerId
-                                                  .value ==
-                                              null
-                                      ? 'Please select a customer'
-                                      : null,
+                                      controller.selectedCustomerId.value ==
+                                          null
+                                  ? 'Please select a customer'
+                                  : null,
                               onTap: () => _showThree(
                                 context,
-                                title: 'createBooking.step1.customer'
-                                    .trns(),
+                                title: 'createBooking.step1.customer'.trns(),
                                 items: controller.customerOptions
                                     .map((o) => o.label)
                                     .toList(),
-                                selectedItem:
-                                    controller.selectedCustomerValue,
+                                selectedItem: controller.selectedCustomerValue,
                                 textCtrl: controller.customerCtrl,
                                 values: controller.customerOptions
                                     .map((o) => o.value)
@@ -262,88 +259,92 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                                 onSelected: (v) {
                                   controller.onCustomerSelected(v);
                                   final idx = controller.customerOptions
-                                      .indexWhere((o) =>
-                                          o.value == v?.toString());
+                                      .indexWhere(
+                                        (o) => o.value == v?.toString(),
+                                      );
                                   if (idx != -1) {
                                     controller.selectedCustomer.value =
-                                        controller
-                                            .customerOptions[idx].label;
+                                        controller.customerOptions[idx].label;
                                   }
                                 },
                               ),
-                            )),
-                        const SizedBox(height: 16),
-                      ],
-                    )
-                  : const SizedBox.shrink()),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
 
               // Guest fields — only when type is Guest
-              Obx(() => controller.isGuestType
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _FieldLabel('Guest Name'),
-                        const SizedBox(height: 8),
-                        CommonTextInputField(
-                          hintText: 'Enter guest name',
-                          controller: controller.guestNameCtrl,
-                          height: 50,
-                          hintTextSize: 13,
-                          validator: (_) =>
-                              controller.isGuestType &&
-                                      controller
-                                          .guestNameCtrl.text.trim().isEmpty
-                                  ? 'Please enter guest name'
-                                  : null,
-                        ),
-                        const SizedBox(height: 16),
-                        _FieldLabel('Guest Email'),
-                        const SizedBox(height: 8),
-                        CommonTextInputField(
-                          hintText: 'Enter guest email',
-                          controller: controller.guestEmailCtrl,
-                          keyboardType: TextInputType.emailAddress,
-                          height: 50,
-                          hintTextSize: 13,
-                          validator: (_) {
-                            if (!controller.isGuestType) return null;
-                            final v = controller.guestEmailCtrl.text.trim();
-                            if (v.isEmpty) {
-                              return 'Please enter guest email';
-                            }
-                            if (!GetUtils.isEmail(v)) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        _FieldLabel('Guest Phone'),
-                        const SizedBox(height: 8),
-                        CommonTextInputField(
-                          hintText: 'Enter guest phone',
-                          controller: controller.guestPhoneCtrl,
-                          keyboardType: TextInputType.phone,
-                          height: 50,
-                          hintTextSize: 13,
-                          validator: (_) =>
-                              controller.isGuestType &&
-                                      controller
-                                          .guestPhoneCtrl.text.trim().isEmpty
-                                  ? 'Please enter guest phone'
-                                  : null,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    )
-                  : const SizedBox.shrink()),
+              Obx(
+                () => controller.isGuestType
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _FieldLabel('Guest Name'),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintText: 'Enter guest name',
+                            controller: controller.guestNameCtrl,
+                            height: 50,
+                            hintTextSize: 13,
+                            validator: (_) =>
+                                controller.isGuestType &&
+                                    controller.guestNameCtrl.text.trim().isEmpty
+                                ? 'Please enter guest name'
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+                          _FieldLabel('Guest Email'),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintText: 'Enter guest email',
+                            controller: controller.guestEmailCtrl,
+                            keyboardType: TextInputType.emailAddress,
+                            height: 50,
+                            hintTextSize: 13,
+                            validator: (_) {
+                              if (!controller.isGuestType) return null;
+                              final v = controller.guestEmailCtrl.text.trim();
+                              if (v.isEmpty) {
+                                return 'Please enter guest email';
+                              }
+                              if (!GetUtils.isEmail(v)) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          _FieldLabel('Guest Phone'),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintText: 'Enter guest phone',
+                            controller: controller.guestPhoneCtrl,
+                            keyboardType: TextInputType.phone,
+                            height: 50,
+                            hintTextSize: 13,
+                            validator: (_) =>
+                                controller.isGuestType &&
+                                    controller.guestPhoneCtrl.text
+                                        .trim()
+                                        .isEmpty
+                                ? 'Please enter guest phone'
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
 
               // Date
               _FieldLabel('createBooking.step1.date'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
                 hintTextColor: AppColors.grey,
-                hintText: 'YYYY-MM-DD',
+                hintText: 'createBooking.step1.datePlaceholder'.trns(),
                 controller: controller.dateCtrl,
                 readOnly: true,
                 height: 50,
@@ -360,17 +361,16 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
               const SizedBox(height: 8),
               CommonTextInputField(
                 hintTextColor: AppColors.grey,
-                hintText: 'HH:MM',
+                hintText: 'createBooking.step1.startTimePlaceholder'.trns(),
                 controller: controller.startTimeCtrl,
                 readOnly: true,
                 height: 50,
                 hintTextSize: 13,
-                validator: (_) =>
-                    controller.startTimeCtrl.text.trim().isEmpty
-                        ? 'Please select start time'
-                        : null,
-                onTap: () => controller.pickTime(
-                    context, controller.startTimeCtrl),
+                validator: (_) => controller.startTimeCtrl.text.trim().isEmpty
+                    ? 'Please select start time'
+                    : null,
+                onTap: () =>
+                    controller.pickTime(context, controller.startTimeCtrl),
               ),
               const SizedBox(height: 16),
 
@@ -379,15 +379,14 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
               const SizedBox(height: 8),
               CommonTextInputField(
                 hintTextColor: AppColors.grey,
-                hintText: 'HH:MM',
+                hintText: 'createBooking.step1.endTimePlaceholder'.trns(),
                 controller: controller.endTimeCtrl,
                 readOnly: true,
                 height: 50,
                 hintTextSize: 13,
-                validator: (_) =>
-                    controller.endTimeCtrl.text.trim().isEmpty
-                        ? 'Please select end time'
-                        : null,
+                validator: (_) => controller.endTimeCtrl.text.trim().isEmpty
+                    ? 'Please select end time'
+                    : null,
                 onTap: () =>
                     controller.pickTime(context, controller.endTimeCtrl),
               ),
@@ -397,10 +396,12 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
               _FieldLabel('createBooking.step1.note'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
-                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 12,
+                ),
                 hintTextColor: AppColors.grey,
-                hintText:
-                    'createBooking.step1.notePlaceholder'.trns(),
+                hintText: 'createBooking.step1.notePlaceholder'.trns(),
                 controller: controller.noteCtrl,
                 maxLines: 4,
                 height: 100,

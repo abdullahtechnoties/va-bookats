@@ -6,13 +6,14 @@ import 'package:va_bookats/app/modules/customers/repositories/customer_repositor
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/customer_model.dart';
 import 'package:va_bookats/models/lookup_option.dart';
+import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
 class CustomersController extends GetxController {
   CustomersController({required CustomerRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final CustomerRepository _repository;
   final ScrollController scrollController = ScrollController();
@@ -26,6 +27,7 @@ class CustomersController extends GetxController {
   final RxBool hasMore = false.obs;
   final RxBool loadFailed = false.obs;
   final RxnInt busyCustomerId = RxnInt();
+  final RxnInt busyDeleteId = RxnInt();
 
   int _currentPage = 1;
   int _lastPage = 1;
@@ -58,6 +60,15 @@ class CustomersController extends GetxController {
     final label = selectedCountryFilter.value;
     if (label.isEmpty) return null;
     return _countryIdByLabel[label];
+  }
+
+  RxInt get appliedFiltersCount {
+    var n = 0;
+    if (searchCtrl.text.trim().isNotEmpty) n++;
+    if (toDateCtrl.text.trim().isNotEmpty && fromDateCtrl.text.trim().isNotEmpty) n++;
+    if (selectedStatusFilter.value.isNotEmpty) n++;
+    if (selectedCountryFilter.value.isNotEmpty) n++;
+    return n.obs;
   }
 
   @override
@@ -93,8 +104,8 @@ class CustomersController extends GetxController {
 
   String _defaultRangeLabel() =>
       'customers.filter.fromDate'.trns() == 'customers.filter.fromDate'
-          ? ''
-          : '';
+      ? ''
+      : '';
 
   // ─── Fetching ──────────────────────────────────────────────────────────
 
@@ -248,6 +259,7 @@ class CustomersController extends GetxController {
           controller: countryFilterCtrl,
           dropdownItems: countryOptions,
           selectedValue: selectedCountryFilter,
+          showSearch: true,
         ),
       ],
       onReset: resetFilter,
@@ -261,20 +273,21 @@ class CustomersController extends GetxController {
     final confirmed = await _confirmDelete(customer);
     if (confirmed != true) return;
 
-    busyCustomerId.value = customer.id;
+    busyDeleteId.value = customer.id;
     final response = await _repository.deleteCustomer(customer.id);
-    busyCustomerId.value = null;
+    busyDeleteId.value = null;
 
     if (response.isCompleted) {
       customers.removeWhere((c) => c.id == customer.id);
-      totalCustomers.value =
-          (totalCustomers.value - 1).clamp(0, 1 << 31);
+      totalCustomers.value = (totalCustomers.value - 1).clamp(0, 1 << 31);
       SnackbarService.showSuccess(
-        title: 'customers.deleteSuccessTitle'.trns() ==
+        title:
+            'customers.deleteSuccessTitle'.trns() ==
                 'customers.deleteSuccessTitle'
             ? 'Deleted'
             : 'customers.deleteSuccessTitle'.trns(),
-        message: response.message ??
+        message:
+            response.message ??
             ('customers.deleteSuccessMessage'.trns() ==
                     'customers.deleteSuccessMessage'
                 ? 'Customer deleted successfully.'
@@ -291,6 +304,9 @@ class CustomersController extends GetxController {
   }
 
   Future<void> toggleStatus(CustomerModel customer) async {
+    final newStatus = await _pickStatus(customer);
+    if (newStatus == null || newStatus == customer.status) return;
+
     busyCustomerId.value = customer.id;
     final response = await _repository.changeCustomerStatus(customer.id);
     busyCustomerId.value = null;
@@ -304,11 +320,13 @@ class CustomersController extends GetxController {
         customers[index] = customer.copyWith(status: newStatus);
       }
       SnackbarService.showSuccess(
-        title: 'customers.statusSuccessTitle'.trns() ==
+        title:
+            'customers.statusSuccessTitle'.trns() ==
                 'customers.statusSuccessTitle'
             ? 'Updated'
             : 'customers.statusSuccessTitle'.trns(),
-        message: response.message ??
+        message:
+            response.message ??
             ('customers.statusSuccessMessage'.trns() ==
                     'customers.statusSuccessMessage'
                 ? 'Customer status updated successfully.'
@@ -324,12 +342,48 @@ class CustomersController extends GetxController {
     }
   }
 
+  Future<String?> _pickStatus(CustomerModel customer) {
+    return Get.bottomSheet<String>(
+      SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Text(
+              'packages.changeStatusTitle'.trns(),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _StatusOption(
+              label: 'customers.card.active'.trns(),
+              isSelected: customer.isActive,
+              onTap: () => Get.back(result: 'active'),
+            ),
+            _StatusOption(
+              label: 'customers.card.inactive'.trns(),
+              isSelected: !customer.isActive,
+              onTap: () => Get.back(result: 'inactive'),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+    );
+  }
+
   Future<bool?> _confirmDelete(CustomerModel customer) {
     return Get.dialog<bool>(
       AlertDialog(
         title: Text(
-          'customers.deleteDialogTitle'.trns() ==
-                  'customers.deleteDialogTitle'
+          'customers.deleteDialogTitle'.trns() == 'customers.deleteDialogTitle'
               ? 'Delete Customer'
               : 'customers.deleteDialogTitle'.trns(),
         ),
@@ -373,8 +427,19 @@ class CustomersController extends GetxController {
     final parts = text.trim().split('/');
     if (parts.length != 3) return null;
     const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final month = months.indexOf(parts[0]);
     final day = int.tryParse(parts[1]);
@@ -383,5 +448,60 @@ class CustomersController extends GetxController {
     return '${year.toString().padLeft(4, '0')}-'
         '${month.toString().padLeft(2, '0')}-'
         '${day.toString().padLeft(2, '0')}';
+  }
+}
+
+class _StatusOption extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _StatusOption({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.secondary.withValues(alpha: 0.10)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.secondary.withValues(alpha: 0.4)
+                : const Color(0xFFEEEEEE),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: AppColors.black,
+                ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(
+                Icons.check_circle,
+                color: AppColors.secondary,
+                size: 20,
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

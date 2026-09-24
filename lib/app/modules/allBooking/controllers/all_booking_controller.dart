@@ -54,6 +54,10 @@ class AllBookingController extends GetxController {
   final Map<String, bool> _hasMore = {};
   final Set<String> _loaded = {};
 
+  /// Bumped on every list request so a slow/stale response can never
+  /// overwrite a newer tab/filter/search result (the tab-duplication glitch).
+  int _generation = 0;
+
   // ─── Search (hidden by default; opened from home or search icon) ─────────
   final RxBool isSearchOpen = false.obs;
   final TextEditingController searchCtrl = TextEditingController();
@@ -92,6 +96,16 @@ class AllBookingController extends GetxController {
   int get pendingCount => pendingBookings.length;
   int get completedCount => completedBookings.length;
   int get cancelledCount => cancelledBookings.length;
+
+  /// Number of active (non-empty) filters — shown as a badge on the icon.
+  int get appliedFiltersCount {
+    var n = 0;
+    if (fromDateCtrl.text.trim().isNotEmpty) n++;
+    if (toDateCtrl.text.trim().isNotEmpty) n++;
+    if (selectedBranchFilter.value.isNotEmpty) n++;
+    if (selectedTypeFilter.value.isNotEmpty) n++;
+    return n;
+  }
 
   List<String> get branchFilterOptions => [
     'All Branches',
@@ -143,14 +157,32 @@ class AllBookingController extends GetxController {
   void _readArguments() {
     final args = Get.arguments;
     if (args is Map && args['autoFocusSearch'] == true) {
-      isSearchOpen.value = true;
-      _requestSearchFocus();
+      openSearchMode();
     } else if (args is Map && args['autoFocusSearch'] == false) {
-      isSearchOpen.value = false;
+      closeSearchMode(silent: true);
     }
   }
 
-  void _requestSearchFocus() {
+  /// Safe entry-point for the view (post-frame) and for HomeController when
+  /// the controller already lives inside the bottom-nav IndexedStack.
+  void handleIncomingArgs() => _readArguments();
+
+  void openSearchMode() {
+    isSearchOpen.value = true;
+    requestSearchFocus();
+  }
+
+  void closeSearchMode({bool silent = false}) {
+    isSearchOpen.value = false;
+    if (!silent) {
+      searchCtrl.clear();
+      searchQuery.value = '';
+      searchFocus.unfocus();
+      fetchFirstPage();
+    }
+  }
+
+  void requestSearchFocus() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!isClosed && isSearchOpen.value && searchFocus.canRequestFocus) {
         searchFocus.requestFocus();
@@ -160,14 +192,10 @@ class AllBookingController extends GetxController {
 
   void toggleSearch([bool? open]) {
     final next = open ?? !isSearchOpen.value;
-    isSearchOpen.value = next;
     if (!next) {
-      searchCtrl.clear();
-      searchQuery.value = '';
-      searchFocus.unfocus();
-      fetchFirstPage();
+      closeSearchMode();
     } else {
-      _requestSearchFocus();
+      openSearchMode();
     }
   }
 
@@ -195,24 +223,33 @@ class AllBookingController extends GetxController {
 
   Future<void> fetchFirstPage() async {
     final key = _statusKey;
+    final searching = isSearching;
+    final query = searchQuery.value.trim();
+    final from = _toApiDate(fromDateCtrl.text);
+    final to = _toApiDate(toDateCtrl.text);
+    final branchId = _filterBranchId;
+    final bookingType = _filterBookingType;
+    final gen = ++_generation;
     isLoading.value = true;
     loadFailed.value = false;
     final response = await _repo.getBookings(
       page: 1,
-      status: isSearching ? null : key,
-      search: searchQuery.value.trim().isEmpty
-          ? null
-          : searchQuery.value.trim(),
-      fromDate: _toApiDate(fromDateCtrl.text),
-      toDate: _toApiDate(toDateCtrl.text),
-      branchId: _filterBranchId,
-      bookingType: _filterBookingType,
+      status: searching ? null : key,
+      search: query.isEmpty ? null : query,
+      fromDate: from,
+      toDate: to,
+      branchId: branchId,
+      bookingType: bookingType,
     );
+
+    // Superseded by a newer tab/filter/search request — drop it so data can
+    // never leak into the wrong tab or wipe a newer result.
+    if (gen != _generation) return;
 
     if (!response.isCompleted || response.data == null) {
       loadFailed.value = true;
       isLoading.value = false;
-      if (_listForKey.isEmpty) {
+      if (_listForKeyAt(key, searching).isEmpty) {
         SnackbarService.showError(
           title: 'common.error'.trns(),
           message: response.message ?? 'errors.requestFailed'.trns(),
@@ -226,10 +263,28 @@ class AllBookingController extends GetxController {
     _lastPage[key] = page.meta.lastPage;
     _hasMore[key] = page.meta.hasNextPage;
     hasMore.value = page.meta.hasNextPage;
-    _listForKey.assignAll(page.bookings);
-    _loaded.add(key);
+    _listForKeyAt(key, searching).assignAll(page.bookings);
+    _loaded.add(_loadedKey(key, searching));
     isLoading.value = false;
   }
+
+  /// List lookup pinned to the request's key (not the live tab), so a late
+  /// response can never write into whatever tab is on screen now.
+  RxList<BookingModel> _listForKeyAt(String key, bool searching) {
+    if (searching || key == 'all') return searchResults;
+    switch (key) {
+      case BookingStatus.pending:
+        return pendingBookings;
+      case BookingStatus.completed:
+        return completedBookings;
+      case BookingStatus.cancelled:
+        return cancelledBookings;
+      default:
+        return searchResults;
+    }
+  }
+
+  String _loadedKey(String key, bool searching) => searching ? 'all|$key' : key;
 
   Future<void> handleRefresh() async {
     isRefreshing.value = true;
@@ -240,28 +295,37 @@ class AllBookingController extends GetxController {
 
   Future<void> loadMore() async {
     final key = _statusKey;
+    final searching = isSearching;
+    final query = searchQuery.value.trim();
+    final from = _toApiDate(fromDateCtrl.text);
+    final to = _toApiDate(toDateCtrl.text);
+    final branchId = _filterBranchId;
+    final bookingType = _filterBookingType;
     final current = _page[key] ?? 1;
     final last = _lastPage[key] ?? current;
     if (current >= last || isLoadingMore.value) return;
+    final gen = ++_generation;
     isLoadingMore.value = true;
     final response = await _repo.getBookings(
       page: current + 1,
-      status: isSearching ? null : key,
-      search: searchQuery.value.trim().isEmpty
-          ? null
-          : searchQuery.value.trim(),
-      fromDate: _toApiDate(fromDateCtrl.text),
-      toDate: _toApiDate(toDateCtrl.text),
-      branchId: _filterBranchId,
-      bookingType: _filterBookingType,
+      status: searching ? null : key,
+      search: query.isEmpty ? null : query,
+      fromDate: from,
+      toDate: to,
+      branchId: branchId,
+      bookingType: bookingType,
     );
+    if (gen != _generation) {
+      isLoadingMore.value = false;
+      return;
+    }
     if (response.isCompleted && response.data != null) {
       final page = response.data!;
       _page[key] = page.meta.currentPage;
       _lastPage[key] = page.meta.lastPage;
       _hasMore[key] = page.meta.hasNextPage;
       hasMore.value = page.meta.hasNextPage;
-      _listForKey.addAll(page.bookings);
+      _listForKeyAt(key, searching).addAll(page.bookings);
     }
     isLoadingMore.value = false;
   }
@@ -276,6 +340,8 @@ class AllBookingController extends GetxController {
     if (selectedTab.value == index) return;
     selectedTab.value = index;
     hasMore.value = _hasMore[_statusKey] ?? false;
+    // Invalidate any in-flight request for the previous tab.
+    _generation++;
     if (!_loaded.contains(_statusKey)) {
       fetchFirstPage();
     }

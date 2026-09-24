@@ -21,104 +21,97 @@ class ServiceCategoriesView extends GetView<ServiceCategoriesController> {
 
           // ── Content ─────────────────────────────────────────────────────
           Expanded(
-            child: Obx(
-              () {
-                if (controller.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (controller.loadFailed.value &&
-                    controller.categories.isEmpty) {
-                  return _ErrorState(onRetry: controller.retry);
-                }
-return RefreshIndicator(
-                      color: AppColors.secondary,
-                      onRefresh: controller.handleRefresh,
-                  child: ListView(
-                    controller: controller.scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
-                    children: [
-                      // Add New Category Button
-                      GestureDetector(
-                        onTap: () => controller.openAddPage(),
-                        child: Container(
-                          height: 54,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 22,
-                                height: 22,
-                                decoration: BoxDecoration(
-                                  color: AppColors.white.withValues(
-                                    alpha: 0.25,
-                                  ),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: const Icon(
-                                  Icons.add,
-                                  color: AppColors.white,
-                                  size: 16,
-                                ),
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (controller.loadFailed.value &&
+                  controller.categories.isEmpty) {
+                return _ErrorState(onRetry: controller.retry);
+              }
+              return RefreshIndicator(
+                color: AppColors.secondary,
+                onRefresh: controller.handleRefresh,
+                child: ListView(
+                  controller: controller.scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
+                  children: [
+                    // Add New Category Button
+                    GestureDetector(
+                      onTap: () => controller.openAddPage(),
+                      child: Container(
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 22,
+                              height: 22,
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(5),
                               ),
-                              const SizedBox(width: 10),
-                              Text(
-                                'serviceCategories.addNewCategory'.trns(),
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.white,
-                                ),
+                              child: const Icon(
+                                Icons.add,
+                                color: AppColors.white,
+                                size: 16,
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'serviceCategories.addNewCategory'.trns(),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 16),
 
-                      // Category Cards
-                      if (controller.categories.isEmpty)
-                        const _EmptyCategoryState()
-                      else
-                        ...controller.categories.map(
-                          (cat) => _CategoryCard(
-                            category: cat,
-                            showBranch: controller.showBranch,
-                            isBusy:
-                                controller.busyCategoryId.value == cat.id,
-                            onDelete: () =>
-                                controller.deleteCategory(cat),
-                            onEdit: () =>
-                                controller.openAddPage(category: cat),
-                            onStatusTap: () =>
-                                controller.updateStatus(cat),
-                          ),
+                    // Category Cards
+                    if (controller.categories.isEmpty)
+                      const _EmptyCategoryState()
+                    else
+                      ...controller.categories.map(
+                        (cat) => _CategoryCard(
+                          category: cat,
+                          showBranch: controller.showBranch,
+                          isBusy: controller.busyCategoryId.value == cat.id,
+                          isDeleting: controller.busyDeleteId.value == cat.id,
+                          onDelete: () => controller.deleteCategory(cat),
+                          onEdit: () => controller.openAddPage(category: cat),
+                          onStatusTap: () => controller.updateStatus(cat),
                         ),
-                      if (controller.isLoadingMore.value)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Center(
-                            child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: AppColors.secondary,
-                              ),
+                      ),
+                    if (controller.isLoadingMore.value)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: AppColors.secondary,
                             ),
                           ),
                         ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -168,14 +161,45 @@ class _ServiceCategoriesHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              // GestureDetector(
-              //   onTap: controller.onFilter,
-              //   child: const Icon(
-              //     Icons.filter_alt_outlined,
-              //     color: AppColors.white,
-              //     size: 22,
-              //   ),
-              // ),
+              GestureDetector(
+                onTap: () => controller.onFilter(context),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(
+                      Icons.filter_alt_outlined,
+                      color: AppColors.white,
+                      size: 22,
+                    ),
+                    Obx(() {
+                      final n = controller.appliedFiltersCount;
+                      if (n == 0) return const SizedBox.shrink();
+                      return Positioned(
+                        right: -6,
+                        top: -6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$n',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
               const SizedBox(width: 12),
               GestureDetector(
                 onTap: () => controller.openAddPage(),
@@ -207,6 +231,7 @@ class _CategoryCard extends StatelessWidget {
   final ServiceCategoryModel category;
   final bool showBranch;
   final bool isBusy;
+  final bool isDeleting;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
   final VoidCallback? onStatusTap;
@@ -215,6 +240,7 @@ class _CategoryCard extends StatelessWidget {
     required this.category,
     required this.showBranch,
     required this.isBusy,
+    this.isDeleting = false,
     this.onDelete,
     this.onEdit,
     this.onStatusTap,
@@ -320,16 +346,27 @@ class _CategoryCard extends StatelessWidget {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: isBusy ? null : onDelete,
-                    child: const Icon(
-                      Icons.delete_outline,
-                      size: 22,
-                      color: AppColors.black,
-                    ),
+                    onTap: isBusy || isDeleting ? null : onDelete,
+                    child: isDeleting
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.secondary,
+                              ),
+                            ),
+                          )
+                        : const Icon(
+                            Icons.delete_outline,
+                            size: 22,
+                            color: AppColors.black,
+                          ),
                   ),
                   const SizedBox(width: 12),
                   GestureDetector(
-                    onTap: isBusy ? null : onEdit,
+                    onTap: isBusy || isDeleting ? null : onEdit,
                     child: const Icon(
                       Icons.edit_outlined,
                       size: 22,

@@ -30,7 +30,7 @@ class SnackbarService {
       dismissDirection: DismissDirection.horizontal,
       onTap: onTap,
       snackPosition: SnackPosition.TOP,
-      duration: const Duration(seconds: 1, milliseconds: 400),
+      duration: const Duration(seconds: 2, milliseconds: 400),
     );
   }
 

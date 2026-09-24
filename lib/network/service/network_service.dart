@@ -12,7 +12,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 
-
 class NetworkService extends GetxService {
   // ─── Private state ─────────────────────────────────────────────────────────
   late final Dio _dio;
@@ -284,6 +283,19 @@ class NetworkService extends GetxService {
     final body = raw is Map<String, dynamic> ? raw : <String, dynamic>{};
     final String message = _messageFromBody(body);
 
+    if (_hasInvalidCompanyId(body)) {
+      final display = message.isNotEmpty
+          ? message
+          : 'errors.sessionExpired.message'.trns();
+      _log('Invalid company ID — requiring a new login', icon: '🔒');
+      if (Get.currentRoute == Routes.LOGIN) {
+        _showError(display);
+      } else {
+        _showUnauthorisedDialog();
+      }
+      return ApiResponse.error(display, errors: _extractValidationErrors(body));
+    }
+
     // ── 2xx ──────────────────────────────────────────────────────────────────
     if (statusCode != null && statusCode >= 200 && statusCode < 300) {
       // Server may return {"status": false} even on HTTP 200 (soft failure).
@@ -299,8 +311,8 @@ class NetworkService extends GetxService {
       //     body['success'] == 1;
 
       // if (!hasStatusFlag || bodyStatus) {
-        _log('Success: $message', icon: '✅');
-        return ApiResponse.completed(body, message: message);
+      _log('Success: $message', icon: '✅');
+      return ApiResponse.completed(body, message: message);
       // } else {
       //   _log('Soft failure: $message', icon: '⚠️');
       //   _showError(message);
@@ -311,7 +323,9 @@ class NetworkService extends GetxService {
     // ── 400 Validation errors ─────────────────────────────────────────────────
     if (statusCode == 400 || statusCode == 422) {
       final errors = _extractValidationErrors(body);
-      final display = message.isNotEmpty ? message : 'errors.validationFailed'.trns();
+      final display = message.isNotEmpty
+          ? message
+          : 'errors.validationFailed'.trns();
       _log('Validation errors: $errors', icon: '🛑');
       _showError(display);
       return ApiResponse.error(display, errors: errors);
@@ -319,7 +333,9 @@ class NetworkService extends GetxService {
 
     // ── 401 Unauthorised → dialog + redirect ──────────────────────────────────
     if (statusCode == 401) {
-      final display = message.isNotEmpty ? message : 'errors.unauthorized'.trns();
+      final display = message.isNotEmpty
+          ? message
+          : 'errors.unauthorized'.trns();
       _log('Unauthorised — redirecting to login', icon: '🔒');
       // Already on the login screen (e.g. failed credentials) → just snackbar.
       if (Get.currentRoute == Routes.LOGIN) {
@@ -333,7 +349,9 @@ class NetworkService extends GetxService {
     // ── 403 / 404 / 422 ───────────────────────────────────────────────────────
     if (statusCode == 403 || statusCode == 404 || statusCode == 422) {
       final errors = _extractValidationErrors(body);
-      final display = message.isNotEmpty ? message : 'errors.requestFailed'.trns();
+      final display = message.isNotEmpty
+          ? message
+          : 'errors.requestFailed'.trns();
       _log('[$statusCode] $display', icon: '⚠️');
       _showError(display);
       return ApiResponse.error(display, errors: errors);
@@ -394,6 +412,23 @@ class NetworkService extends GetxService {
     if (m is String) return m;
     if (m is Map || m is List) return '';
     return m.toString();
+  }
+
+  bool _hasInvalidCompanyId(Map<String, dynamic> body) {
+    final errors = body['errors'];
+    if (errors is! Map) return false;
+
+    final companyErrors = errors['company_id'];
+    if (companyErrors is List) {
+      return companyErrors.any(
+        (error) =>
+            error.toString().toLowerCase().contains('invalid company id'),
+      );
+    }
+    return companyErrors?.toString().toLowerCase().contains(
+          'invalid company id',
+        ) ??
+        false;
   }
 
   // ─── Exception Handlers ─────────────────────────────────────────────────────
@@ -598,7 +633,10 @@ class NetworkService extends GetxService {
 
   void _showError(String message) {
     if (message.isEmpty) return;
-    SnackbarService.showError(title: 'errors.errorTitle'.trns(), message: message);
+    SnackbarService.showError(
+      title: 'errors.errorTitle'.trns(),
+      message: message,
+    );
   }
 
   void _log(String message, {String icon = '📄'}) {

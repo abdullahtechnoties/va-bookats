@@ -19,7 +19,7 @@ class AttachmentInput {
   int? existingMediaId;
 
   AttachmentInput({String title = '', MediaItem? initial})
-      : titleCtrl = TextEditingController(text: title) {
+    : titleCtrl = TextEditingController(text: title) {
     media.value = initial;
     existingMediaId = initial?.mediaId;
     existingUrl = initial?.thumbnailUrl ?? initial?.networkUrl;
@@ -43,7 +43,7 @@ class AttachmentInput {
 
 class AddCustomerController extends GetxController {
   AddCustomerController({required CustomerRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final CustomerRepository _repository;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -72,7 +72,10 @@ class AddCustomerController extends GetxController {
   final RxString selectedArea = ''.obs;
   final RxnInt selectedAreaId = RxnInt();
 
-  List<String> get genderOptions => ['male', 'female', 'other'];
+  List<String> get genderOptions => ['Male', 'Female', 'Other'];
+
+  /// API value stays lowercase as before; only the sheet/field show caps.
+  String get genderApiValue => selectedGender.value.trim().toLowerCase();
 
   // ─── Geo options ───────────────────────────────────────────────────────
   final RxList<LookupOption> countryOptions = <LookupOption>[].obs;
@@ -134,8 +137,8 @@ class AddCustomerController extends GetxController {
     emailCtrl.text = c.email;
     phoneCtrl.text = c.phonePrimary;
     if ((c.gender ?? '').isNotEmpty) {
-      selectedGender.value = c.gender!;
-      genderCtrl.text = c.gender!;
+      selectedGender.value = _capitalizeGender(c.gender!);
+      genderCtrl.text = selectedGender.value;
     }
     zipCtrl.text = c.zipCode ?? '';
     addressCtrl.text = c.address ?? '';
@@ -303,8 +306,9 @@ class AddCustomerController extends GetxController {
   }
 
   void onCountrySelected(dynamic value) {
-    selectedCountryId.value =
-        value == null ? null : int.tryParse(value.toString());
+    selectedCountryId.value = value == null
+        ? null
+        : int.tryParse(value.toString());
     // Cascade reset.
     selectedState.value = '';
     stateCtrl.clear();
@@ -323,8 +327,9 @@ class AddCustomerController extends GetxController {
   }
 
   void onStateSelected(dynamic value) {
-    selectedStateId.value =
-        value == null ? null : int.tryParse(value.toString());
+    selectedStateId.value = value == null
+        ? null
+        : int.tryParse(value.toString());
     selectedCity.value = '';
     cityCtrl.clear();
     selectedCityId.value = null;
@@ -338,8 +343,9 @@ class AddCustomerController extends GetxController {
   }
 
   void onCitySelected(dynamic value) {
-    selectedCityId.value =
-        value == null ? null : int.tryParse(value.toString());
+    selectedCityId.value = value == null
+        ? null
+        : int.tryParse(value.toString());
     selectedArea.value = '';
     areaCtrl.clear();
     selectedAreaId.value = null;
@@ -349,8 +355,15 @@ class AddCustomerController extends GetxController {
   }
 
   void onAreaSelected(dynamic value) {
-    selectedAreaId.value =
-        value == null ? null : int.tryParse(value.toString());
+    selectedAreaId.value = value == null
+        ? null
+        : int.tryParse(value.toString());
+  }
+
+  static String _capitalizeGender(String raw) {
+    final t = raw.trim().toLowerCase();
+    if (t.isEmpty) return '';
+    return t[0].toUpperCase() + t.substring(1);
   }
 
   // ─── Profile image ─────────────────────────────────────────────────────
@@ -359,8 +372,9 @@ class AddCustomerController extends GetxController {
     MediaSelectorSheet.show(
       context,
       allowMultiple: false,
-      initialSelectedIds:
-          selectedMedia.value == null ? const [] : [selectedMedia.value!.mediaId],
+      initialSelectedIds: selectedMedia.value == null
+          ? const []
+          : [selectedMedia.value!.mediaId],
       onConfirmed: (items) {
         if (items.isEmpty) return;
         selectedMedia.value = items.first;
@@ -389,10 +403,9 @@ class AddCustomerController extends GetxController {
 
   void pickAttachmentMedia(BuildContext context, int index) {
     if (index < 0 || index >= attachmentInputs.length) return;
-    final current = attachmentInputs[index].media.value ??
-        (attachmentInputs[index].existingMediaId == null
-            ? null
-            : null);
+    final current =
+        attachmentInputs[index].media.value ??
+        (attachmentInputs[index].existingMediaId == null ? null : null);
     MediaSelectorSheet.show(
       context,
       allowMultiple: false,
@@ -472,13 +485,13 @@ class AddCustomerController extends GetxController {
     // Attachments are optional, but a half-filled row is a user error.
     for (final input in attachmentInputs) {
       final title = input.titleCtrl.text.trim();
-      final hasMedia = (input.media.value?.mediaId ??
-              input.existingMediaId) !=
-          null;
+      final hasMedia =
+          (input.media.value?.mediaId ?? input.existingMediaId) != null;
       if ((title.isEmpty && hasMedia) || (title.isNotEmpty && !hasMedia)) {
         SnackbarService.showError(
           title: 'common.error'.trns(),
-          message: 'addCustomer.validation.attachmentIncomplete'.trns() ==
+          message:
+              'addCustomer.validation.attachmentIncomplete'.trns() ==
                   'addCustomer.validation.attachmentIncomplete'
               ? 'Each attachment needs both a title and an image.'
               : 'addCustomer.validation.attachmentIncomplete'.trns(),
@@ -496,16 +509,12 @@ class AddCustomerController extends GetxController {
               name: nameCtrl.text.trim(),
               email: emailCtrl.text.trim(),
               phonePrimary: phoneCtrl.text.trim(),
-              gender: selectedGender.value.isEmpty
-                  ? null
-                  : selectedGender.value,
+              gender: genderApiValue.isEmpty ? null : genderApiValue,
               countryId: selectedCountryId.value,
               stateId: selectedStateId.value,
               cityId: selectedCityId.value,
               areaId: selectedAreaId.value,
-              zipCode: zipCtrl.text.trim().isEmpty
-                  ? null
-                  : zipCtrl.text.trim(),
+              zipCode: zipCtrl.text.trim().isEmpty ? null : zipCtrl.text.trim(),
               address: addressCtrl.text.trim().isEmpty
                   ? null
                   : addressCtrl.text.trim(),
@@ -523,16 +532,12 @@ class AddCustomerController extends GetxController {
               name: nameCtrl.text.trim(),
               email: emailCtrl.text.trim(),
               phonePrimary: phoneCtrl.text.trim(),
-              gender: selectedGender.value.isEmpty
-                  ? null
-                  : selectedGender.value,
+              gender: genderApiValue.isEmpty ? null : genderApiValue,
               countryId: selectedCountryId.value,
               stateId: selectedStateId.value,
               cityId: selectedCityId.value,
               areaId: selectedAreaId.value,
-              zipCode: zipCtrl.text.trim().isEmpty
-                  ? null
-                  : zipCtrl.text.trim(),
+              zipCode: zipCtrl.text.trim().isEmpty ? null : zipCtrl.text.trim(),
               address: addressCtrl.text.trim().isEmpty
                   ? null
                   : addressCtrl.text.trim(),
@@ -549,16 +554,17 @@ class AddCustomerController extends GetxController {
       if (response.isCompleted) {
         SnackbarService.showSuccess(
           title: 'common.success'.trns(),
-          message: response.message ??
+          message:
+              response.message ??
               (id == null
                   ? ('addCustomer.createSuccess'.trns() ==
-                          'addCustomer.createSuccess'
-                      ? 'Customer created successfully.'
-                      : 'addCustomer.createSuccess'.trns())
+                            'addCustomer.createSuccess'
+                        ? 'Customer created successfully.'
+                        : 'addCustomer.createSuccess'.trns())
                   : ('addCustomer.updateSuccess'.trns() ==
-                          'addCustomer.updateSuccess'
-                      ? 'Customer updated successfully.'
-                      : 'addCustomer.updateSuccess'.trns())),
+                            'addCustomer.updateSuccess'
+                        ? 'Customer updated successfully.'
+                        : 'addCustomer.updateSuccess'.trns())),
         );
         // Let the snackbar paint before popping — avoids the race where an
         // instant pop swallows the success toast.

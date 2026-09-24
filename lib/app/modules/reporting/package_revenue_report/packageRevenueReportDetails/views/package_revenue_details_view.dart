@@ -63,8 +63,11 @@ class PackageRevenueDetailsView
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left,
-              color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -153,8 +156,8 @@ class PackageRevenueDetailsView
               children: [
                 _buildTableHeader(),
                 ...rows.asMap().entries.map(
-                      (e) => _buildTableRow(e.value, e.key % 2 == 0),
-                    ),
+                  (e) => _buildTableRow(e.value, e.key % 2 == 0),
+                ),
               ],
             ),
           ),
@@ -171,24 +174,33 @@ class PackageRevenueDetailsView
         children: [
           _HeaderCell(label: '#', width: 44, isFirst: true),
           _HeaderCell(
-              label: 'packageRevenueDetails.table.package'.trns(), width: 150),
+            label: 'packageRevenueDetails.table.package'.trns(),
+            width: 150,
+          ),
           _HeaderCell(
-              label: 'packageRevenueDetails.table.customers'.trns(),
-              width: 100),
+            label: 'packageRevenueDetails.table.customers'.trns(),
+            width: 100,
+          ),
           _HeaderCell(
-              label: 'packageRevenueDetails.table.quantity'.trns(), width: 90),
+            label: 'packageRevenueDetails.table.quantity'.trns(),
+            width: 90,
+          ),
           _HeaderCell(
-              label: 'packageRevenueDetails.table.packageAmount'.trns(),
-              width: 140),
+            label: 'packageRevenueDetails.table.packageAmount'.trns(),
+            width: 140,
+          ),
           _HeaderCell(
-              label: 'packageRevenueDetails.table.totalAmount'.trns(),
-              width: 130),
+            label: 'packageRevenueDetails.table.totalAmount'.trns(),
+            width: 130,
+          ),
           _HeaderCell(
-              label: 'packageRevenueDetails.table.discount'.trns(),
-              width: 120),
+            label: 'packageRevenueDetails.table.discount'.trns(),
+            width: 120,
+          ),
           _HeaderCell(
-              label: 'packageRevenueDetails.table.netRevenue'.trns(),
-              width: 130),
+            label: 'packageRevenueDetails.table.netRevenue'.trns(),
+            width: 130,
+          ),
         ],
       ),
     );
@@ -287,25 +299,27 @@ class PackageRevenueDetailsView
 
   // ── Pagination ────────────────────────────────────────────────────────
   Widget _buildPagination() {
-    return Obx(() => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              _PaginationBtn(
-                label: '« ${'packageRevenueDetails.pagination.previous'.trns()}',
-                onTap: controller.currentPage.value > 1
-                    ? controller.prevPage
-                    : null,
-              ),
-              const SizedBox(width: 8),
-              _PaginationBtn(
-                label: '${'packageRevenueDetails.pagination.next'.trns()} »',
-                isPrimary: true,
-                onTap: controller.hasNextPage ? controller.nextPage : null,
-              ),
-            ],
-          ),
-        ));
+    return Obx(
+      () => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            _PaginationBtn(
+              label: '« ${'packageRevenueDetails.pagination.previous'.trns()}',
+              onTap: controller.currentPage.value > 1
+                  ? controller.prevPage
+                  : null,
+            ),
+            const SizedBox(width: 8),
+            _PaginationBtn(
+              label: '${'packageRevenueDetails.pagination.next'.trns()} »',
+              isPrimary: true,
+              onTap: controller.hasNextPage ? controller.nextPage : null,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // ── Empty State ───────────────────────────────────────────────────────
@@ -314,8 +328,11 @@ class PackageRevenueDetailsView
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.receipt_long_outlined,
-              size: 80, color: AppColors.black.withValues(alpha: 0.2)),
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 80,
+            color: AppColors.black.withValues(alpha: 0.2),
+          ),
           const SizedBox(height: 16),
           Text(
             'packageRevenueDetails.empty.title'.trns(),
@@ -356,10 +373,7 @@ class _InfoRow extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF374151),
-            ),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF374151)),
           ),
         ),
       ],

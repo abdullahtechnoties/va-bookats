@@ -862,11 +862,11 @@
       "addCustomer": "Add Customer",
       "selectCustomerType": "Select Customer Type",
       "date": "Date",
-      "datePlaceholder": "00:00 PM",
+      "datePlaceholder": "Sep 21, 2026",
       "startTime": "Start Time",
-      "startTimePlaceholder": "00:00 PM",
+      "startTimePlaceholder": "02:30 PM",
       "endTime": "End Time",
-      "endTimePlaceholder": "Select Branch",
+      "endTimePlaceholder": "02:30 PM",
       "note": "Note",
       "notePlaceholder": "Write something....",
       "serviceType": "Service Type",
@@ -883,7 +883,9 @@
       "selectEmployee": "Select Employee",
       "amount": "Amount",
       "discount": "Discount",
-      "total": "Total"
+      "total": "Total",
+      "noStaffAvailable": "No staff available for this package at the selected date/time",
+      "selectEmployeeRequired": "Please select an employee for this package"
     },
     "step3": {
       "addService": "Add Service",
@@ -896,7 +898,9 @@
       "selectEmployee": "Select Employee",
       "amount": "Amount",
       "discount": "Discount",
-      "total": "Total"
+      "total": "Total",
+      "noStaffAvailable": "No staff available for this service",
+      "selectEmployeeRequired": "Please select an employee for this service"
     },
     "step4": {
       "addProducts": "Add Products",
@@ -907,11 +911,15 @@
       "selectVariation": "Select Variation",
       "stock": "Stock",
       "selectStock": "Select",
+      "availableStock": "Available stock",
       "quantity": "Quantity",
+      "quantityHint": "Enter quantity",
       "unitPrice": "Unit Price",
       "total": "Total",
       "discount": "Discount",
-      "totalAfterDiscount": "Total After Discount"
+      "totalAfterDiscount": "Total After Discount",
+      "exceedsStock": "Quantity exceeds available stock ({stock})",
+      "discountExceedsTotal": "Discount cannot exceed total amount"
     },
     "step5": {
       "paymentInfo": "Payment Information",
@@ -927,7 +935,9 @@
       "chooseFile": "Choose File",
       "noFileChosen": "No File Chosen",
       "transactionId": "Transaction ID",
-      "transactionPlaceholder": "0000-0000-0000"
+      "transactionPlaceholder": "0000-0000-0000",
+      "paidExceedsBalance": "Amount paid cannot exceed the balance amount",
+      "amountNegative": "Amount cannot be negative"
     },
     "addCustomer": {
       "title": "Add Customer",
@@ -950,6 +960,7 @@
     "card": {
       "duration": "Duration",
       "defaultPrice": "Default Price",
+      "priceRange": "Price Range",
       "status": "Status",
       "active": "Active",
       "inactive": "Inactive",
@@ -996,8 +1007,9 @@
     "addAnImage": "Add An Image",
     "noFileChosen": "No File Chosen",
     "chooseFile": "Choose File",
+    "changeImage": "Change Image",
     "serviceDuration": "Service Duration (Mins)",
-    "durationPlaceholder": "00:00",
+    "durationPlaceholder": "00",
     "status": "Status",
     "selectStatus": "Select Status",
     "type": "Type",
@@ -1009,7 +1021,7 @@
     "variationName": "Variation Name",
     "variationPrice": "Price",
     "noVariations": "No variations added. Add at least one variation.",
-    "variationCount": "variation(s)",
+    "variationCount": "Variation(s)",
     "description": "Description",
     "writeSomething": "Write something....",
     "save": "Save",
@@ -1022,6 +1034,7 @@
     "validation": {
       "branchRequired": "Please select a branch",
       "categoryRequired": "Please select a category",
+      "noCategories": "This branch has no service categories",
       "nameRequired": "Please enter service name",
       "priceRequired": "Please enter a price",
       "priceInvalid": "Please enter a valid price",
@@ -1067,11 +1080,19 @@
     "deleteSuccessMessage": "Service category deleted successfully!",
     "statusSuccessTitle": "Status Updated",
     "statusSuccessMessage": "Status updated successfully!",
-    "changeStatusTitle": "Change Status"
+    "changeStatusTitle": "Change Status",
+    "filter": {
+      "search": "Search",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "status": "Status",
+      "branches": "Branches",
+      "allBranches": "All Branches"
+    }
   },
   "packages": {
     "title": "Packages",
-    "addNewServicePackage": "Add New Service Package",
+    "addNewServicePackage": "Add New Package",
     "tabs": {
       "active": "Active",
       "inactive": "Inactive"
@@ -1092,6 +1113,8 @@
       "toDate": "To Date",
       "branches": "Branches",
       "allBranches": "All Branches",
+      "service": "Service",
+      "allServices": "All Services",
       "reset": "Reset",
       "applyFilter": "Apply Filter"
     },
@@ -1146,6 +1169,8 @@
       "endingOnRequired": "Please select an end date",
       "statusRequired": "Please select a status",
       "priceRequired": "Please enter a package price",
+      "priceNegative": "Package price cannot be negative",
+      "priceExceedsTotal": "Package price cannot be more than the total price",
       "atLeastOneService": "Please add at least one service",
       "variationRequired": "Please select a variation for variation-type services"
     }
@@ -1158,7 +1183,7 @@
     "delete": "Delete",
     "cancel": "Cancel",
     "deleteDialogTitle": "Delete Customer",
-    "deleteDialogMessage": "Are you sure you want to delete \"{name}\"?",
+    "deleteDialogMessage": "Are you sure you want to delete?",
     "deleteSuccessTitle": "Deleted",
     "deleteSuccessMessage": "Customer deleted successfully.",
     "statusSuccessTitle": "Status Updated",
@@ -1294,7 +1319,12 @@
   "profile": {
     "title": "Profile",
     "personalInfo": "Personal Information",
-    "updatePassword": "Update Password"
+    "updatePassword": "Update Password",
+    "logout": "Logout",
+    "logoutTitle": "Logout",
+    "logoutMessage": "Are you sure you want to logout?",
+    "cancel": "Cancel",
+    "confirmLogout": "Logout"
   },
   "personalInfo": {
     "title": "Personal Information",
@@ -1308,6 +1338,7 @@
     "phoneSecondary": "Phone Secondary",
     "image": "Image",
     "chooseFile": "Choose File",
+    "changeImage": "Change Image",
     "dateOfBirth": "Date of Birth",
     "qualification": "Qualification",
     "qualificationHint": "Qualification",
@@ -1477,7 +1508,9 @@
       "index": "#",
       "page": "Page",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "selected": "selected",
+      "done": "Done"
     },
     "errors": {
       "title": "Error",
@@ -1581,6 +1614,7 @@
       "toDate": "To Date",
       "branches": "Branches",
       "selectBranches": "Select Branches",
+      "allBranches": "All Branches",
       "branchesSelected": "branches selected",
       "reset": "Reset",
       "apply": "Apply Filter"
@@ -1626,6 +1660,7 @@
       "fromDate": "From Date",
       "toDate": "To Date",
       "branch": "Branch",
+      "package": "Package",
       "selectBranch": "Select Branch",
       "allBranches": "All Branches",
       "selectPackage": "Select Package",
@@ -1684,6 +1719,8 @@
       "staff": "Staff",
       "selectBranch": "Select Branch",
       "selectStaff": "Select Staff",
+      "allBranches": "All Branches",
+      "allStaff": "All Staff",
       "reset": "Reset",
       "apply": "Apply Filter"
     },
@@ -1733,6 +1770,105 @@
         "title": "No Details Available",
         "message": "No commission details found for this period."
       }
+    }
+  },
+  "customerReport": {
+    "title": "Customer Report",
+    "emptyState": "No customer data available",
+    "retry": "Retry",
+    "errors": {
+      "fetchFailed": "Failed to fetch customer report",
+      "generic": "Something went wrong"
+    },
+    "filter": {
+      "title": "Filter",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branch": "Branch",
+      "customer": "Customer",
+      "allBranches": "All Branches",
+      "allCustomers": "All Customers",
+      "reset": "Reset",
+      "apply": "Apply Filter"
+    },
+    "columns": {
+      "title": "Select Columns",
+      "selected": "Columns Selected",
+      "selectColumns": "Select Columns",
+      "selectAll": "Select All",
+      "reset": "Reset",
+      "apply": "Apply",
+      "branch": "Branch",
+      "from": "From",
+      "to": "To",
+      "totalAmount": "Total Amount",
+      "totalDiscount": "Total Discount",
+      "netRevenue": "Net Revenue",
+      "remainingAmount": "Remaining Amount",
+      "totalBookings": "Total Bookings",
+      "completedBookings": "Completed",
+      "pendingBookings": "Pending",
+      "cancelledBookings": "Cancelled"
+    },
+    "table": {
+      "actions": "Actions",
+      "viewDetails": "View Details"
+    }
+  },
+  "customerDetails": {
+    "title": "Customer Details",
+    "emptyBookings": "No bookings found",
+    "retry": "Retry",
+    "bookingSerial": "Booking",
+    "customer": "Customer",
+    "date": "Date",
+    "time": "Time",
+    "paymentMethod": "Payment Method",
+    "totalAmount": "Total",
+    "amountPaid": "Paid",
+    "remaining": "Remaining",
+    "errors": {
+      "fetchFailed": "Failed to fetch customer details",
+      "generic": "Something went wrong"
+    },
+    "tabs": {
+      "all": "All Bookings",
+      "completed": "Completed",
+      "pending": "Pending",
+      "cancelled": "Cancelled"
+    }
+  },
+  "expense": {
+    "title": "Expense Report",
+    "retry": "Retry",
+    "empty": "No expenses found",
+    "filter": {
+      "title": "Filter",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branch": "Branch",
+      "category": "Expense Category",
+      "selectBranch": "Select Branch",
+      "selectCategory": "Select Category",
+      "allBranches": "All Branches",
+      "allCategories": "All Categories",
+      "apply": "Apply Filter",
+      "reset": "Reset"
+    },
+    "columns": {
+      "title": "Select Columns",
+      "selected": "Columns Selected",
+      "selectColumns": "Select Columns",
+      "selectAll": "Select All",
+      "branch": "Branch",
+      "from": "From",
+      "to": "To",
+      "totalExpense": "Total Expense",
+      "category": "Category"
+    },
+    "detail": {
+      "title": "Expense Details",
+      "empty": "No expense items found"
     }
   }
 }

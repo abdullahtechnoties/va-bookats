@@ -93,7 +93,8 @@ class DailyPackageSummary {
       createdAt: json['created_at'] as String? ?? '',
       package: json['package'] != null
           ? PackageInfoInSummary.fromJson(
-              json['package'] as Map<String, dynamic>)
+              json['package'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -120,9 +121,11 @@ class PackageRevenueDetailsModel {
     final summariesJson =
         json['dailyPackageSummaries'] as Map<String, dynamic>? ?? {};
 
-    final items = (summariesJson['data'] as List?)
-            ?.map((e) =>
-                DailyPackageSummary.fromJson(e as Map<String, dynamic>))
+    final items =
+        (summariesJson['data'] as List?)
+            ?.map(
+              (e) => DailyPackageSummary.fromJson(e as Map<String, dynamic>),
+            )
             .toList() ??
         [];
 
@@ -130,7 +133,8 @@ class PackageRevenueDetailsModel {
 
     return PackageRevenueDetailsModel(
       branch: BranchInfoModel.fromJson(
-          json['branch'] as Map<String, dynamic>? ?? {}),
+        json['branch'] as Map<String, dynamic>? ?? {},
+      ),
       fromDate: json['from_date'] as String? ?? '',
       toDate: json['to_date'] as String? ?? '',
       packageName: json['package_name'] as String? ?? 'All Packages',

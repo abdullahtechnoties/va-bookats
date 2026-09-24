@@ -19,7 +19,9 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
         final status = controller.apiResponse.value.status;
 
         if (status == Status.loading) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
         }
 
         if (status == Status.error) {
@@ -62,12 +64,20 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
         'commissions.detail.title'.trns(),
-        style: const TextStyle(color: AppColors.white, fontSize: 18, fontWeight: FontWeight.w700),
+        style: const TextStyle(
+          color: AppColors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       centerTitle: true,
     );
@@ -113,23 +123,37 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
                 children: [
                   Text(
                     branch.name,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.black),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.black,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   if (branch.emailPrimary != null)
                     Text(
                       branch.emailPrimary!,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
                     ),
                   if (branch.phonePrimary != null)
                     Text(
                       branch.phonePrimary!,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
                     ),
                   const SizedBox(height: 4),
                   Text(
                     controller.dateRangeLabel,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.primary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
+                    ),
                   ),
                 ],
               ),
@@ -159,7 +183,9 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTableHeader(),
-              ...summaries.asMap().entries.map((e) => _buildTableRow(e.value, e.key % 2 == 0)),
+              ...summaries.asMap().entries.map(
+                (e) => _buildTableRow(e.value, e.key % 2 == 0),
+              ),
             ],
           ),
         ),
@@ -174,12 +200,30 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
       child: Row(
         children: [
           _HeaderCell(label: '#', width: 44),
-          _HeaderCell(label: 'commissions.detail.table.staffName'.trns(), width: 140),
-          _HeaderCell(label: 'commissions.detail.table.totalServices'.trns(), width: 130),
-          _HeaderCell(label: 'commissions.detail.table.totalPackages'.trns(), width: 130),
-          _HeaderCell(label: 'commissions.detail.table.serviceCommission'.trns(), width: 150),
-          _HeaderCell(label: 'commissions.detail.table.packageCommission'.trns(), width: 150),
-          _HeaderCell(label: 'commissions.detail.table.totalCommission'.trns(), width: 150),
+          _HeaderCell(
+            label: 'commissions.detail.table.staffName'.trns(),
+            width: 140,
+          ),
+          _HeaderCell(
+            label: 'commissions.detail.table.totalServices'.trns(),
+            width: 130,
+          ),
+          _HeaderCell(
+            label: 'commissions.detail.table.totalPackages'.trns(),
+            width: 130,
+          ),
+          _HeaderCell(
+            label: 'commissions.detail.table.serviceCommission'.trns(),
+            width: 150,
+          ),
+          _HeaderCell(
+            label: 'commissions.detail.table.packageCommission'.trns(),
+            width: 150,
+          ),
+          _HeaderCell(
+            label: 'commissions.detail.table.totalCommission'.trns(),
+            width: 150,
+          ),
         ],
       ),
     );
@@ -197,7 +241,11 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
             child: Text(
               '${row.id}',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
             ),
           ),
           _DataCell(
@@ -246,7 +294,11 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
             child: Text(
               '\$${row.totalCommission}',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
             ),
           ),
         ],
@@ -258,7 +310,8 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
   Widget _buildPagination() {
     return Obx(() {
       final meta = controller.paginationMeta;
-      if (meta == null || meta.total <= meta.perPage) return const SizedBox.shrink();
+      if (meta == null || meta.total <= meta.perPage)
+        return const SizedBox.shrink();
 
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -277,7 +330,9 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
               children: [
                 _PaginationBtn(
                   label: '« ${'commissions.detail.pagination.previous'.trns()}',
-                  onTap: controller.currentPage.value > 1 ? controller.prevPage : null,
+                  onTap: controller.currentPage.value > 1
+                      ? controller.prevPage
+                      : null,
                 ),
                 const SizedBox(width: 8),
                 _PaginationBtn(
@@ -300,17 +355,28 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.inbox_outlined, size: 80, color: AppColors.black.withValues(alpha: 0.2)),
+            Icon(
+              Icons.inbox_outlined,
+              size: 80,
+              color: AppColors.black.withValues(alpha: 0.2),
+            ),
             const SizedBox(height: 16),
             Text(
               'commissions.detail.empty.title'.trns(),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.black),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.black,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'commissions.detail.empty.message'.trns(),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: AppColors.black.withValues(alpha: 0.6)),
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.black.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
@@ -324,10 +390,15 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 80, color: AppColors.error.withValues(alpha: 0.7)),
+          Icon(
+            Icons.error_outline,
+            size: 80,
+            color: AppColors.error.withValues(alpha: 0.7),
+          ),
           const SizedBox(height: 16),
           Text(
-            controller.apiResponse.value.message ?? 'commissions.errors.fetchFailed'.trns(),
+            controller.apiResponse.value.message ??
+                'commissions.errors.fetchFailed'.trns(),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 14, color: AppColors.black),
           ),
@@ -335,7 +406,10 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
           ElevatedButton(
             onPressed: controller.onRefresh,
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: Text('commissions.retry'.trns(), style: const TextStyle(color: AppColors.white)),
+            child: Text(
+              'commissions.retry'.trns(),
+              style: const TextStyle(color: AppColors.white),
+            ),
           ),
         ],
       ),
@@ -359,13 +433,20 @@ class _HeaderCell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         border: Border(
-          right: BorderSide(color: AppColors.white.withValues(alpha: 0.25), width: 0.5),
+          right: BorderSide(
+            color: AppColors.white.withValues(alpha: 0.25),
+            width: 0.5,
+          ),
         ),
       ),
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.white),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.white,
+        ),
       ),
     );
   }

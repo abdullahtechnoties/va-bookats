@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/app/modules/services/controllers/services_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
@@ -10,72 +11,70 @@ import 'package:va_bookats/widgets/Global-Widgets/services-card.dart';
 class ServicesView extends GetView<ServicesController> {
   const ServicesView({super.key});
 
+  bool get _isStandalone => Get.currentRoute == Routes.SERVICES;
+
   @override
   Widget build(BuildContext context) {
+    final isStandalone = _isStandalone;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: Column(
         children: [
-          _ServicesHeader(controller: controller),
+          _ServicesHeader(controller: controller, showBack: isStandalone),
           _ServicesTabBar(controller: controller),
           Expanded(
-            child: Obx(
-              () {
-                if (controller.isLoading.value &&
-                    controller.currentServices.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.secondary,
-                    ),
-                  );
-                }
-                if (controller.loadFailed.value &&
-                    controller.currentServices.isEmpty) {
-                  return _ErrorState(onRetry: controller.retry);
-                }
-                return RefreshIndicator(
-                  onRefresh: controller.handleRefresh,
-                  color: AppColors.secondary,
-                  child: ListView(
-                    controller: controller.scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    padding: const EdgeInsets.only(top: 12, bottom: 30),
-                    children: [
-                      _AddServiceButton(onTap: () => controller.openAddPage()),
-                      const SizedBox(height: 8),
-                      if (controller.currentServices.isEmpty)
-                        _EmptyState()
-                      else
-                        ...controller.currentServices.map(
-                          (service) => ServiceCard(
-                            service: service,
-                            isBusy:
-                                controller.busyServiceId.value == service.id,
-                            onStatusTap: () =>
-                                controller.updateStatus(service),
-                            onEdit: () => controller.openAddPage(
-                              service: service,
-                            ),
-                            onDelete: () => controller.deleteService(service),
-                          ),
-                        ),
-                      if (controller.isLoadingMore.value)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.secondary,
-                              strokeWidth: 2,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+            child: Obx(() {
+              if (controller.isLoading.value &&
+                  controller.currentServices.isEmpty) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.secondary),
                 );
-              },
-            ),
+              }
+              if (controller.loadFailed.value &&
+                  controller.currentServices.isEmpty) {
+                return _ErrorState(onRetry: controller.retry);
+              }
+              return RefreshIndicator(
+                onRefresh: controller.handleRefresh,
+                color: AppColors.secondary,
+                child: ListView(
+                  controller: controller.scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  padding: const EdgeInsets.only(top: 12, bottom: 30),
+                  children: [
+                    _AddServiceButton(onTap: () => controller.openAddPage()),
+                    const SizedBox(height: 8),
+                    if (controller.currentServices.isEmpty)
+                      _EmptyState()
+                    else
+                      ...controller.currentServices.map(
+                        (service) => ServiceCard(
+                          service: service,
+                          isBusy: controller.busyServiceId.value == service.id,
+                          isDeleting:
+                              controller.busyDeleteId.value == service.id,
+                          onStatusTap: () => controller.updateStatus(service),
+                          onEdit: () =>
+                              controller.openAddPage(service: service),
+                          onDelete: () => controller.deleteService(service),
+                        ),
+                      ),
+                    if (controller.isLoadingMore.value)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.secondary,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -87,8 +86,9 @@ class ServicesView extends GetView<ServicesController> {
 
 class _ServicesHeader extends StatelessWidget {
   final ServicesController controller;
+  final bool showBack;
 
-  const _ServicesHeader({required this.controller});
+  const _ServicesHeader({required this.controller, this.showBack = false});
 
   @override
   Widget build(BuildContext context) {
@@ -103,17 +103,20 @@ class _ServicesHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 16, 10),
+          padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
           child: Row(
             children: [
-              IconButton(
-                onPressed: () => Get.back(),
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: AppColors.white,
-                  size: 20,
-                ),
-              ),
+              if (showBack)
+                IconButton(
+                  onPressed: () => Get.back(),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new,
+                    color: AppColors.white,
+                    size: 20,
+                  ),
+                )
+              else
+                const SizedBox(width: 88),
               Expanded(
                 child: Text(
                   'services.title'.trns(),
@@ -127,10 +130,41 @@ class _ServicesHeader extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: controller.onFilter,
-                child: const Icon(
-                  Icons.filter_alt_outlined,
-                  color: AppColors.white,
-                  size: 22,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(
+                      Icons.filter_alt_outlined,
+                      color: AppColors.white,
+                      size: 22,
+                    ),
+                    Obx(() {
+                      final n = controller.appliedFiltersCount;
+                      if (n == 0) return const SizedBox.shrink();
+                      return Positioned(
+                        right: -6,
+                        top: -6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$n',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
               const SizedBox(width: 12),
@@ -223,9 +257,7 @@ class _TabItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected
-                  ? AppColors.black
-                  : const Color(0xFF888888),
+              color: isSelected ? AppColors.black : const Color(0xFF888888),
             ),
           ),
         ),
@@ -263,11 +295,7 @@ class _AddServiceButton extends StatelessWidget {
                   color: AppColors.white.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(5),
                 ),
-                child: const Icon(
-                  Icons.add,
-                  color: AppColors.white,
-                  size: 16,
-                ),
+                child: const Icon(Icons.add, color: AppColors.white, size: 16),
               ),
               const SizedBox(width: 10),
               Text(
@@ -333,11 +361,7 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 60,
-              color: Color(0xFFCCCCCC),
-            ),
+            const Icon(Icons.error_outline, size: 60, color: Color(0xFFCCCCCC)),
             const SizedBox(height: 16),
             Text(
               'services.loadError'.trns(),
@@ -352,8 +376,10 @@ class _ErrorState extends StatelessWidget {
             GestureDetector(
               onTap: onRetry,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(10),

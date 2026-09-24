@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/revenue_report/revenueReport/controllers/revenue_report_controller.dart';
-import 'package:va_bookats/app/modules/reporting/revenue_report/revenueReport/views/Widgets/column-selector-sheet.dart';
 import 'package:va_bookats/app/modules/reporting/revenue_report/revenueReport/views/Widgets/revenue-filter-sheet.dart';
 import 'package:va_bookats/app/modules/reporting/revenue_report/revenueReport/views/Widgets/revenue-table.dart';
 import 'package:va_bookats/utilities/colors.dart';
@@ -65,7 +64,11 @@ class RevenueReportView extends GetView<RevenueReportController> {
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -82,7 +85,11 @@ class RevenueReportView extends GetView<RevenueReportController> {
           padding: const EdgeInsets.only(right: 16),
           child: GestureDetector(
             onTap: () => _openFilterSheet(context),
-            child: const Icon(Icons.filter_alt_outlined, color: AppColors.white, size: 24),
+            child: const Icon(
+              Icons.filter_alt_outlined,
+              color: AppColors.white,
+              size: 24,
+            ),
           ),
         ),
       ],
@@ -95,29 +102,37 @@ class RevenueReportView extends GetView<RevenueReportController> {
       child: Row(
         children: [
           Expanded(
-            child: Obx(() => Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
+            child: Obx(
+              () => Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.black.withValues(alpha: 0.15),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.calendar_today_outlined, size: 16, color: Color(0xFF9CA3AF)),
-                      const SizedBox(width: 8),
-                      Text(
-                        controller.dateRangeLabel,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF374151),
-                        ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 16,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      controller.dateRangeLabel,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           GestureDetector(
@@ -148,76 +163,82 @@ class RevenueReportView extends GetView<RevenueReportController> {
   Widget _buildColumnSelectorRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Obx(() => GestureDetector(
-            onTap: () => _openColumnSelector(context),
-            child: Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.calendar_view_week_outlined, size: 16, color: Color(0xFF9CA3AF)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${'reports.revenue.columns.selected'.trns()} (${controller.selectedColumnCount})',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF374151),
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Color(0xFF9CA3AF)),
-                ],
+      child: Obx(
+        () => GestureDetector(
+          onTap: () => _openColumnSelector(context),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.black.withValues(alpha: 0.15),
               ),
             ),
-          )),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_view_week_outlined,
+                  size: 16,
+                  color: Color(0xFF9CA3AF),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${'reports.revenue.columns.selected'.trns()} (${controller.selectedColumnCount})',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF374151),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: Color(0xFF9CA3AF),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildPagination() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Obx(() => Row(
-            children: [
-              _PaginationBtn(
-                label: '« ${'reports.revenue.pagination.previous'.trns()}',
-                onTap: controller.currentPage.value > 1 ? controller.prevPage : null,
-              ),
-              const SizedBox(width: 8),
-              _PaginationBtn(
-                label: '${'reports.revenue.pagination.next'.trns()} »',
-                isPrimary: true,
-                onTap: controller.currentPage.value < controller.totalPages
-                    ? controller.nextPage
-                    : null,
-              ),
-            ],
-          )),
+      child: Obx(
+        () => Row(
+          children: [
+            _PaginationBtn(
+              label: '« ${'reports.revenue.pagination.previous'.trns()}',
+              onTap: controller.currentPage.value > 1
+                  ? controller.prevPage
+                  : null,
+            ),
+            const SizedBox(width: 8),
+            _PaginationBtn(
+              label: '${'reports.revenue.pagination.next'.trns()} »',
+              isPrimary: true,
+              onTap: controller.currentPage.value < controller.totalPages
+                  ? controller.nextPage
+                  : null,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   void _openFilterSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => RevenueFilterSheet(controller: controller),
-    );
+    RevenueFilterSheet.show(context, controller);
   }
 
   void _openColumnSelector(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => ColumnSelectorSheet(controller: controller),
-    );
+    controller.openColumnSelector(context);
   }
 }
 

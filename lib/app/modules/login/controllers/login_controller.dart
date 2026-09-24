@@ -21,7 +21,7 @@ class LoginController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final RxBool isLoading = false.obs;
-  final RxBool obscurePassword = true.obs;
+  final RxBool obscurePassword = false.obs;
   final RxBool rememberMe = false.obs;
 
   
@@ -53,6 +53,7 @@ class LoginController extends GetxController {
   }
 
   Future<void> login() async {
+    if (isLoading.value) return; // Prevent multiple simultaneous login attempts.
     if (!formKey.currentState!.validate()) return;
 
     isLoading.value = true;

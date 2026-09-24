@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceRevenueReport/controller/service_revenue_controller.dart';
-import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceRevenueReport/views/widgets/service_revenue_column_selector.dart';
 import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceRevenueReport/views/widgets/service_revenue_filter_sheet.dart';
 import 'package:va_bookats/network/response/status.dart';
 import 'package:va_bookats/utilities/colors.dart';
@@ -266,20 +265,10 @@ class ServiceRevenueReportView extends GetView<ServiceRevenueReportController> {
 
   // ── Sheet Openers ─────────────────────────────────────────────────────
   void _openFilterSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => ServiceRevenueFilterSheet(controller: controller),
-    );
+    ServiceRevenueFilterSheet.show(context, controller);
   }
 
   void _openColumnSelector(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => ServiceRevenueColumnSelector(controller: controller),
-    );
+    controller.openColumnSelector(context);
   }
 }

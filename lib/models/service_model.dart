@@ -9,12 +9,7 @@ class ServiceVariation {
   final String? name;
   final String? price;
 
-  const ServiceVariation({
-    this.id,
-    this.serviceId,
-    this.name,
-    this.price,
-  });
+  const ServiceVariation({this.id, this.serviceId, this.name, this.price});
 
   factory ServiceVariation.fromJson(Map<String, dynamic> json) {
     return ServiceVariation(
@@ -58,6 +53,8 @@ class ServiceModel {
   final String? type;
   final String? defaultPrice;
   final String? description;
+  // thumbnail image URL, if available, or null. This is the same as `image` in the API response.
+  final String? thumbnailImageUrl;
   final BranchModel? branch;
   final ServiceCategoryModel? category;
   final List<ServiceVariation> variations;
@@ -74,6 +71,7 @@ class ServiceModel {
     this.defaultPrice,
     this.description,
     this.branch,
+    this.thumbnailImageUrl,
     this.category,
     this.variations = const [],
   });
@@ -90,7 +88,8 @@ class ServiceModel {
       categoryId: _parseInt(json['category_id']),
       branchId: _parseInt(json['branch_id']),
       status: json['status']?.toString(),
-      image: json['image']?.toString(),
+      thumbnailImageUrl: json['service_thumb_url']?.toString(),
+      image: json['service_url']?.toString(),
       type: json['type']?.toString(),
       defaultPrice: json['default_price']?.toString(),
       description: json['description']?.toString(),
@@ -106,9 +105,8 @@ class ServiceModel {
           ? rawVariations
                 .whereType<Map>()
                 .map(
-                  (e) => ServiceVariation.fromJson(
-                    Map<String, dynamic>.from(e),
-                  ),
+                  (e) =>
+                      ServiceVariation.fromJson(Map<String, dynamic>.from(e)),
                 )
                 .toList()
           : const [],
@@ -127,18 +125,40 @@ class ServiceModel {
 
   bool get isNormalType => type?.toLowerCase() == 'normal';
 
-  String get statusDisplay =>
-      isActive ? 'services.card.active'.trns() : 'services.card.inactive'.trns();
+  String get statusDisplay => isActive
+      ? 'services.card.active'.trns()
+      : 'services.card.inactive'.trns();
 
-  /// Shown in the price slot of the card — either the default price, a
-  /// variations count, or a dash when neither is available.
+  /// Shown in the price slot of the card.
+  /// Normal → default price. Variation → dynamic min–max from the API
+  /// variations (never a static count).
   String get priceOrVariationsDisplay {
+    if (isVariationType && variations.isNotEmpty) {
+      final prices = variations
+          .map((v) => double.tryParse((v.price ?? '').trim()))
+          .whereType<double>()
+          .toList();
+      if (prices.isNotEmpty) {
+        prices.sort();
+        final min = _trimPrice(prices.first);
+        final max = _trimPrice(prices.last);
+        if (min == max) return 'Rs: $min';
+        return 'Rs: $min - $max';
+      }
+    }
     final price = defaultPrice;
     if (price != null && price.isNotEmpty) return 'Rs: $price';
-    if (variations.isNotEmpty) {
-      return '${variations.length} ${'services.card.variationsLabel'.trns()}';
-    }
     return '—';
+  }
+
+  /// Label under the price slot — price-range for variations.
+  String get priceLabelKey => isVariationType
+      ? 'services.card.priceRange'
+      : 'services.card.defaultPrice';
+
+  static String _trimPrice(double v) {
+    if (v == v.roundToDouble()) return v.toInt().toString();
+    return v.toStringAsFixed(2);
   }
 
   ServiceModel copyWith({String? status}) {
@@ -158,12 +178,12 @@ class ServiceModel {
       variations: variations,
     );
   }
-
 }
-   int? _parseInt(dynamic v) {
-    if (v == null) return null;
-    if (v is int) return v;
-    if (v is num) return v.toInt();
-    if (v is String) return int.tryParse(v);
-    return null;
-  }
+
+int? _parseInt(dynamic v) {
+  if (v == null) return null;
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v);
+  return null;
+}

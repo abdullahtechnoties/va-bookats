@@ -1,4 +1,4 @@
-package com.bookats.vendor.va_bookats
+package com.bookats.vendor
 
 import io.flutter.embedding.android.FlutterActivity
 

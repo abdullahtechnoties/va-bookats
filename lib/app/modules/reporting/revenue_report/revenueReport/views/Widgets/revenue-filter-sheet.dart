@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/revenue_report/revenueReport/controllers/revenue_report_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
 
 class RevenueFilterSheet extends StatelessWidget {
@@ -12,10 +14,18 @@ class RevenueFilterSheet extends StatelessWidget {
 
   const RevenueFilterSheet({super.key, required this.controller});
 
+  static void show(BuildContext context, RevenueReportController controller) {
+    controller.initTempFilter();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.transparent,
+      builder: (_) => RevenueFilterSheet(controller: controller),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    controller.initTempFilter();
-
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.white,
@@ -58,7 +68,11 @@ class RevenueFilterSheet extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => Get.back(),
-                child: const Icon(Icons.close, color: AppColors.black, size: 22),
+                child: const Icon(
+                  Icons.close,
+                  color: AppColors.black,
+                  size: 22,
+                ),
               ),
             ],
           ),
@@ -74,16 +88,18 @@ class RevenueFilterSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Obx(() => _DateField(
-                value: controller.tempFromDate.value,
-                onTap: () async {
-                  final picked = await _pickDate(
-                    context,
-                    controller.tempFromDate.value,
-                  );
-                  if (picked != null) controller.tempFromDate.value = picked;
-                },
-              )),
+          Obx(
+            () => _DateField(
+              value: controller.tempFromDate.value,
+              onTap: () async {
+                final picked = await _pickDate(
+                  context,
+                  controller.tempFromDate.value,
+                );
+                if (picked != null) controller.tempFromDate.value = picked;
+              },
+            ),
+          ),
 
           const SizedBox(height: 16),
 
@@ -97,20 +113,22 @@ class RevenueFilterSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Obx(() => _DateField(
-                value: controller.tempToDate.value,
-                onTap: () async {
-                  final picked = await _pickDate(
-                    context,
-                    controller.tempToDate.value,
-                  );
-                  if (picked != null) controller.tempToDate.value = picked;
-                },
-              )),
+          Obx(
+            () => _DateField(
+              value: controller.tempToDate.value,
+              onTap: () async {
+                final picked = await _pickDate(
+                  context,
+                  controller.tempToDate.value,
+                );
+                if (picked != null) controller.tempToDate.value = picked;
+              },
+            ),
+          ),
 
           const SizedBox(height: 16),
 
-          // Branch (only if owner)
+          // Branch multi-select (only if owner)
           if (controller.isOwner) ...[
             Text(
               'reports.revenue.filter.branch'.trns(),
@@ -121,10 +139,12 @@ class RevenueFilterSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Obx(() => _DropdownField(
-                  value: controller.tempBranchLabel.value,
-                  onTap: () => _showBranchPicker(context, controller),
-                )),
+            Obx(
+              () => _DropdownField(
+                value: controller.tempBranchFilterDisplay,
+                onTap: () => _showBranchPicker(context, controller),
+              ),
+            ),
             const SizedBox(height: 16),
           ],
 
@@ -172,14 +192,24 @@ class RevenueFilterSheet extends StatelessWidget {
   }
 
   void _showBranchPicker(
-      BuildContext context, RevenueReportController controller) {
+    BuildContext context,
+    RevenueReportController controller,
+  ) {
+    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CommonDropdownBottomSheetThree(
+        title: 'reports.revenue.filter.branch'.trns(),
+        bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
+        dropdownItems: options.map((o) => o.label).toList(),
+        selectedValue: options.map((o) => o.value).toList(),
+        textController: TextEditingController(),
+        showSearch: true,
+        isMultiSelect: true,
+        selectedValues: controller.tempBranchIds,
       ),
-      builder: (_) => _BranchPickerSheet(controller: controller),
     );
   }
 }
@@ -191,13 +221,7 @@ class _DateField extends StatelessWidget {
 
   const _DateField({required this.value, required this.onTap});
 
-  String _fmt(DateTime d) {
-    const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[d.month]}/${d.day}/${d.year}';
-  }
+  String _fmt(DateTime d) => reportHumanDate(d);
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +302,6 @@ class _DropdownField extends StatelessWidget {
   }
 }
 
-// ── Outline Button ───────────────────────────────────────────────────────────
 class _OutlineBtn extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
@@ -311,81 +334,4 @@ class _OutlineBtn extends StatelessWidget {
   }
 }
 
-// ── Branch Picker Sheet ──────────────────────────────────────────────────────
-class _BranchPickerSheet extends StatelessWidget {
-  final RevenueReportController controller;
-
-  const _BranchPickerSheet({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE0E0E0),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'reports.revenue.filter.selectBranch'.trns(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: const Icon(Icons.close, size: 22),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Obx(() => ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: controller.branchOptions.length,
-                itemBuilder: (ctx, i) {
-                  final option = controller.branchOptions[i];
-                  final isSelected =
-                      controller.tempBranchId.value == option.value;
-
-                  return ListTile(
-                    title: Text(
-                      option.label,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isSelected ? AppColors.primary : AppColors.black,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.normal,
-                      ),
-                    ),
-                    trailing: isSelected
-                        ? const Icon(Icons.check_rounded,
-                            color: AppColors.primary, size: 20)
-                        : null,
-                    onTap: () {
-                      controller.selectBranch(option);
-                      Get.back();
-                    },
-                  );
-                },
-              )),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-}
+// ── Outline Button ───────────────────────────────────────────────────────────

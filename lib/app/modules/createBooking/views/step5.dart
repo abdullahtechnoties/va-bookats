@@ -79,45 +79,47 @@ class Step5Payment extends GetView<CreateBookingController> {
                 ),
               ),
               const SizedBox(height: 8),
-              Obx(() => Text(
-                    'Items total: Rs ${controller.computedGrandTotal.toStringAsFixed(2)} '
-                    '(Pkg ${controller.packagesSum.toStringAsFixed(2)} + '
-                    'Svc ${controller.servicesSum.toStringAsFixed(2)} + '
-                    'Prd ${controller.productsSum.toStringAsFixed(2)})',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF888888),
-                    ),
-                  )),
+              Obx(
+                () => Text(
+                  'Items total: Rs ${controller.computedGrandTotal.toStringAsFixed(2)} '
+                  '(Pkg ${controller.packagesSum.toStringAsFixed(2)} + '
+                  'Svc ${controller.servicesSum.toStringAsFixed(2)} + '
+                  'Prd ${controller.productsSum.toStringAsFixed(2)})',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF888888),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
 
-              // Total Amount
+              // Total Amount (auto, display-only)
               _FieldLabel('createBooking.step5.totalAmount'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
                 hintText: '00',
                 controller: controller.totalAmountCtrl,
                 keyboardType: TextInputType.number,
+                readOnly: true,
                 height: 50,
                 hintTextSize: 13,
-                onChanged: (_) => controller.recalcPaymentTotals(),
               ),
               const SizedBox(height: 16),
 
-              // Discount
+              // Discount (auto sum of previous discounts, display-only)
               _FieldLabel('createBooking.step5.discount'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
                 hintText: '00',
                 controller: controller.discountCtrl,
                 keyboardType: TextInputType.number,
+                readOnly: true,
                 height: 50,
                 hintTextSize: 13,
-                onChanged: (_) => controller.recalcPaymentTotals(),
               ),
               const SizedBox(height: 16),
 
-              // Amount Paid
+              // Amount Paid (only editable amount)
               _FieldLabel('createBooking.step5.amountPaid'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
@@ -126,7 +128,23 @@ class Step5Payment extends GetView<CreateBookingController> {
                 keyboardType: TextInputType.number,
                 height: 50,
                 hintTextSize: 13,
-                onChanged: (_) => controller.recalcPaymentTotals(),
+                validator: (_) {
+                  final payable = controller.computedPayable;
+                  final paid = controller.amountPaidCtrl.text.trim().isEmpty
+                      ? 0.0
+                      : double.tryParse(
+                              controller.amountPaidCtrl.text.trim(),
+                            ) ??
+                            0;
+                  if (paid < 0) {
+                    return 'createBooking.step5.amountNegative'.trns();
+                  }
+                  if (paid > payable) {
+                    return 'createBooking.step5.paidExceedsBalance'.trns();
+                  }
+                  return null;
+                },
+                onChanged: controller.onAmountPaidChanged,
               ),
               const SizedBox(height: 16),
 
@@ -147,8 +165,7 @@ class Step5Payment extends GetView<CreateBookingController> {
               _FieldLabel('createBooking.step5.paymentMethod'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
-                hintText:
-                    'createBooking.step5.selectPaymentMethod'.trns(),
+                hintText: 'createBooking.step5.selectPaymentMethod'.trns(),
                 controller: controller.paymentMethodCtrl,
                 readOnly: true,
                 height: 50,
@@ -172,8 +189,7 @@ class Step5Payment extends GetView<CreateBookingController> {
               _FieldLabel('createBooking.step5.bookingStatus'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
-                hintText:
-                    'createBooking.step5.selectBookingStatus'.trns(),
+                hintText: 'createBooking.step5.selectBookingStatus'.trns(),
                 controller: controller.bookingStatusCtrl,
                 readOnly: true,
                 height: 50,
@@ -203,8 +219,7 @@ class Step5Payment extends GetView<CreateBookingController> {
               _FieldLabel('createBooking.step5.transactionId'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
-                hintText:
-                    'createBooking.step5.transactionPlaceholder'.trns(),
+                hintText: 'createBooking.step5.transactionPlaceholder'.trns(),
                 controller: controller.transactionIdCtrl,
                 height: 50,
                 hintTextSize: 13,
@@ -214,44 +229,48 @@ class Step5Payment extends GetView<CreateBookingController> {
               Row(
                 children: [
                   Expanded(
-                    child: Obx(() => GestureDetector(
-                          onTap: controller.isSaving.value
-                              ? null
-                              : controller.previousStep,
-                          child: Container(
-                            height: 56,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: AppColors.secondary,
-                                width: 1.5,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
+                    child: Obx(
+                      () => GestureDetector(
+                        onTap: controller.isSaving.value
+                            ? null
+                            : controller.previousStep,
+                        child: Container(
+                          height: 56,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.secondary,
+                              width: 1.5,
                             ),
-                            child: const Center(
-                              child: Text(
-                                'Back',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.secondary,
-                                ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Back',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.secondary,
                               ),
                             ),
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     flex: 2,
-                    child: Obx(() => MainBtn(
-                          text: controller.isEditMode
-                              ? 'Update'
-                              : 'createBooking.save'.trns(),
-                          onPressed: controller.isSaving.value
-                              ? null
-                              : () => controller.submit(context),
-                          isLoading: controller.isSaving.value,
-                        )),
+                    child: Obx(
+                      () => MainBtn(
+                        text: controller.isEditMode
+                            ? 'Update'
+                            : 'createBooking.save'.trns(),
+                        onPressed: controller.isSaving.value
+                            ? null
+                            : () => controller.submit(context),
+                        isLoading: controller.isSaving.value,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -272,9 +291,8 @@ class _PaymentSlipPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final slip = controller.slipMedia.value;
-      final url = slip?.thumbnailUrl ??
-          slip?.networkUrl ??
-          controller.existingSlipUrl;
+      final url =
+          slip?.thumbnailUrl ?? slip?.networkUrl ?? controller.existingSlipUrl;
       final name = slip?.name ?? controller.slipFileName.value;
       return Row(
         children: [
@@ -289,19 +307,13 @@ class _PaymentSlipPicker extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: url != null
                 ? AppCachedImage(imageUrl: url, fit: BoxFit.cover)
-                : const Icon(
-                    Icons.receipt_outlined,
-                    color: Color(0xFFBBBBBB),
-                  ),
+                : const Icon(Icons.receipt_outlined, color: Color(0xFFBBBBBB)),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               name,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF777777),
-              ),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF777777)),
               overflow: TextOverflow.ellipsis,
             ),
           ),

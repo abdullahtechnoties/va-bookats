@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/controllers/branch_comparison_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
 
 class BranchComparisonFilterSheet extends StatelessWidget {
@@ -10,10 +12,21 @@ class BranchComparisonFilterSheet extends StatelessWidget {
 
   const BranchComparisonFilterSheet({super.key, required this.controller});
 
+  static void show(
+    BuildContext context,
+    BranchComparisonReportController controller,
+  ) {
+    controller.initTempFilter();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.transparent,
+      builder: (_) => BranchComparisonFilterSheet(controller: controller),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    controller.initTempFilter();
-
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.white,
@@ -56,7 +69,11 @@ class BranchComparisonFilterSheet extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => Get.back(),
-                child: const Icon(Icons.close, color: AppColors.black, size: 22),
+                child: const Icon(
+                  Icons.close,
+                  color: AppColors.black,
+                  size: 22,
+                ),
               ),
             ],
           ),
@@ -65,47 +82,68 @@ class BranchComparisonFilterSheet extends StatelessWidget {
           // From Date
           Text(
             'branchComparison.filter.fromDate'.trns(),
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF6B7280)),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF6B7280),
+            ),
           ),
           const SizedBox(height: 8),
-          Obx(() => _DateField(
-                value: controller.tempFromDate.value,
-                onTap: () async {
-                  final picked = await _pickDate(context, controller.tempFromDate.value);
-                  if (picked != null) controller.tempFromDate.value = picked;
-                },
-              )),
+          Obx(
+            () => _DateField(
+              value: controller.tempFromDate.value,
+              onTap: () async {
+                final picked = await _pickDate(
+                  context,
+                  controller.tempFromDate.value,
+                );
+                if (picked != null) controller.tempFromDate.value = picked;
+              },
+            ),
+          ),
           const SizedBox(height: 16),
 
           // To Date
           Text(
             'branchComparison.filter.toDate'.trns(),
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF6B7280)),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF6B7280),
+            ),
           ),
           const SizedBox(height: 8),
-          Obx(() => _DateField(
-                value: controller.tempToDate.value,
-                onTap: () async {
-                  final picked = await _pickDate(context, controller.tempToDate.value);
-                  if (picked != null) controller.tempToDate.value = picked;
-                },
-              )),
+          Obx(
+            () => _DateField(
+              value: controller.tempToDate.value,
+              onTap: () async {
+                final picked = await _pickDate(
+                  context,
+                  controller.tempToDate.value,
+                );
+                if (picked != null) controller.tempToDate.value = picked;
+              },
+            ),
+          ),
           const SizedBox(height: 16),
 
-          // Branches (only for owners)
+          // Branches multi-select (only for owners)
           if (controller.isOwner) ...[
             Text(
               'branchComparison.filter.branches'.trns(),
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF6B7280)),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF6B7280),
+              ),
             ),
             const SizedBox(height: 8),
-            // Obx(() => 
-            _BranchMultiSelect(
-                  branches: controller.availableBranches,
-                  selectedIds: controller.tempSelectedBranchIds,
-                  onTap: () => _showBranchSelector(context),
-                // )
-                ),
+            Obx(
+              () => _BranchMultiSelect(
+                displayText: controller.tempBranchFilterDisplay,
+                onTap: () => _showBranchSelector(context),
+              ),
+            ),
             const SizedBox(height: 16),
           ],
 
@@ -146,21 +184,30 @@ class BranchComparisonFilterSheet extends StatelessWidget {
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
       builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.primary)),
+        data: Theme.of(ctx).copyWith(
+          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+        ),
         child: child!,
       ),
     );
   }
 
   void _showBranchSelector(BuildContext context) {
+    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.white,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      backgroundColor: Colors.transparent,
+      builder: (_) => CommonDropdownBottomSheetThree(
+        title: 'branchComparison.filter.selectBranches'.trns(),
+        bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
+        dropdownItems: options.map((o) => o.label).toList(),
+        selectedValue: options.map((o) => o.value).toList(),
+        textController: TextEditingController(),
+        showSearch: true,
+        isMultiSelect: true,
+        selectedValues: controller.tempSelectedBranchIds,
       ),
-      builder: (_) => _BranchSelectorSheet(controller: controller),
     );
   }
 }
@@ -172,13 +219,7 @@ class _DateField extends StatelessWidget {
 
   const _DateField({required this.value, required this.onTap});
 
-  String _fmt(DateTime d) {
-    const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[d.month]}/${d.day}/${d.year}';
-  }
+  String _fmt(DateTime d) => reportHumanDate(d);
 
   @override
   Widget build(BuildContext context) {
@@ -197,10 +238,18 @@ class _DateField extends StatelessWidget {
             Expanded(
               child: Text(
                 _fmt(value),
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.black),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.black,
+                ),
               ),
             ),
-            const Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFF9CA3AF)),
+            const Icon(
+              Icons.calendar_today_outlined,
+              size: 18,
+              color: Color(0xFF9CA3AF),
+            ),
           ],
         ),
       ),
@@ -210,15 +259,10 @@ class _DateField extends StatelessWidget {
 
 // ── Branch Multi-Select Display ──────────────────────────────────────────────
 class _BranchMultiSelect extends StatelessWidget {
-  final List<dynamic> branches;
-  final RxList<int> selectedIds;
+  final String displayText;
   final VoidCallback onTap;
 
-  const _BranchMultiSelect({
-    required this.branches,
-    required this.selectedIds,
-    required this.onTap,
-  });
+  const _BranchMultiSelect({required this.displayText, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -235,93 +279,23 @@ class _BranchMultiSelect extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Obx(() {
-                if (selectedIds.isEmpty) {
-                  return Text(
-                    'branchComparison.filter.selectBranches'.trns(),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF9CA3AF)),
-                  );
-                }
-                return Text(
-                  '${selectedIds.length} ${'branchComparison.filter.branchesSelected'.trns()}',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.black),
-                );
-              }),
+              child: Text(
+                displayText,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.black,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            const Icon(Icons.keyboard_arrow_down_rounded, size: 22, color: Color(0xFF9CA3AF)),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 22,
+              color: Color(0xFF9CA3AF),
+            ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ── Branch Selector Sheet ─────────────────────────────────────────────────────
-class _BranchSelectorSheet extends StatelessWidget {
-  final BranchComparisonReportController controller;
-
-  const _BranchSelectorSheet({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE0E0E0),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'branchComparison.filter.selectBranches'.trns(),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: const Icon(Icons.close, size: 22),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Obx(() => ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: controller.availableBranches.length,
-                  itemBuilder: (context, index) {
-                    final branch = controller.availableBranches[index];
-                    return Obx(() {
-                      final isSelected = controller.tempSelectedBranchIds.contains(branch.value);
-                      return CheckboxListTile(
-                        value: isSelected,
-                        onChanged: (_) => controller.toggleTempBranch(branch.value),
-                        title: Text(
-                          branch.label,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                          ),
-                        ),
-                        activeColor: AppColors.primary,
-                        controlAffinity: ListTileControlAffinity.leading,
-                      );
-                    });
-                  },
-                )),
-          ),
-        ],
       ),
     );
   }

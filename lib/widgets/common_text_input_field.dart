@@ -78,9 +78,13 @@ class CommonTextInputFieldState extends State<CommonTextInputField> {
   Widget build(BuildContext context) {
     final ThemeController themeController = Get.find<ThemeController>();
 
-    return Container(
-      height: widget.height,
-      decoration: BoxDecoration(borderRadius: _getBorderRadius()),
+    // NOTE: no fixed-height Container on purpose. A fixed height clips the
+    // validator's error text and makes the field visually "shrink to half"
+    // once validation fails. Using min-height constraints keeps the default
+    // look identical while letting the error line expand gracefully below
+    // the input without reserving extra space up-front.
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: widget.height ?? 45),
       child: TextFormField(
         initialValue: widget.initialValue,
         controller: widget.controller,
@@ -120,34 +124,33 @@ class CommonTextInputFieldState extends State<CommonTextInputField> {
           ),
           contentPadding:
               widget.contentPadding ??
-              const EdgeInsets.only(left: 16, right: 16),
+              const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          isDense: true,
+          errorMaxLines: 2,
           border: OutlineInputBorder(
             borderRadius: _getBorderRadius(),
             borderSide: BorderSide(
-              color:
-                  themeController.isDarkMode.value
-                      ? Color(0xFF5D6765)
-                      : AppColors.black.withValues(alpha: 0.20),
+              color: themeController.isDarkMode.value
+                  ? Color(0xFF5D6765)
+                  : AppColors.black.withValues(alpha: 0.20),
               width: 1,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: _getBorderRadius(),
             borderSide: BorderSide(
-              color:
-                  themeController.isDarkMode.value
-                      ? Color(0xFF5D6765)
-                      : AppColors.black.withValues(alpha: 0.20),
+              color: themeController.isDarkMode.value
+                  ? Color(0xFF5D6765)
+                  : AppColors.black.withValues(alpha: 0.20),
               width: 1,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: _getBorderRadius(),
             borderSide: BorderSide(
-              color:
-                  themeController.isDarkMode.value
-                      ? Color(0xFF5D6765)
-                      : AppColors.black.withValues(alpha: 0.20),
+              color: themeController.isDarkMode.value
+                  ? Color(0xFF5D6765)
+                  : AppColors.black.withValues(alpha: 0.20),
               width: 1,
             ),
           ),
@@ -167,13 +170,24 @@ class CommonTextInputFieldState extends State<CommonTextInputField> {
           ),
           errorStyle: TextStyle(
             color: AppColors.error,
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.normal,
+            height: 1.2,
           ),
-          suffixIcon:
-              widget.showSuffixIcon ? widget.suffixIcon ?? SizedBox() : null,
-          prefixIcon:
-              widget.showPrefixIcon ? widget.prefixIcon ?? SizedBox() : null,
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 40,
+            minHeight: 20,
+          ),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 40,
+            minHeight: 20,
+          ),
+          suffixIcon: widget.showSuffixIcon
+              ? widget.suffixIcon ?? SizedBox()
+              : null,
+          prefixIcon: widget.showPrefixIcon
+              ? widget.prefixIcon ?? SizedBox()
+              : null,
           counterText: "",
         ),
         validator: widget.validator,

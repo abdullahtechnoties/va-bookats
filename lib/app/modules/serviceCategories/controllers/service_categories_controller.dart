@@ -10,10 +10,11 @@ import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
 class ServiceCategoriesController extends GetxController {
   ServiceCategoriesController({required ServiceCategoryRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ServiceCategoryRepository _repository;
   final AuthService _authService = Get.find<AuthService>();
@@ -36,6 +37,56 @@ class ServiceCategoriesController extends GetxController {
 
   /// A single category is being mutated (delete / status change).
   final RxnInt busyCategoryId = RxnInt();
+  final RxnInt busyDeleteId = RxnInt();
+
+  // ─── Filter + search (same CRUD pattern as services/packages) ──────────
+  final TextEditingController searchCtrl = TextEditingController();
+  final TextEditingController fromDateCtrl = TextEditingController();
+  final TextEditingController toDateCtrl = TextEditingController();
+  final TextEditingController branchFilterCtrl = TextEditingController();
+  final TextEditingController statusFilterCtrl = TextEditingController();
+  final RxString selectedBranchFilter = ''.obs;
+  final RxString selectedStatusFilter = ''.obs;
+
+  List<String> get statusOptions => [
+    'All',
+    'serviceCategories.active'.trns(),
+    'serviceCategories.inactive'.trns(),
+  ];
+
+  String get allBranchesKey => 'serviceCategories.filter.allBranches'.trns();
+
+  List<String> get branchFilterOptions => [
+    allBranchesKey,
+    ...branches.map((b) => b.displayLabel),
+  ];
+
+  int? get _filterBranchId {
+    final label = selectedBranchFilter.value;
+    if (label.isEmpty || label == allBranchesKey) return null;
+    for (final b in branches) {
+      if (b.displayLabel == label) return b.value;
+    }
+    return null;
+  }
+
+  int get appliedFiltersCount {
+    var n = 0;
+    if (searchCtrl.text.trim().isNotEmpty) n++;
+    if (fromDateCtrl.text.trim().isNotEmpty) n++;
+    if (toDateCtrl.text.trim().isNotEmpty) n++;
+    if (selectedBranchFilter.value.isNotEmpty) n++;
+    if (selectedStatusFilter.value.isNotEmpty) n++;
+    return n;
+  }
+
+  String? get _filterStatus {
+    final value = selectedStatusFilter.value.trim();
+    if (value.isEmpty || value == statusOptions.first) return null;
+    if (value == statusOptions[1]) return 'active';
+    if (value == statusOptions[2]) return 'inactive';
+    return value.toLowerCase();
+  }
 
   @override
   void onInit() {
@@ -48,6 +99,11 @@ class ServiceCategoriesController extends GetxController {
   @override
   void onClose() {
     scrollController.dispose();
+    searchCtrl.dispose();
+    fromDateCtrl.dispose();
+    toDateCtrl.dispose();
+    branchFilterCtrl.dispose();
+    statusFilterCtrl.dispose();
     super.onClose();
   }
 
@@ -72,7 +128,14 @@ class ServiceCategoriesController extends GetxController {
   Future<void> fetchFirstPage() async {
     isLoading.value = true;
     loadFailed.value = false;
-    final response = await _repository.getServiceCategories(page: 1);
+    final response = await _repository.getServiceCategories(
+      page: 1,
+      search: searchCtrl.text.trim().isEmpty ? null : searchCtrl.text.trim(),
+      branchId: _filterBranchId,
+      status: _filterStatus,
+      fromDate: _toApiDate(fromDateCtrl.text),
+      toDate: _toApiDate(toDateCtrl.text),
+    );
 
     if (!response.isCompleted || response.data == null) {
       loadFailed.value = true;
@@ -96,7 +159,14 @@ class ServiceCategoriesController extends GetxController {
   Future<void> handleRefresh() async {
     isRefreshing.value = true;
     loadFailed.value = false;
-    final response = await _repository.getServiceCategories(page: 1);
+    final response = await _repository.getServiceCategories(
+      page: 1,
+      search: searchCtrl.text.trim().isEmpty ? null : searchCtrl.text.trim(),
+      branchId: _filterBranchId,
+      status: _filterStatus,
+      fromDate: _toApiDate(fromDateCtrl.text),
+      toDate: _toApiDate(toDateCtrl.text),
+    );
 
     if (response.isCompleted && response.data != null) {
       final page = response.data!;
@@ -116,7 +186,14 @@ class ServiceCategoriesController extends GetxController {
     }
     isLoadingMore.value = true;
     final next = _currentPage + 1;
-    final response = await _repository.getServiceCategories(page: next);
+    final response = await _repository.getServiceCategories(
+      page: next,
+      search: searchCtrl.text.trim().isEmpty ? null : searchCtrl.text.trim(),
+      branchId: _filterBranchId,
+      status: _filterStatus,
+      fromDate: _toApiDate(fromDateCtrl.text),
+      toDate: _toApiDate(toDateCtrl.text),
+    );
 
     if (response.isCompleted && response.data != null) {
       final page = response.data!;
@@ -141,9 +218,9 @@ class ServiceCategoriesController extends GetxController {
     final confirmed = await _confirmDelete(category);
     if (confirmed != true) return;
 
-    busyCategoryId.value = id;
+    busyDeleteId.value = id;
     final response = await _repository.deleteServiceCategory(id);
-    busyCategoryId.value = null;
+    busyDeleteId.value = null;
 
     if (response.isCompleted) {
       categories.removeWhere((c) => c.id == id);
@@ -180,7 +257,8 @@ class ServiceCategoriesController extends GetxController {
       }
       SnackbarService.showSuccess(
         title: 'serviceCategories.statusSuccessTitle'.trns(),
-        message: response.message ?? 'serviceCategories.statusSuccessMessage'.trns(),
+        message:
+            response.message ?? 'serviceCategories.statusSuccessMessage'.trns(),
       );
     } else {
       SnackbarService.showError(
@@ -254,19 +332,91 @@ class ServiceCategoriesController extends GetxController {
     );
   }
 
-  void onFilter() {
-    print(_authService.currentUser.value?.roles?.first.name);
-    print(_authService.isOwner);
-    print("abc + $showBranch");
+  void onFilter(BuildContext context) {
+    FilterBottomSheet.show(
+      context,
+      fields: [
+        FilterField(
+          label: 'serviceCategories.filter.search'.trns(),
+          type: FilterFieldType.text,
+          controller: searchCtrl,
+        ),
+        FilterField(
+          label: 'serviceCategories.filter.fromDate'.trns(),
+          type: FilterFieldType.date,
+          controller: fromDateCtrl,
+        ),
+        FilterField(
+          label: 'serviceCategories.filter.toDate'.trns(),
+          type: FilterFieldType.date,
+          controller: toDateCtrl,
+        ),
+        FilterField(
+          label: 'serviceCategories.filter.status'.trns(),
+          type: FilterFieldType.dropdown,
+          controller: statusFilterCtrl,
+          dropdownItems: statusOptions,
+          selectedValue: selectedStatusFilter,
+        ),
+        if (showBranch)
+          FilterField(
+            label: 'serviceCategories.filter.branches'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: branchFilterCtrl,
+            dropdownItems: branchFilterOptions,
+            selectedValue: selectedBranchFilter,
+          ),
+      ],
+      onReset: resetFilters,
+      onApply: applyFilters,
+    );
+  }
+
+  void applyFilters() => fetchFirstPage();
+
+  void resetFilters() {
+    searchCtrl.clear();
+    fromDateCtrl.clear();
+    toDateCtrl.clear();
+    branchFilterCtrl.clear();
+    statusFilterCtrl.clear();
+    selectedBranchFilter.value = '';
+    selectedStatusFilter.value = '';
+    fetchFirstPage();
+  }
+
+  String? _toApiDate(String text) {
+    if (text.trim().isEmpty) return null;
+    final parts = text.trim().split('/');
+    if (parts.length != 3) return null;
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final month = months.indexOf(parts[0]);
+    final day = int.tryParse(parts[1]);
+    final year = int.tryParse(parts[2]);
+    if (month < 1 || day == null || year == null) return null;
+    return '${year.toString().padLeft(4, '0')}-'
+        '${month.toString().padLeft(2, '0')}-'
+        '${day.toString().padLeft(2, '0')}';
   }
 
   /// Opens the add/edit page and refreshes the list on return so freshly
   /// created / updated categories are reflected immediately.
   Future<void> openAddPage({ServiceCategoryModel? category}) async {
-    await Get.toNamed(
-      Routes.ADD_SERVICE_CATEGORY,
-      arguments: category,
-    );
+    await Get.toNamed(Routes.ADD_SERVICE_CATEGORY, arguments: category);
     handleRefresh();
   }
 }

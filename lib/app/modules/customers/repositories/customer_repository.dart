@@ -239,16 +239,16 @@ class CustomerRepository {
   // ─── Geo helpers (country → state → city → area) ────────────────────────
 
   Future<ApiResponse<List<LookupOption>>> getCountries() async =>
-      _getLookup(ApiPath.geoCountries);
+      _getLookup(ApiPath.countries);
 
   Future<ApiResponse<List<LookupOption>>> getStates(int countryId) async =>
-      _getLookup(ApiPath.geoStates(countryId));
+      _getLookup(ApiPath.countryStates(countryId));
 
   Future<ApiResponse<List<LookupOption>>> getCities(int stateId) async =>
-      _getLookup(ApiPath.geoCities(stateId));
+      _getLookup(ApiPath.stateCities(stateId));
 
   Future<ApiResponse<List<LookupOption>>> getAreas(int cityId) async =>
-      _getLookup(ApiPath.geoAreas(cityId));
+      _getLookup(ApiPath.cityAreas(cityId));
 
   Future<ApiResponse<List<LookupOption>>> _getLookup(String endpoint) async {
     final response = await _network.getRaw(endpoint: endpoint);

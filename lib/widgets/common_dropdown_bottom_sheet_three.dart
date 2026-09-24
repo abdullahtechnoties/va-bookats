@@ -10,7 +10,7 @@ class CommonDropdownBottomSheetThree extends StatefulWidget {
   final String title;
   final double bottomSheetHeight;
   final List<String> dropdownItems;
-  final RxString selectedItem;
+  final RxString? selectedItem;
   final TextEditingController textController;
   final List<String>? selectedValue;
   final Function(dynamic)? onValueSelected;
@@ -18,18 +18,30 @@ class CommonDropdownBottomSheetThree extends StatefulWidget {
   final bool showSearch;
   final String? searchHint;
 
+  /// Multi-select mode (reporting filters): taps toggle membership in
+  /// [selectedValues] instead of popping, with a Done footer. Ids are
+  /// strings so int/String API payloads can never crash the sheet.
+  final bool isMultiSelect;
+  final RxSet<String>? selectedValues;
+  final String? doneButtonText;
+  final VoidCallback? onDone;
+
   const CommonDropdownBottomSheetThree({
     super.key,
     required this.dropdownItems,
-    required this.selectedItem,
+    this.selectedItem,
     required this.textController,
     required this.title,
     required this.bottomSheetHeight,
     this.selectedValue,
     this.onValueSelected,
-    required this.currentlySelectedValue,
+    this.currentlySelectedValue = '',
     this.showSearch = false,
     this.searchHint,
+    this.isMultiSelect = false,
+    this.selectedValues,
+    this.doneButtonText,
+    this.onDone,
   });
 
   @override
@@ -80,38 +92,30 @@ class _CommonDropdownBottomSheetThreeState
   Widget build(BuildContext context) {
     final ThemeController themeController = Get.find<ThemeController>();
 
-    final Color backgroundColorTop =
-        themeController.isDarkMode.value
-            ? AppColors.secondary
-            : AppColors.white;
-    final Color backgroundColorBottom =
-        themeController.isDarkMode.value
-            ? AppColors.secondary
-            : AppColors.white;
-    final Color textColor =
-        themeController.isDarkMode.value
-            ? AppColors.primary
-            : AppColors.primary;
-    final Color subTextColor =
-        themeController.isDarkMode.value
-            ? AppColors.secondary
-            : Colors.grey[700]!;
-    final Color searchTextColor =
-        themeController.isDarkMode.value
-            ? AppColors.primary
-            : AppColors.black;
-    final Color selectedColor =
-        themeController.isDarkMode.value
-            ? AppColors.primary.withValues(alpha: 0.05)
-            : AppColors.primary.withValues(alpha: 0.05);
-    final Color selectedBorderColor =
-        themeController.isDarkMode.value
-            ? AppColors.primary.withValues(alpha: 0.1)
-            : AppColors.primary.withValues(alpha: 0.1);
-    final Color selectedTextColor =
-        themeController.isDarkMode.value
-            ? AppColors.primary
-            : AppColors.primary;
+    final Color backgroundColorTop = themeController.isDarkMode.value
+        ? AppColors.secondary
+        : AppColors.white;
+    final Color backgroundColorBottom = themeController.isDarkMode.value
+        ? AppColors.secondary
+        : AppColors.white;
+    final Color textColor = themeController.isDarkMode.value
+        ? AppColors.primary
+        : AppColors.primary;
+    final Color subTextColor = themeController.isDarkMode.value
+        ? AppColors.secondary
+        : Colors.grey[700]!;
+    final Color searchTextColor = themeController.isDarkMode.value
+        ? AppColors.primary
+        : AppColors.black;
+    final Color selectedColor = themeController.isDarkMode.value
+        ? AppColors.primary.withValues(alpha: 0.05)
+        : AppColors.primary.withValues(alpha: 0.05);
+    final Color selectedBorderColor = themeController.isDarkMode.value
+        ? AppColors.primary.withValues(alpha: 0.1)
+        : AppColors.primary.withValues(alpha: 0.1);
+    final Color selectedTextColor = themeController.isDarkMode.value
+        ? AppColors.primary
+        : AppColors.primary;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -131,10 +135,9 @@ class _CommonDropdownBottomSheetThreeState
           topRight: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
         ),
         border: Border.all(
-          color:
-              themeController.isDarkMode.value
-                  ? AppColors.white.withValues(alpha: 0.20)
-                  : AppColors.white.withValues(alpha: 0.10),
+          color: themeController.isDarkMode.value
+              ? AppColors.white.withValues(alpha: 0.20)
+              : AppColors.white.withValues(alpha: 0.10),
           width: 1,
         ),
         boxShadow: [
@@ -160,10 +163,9 @@ class _CommonDropdownBottomSheetThreeState
                     width: ResponsiveUtil.scaleSize(context, 60),
                     height: ResponsiveUtil.scaleSize(context, 5),
                     decoration: BoxDecoration(
-                      color:
-                          themeController.isDarkMode.value
-                              ? AppColors.white.withValues(alpha: 0.16)
-                              : AppColors.black.withValues(alpha: 0.3),
+                      color: themeController.isDarkMode.value
+                          ? AppColors.white.withValues(alpha: 0.16)
+                          : AppColors.black.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(
                         ResponsiveUtil.scaleSize(context, 4),
                       ),
@@ -190,10 +192,9 @@ class _CommonDropdownBottomSheetThreeState
                       child: IconButton(
                         icon: Icon(
                           Icons.close,
-                          color:
-                              themeController.isDarkMode.value
-                                  ? AppColors.primary
-                                  : AppColors.black,
+                          color: themeController.isDarkMode.value
+                              ? AppColors.primary
+                              : AppColors.black,
                         ),
                         onPressed: () => Navigator.pop(context),
                         splashRadius: ResponsiveUtil.scaleSize(context, 20),
@@ -228,25 +229,23 @@ class _CommonDropdownBottomSheetThreeState
                     decoration: InputDecoration(
                       hintText: 'home.common.search'.trns(),
                       hintStyle: TextStyle(color: subTextColor, fontSize: 14),
-                      suffixIcon:
-                          _searchController.text.isNotEmpty
-                              ? IconButton(
-                                icon: Icon(
-                                  Icons.close,
-                                  size: ResponsiveUtil.scaleSize(context, 20),
-                                  color: subTextColor,
-                                ),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  _filterItems('');
-                                },
-                              )
-                              : null,
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                size: ResponsiveUtil.scaleSize(context, 20),
+                                color: subTextColor,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                _filterItems('');
+                              },
+                            )
+                          : null,
                       filled: true,
-                      fillColor:
-                          themeController.isDarkMode.value
-                              ? AppColors.secondary.withValues(alpha: 0.95)
-                              : AppColors.white,
+                      fillColor: themeController.isDarkMode.value
+                          ? AppColors.secondary.withValues(alpha: 0.95)
+                          : AppColors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -260,11 +259,12 @@ class _CommonDropdownBottomSheetThreeState
             _filteredItems.isEmpty
                 ? _buildEmptyState(textColor, subTextColor)
                 : _buildItemsList(
-                  textColor,
-                  selectedColor,
-                  selectedBorderColor,
-                  selectedTextColor,
-                ),
+                    textColor,
+                    selectedColor,
+                    selectedBorderColor,
+                    selectedTextColor,
+                  ),
+            if (widget.isMultiSelect) _buildDoneFooter(),
           ],
         ),
       ),
@@ -291,81 +291,122 @@ class _CommonDropdownBottomSheetThreeState
           final originalIndex = _filteredIndices[index];
           final uniqueId =
               widget.selectedValue != null &&
-                      originalIndex < widget.selectedValue!.length
-                  ? widget.selectedValue![originalIndex]
-                  : item;
-          final isSelected = widget.currentlySelectedValue == uniqueId;
-          return AnimatedContainer(
-            duration: Duration(milliseconds: 200),
-            decoration: BoxDecoration(
-              color: isSelected ? selectedColor : AppColors.transparent,
-              borderRadius: BorderRadius.circular(
-                ResponsiveUtil.scaleSize(context, 8),
-              ),
-              border:
-                  isSelected
-                      ? Border.all(color: selectedBorderColor, width: 1)
-                      : null,
-            ),
-            child: Material(
-              color: AppColors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveUtil.scaleSize(context, 8),
-                ),
-                splashColor: selectedTextColor.withValues(alpha: 0.1),
-                highlightColor: AppColors.transparent,
-                onTap: () {
-                  if (widget.selectedValue != null &&
-                      originalIndex < widget.selectedValue!.length) {
-                    final selectedValue = widget.selectedValue![originalIndex];
-                    widget.selectedItem.value = selectedValue;
-                    widget.textController.text = item;
-                    widget.onValueSelected?.call(selectedValue);
-                  } else {
-                    widget.selectedItem.value = item;
-                    widget.textController.text = item;
-                    widget.onValueSelected?.call(item);
-                  }
-                  Get.back();
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveUtil.scaleSize(
-                      context,
-                      isSelected ? 10 : 10,
-                    ),
-                    vertical: ResponsiveUtil.scaleSize(context, 12),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item,
-                          style: TextStyle(
-                            fontSize: ResponsiveUtil.scaleSize(context, 14),
-                            color: isSelected ? selectedTextColor : textColor,
-                            fontWeight:
-                                isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                      if (isSelected)
-                        Icon(
-                          Icons.check_rounded,
-                          color: selectedTextColor,
-                          size: ResponsiveUtil.scaleSize(context, 20),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                  originalIndex < widget.selectedValue!.length
+              ? widget.selectedValue![originalIndex]
+              : item;
+
+          void handleTap() {
+            if (widget.isMultiSelect) {
+              final set = widget.selectedValues;
+              if (set != null) {
+                if (set.contains(uniqueId)) {
+                  set.remove(uniqueId);
+                } else {
+                  set.add(uniqueId);
+                }
+              }
+              widget.onValueSelected?.call(uniqueId);
+              return;
+            }
+            if (widget.currentlySelectedValue == uniqueId) {
+              widget.selectedItem?.value = '';
+              widget.textController.clear();
+              widget.onValueSelected?.call(null);
+              Get.back();
+              return;
+            }
+            if (widget.selectedValue != null &&
+                originalIndex < widget.selectedValue!.length) {
+              final selectedValue = widget.selectedValue![originalIndex];
+              widget.selectedItem?.value = selectedValue;
+              widget.textController.text = item;
+              widget.onValueSelected?.call(selectedValue);
+            } else {
+              widget.selectedItem?.value = item;
+              widget.textController.text = item;
+              widget.onValueSelected?.call(item);
+            }
+            Get.back();
+          }
+
+          // Multi-select rows observe the set so checkmarks stay reactive.
+          // Single-select rows stay Obx-free (one-shot pick + pop): wrapping
+          // them in Obx with no observable inside throws the GetX
+          // "improper use" exception on every other usage of this sheet.
+          final multiSet = widget.selectedValues;
+          if (widget.isMultiSelect && multiSet != null) {
+            return Obx(() {
+              return _SheetRow(
+                item: item,
+                isSelected: multiSet.contains(uniqueId),
+                onTap: handleTap,
+                textColor: textColor,
+                selectedColor: selectedColor,
+                selectedBorderColor: selectedBorderColor,
+                selectedTextColor: selectedTextColor,
+              );
+            });
+          }
+          return _SheetRow(
+            item: item,
+            isSelected: widget.currentlySelectedValue == uniqueId,
+            onTap: handleTap,
+            textColor: textColor,
+            selectedColor: selectedColor,
+            selectedBorderColor: selectedBorderColor,
+            selectedTextColor: selectedTextColor,
           );
         },
         itemCount: _filteredItems.length,
+      ),
+    );
+  }
+
+  Widget _buildDoneFooter() {
+    final multiSet = widget.selectedValues;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        ResponsiveUtil.scaleSize(context, 20),
+        4,
+        ResponsiveUtil.scaleSize(context, 20),
+        MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: ElevatedButton(
+          onPressed: () {
+            widget.onDone?.call();
+            Get.back();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: multiSet == null
+              ? Text(
+                  widget.doneButtonText ?? 'reports.filter.apply'.trns(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                )
+              : Obx(() {
+                  final n = multiSet.length;
+                  final base =
+                      widget.doneButtonText ?? 'reports.filter.apply'.trns();
+                  return Text(
+                    n == 0 ? base : '$base ($n)',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  );
+                }),
+        ),
       ),
     );
   }
@@ -398,6 +439,83 @@ class _CommonDropdownBottomSheetThreeState
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Single option row (shared by single + multi modes) ─────────────────────
+
+class _SheetRow extends StatelessWidget {
+  final String item;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final Color textColor;
+  final Color selectedColor;
+  final Color selectedBorderColor;
+  final Color selectedTextColor;
+
+  const _SheetRow({
+    required this.item,
+    required this.isSelected,
+    required this.onTap,
+    required this.textColor,
+    required this.selectedColor,
+    required this.selectedBorderColor,
+    required this.selectedTextColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        color: isSelected ? selectedColor : AppColors.transparent,
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtil.scaleSize(context, 8),
+        ),
+        border: isSelected
+            ? Border.all(color: selectedBorderColor, width: 1)
+            : null,
+      ),
+      child: Material(
+        color: AppColors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(
+            ResponsiveUtil.scaleSize(context, 8),
+          ),
+          splashColor: selectedTextColor.withValues(alpha: 0.1),
+          highlightColor: AppColors.transparent,
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveUtil.scaleSize(context, 10),
+              vertical: ResponsiveUtil.scaleSize(context, 12),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    item,
+                    style: TextStyle(
+                      fontSize: ResponsiveUtil.scaleSize(context, 14),
+                      color: isSelected ? selectedTextColor : textColor,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  Icon(
+                    Icons.check_rounded,
+                    color: selectedTextColor,
+                    size: ResponsiveUtil.scaleSize(context, 20),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

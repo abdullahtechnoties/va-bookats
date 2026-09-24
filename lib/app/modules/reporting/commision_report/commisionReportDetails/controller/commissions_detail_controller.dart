@@ -79,7 +79,9 @@ class CommissionsDetailController extends GetxController {
         final data = CommissionsDetailResponse.fromJson(response.data!);
         apiResponse.value = ApiResponse.completed(data);
       } catch (e) {
-        apiResponse.value = ApiResponse.error('commissions.errors.parseFailed'.trns());
+        apiResponse.value = ApiResponse.error(
+          'commissions.errors.parseFailed'.trns(),
+        );
       }
     } else {
       apiResponse.value = ApiResponse.error(

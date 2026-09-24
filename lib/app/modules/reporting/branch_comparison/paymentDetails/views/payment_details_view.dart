@@ -103,11 +103,13 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
   Widget _buildTabs() {
     return Obx(() {
       return Container(
+        alignment: Alignment.center,
         decoration: const BoxDecoration(
           color: AppColors.white,
           border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB), width: 1)),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _TabItem(
               label: 'branchComparison.details.approved'.trns(),

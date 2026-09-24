@@ -1,6 +1,8 @@
 // lib/app/modules/home/controllers/home_controller.dart
 import 'package:get/get.dart';
+import 'package:va_bookats/app/modules/allBooking/controllers/all_booking_controller.dart';
 import 'package:va_bookats/app/modules/bookings/repositories/booking_repository.dart';
+import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
@@ -8,8 +10,7 @@ import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
 class HomeController extends GetxController {
-  HomeController({BookingRepository? repository})
-      : _repository = repository;
+  HomeController({BookingRepository? repository}) : _repository = repository;
 
   final BookingRepository? _repository;
   BookingRepository get _repo {
@@ -21,7 +22,7 @@ class HomeController extends GetxController {
     return BookingRepository();
   }
 
-  final AuthService _auth = Get.find<AuthService>();
+  final AuthService auth = Get.find<AuthService>();
 
   final RxList<BookingModel> todayBookings = <BookingModel>[].obs;
   final RxBool isLoading = true.obs;
@@ -29,10 +30,8 @@ class HomeController extends GetxController {
   final RxBool loadFailed = false.obs;
   final RxnInt busyBookingId = RxnInt();
 
-  String get userName =>
-      _auth.currentUser.value?.displayName ?? '';
-  String get userImage =>
-      _auth.currentUser.value?.image ?? '';
+  String get userName => auth.currentUser.value?.displayName ?? '';
+  String get userImage => auth.currentUser.value?.image ?? '';
 
   @override
   void onInit() {
@@ -92,8 +91,33 @@ class HomeController extends GetxController {
   void retry() => fetchTodayBookings();
 
   /// Homepage search bar → AllBookings with search opened + focused.
+  /// The AllBookings controller already lives inside the bottom-nav
+  /// IndexedStack, so switch to its tab and drive it directly instead of
+  /// pushing a duplicate route with Get.arguments (which caused the
+  /// setState-during-build red screen).
   void openSearch() {
-    Get.toNamed(Routes.ALL_BOOKING, arguments: {'autoFocusSearch': true});
+    try {
+      final bottomnav = Get.find<BottomnavController>();
+      bottomnav.changeTabIndex(1);
+      // Let the IndexedStack settle, then open search on the shared instance.
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (Get.isRegistered<AllBookingController>()) {
+          Get.find<AllBookingController>().openSearchMode();
+        } else {
+          Get.toNamed(Routes.ALL_BOOKING, arguments: {'autoFocusSearch': true});
+        }
+      });
+    } catch (_) {
+      Get.toNamed(Routes.ALL_BOOKING, arguments: {'autoFocusSearch': true});
+    }
+  }
+
+  void openAllBookings() {
+    try {
+      Get.find<BottomnavController>().changeTabIndex(1);
+    } catch (_) {
+      Get.toNamed(Routes.ALL_BOOKING, arguments: {'autoFocusSearch': false});
+    }
   }
 
   void openDetails(BookingModel booking) {

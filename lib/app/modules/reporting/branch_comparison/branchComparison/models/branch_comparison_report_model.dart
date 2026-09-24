@@ -15,15 +15,27 @@ class BranchComparisonReportModel {
 
   factory BranchComparisonReportModel.fromJson(Map<String, dynamic> json) {
     return BranchComparisonReportModel(
-      branches: (json['branches'] as List?)
-              ?.map((e) => BranchFilterOption.fromJson(e as Map<String, dynamic>))
+      branches:
+          (json['branches'] as List?)
+              ?.map(
+                (e) => BranchFilterOption.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
-      branchIds: (json['branch_ids'] as List?)?.map((e) => e as int).toList() ?? [],
+      branchIds:
+          (json['branch_ids'] as List?)
+              ?.map((e) => int.tryParse(e.toString()) ?? 0)
+              .toList() ??
+          [],
       fromDate: json['from_date']?.toString() ?? '',
       toDate: json['to_date']?.toString() ?? '',
-      monthlyData: (json['monthlyData'] as List?)
-              ?.map((e) => BranchComparisonItemModel.fromJson(e as Map<String, dynamic>))
+      monthlyData:
+          (json['monthlyData'] as List?)
+              ?.map(
+                (e) => BranchComparisonItemModel.fromJson(
+                  e as Map<String, dynamic>,
+                ),
+              )
               .toList() ??
           [],
     );
@@ -39,7 +51,7 @@ class BranchFilterOption {
   factory BranchFilterOption.fromJson(Map<String, dynamic> json) {
     return BranchFilterOption(
       label: json['label']?.toString() ?? '',
-      value: json['value'] as int? ?? 0,
+      value: int.tryParse(json['value']?.toString() ?? '') ?? 0,
     );
   }
 }

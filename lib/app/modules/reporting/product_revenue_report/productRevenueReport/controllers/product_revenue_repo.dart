@@ -3,23 +3,32 @@ import 'package:va_bookats/app/modules/reporting/product_revenue_report/productR
 import 'package:va_bookats/network/api/api_path.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/service/network_service.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
 class ProductRevenueRepository {
   final NetworkService _network = Get.find<NetworkService>();
 
   Future<ApiResponse<ProductRevenueReport>> getProductRevenue({
-    int? branchId,
+    List<String>? branchIds,
     String? fromDate,
     String? toDate,
-    String? productId,
+    List<String>? productIds,
   }) async {
     try {
       final queryParams = <String, dynamic>{};
-      if (branchId != null) queryParams['branch_id'] = branchId;
-      if (fromDate != null) queryParams['from_date'] = fromDate;
-      if (toDate != null) queryParams['to_date'] = toDate;
-      if (productId != null) queryParams['product_id'] = productId;
+      if (branchIds != null) {
+        addIndexedParams(queryParams, 'branch_ids', branchIds);
+      }
+      if (fromDate != null) {
+        queryParams['from_date'] = fromDate;
+      }
+      if (toDate != null) {
+        queryParams['to_date'] = toDate;
+      }
+      if (productIds != null) {
+        addIndexedParams(queryParams, 'product_ids', productIds);
+      }
 
       final response = await _network.get(
         endpoint: ApiPath.productRevenue,

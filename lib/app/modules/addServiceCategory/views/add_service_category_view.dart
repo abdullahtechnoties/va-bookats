@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addServiceCategory/controllers/add_service_category_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/app_touchable.dart';
 import 'package:va_bookats/widgets/common_dropdown_bottom_sheet.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
@@ -93,16 +94,26 @@ class AddServiceCategoryView extends GetView<AddServiceCategoryController> {
                                       'addServiceCategory.branch'.trns(),
                                     ),
                                     const SizedBox(height: 8),
-                                    CommonTextInputField(
-                                      hintText:
-                                          'addServiceCategory.selectBranch'
-                                              .trns(),
-                                      controller: controller.branchCtrl,
-                                      readOnly: true,
-                                      height: 52,
-                                      hintTextSize: 13,
-                                      validator: controller.validateBranch,
-                                      onTap: () => _showBranchDropdown(context),
+                                    Obx(
+                                      () => AppTouchable(
+                                        child: CommonTextInputField(
+                                          hintText:
+                                              'addServiceCategory.selectBranch'
+                                                  .trns(),
+                                           suffixIcon:
+                                        controller.isLoadingBranches.value
+                                            ? _loaderSuffix()
+                                            : const SizedBox(),
+                                          controller: controller.branchCtrl,
+                                          readOnly: true,
+                                          height: 52,
+                                          hintTextSize: 13,
+                                          validator: controller.validateBranch,
+                                          onTap: controller.isLoadingBranches.value
+                                    ? null
+                                    : () => _showBranchDropdown(context),
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(height: 20),
                                   ],
@@ -147,6 +158,22 @@ class AddServiceCategoryView extends GetView<AddServiceCategoryController> {
     );
   }
 }
+
+  Widget _loaderSuffix() {
+    return SizedBox(
+        width: 20,
+        height: 20,
+      child: const FittedBox(
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.secondary,
+          ),
+        ),
+      ),
+    );
+  }
+
 
 // ─── Header ──────────────────────────────────────────────────────────────────
 

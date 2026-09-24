@@ -54,10 +54,22 @@ class ServiceCategoryRepository {
   /// GET /service-categories?page=N — paginated list + available branches.
   Future<ApiResponse<ServiceCategoriesPage>> getServiceCategories({
     required int page,
+    String? search,
+    int? branchId,
+    String? status,
+    String? fromDate,
+    String? toDate,
   }) async {
     final response = await _network.get(
       endpoint: ApiPath.serviceCategories,
-      queryParams: {'page': page},
+      queryParams: {
+        'page': page,
+        if (search != null && search.isNotEmpty) 'search': search,
+        'branch_id': ?branchId,
+        if (status != null && status.isNotEmpty) 'status': status,
+        if (fromDate != null && fromDate.isNotEmpty) 'from_date': fromDate,
+        if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
+      },
     );
 
     if (!response.isCompleted || response.data == null) {
@@ -79,19 +91,18 @@ class ServiceCategoryRepository {
         ? rawList
               .whereType<Map>()
               .map(
-                (e) => ServiceCategoryModel.fromJson(
-                  Map<String, dynamic>.from(e),
-                ),
+                (e) =>
+                    ServiceCategoryModel.fromJson(Map<String, dynamic>.from(e)),
               )
               .toList()
         : <ServiceCategoryModel>[];
 
     final branches = (body['branches'] is List)
         ? (body['branches'] as List)
-            .whereType<Map>()
-            .map((e) => BranchModel.fromJson(Map<String, dynamic>.from(e)))
-            .where((b) => b.isValid)
-            .toList()
+              .whereType<Map>()
+              .map((e) => BranchModel.fromJson(Map<String, dynamic>.from(e)))
+              .where((b) => b.isValid)
+              .toList()
         : <BranchModel>[];
 
     return ApiResponse.completed(
@@ -130,7 +141,9 @@ class ServiceCategoryRepository {
 
   /// DELETE /service-categories/{id}
   Future<ApiResponse<void>> deleteServiceCategory(int id) async {
-    final response = await _network.delete(endpoint: ApiPath.serviceCategory(id));
+    final response = await _network.delete(
+      endpoint: ApiPath.serviceCategory(id),
+    );
     if (!response.isCompleted) {
       return ApiResponse.error(
         response.message ?? 'errors.requestFailed'.trns(),

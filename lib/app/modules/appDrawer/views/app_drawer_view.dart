@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/appDrawer/controllers/app_drawer_controller.dart';
 import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
+import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
@@ -35,10 +36,7 @@ class AppDrawerView extends StatelessWidget {
                     isExpanded: controller.isBookingExpanded,
                     onTap: controller.toggleBooking,
                     subItems: controller.bookingSubItems,
-                    onSubItemTap: (item) {
-                      Get.find<BottomnavController>().closeDrawer();
-                      // Navigate accordingly
-                    },
+                    onSubItemTap: _handleBookingNavigation,
                   ),
                   _DrawerExpandable(
                     icon: Icons.credit_card_outlined,
@@ -46,21 +44,7 @@ class AppDrawerView extends StatelessWidget {
                     isExpanded: controller.isInventoryExpanded,
                     onTap: controller.toggleInventory,
                     subItems: controller.inventorySubItems,
-                    onSubItemTap: (item) {
-                      Get.find<BottomnavController>().closeDrawer();
-                      if(item == "Services") {
-                        // controller.inventorySubItems[0] == null;
-                        // Get.toNamed(Routes.SERVICES);
-                        _openTab(2);
-                        return;
-                      } else if (item == "Service Categories"){
-                        // controller
-                        Get.toNamed(Routes.SERVICE_CATEGORIES);
-                        return;
-                      } else {
-                        Get.toNamed(Routes.PACKAGES);
-                      }
-                    },
+                    onSubItemTap: _handleInventoryNavigation,
                   ),
                   _DrawerSimpleItem(
                     icon: Icons.groups_outlined,
@@ -77,7 +61,6 @@ class AppDrawerView extends StatelessWidget {
                     onTap: controller.toggleReporting,
                     subItems: controller.reportingSubItems,
                     onSubItemTap: (item) {
-                      Get.find<BottomnavController>().closeDrawer();
                       _handleReportNavigation(item);
                     },
                   ),
@@ -125,76 +108,128 @@ class AppDrawerView extends StatelessWidget {
     Get.find<BottomnavController>().closeDrawer();
   }
 
+  void _handleBookingNavigation(String item) {
+    Get.find<BottomnavController>().closeDrawer();
+    switch (item) {
+      case 'All Bookings':
+        Get.toNamed(Routes.ALL_BOOKING);
+        break;
+      case 'Add Booking':
+        Get.toNamed(Routes.CREATE_BOOKING);
+        break;
+    }
+  }
+
+  void _handleInventoryNavigation(String item) {
+    Get.find<BottomnavController>().closeDrawer();
+    switch (item) {
+      case 'Services':
+        _openTab(2);
+        break;
+      case 'Service Categories':
+        Get.toNamed(Routes.SERVICE_CATEGORIES);
+        break;
+      case 'Packages':
+        Get.toNamed(Routes.PACKAGES);
+        break;
+    }
+  }
+
   void _handleReportNavigation(String item) {
+    Get.find<BottomnavController>().closeDrawer();
     switch (item) {
       case 'Branch Comparison':
-        Get.toNamed(Routes.BRANCH_COMPARISON_REPORT,
-            arguments: {'title': 'revenue.branchComparison'});
+        Get.toNamed(Routes.BRANCH_COMPARISON_REPORT);
         break;
       case 'Revenue Report':
-        Get.toNamed('/revenue-report',
-            arguments: {'title': 'revenue.title'});
+        Get.toNamed(Routes.REVENUE_REPORT);
         break;
-      default:
-        Get.toNamed('/revenue-report',
-            arguments: {'title': item});
+      case 'Services Revenue Report':
+        Get.toNamed(Routes.SERVICE_REVENUE_REPORT);
+        break;
+      case 'Products Revenue Report':
+        Get.toNamed(Routes.PRODUCT_REVENUE_REPORT);
+        break;
+      case 'Packages Revenue Report':
+        Get.toNamed(Routes.PACKAGE_REVENUE_REPORT);
+        break;
+      case 'Commissions Report':
+        Get.toNamed(Routes.COMMISSIONS_REPORT);
+        break;
+      case 'Expenses Report':
+        Get.toNamed(Routes.EXPENSE_REPORT);
+        break;
+      case 'Customers Report':
+        Get.toNamed(Routes.CUSTOMER_REPORT);
+        break;
     }
   }
 
   Widget _buildHeader(BuildContext context, AppDrawerController controller) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 16, 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Avatar
-          ClipOval(
-            child: AppCachedImage(
-              imageUrl: controller.userAvatar,
-              width: 64,
-              height: 64,
-              fallbackAsset: 'assets/images/placeholder.png',
+    final auth = Get.find<AuthService>();
+    return Obx(() {
+      final user = auth.currentUser.value;
+      final role =
+          user?.roles
+              ?.map((item) => item.name?.trim())
+              .whereType<String>()
+              .firstWhere((item) => item.isNotEmpty, orElse: () => '') ??
+          '';
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 16, 20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Avatar
+            ClipOval(
+              child: AppCachedImage(
+                imageUrl: user?.bestImageUrl,
+                width: 64,
+                height: 64,
+                fallbackAsset: 'assets/images/placeholder.png',
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          // Name + role
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 8),
-                Text(
-                  controller.userName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.black,
+            const SizedBox(width: 12),
+            // Name + role
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    user?.displayName ?? 'user.handyman'.trns(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  controller.userRole,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFF6B7280),
+                  const SizedBox(height: 2),
+                  Text(
+                    role.isEmpty ? 'drawer.profile'.trns() : role,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF6B7280),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // Close button
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: const Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Icon(Icons.close, color: AppColors.black, size: 22),
+            // Close button
+            GestureDetector(
+              onTap: () => Get.back(),
+              child: const Padding(
+                padding: EdgeInsets.only(top: 4),
+                child: Icon(Icons.close, color: AppColors.black, size: 22),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 }
 
@@ -247,7 +282,9 @@ class _DrawerExpandable extends StatelessWidget {
                         onTap: () => onSubItemTap(sub),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 14),
+                            horizontal: 24,
+                            vertical: 14,
+                          ),
                           child: Text(
                             sub,
                             style: const TextStyle(
@@ -282,11 +319,7 @@ class _DrawerSimpleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _DrawerItemTile(
-      icon: icon,
-      label: label,
-      onTap: onTap,
-    );
+    return _DrawerItemTile(icon: icon, label: label, onTap: onTap);
   }
 }
 

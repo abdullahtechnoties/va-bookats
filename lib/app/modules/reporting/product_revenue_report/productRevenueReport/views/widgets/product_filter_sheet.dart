@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueReport/controllers/product_revenue_report_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
 
 class ProductFilterSheet extends StatelessWidget {
@@ -10,10 +12,21 @@ class ProductFilterSheet extends StatelessWidget {
 
   const ProductFilterSheet({super.key, required this.controller});
 
+  static void show(
+    BuildContext context,
+    ProductRevenueReportController controller,
+  ) {
+    controller.initTempFilter();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.transparent,
+      builder: (_) => ProductFilterSheet(controller: controller),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    controller.initTempFilter();
-
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.white,
@@ -43,7 +56,7 @@ class ProductFilterSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,7 +71,11 @@ class ProductFilterSheet extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () => Get.back(),
-                  child: const Icon(Icons.close, color: AppColors.black, size: 22),
+                  child: const Icon(
+                    Icons.close,
+                    color: AppColors.black,
+                    size: 22,
+                  ),
                 ),
               ],
             ),
@@ -74,16 +91,18 @@ class ProductFilterSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Obx(() => _DateField(
-                  value: controller.tempFromDate.value,
-                  onTap: () async {
-                    final picked = await _pickDate(
-                      context,
-                      controller.tempFromDate.value,
-                    );
-                    if (picked != null) controller.tempFromDate.value = picked;
-                  },
-                )),
+            Obx(
+              () => _DateField(
+                value: controller.tempFromDate.value,
+                onTap: () async {
+                  final picked = await _pickDate(
+                    context,
+                    controller.tempFromDate.value,
+                  );
+                  if (picked != null) controller.tempFromDate.value = picked;
+                },
+              ),
+            ),
             const SizedBox(height: 16),
 
             // To Date
@@ -96,19 +115,21 @@ class ProductFilterSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Obx(() => _DateField(
-                  value: controller.tempToDate.value,
-                  onTap: () async {
-                    final picked = await _pickDate(
-                      context,
-                      controller.tempToDate.value,
-                    );
-                    if (picked != null) controller.tempToDate.value = picked;
-                  },
-                )),
+            Obx(
+              () => _DateField(
+                value: controller.tempToDate.value,
+                onTap: () async {
+                  final picked = await _pickDate(
+                    context,
+                    controller.tempToDate.value,
+                  );
+                  if (picked != null) controller.tempToDate.value = picked;
+                },
+              ),
+            ),
             const SizedBox(height: 16),
 
-            // Branch (only for owner)
+            // Branch multi-select (only for owner)
             if (controller.isOwner) ...[
               Text(
                 'reports.product.filter.branch'.trns(),
@@ -119,21 +140,16 @@ class ProductFilterSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Obx(() => _DropdownField(
-                    value: controller.tempBranchId.value == 0
-                        ? 'reports.product.filter.allBranches'.trns()
-                        : controller.branches
-                                .firstWhereOrNull(
-                                  (b) => b.value == controller.tempBranchId.value,
-                                )
-                                ?.label ??
-                            '',
-                    onTap: () => _showBranchPicker(context),
-                  )),
+              Obx(
+                () => _DropdownField(
+                  value: controller.tempBranchFilterDisplay,
+                  onTap: () => _showBranchPicker(context),
+                ),
+              ),
               const SizedBox(height: 16),
             ],
 
-            // Product
+            // Product multi-select
             Text(
               'reports.product.filter.product'.trns(),
               style: const TextStyle(
@@ -143,17 +159,12 @@ class ProductFilterSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Obx(() => _DropdownField(
-                  value: controller.tempProductId.value == 'all'
-                      ? 'reports.product.filter.allProducts'.trns()
-                      : controller.products
-                              .firstWhereOrNull(
-                                (p) => p.value == controller.tempProductId.value,
-                              )
-                              ?.label ??
-                          '',
-                  onTap: () => _showProductPicker(context),
-                )),
+            Obx(
+              () => _DropdownField(
+                value: controller.tempProductFilterDisplay,
+                onTap: () => _showProductPicker(context),
+              ),
+            ),
             const SizedBox(height: 32),
 
             // Buttons
@@ -199,24 +210,40 @@ class ProductFilterSheet extends StatelessWidget {
   }
 
   void _showBranchPicker(BuildContext context) {
+    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CommonDropdownBottomSheetThree(
+        title: 'reports.product.filter.branch'.trns(),
+        bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
+        dropdownItems: options.map((o) => o.label).toList(),
+        selectedValue: options.map((o) => o.value).toList(),
+        textController: TextEditingController(),
+        showSearch: true,
+        isMultiSelect: true,
+        selectedValues: controller.tempBranchIds,
       ),
-      builder: (_) => _BranchPickerSheet(controller: controller),
     );
   }
 
   void _showProductPicker(BuildContext context) {
+    final options = controller.productFilterOptions;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CommonDropdownBottomSheetThree(
+        title: 'reports.product.filter.product'.trns(),
+        bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
+        dropdownItems: options.map((o) => o.label).toList(),
+        selectedValue: options.map((o) => o.value).toList(),
+        textController: TextEditingController(),
+        showSearch: true,
+        isMultiSelect: true,
+        selectedValues: controller.tempProductIds,
       ),
-      builder: (_) => _ProductPickerSheet(controller: controller),
     );
   }
 }
@@ -228,13 +255,7 @@ class _DateField extends StatelessWidget {
 
   const _DateField({required this.value, required this.onTap});
 
-  String _fmt(DateTime d) {
-    const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[d.month]}/${d.day}/${d.year}';
-  }
+  String _fmt(DateTime d) => reportHumanDate(d);
 
   @override
   Widget build(BuildContext context) {
@@ -246,9 +267,7 @@ class _DateField extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: AppColors.black.withValues(alpha: 0.15),
-          ),
+          border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
@@ -291,9 +310,7 @@ class _DropdownField extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: AppColors.black.withValues(alpha: 0.15),
-          ),
+          border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
@@ -348,181 +365,6 @@ class _OutlineBtn extends StatelessWidget {
             letterSpacing: 0.6,
           ),
         ),
-      ),
-    );
-  }
-}
-
-// ── Branch Picker Sheet ─────────────────────────────────────────────────────
-class _BranchPickerSheet extends StatelessWidget {
-  final ProductRevenueReportController controller;
-
-  const _BranchPickerSheet({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE0E0E0),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'reports.product.filter.branch'.trns(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: const Icon(Icons.close, size: 22),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          // All Branches option
-          Obx(() => ListTile(
-                title: Text(
-                  'reports.product.filter.allBranches'.trns(),
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: controller.tempBranchId.value == 0
-                        ? AppColors.primary
-                        : AppColors.black,
-                    fontWeight: controller.tempBranchId.value == 0
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-                trailing: controller.tempBranchId.value == 0
-                    ? const Icon(Icons.check_rounded,
-                        color: AppColors.primary, size: 20)
-                    : null,
-                onTap: () {
-                  controller.tempBranchId.value = 0;
-                  Get.back();
-                },
-              )),
-          // Branch list
-          ...controller.branches.map(
-            (b) => Obx(() => ListTile(
-                  title: Text(
-                    b.label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: controller.tempBranchId.value == b.value
-                          ? AppColors.primary
-                          : AppColors.black,
-                      fontWeight: controller.tempBranchId.value == b.value
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                    ),
-                  ),
-                  trailing: controller.tempBranchId.value == b.value
-                      ? const Icon(Icons.check_rounded,
-                          color: AppColors.primary, size: 20)
-                      : null,
-                  onTap: () {
-                    controller.tempBranchId.value = b.value;
-                    Get.back();
-                  },
-                )),
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Product Picker Sheet ────────────────────────────────────────────────────
-class _ProductPickerSheet extends StatelessWidget {
-  final ProductRevenueReportController controller;
-
-  const _ProductPickerSheet({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE0E0E0),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'reports.product.filter.product'.trns(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: const Icon(Icons.close, size: 22),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Flexible(
-            child: ListView(
-              shrinkWrap: true,
-              children: controller.products.map(
-                (p) => Obx(() => ListTile(
-                      title: Text(
-                        p.label,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: controller.tempProductId.value == p.value
-                              ? AppColors.primary
-                              : AppColors.black,
-                          fontWeight: controller.tempProductId.value == p.value
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                        ),
-                      ),
-                      trailing: controller.tempProductId.value == p.value
-                          ? const Icon(Icons.check_rounded,
-                              color: AppColors.primary, size: 20)
-                          : null,
-                      onTap: () {
-                        controller.tempProductId.value = p.value;
-                        Get.back();
-                      },
-                    )),
-              ).toList(),
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
       ),
     );
   }

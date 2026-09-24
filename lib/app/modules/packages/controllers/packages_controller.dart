@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/packages/repositories/package_repository.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/branch_model.dart';
+import 'package:va_bookats/models/data_service_item.dart';
 import 'package:va_bookats/models/package_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
@@ -14,7 +15,7 @@ import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
 class PackagesController extends GetxController {
   PackagesController({required PackageRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final PackageRepository _repository;
   final AuthService _authService = Get.find<AuthService>();
@@ -32,7 +33,9 @@ class PackagesController extends GetxController {
   final RxBool loadFailed = false.obs;
 
   /// A single package is being mutated (delete / status change).
+  /// Split so a status change never shows a loader on the delete icon.
   final RxnInt busyPackageId = RxnInt();
+  final RxnInt busyDeleteId = RxnInt();
 
   final Map<String, int> _currentPage = {};
   final Map<String, int> _lastPage = {};
@@ -51,9 +54,13 @@ class PackagesController extends GetxController {
   final TextEditingController fromDateCtrl = TextEditingController();
   final TextEditingController toDateCtrl = TextEditingController();
   final TextEditingController branchFilterCtrl = TextEditingController();
+  final TextEditingController serviceFilterCtrl = TextEditingController();
   final RxString selectedBranchFilter = ''.obs;
+  final RxString selectedServiceFilter = ''.obs;
+  final RxList<DataServiceItem> serviceOptions = <DataServiceItem>[].obs;
 
   String get allBranchesKey => 'packages.filter.allBranches'.trns();
+  String get allServicesKey => 'packages.filter.allServices'.trns();
 
   /// Branch name in the card and the filter dropdown only for owners.
   bool get showBranch => _authService.isOwner;
@@ -66,8 +73,15 @@ class PackagesController extends GetxController {
 
   String get _statusKey => selectedTab.value == 0 ? 'active' : 'inactive';
 
-  List<String> get branchFilterOptions =>
-      [allBranchesKey, ...branches.map((b) => b.displayLabel)];
+  List<String> get branchFilterOptions => [
+    allBranchesKey,
+    ...branches.map((b) => b.displayLabel),
+  ];
+
+  List<String> get serviceFilterOptions => [
+    allServicesKey,
+    ...serviceOptions.map((s) => s.label ?? ''),
+  ];
 
   int? get _filterBranchId {
     final label = selectedBranchFilter.value;
@@ -76,6 +90,25 @@ class PackagesController extends GetxController {
       if (b.displayLabel == label) return b.value;
     }
     return null;
+  }
+
+  int? get _filterServiceId {
+    final label = selectedServiceFilter.value;
+    if (label.isEmpty || label == allServicesKey) return null;
+    for (final s in serviceOptions) {
+      if ((s.label ?? '') == label) return s.value;
+    }
+    return null;
+  }
+
+  int get appliedFiltersCount {
+    var n = 0;
+    if (searchCtrl.text.trim().isNotEmpty) n++;
+    if (fromDateCtrl.text.trim().isNotEmpty) n++;
+    if (toDateCtrl.text.trim().isNotEmpty) n++;
+    if (selectedBranchFilter.value.isNotEmpty) n++;
+    if (selectedServiceFilter.value.isNotEmpty) n++;
+    return n;
   }
 
   @override
@@ -93,6 +126,7 @@ class PackagesController extends GetxController {
     fromDateCtrl.dispose();
     toDateCtrl.dispose();
     branchFilterCtrl.dispose();
+    serviceFilterCtrl.dispose();
     super.onClose();
   }
 
@@ -117,6 +151,32 @@ class PackagesController extends GetxController {
     }
   }
 
+  /// Services for the service-filter dropdown (`/data/services`).
+  /// Scoped to the selected filter branch, else the user's branch, else the
+  /// first known branch.
+  Future<void> fetchFilterServices() async {
+    var branchId = _filterBranchId;
+    branchId ??= _authService.currentUser.value?.branchId;
+    branchId ??= branches.firstOrNull?.value;
+    if (branchId == null) {
+      serviceOptions.clear();
+      return;
+    }
+    final response = await _repository.getDataServices(branchId);
+    if (response.isCompleted && response.data != null) {
+      serviceOptions.assignAll(response.data!);
+      // Drop a stale selection that no longer exists for this branch.
+      if (selectedServiceFilter.value.isNotEmpty &&
+          selectedServiceFilter.value != allServicesKey &&
+          serviceOptions.every(
+            (s) => (s.label ?? '') != selectedServiceFilter.value,
+          )) {
+        selectedServiceFilter.value = '';
+        serviceFilterCtrl.clear();
+      }
+    }
+  }
+
   Future<void> fetchFirstPage() async {
     final key = _statusKey;
     final gen = ++_generation;
@@ -129,6 +189,7 @@ class PackagesController extends GetxController {
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
       branchId: _filterBranchId,
+      serviceId: _filterServiceId,
     );
 
     // Superseded — a newer request (filter change / tab switch / refresh)
@@ -174,6 +235,7 @@ class PackagesController extends GetxController {
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
       branchId: _filterBranchId,
+      serviceId: _filterServiceId,
     );
 
     // Superseded — drop the stale page so it never appends onto a reloaded
@@ -189,7 +251,11 @@ class PackagesController extends GetxController {
     isLoadingMore.value = false;
   }
 
-  void _applyPage(PackagesPage page, {required String key, required bool replace}) {
+  void _applyPage(
+    PackagesPage page, {
+    required String key,
+    required bool replace,
+  }) {
     final list = key == 'active' ? activePackages : inactivePackages;
     _currentPage[key] = page.meta.currentPage;
     _lastPage[key] = page.meta.lastPage;
@@ -213,8 +279,11 @@ class PackagesController extends GetxController {
 
   void changeTab(int index) {
     if (selectedTab.value == index) return;
+    // Reset filters on tab change so the other tab never inherits stale state.
+    resetFilters(silent: true);
     selectedTab.value = index;
     hasMore.value = _hasMoreMap[_statusKey] ?? false;
+    _generation++;
     final hasLoaded = _loadedForStatus.contains(_statusKey);
     if (!hasLoaded) {
       fetchFirstPage();
@@ -224,6 +293,7 @@ class PackagesController extends GetxController {
   // ─── Filtering ───────────────────────────────────────────────────────────
 
   void openFilter(BuildContext context) {
+    fetchFilterServices();
     FilterBottomSheet.show(
       context,
       fields: [
@@ -250,6 +320,14 @@ class PackagesController extends GetxController {
             dropdownItems: branchFilterOptions,
             selectedValue: selectedBranchFilter,
           ),
+        if (!showBranch)
+        FilterField(
+          label: 'packages.filter.service'.trns(),
+          type: FilterFieldType.dropdown,
+          controller: serviceFilterCtrl,
+          dropdownItems: serviceFilterOptions,
+          selectedValue: selectedServiceFilter,
+        ),
       ],
       onReset: resetFilters,
       onApply: applyFilters,
@@ -268,13 +346,16 @@ class PackagesController extends GetxController {
     fetchFirstPage();
   }
 
-  void resetFilters() {
+  void resetFilters({bool silent = false}) {
     searchCtrl.clear();
     fromDateCtrl.clear();
     toDateCtrl.clear();
     branchFilterCtrl.clear();
+    serviceFilterCtrl.clear();
     selectedBranchFilter.value = '';
+    selectedServiceFilter.value = '';
     _clearPagination();
+    if (silent) return;
     fetchFirstPage();
   }
 
@@ -287,9 +368,9 @@ class PackagesController extends GetxController {
     final confirmed = await _confirmDelete(package);
     if (confirmed != true) return;
 
-    busyPackageId.value = id;
+    busyDeleteId.value = id;
     final response = await _repository.deletePackage(id);
-    busyPackageId.value = null;
+    busyDeleteId.value = null;
 
     if (response.isCompleted) {
       activePackages.removeWhere((p) => p.id == id);
@@ -422,8 +503,19 @@ class PackagesController extends GetxController {
     final parts = text.split('/');
     if (parts.length != 3) return null;
     const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final month = months.indexOf(parts[0]);
     final day = int.tryParse(parts[1]);

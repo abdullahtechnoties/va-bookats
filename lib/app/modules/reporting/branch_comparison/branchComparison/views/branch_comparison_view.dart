@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/controllers/branch_comparison_controller.dart';
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/views/Widgets/bcomp-filter-sheet.dart';
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/views/Widgets/bcomp-table.dart';
-import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/views/Widgets/column-selector-sheet.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
-class BranchComparisonReportView extends GetView<BranchComparisonReportController> {
+class BranchComparisonReportView
+    extends GetView<BranchComparisonReportController> {
   const BranchComparisonReportView({super.key});
 
   @override
@@ -25,7 +25,9 @@ class BranchComparisonReportView extends GetView<BranchComparisonReportControlle
         }
 
         if (response.isError) {
-          return _buildErrorState(response.message ?? 'branchComparison.errors.fetchFailed'.trns());
+          return _buildErrorState(
+            response.message ?? 'branchComparison.errors.fetchFailed'.trns(),
+          );
         }
 
         if (controller.items.isEmpty) {
@@ -66,7 +68,11 @@ class BranchComparisonReportView extends GetView<BranchComparisonReportControlle
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -83,7 +89,11 @@ class BranchComparisonReportView extends GetView<BranchComparisonReportControlle
           padding: const EdgeInsets.only(right: 16),
           child: GestureDetector(
             onTap: () => _openFilterSheet(context),
-            child: const Icon(Icons.filter_alt_outlined, color: AppColors.white, size: 24),
+            child: const Icon(
+              Icons.filter_alt_outlined,
+              color: AppColors.white,
+              size: 24,
+            ),
           ),
         ),
       ],
@@ -97,29 +107,37 @@ class BranchComparisonReportView extends GetView<BranchComparisonReportControlle
       child: Row(
         children: [
           Expanded(
-            child: Obx(() => Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
+            child: Obx(
+              () => Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.black.withValues(alpha: 0.15),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.calendar_today_outlined, size: 16, color: Color(0xFF9CA3AF)),
-                      const SizedBox(width: 8),
-                      Text(
-                        controller.dateRangeLabel,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF374151),
-                        ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 16,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      controller.dateRangeLabel,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           GestureDetector(
@@ -151,35 +169,47 @@ class BranchComparisonReportView extends GetView<BranchComparisonReportControlle
   Widget _buildColumnSelectorRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Obx(() => GestureDetector(
-            onTap: () => _openColumnSelector(context),
-            child: Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.calendar_view_week_outlined, size: 16, color: Color(0xFF9CA3AF)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${'branchComparison.columns.selected'.trns()} (${controller.selectedColumnCount})',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF374151),
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Color(0xFF9CA3AF)),
-                ],
+      child: Obx(
+        () => GestureDetector(
+          onTap: () => _openColumnSelector(context),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.black.withValues(alpha: 0.15),
               ),
             ),
-          )),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_view_week_outlined,
+                  size: 16,
+                  color: Color(0xFF9CA3AF),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${'branchComparison.columns.selected'.trns()} (${controller.selectedColumnCount})',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF374151),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: Color(0xFF9CA3AF),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -189,13 +219,15 @@ class BranchComparisonReportView extends GetView<BranchComparisonReportControlle
       physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Obx(() => ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: BranchComparisonTable(
-                controller: controller,
-                items: controller.items,
-              ),
-            )),
+        child: Obx(
+          () => ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: BranchComparisonTable(
+              controller: controller,
+              items: controller.items,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -218,9 +250,14 @@ class BranchComparisonReportView extends GetView<BranchComparisonReportControlle
             onPressed: controller.refreshReport,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text('branchComparison.retry'.trns(), style: const TextStyle(color: AppColors.white)),
+            child: Text(
+              'branchComparison.retry'.trns(),
+              style: const TextStyle(color: AppColors.white),
+            ),
           ),
         ],
       ),
@@ -246,20 +283,10 @@ class BranchComparisonReportView extends GetView<BranchComparisonReportControlle
 
   // ── Sheet Openers ────────────────────────────────────────────────────────
   void _openFilterSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => BranchComparisonFilterSheet(controller: controller),
-    );
+    BranchComparisonFilterSheet.show(context, controller);
   }
 
   void _openColumnSelector(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => BranchComparisonColumnSelector(controller: controller),
-    );
+    controller.openColumnSelector(context);
   }
 }

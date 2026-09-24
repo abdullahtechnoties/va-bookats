@@ -19,8 +19,10 @@ class CommissionsDetailResponse {
   });
 
   factory CommissionsDetailResponse.fromJson(Map<String, dynamic> json) {
-    final summariesData = json['dailyStaffCommissionSummaries'] as Map<String, dynamic>? ?? {};
-    final items = (summariesData['data'] as List?)
+    final summariesData =
+        json['dailyStaffCommissionSummaries'] as Map<String, dynamic>? ?? {};
+    final items =
+        (summariesData['data'] as List?)
             ?.map((e) => StaffCommissionSummary.fromJson(e))
             .toList() ??
         [];

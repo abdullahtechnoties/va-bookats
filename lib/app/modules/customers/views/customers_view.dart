@@ -22,19 +22,13 @@ class CustomersView extends GetView<CustomersController> {
           // ── Content ───────────────────────────────────────────────────
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value &&
-                  controller.customers.isEmpty) {
+              if (controller.isLoading.value && controller.customers.isEmpty) {
                 return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.secondary,
-                  ),
+                  child: CircularProgressIndicator(color: AppColors.secondary),
                 );
               }
-              if (controller.loadFailed.value &&
-                  controller.customers.isEmpty) {
-                return _CustomersErrorState(
-                  onRetry: controller.retry,
-                );
+              if (controller.loadFailed.value && controller.customers.isEmpty) {
+                return _CustomersErrorState(onRetry: controller.retry);
               }
               return RefreshIndicator(
                 color: AppColors.secondary,
@@ -70,8 +64,9 @@ class CustomersView extends GetView<CustomersController> {
                                 width: 22,
                                 height: 22,
                                 decoration: BoxDecoration(
-                                  color: AppColors.white
-                                      .withValues(alpha: 0.25),
+                                  color: AppColors.white.withValues(
+                                    alpha: 0.25,
+                                  ),
                                   borderRadius: BorderRadius.circular(5),
                                 ),
                                 child: const Icon(
@@ -130,16 +125,16 @@ class CustomersView extends GetView<CustomersController> {
                       ...controller.customers.map(
                         (customer) => CustomerCard(
                           customer: customer,
-                          isBusy: controller.busyCustomerId.value ==
-                              customer.id,
+                          isBusy:
+                              controller.busyCustomerId.value == customer.id,
+                          isDeleting:
+                              controller.busyDeleteId.value == customer.id,
                           onTap: () =>
                               controller.openAddPage(customer: customer),
                           onEdit: () =>
                               controller.openAddPage(customer: customer),
-                          onDelete: () =>
-                              controller.deleteCustomer(customer),
-                          onStatusTap: () =>
-                              controller.toggleStatus(customer),
+                          onDelete: () => controller.deleteCustomer(customer),
+                          onStatusTap: () => controller.toggleStatus(customer),
                         ),
                       ),
 
@@ -208,10 +203,41 @@ class _CustomersHeader extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => controller.openFilter(context),
-                child: const Icon(
-                  Icons.filter_alt_outlined,
-                  color: AppColors.white,
-                  size: 22,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(
+                      Icons.filter_alt_outlined,
+                      color: AppColors.white,
+                      size: 22,
+                    ),
+                    Obx(() {
+                      final n = controller.appliedFiltersCount.value;
+                      if (n == 0) return const SizedBox.shrink();
+                      return Positioned(
+                        right: -6,
+                        top: -6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$n',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
               const SizedBox(width: 12),
@@ -257,10 +283,7 @@ class _DateFilterBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFFEEEEEE),
-                width: 1,
-              ),
+              border: Border.all(color: const Color(0xFFEEEEEE), width: 1),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.black.withValues(alpha: 0.04),
@@ -278,24 +301,22 @@ class _DateFilterBar extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Obx(
-                    () {
-                      final range = controller.displayDateRange.value;
-                      final search = controller.searchCtrl.text.trim();
-                      final label = range.isNotEmpty
-                          ? range
-                          : (search.isNotEmpty ? search : 'Filter');
-                      return Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      );
-                    },
-                  ),
+                  child: Obx(() {
+                    final range = controller.displayDateRange.value;
+                    final search = controller.searchCtrl.text.trim();
+                    final label = range.isNotEmpty
+                        ? range
+                        : (search.isNotEmpty ? search : 'Filter');
+                    return Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  }),
                 ),
               ],
             ),
@@ -370,8 +391,7 @@ class _CustomersErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline,
-                size: 60, color: Color(0xFFCCCCCC)),
+            const Icon(Icons.error_outline, size: 60, color: Color(0xFFCCCCCC)),
             const SizedBox(height: 16),
             const Text(
               'Failed to load customers.\nPull to refresh or try again.',
@@ -387,7 +407,9 @@ class _CustomersErrorState extends StatelessWidget {
               onTap: onRetry,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 28, vertical: 12),
+                  horizontal: 28,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(10),

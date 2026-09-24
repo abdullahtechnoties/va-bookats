@@ -7,9 +7,8 @@ import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controlle
 import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
 import 'package:va_bookats/app/modules/profile/controllers/profile_controller.dart';
 import 'package:va_bookats/app/modules/profile/views/profile_view.dart';
-import 'package:va_bookats/app/modules/services/controllers/services_controller.dart';
-import 'package:va_bookats/app/modules/services/repositories/service_repository.dart';
 import 'package:va_bookats/app/modules/services/views/services_view.dart';
+import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import '../../home/views/home_view.dart';
 
@@ -40,12 +39,12 @@ const List<_NavItem> _navItems = [
     activeAssetPath: 'assets/images/b1a.png',
   ),
   _NavItem(
-    label: 'My Bookings',
+    label: 'Bookings',
     assetPath: 'assets/images/b2.png',
     activeAssetPath: 'assets/images/b2a.png',
   ),
   _NavItem(
-    label: 'Search',
+    label: 'Services',
     assetPath: 'assets/images/b3.png',
     activeAssetPath: 'assets/images/b3a.png',
   ),
@@ -71,7 +70,6 @@ class BottomnavView extends GetView<BottomnavController> {
   Widget build(BuildContext context) {
     final hcontroller = Get.put(HomeController());
     final lcontroller = Get.put(AllBookingController());
-    final a = Get.put(ServicesController(repository:  Get.put(ServiceRepository())));
     final p = Get.put(ProfileController());
     return Scaffold(
       key: controller.scaffoldKey,
@@ -84,7 +82,7 @@ class BottomnavView extends GetView<BottomnavController> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         onPressed: () {
-          // Get.toNamed(Routes.HOME);
+          Get.toNamed(Routes.CREATE_BOOKING);
           // AuthServices.logout();
           // Get.offAllNamed(Routes.SPLASH);
         },
@@ -131,14 +129,27 @@ class BottomnavView extends GetView<BottomnavController> {
       final _NavItem navItem = _navItems[index];
       return GestureDetector(
         onTap: () => controller.changeTabIndex(index),
-        child: Image.asset(
-          fit: BoxFit.contain,
-          height: 22,
-          width: 22,
-          isSelected ? navItem.activeAssetPath! : navItem.assetPath,
-          // color: 
-          // isSelected ,
-          // ? AppColors.primary : Colors.grey,
+        child: Column(
+          children: [
+            Image.asset(
+              fit: BoxFit.contain,
+              height: 22,
+              width: 22,
+              isSelected ? navItem.activeAssetPath! : navItem.assetPath,
+              // color: 
+              // isSelected ,
+              // ? AppColors.primary : Colors.grey,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              navItem.label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,    
+            color: isSelected ? AppColors.primary : Colors.grey,
+              ),
+            ),
+          ],
         ),
       );
     });

@@ -5,6 +5,14 @@ import 'package:va_bookats/app/modules/reporting/commision_report/commisionRepor
 import 'package:va_bookats/app/modules/reporting/commision_report/commisionReportDetails/views/commissions_detail_view.dart';
 import 'package:va_bookats/app/modules/reporting/commision_report/commissionReport/bindings/commissions_report_binding.dart';
 import 'package:va_bookats/app/modules/reporting/commision_report/commissionReport/views/commision_report_view.dart';
+import 'package:va_bookats/app/modules/reporting/customer_report/customerReport/bindings/customer_report_binding.dart';
+import 'package:va_bookats/app/modules/reporting/customer_report/customerReport/views/customer_report_view.dart';
+import 'package:va_bookats/app/modules/reporting/customer_report/customerReportDetails/bindings/customer_details_binding.dart';
+import 'package:va_bookats/app/modules/reporting/customer_report/customerReportDetails/views/customer_details_view.dart';
+import 'package:va_bookats/app/modules/reporting/expense_report/expenseReport/bindings/expense_report_binding.dart';
+import 'package:va_bookats/app/modules/reporting/expense_report/expenseReport/views/expense_report_view.dart';
+import 'package:va_bookats/app/modules/reporting/expense_report/expenseReportDetails/bindings/expense_detail_binding.dart';
+import 'package:va_bookats/app/modules/reporting/expense_report/expenseReportDetails/views/expense_detail_view.dart';
 import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueDetails/bindings/product_revenue_details_binding.dart';
 import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueDetails/views/product_revenue_details_view.dart';
 import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueReport/bindings/product_revenue_report_binding.dart';
@@ -246,6 +254,26 @@ class AppPages {
       name: _Paths.COMMISSIONS_DETAIL,
       page: () => const CommissionsDetailView(),
       binding: CommissionsDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.EXPENSE_REPORT,
+      page: () => const ExpenseReportView(),
+      binding: ExpenseReportBinding(),
+    ),
+    GetPage(
+      name: _Paths.EXPENSE_DETAIL,
+      page: () => const ExpenseDetailView(),
+      binding: ExpenseDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.CUSTOMER_REPORT,
+      page: () => const CustomerReportView(),
+      binding: CustomerReportBinding(),
+    ),
+    GetPage(
+      name: _Paths.CUSTOMER_DETAILS,
+      page: () => const CustomerDetailsView(),
+      binding: CustomerDetailsBinding(),
     ),
   ];
 }

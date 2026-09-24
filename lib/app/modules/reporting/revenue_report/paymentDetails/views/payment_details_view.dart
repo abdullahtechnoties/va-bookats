@@ -94,6 +94,7 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
           border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB), width: 1)),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _TabItem(
               label: 'reports.paymentDetails.tabs.paid'.trns(),
@@ -133,6 +134,7 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
           ),
           child: Row(
             children: [
+              
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: AppCachedImage(
@@ -148,14 +150,7 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      branch.name,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.black,
-                      ),
-                    ),
+                    
                     const SizedBox(height: 4),
                     if (branch.address != null && branch.address!.isNotEmpty)
                       Text(

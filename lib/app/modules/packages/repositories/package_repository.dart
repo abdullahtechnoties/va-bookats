@@ -57,7 +57,9 @@ class PackageRepository {
 
   /// Fetches services for a specific branch via `GET /data/services?branch_id=N`.
   /// Returns a top-level JSON array of lightweight service items.
-  Future<ApiResponse<List<DataServiceItem>>> getDataServices(int branchId) async {
+  Future<ApiResponse<List<DataServiceItem>>> getDataServices(
+    int branchId,
+  ) async {
     final response = await _network.getRaw(
       endpoint: ApiPath.dataServices(branchId),
     );
@@ -91,6 +93,7 @@ class PackageRepository {
     String? fromDate,
     String? toDate,
     int? branchId,
+    int? serviceId,
   }) async {
     final response = await _network.get(
       endpoint: ApiPath.packages,
@@ -101,6 +104,7 @@ class PackageRepository {
         if (fromDate != null && fromDate.isNotEmpty) 'from_date': fromDate,
         if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
         'branch_id': ?branchId,
+        if (serviceId != null) 'service_id': serviceId,
       },
     );
 
@@ -169,7 +173,7 @@ class PackageRepository {
         'ending_on': endingOn,
         'status': status,
         if (description != null && description.isNotEmpty)
-        'description': description,
+          'description': description,
         'package_price': packagePrice,
         for (var i = 0; i < services.length; i++) ...{
           'services[$i][service_id]': services[i]['service_id'],

@@ -36,19 +36,21 @@ class AddCustomerView extends GetView<AddCustomerController> {
         selectedItem: selectedItem,
         textController: textCtrl,
         currentlySelectedValue: selectedItem.value,
-        showSearch: false,
+        showSearch: true, 
       ),
     );
   }
 
   Widget _loaderSuffix() {
-    return const SizedBox(
-      width: 20,
-      height: 20,
-      child: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.secondary,
+    return SizedBox(
+        width: 20,
+        height: 20,
+      child: const FittedBox(
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.secondary,
+          ),
         ),
       ),
     );
@@ -605,7 +607,7 @@ class _AttachmentsSection extends StatelessWidget {
             children: [
               const _FieldLabel('Attachments'),
               Text(
-                '${inputs.length} item(s)',
+                '${inputs.length} Item(s)',
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -630,8 +632,7 @@ class _AttachmentsSection extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: Color(0xFF888888)),
               ),
             )
-          else
-            ...List.generate(inputs.length, (index) {
+          else ...List.generate(inputs.length, (index) {
               final input = inputs[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -667,7 +668,7 @@ class _AttachmentsSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     CommonTextInputField(
-                      hintText: 'Title (e.g. NIC Front)',
+                      hintText: 'Title',
                       controller: input.titleCtrl,
                       height: 48,
                       hintTextSize: 12,
@@ -745,6 +746,7 @@ class _AttachmentsSection extends StatelessWidget {
                 ),
               );
             }),
+          SizedBox(height: 12),  
           AppTouchable(
             child: GestureDetector(
               onTap: controller.addAttachment,

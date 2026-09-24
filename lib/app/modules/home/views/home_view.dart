@@ -41,9 +41,7 @@ class HomeView extends GetView<HomeController> {
                       }
                       if (controller.loadFailed.value &&
                           controller.todayBookings.isEmpty) {
-                        return _HomeErrorState(
-                          onRetry: controller.retry,
-                        );
+                        return _HomeErrorState(onRetry: controller.retry);
                       }
                       if (controller.todayBookings.isEmpty) {
                         return const _HomeEmptyState();
@@ -54,17 +52,18 @@ class HomeView extends GetView<HomeController> {
                         itemCount: controller.todayBookings.length,
                         itemBuilder: (context, index) {
                           final booking = controller.todayBookings[index];
-                          return Obx(() => BookingCard(
-                                booking: booking,
-                                isBusy:
-                                    controller.busyBookingId.value ==
-                                        booking.id,
-                                onViewDetails: () =>
-                                    controller.openDetails(booking),
-                                onEdit: () => _openEdit(booking),
-                                onStatusTap: () =>
-                                    _showStatusSheet(context, booking),
-                              ));
+                          return Obx(
+                            () => BookingCard(
+                              booking: booking,
+                              isBusy:
+                                  controller.busyBookingId.value == booking.id,
+                              onViewDetails: () =>
+                                  controller.openDetails(booking),
+                              onEdit: () => _openEdit(booking),
+                              onStatusTap: () =>
+                                  _showStatusSheet(context, booking),
+                            ),
+                          );
                         },
                       );
                     }),
@@ -89,22 +88,23 @@ class HomeView extends GetView<HomeController> {
     BookingStatusSheet.show(
       context,
       currentStatus: booking.status,
-      onConfirmed: ({
-        required String status,
-        String? returnAmount,
-        String? paymentMethod,
-        String? transactionId,
-        int? mediaId,
-      }) {
-        controller.changeStatus(
-          booking,
-          status,
-          returnAmount: returnAmount,
-          paymentMethod: paymentMethod,
-          transactionId: transactionId,
-          mediaId: mediaId,
-        );
-      },
+      onConfirmed:
+          ({
+            required String status,
+            String? returnAmount,
+            String? paymentMethod,
+            String? transactionId,
+            int? mediaId,
+          }) {
+            controller.changeStatus(
+              booking,
+              status,
+              returnAmount: returnAmount,
+              paymentMethod: paymentMethod,
+              transactionId: transactionId,
+              mediaId: mediaId,
+            );
+          },
     );
   }
 }
@@ -174,14 +174,17 @@ class _HomeHeader extends StatelessWidget {
                       // ),
                       const SizedBox(width: 14),
                       Obx(() {
-                        final img =
-                            controller.userImage;
-                        return ClipOval(
-                          child: AppCachedImage(
-                            imageUrl: img,
-                            width: 40,
-                            height: 40,
-                            fit: BoxFit.cover,
+                        final img = controller.auth.currentUser.value;
+                        return GestureDetector(
+                          onTap: () => Get.toNamed(Routes.PERSONAL_INFO),
+                          child: ClipOval(
+                            child: AppCachedImage(
+                              imageUrl:
+                                  img?.bestImageUrl ?? img?.bestImageThumbUrl,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         );
                       }),
@@ -297,11 +300,7 @@ class _QuickMenuGrid extends StatelessWidget {
         childAspectRatio: 2.8,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        children: items
-            .map(
-              (item) => _MenuCard(item: item),
-            )
-            .toList(),
+        children: items.map((item) => _MenuCard(item: item)).toList(),
       ),
     );
   }
@@ -369,7 +368,9 @@ class _MenuCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: item.isActive ? AppColors.white : const Color(0xFF888888),
+                color: item.isActive
+                    ? AppColors.white
+                    : const Color(0xFF888888),
               ),
             ),
           ],
@@ -404,9 +405,8 @@ class _TodayBookingHeader extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () => Get.toNamed(Routes.ALL_BOOKING,
-                arguments: {'autoFocusSearch': false}),
-            
+            onTap: controller.openAllBookings,
+
             child: Text(
               'home.viewAll'.trns(),
               style: const TextStyle(
@@ -462,8 +462,11 @@ class _HomeEmptyState extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.calendar_today_outlined,
-                size: 56, color: Color(0xFFCCCCCC)),
+            const Icon(
+              Icons.calendar_today_outlined,
+              size: 56,
+              color: Color(0xFFCCCCCC),
+            ),
             const SizedBox(height: 12),
             Text(
               'home.booking.empty'.trns() == 'home.booking.empty'
@@ -494,8 +497,7 @@ class _HomeErrorState extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.error_outline,
-                size: 52, color: Color(0xFFCCCCCC)),
+            const Icon(Icons.error_outline, size: 52, color: Color(0xFFCCCCCC)),
             const SizedBox(height: 12),
             const Text(
               'Failed to load bookings.\nPull to refresh or try again.',
@@ -511,7 +513,9 @@ class _HomeErrorState extends StatelessWidget {
               onTap: onRetry,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 26, vertical: 11),
+                  horizontal: 26,
+                  vertical: 11,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(10),

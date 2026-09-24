@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 
 class FilterField {
   final String label;
@@ -11,6 +12,7 @@ class FilterField {
   final TextEditingController controller;
   final List<String>? dropdownItems;
   final RxString? selectedValue;
+  final bool showSearch;
 
   FilterField({
     required this.label,
@@ -18,6 +20,7 @@ class FilterField {
     required this.controller,
     this.dropdownItems,
     this.selectedValue,
+    this.showSearch = false,
   });
 }
 
@@ -45,11 +48,8 @@ class FilterBottomSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => FilterBottomSheet(
-        fields: fields,
-        onReset: onReset,
-        onApply: onApply,
-      ),
+      builder: (_) =>
+          FilterBottomSheet(fields: fields, onReset: onReset, onApply: onApply),
     );
   }
 
@@ -59,47 +59,114 @@ class FilterBottomSheet extends StatelessWidget {
   ) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _parseInitialDate(ctrl.text),
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: AppColors.secondary,
-          ),
+          colorScheme: const ColorScheme.light(primary: AppColors.secondary),
         ),
         child: child!,
       ),
     );
     if (picked != null) {
-      ctrl.text =
-          '${_monthName(picked.month)}/${picked.day}/${picked.year}';
+      ctrl.text = '${_monthName(picked.month)}/${picked.day}/${picked.year}';
     }
+  }
+
+  /// Honors the already-selected value so the calendar reopens on it
+  /// instead of jumping back to today. Supports the sheet's `Mon/D/YYYY`
+  /// display format plus `YYYY-MM-DD` and `MM/DD/YYYY`.
+  DateTime _parseInitialDate(String text) {
+    final now = DateTime.now();
+    final t = text.trim();
+    if (t.isEmpty) return now;
+    try {
+      final slash = t.split('/');
+      if (slash.length == 3) {
+        // `Mon/D/YYYY`
+        const names = [
+          '',
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+        final month = names.indexWhere(
+          (m) => m.toLowerCase() == slash[0].trim().toLowerCase(),
+        );
+        if (month > 0) {
+          final day = int.tryParse(slash[1].trim()) ?? now.day;
+          final year = int.tryParse(slash[2].trim()) ?? now.year;
+          final dt = DateTime(year, month, day);
+          return _clampDate(dt);
+        }
+        // `MM/DD/YYYY`
+        final m = int.tryParse(slash[0].trim());
+        final d = int.tryParse(slash[1].trim());
+        final y = int.tryParse(slash[2].trim());
+        if (m != null && d != null && y != null) {
+          return _clampDate(DateTime(y, m, d));
+        }
+      }
+      final dash = t.split('-');
+      if (dash.length == 3 && dash[0].length == 4) {
+        return _clampDate(
+          DateTime(int.parse(dash[0]), int.parse(dash[1]), int.parse(dash[2])),
+        );
+      }
+    } catch (_) {}
+    return now;
+  }
+
+  DateTime _clampDate(DateTime dt) {
+    if (dt.isBefore(DateTime(2020))) return DateTime(2020);
+    if (dt.isAfter(DateTime(2030))) return DateTime(2030);
+    return dt;
   }
 
   String _monthName(int m) {
     const names = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return names[m];
   }
 
-  void _showDropdownSheet(
-    BuildContext context,
-    FilterField field,
-  ) {
+  void _showDropdownSheet(BuildContext context, FilterField field) {
     if (field.dropdownItems == null || field.selectedValue == null) return;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _FilterDropdownSheet(
+      builder: (_) => CommonDropdownBottomSheetThree(
         title: field.label,
-        items: field.dropdownItems!,
-        selectedValue: field.selectedValue!,
-        controller: field.controller,
+        bottomSheetHeight: MediaQuery.of(context).size.height * 0.6,
+        dropdownItems: field.dropdownItems!,
+        selectedItem: field.selectedValue,
+        currentlySelectedValue: field.selectedValue!.value,
+        textController: field.controller,
+        showSearch: field.showSearch,
       ),
     );
   }
@@ -109,8 +176,10 @@ class FilterBottomSheet extends StatelessWidget {
     // Calculate dynamic height based on number of fields
     final double baseHeight = 220;
     final double fieldHeight = fields.length * 90.0;
-    final double totalHeight =
-        (baseHeight + fieldHeight).clamp(300.0, MediaQuery.of(context).size.height * 0.85);
+    final double totalHeight = (baseHeight + fieldHeight).clamp(
+      300.0,
+      MediaQuery.of(context).size.height * 0.85,
+    );
 
     return Container(
       height: totalHeight,
@@ -417,132 +486,3 @@ class _DropdownField extends StatelessWidget {
   }
 }
 
-// ─── Filter Dropdown Sheet ────────────────────────────────────────────────────
-
-class _FilterDropdownSheet extends StatelessWidget {
-  final String title;
-  final List<String> items;
-  final RxString selectedValue;
-  final TextEditingController controller;
-
-  const _FilterDropdownSheet({
-    required this.title,
-    required this.items,
-    required this.selectedValue,
-    required this.controller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.45,
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 12),
-          Center(
-            child: Container(
-              width: 48,
-              height: 5,
-              decoration: BoxDecoration(
-                color: const Color(0xFFDDDDDD),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 10, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.black,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Get.back(),
-                  icon: const Icon(Icons.close, color: AppColors.black),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Obx(
-              () {
-                final current = selectedValue.value;
-                return ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    final isSelected = current == item;
-                    return GestureDetector(
-                      onTap: () {
-                        selectedValue.value = item;
-                        controller.text = item;
-                        Get.back();
-                      },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 3),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 13),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.secondary.withValues(alpha: 0.08)
-                            : AppColors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        border: isSelected
-                            ? Border.all(
-                                color: AppColors.secondary
-                                    .withValues(alpha: 0.2),
-                                width: 1,
-                              )
-                            : null,
-                      ),
-                      child: Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            item,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              color: isSelected
-                                  ? AppColors.secondary
-                                  : AppColors.black,
-                            ),
-                          ),
-                          if (isSelected)
-                            const Icon(
-                              Icons.check_rounded,
-                              color: AppColors.secondary,
-                              size: 18,
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-}

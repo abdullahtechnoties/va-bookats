@@ -74,7 +74,9 @@ class _TableHeader extends StatelessWidget {
             width: PackageRevenueTableWidget._indexColWidth,
             isFirst: true,
           ),
-          ...cols.map((c) => _HeaderCell(label: c.labelKey.trns(), width: c.width)),
+          ...cols.map(
+            (c) => _HeaderCell(label: c.labelKey.trns(), width: c.width),
+          ),
           _HeaderCell(
             label: 'packageRevenue.table.actions'.trns(),
             width: PackageRevenueTableWidget._actionsColWidth,

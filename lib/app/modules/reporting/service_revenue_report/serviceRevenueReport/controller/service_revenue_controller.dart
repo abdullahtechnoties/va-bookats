@@ -6,8 +6,10 @@ import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceR
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/report_column_selector_sheet.dart';
 import '../models/service_revenue_models.dart';
 
 class ServiceRevenueColumn {
@@ -40,16 +42,56 @@ class ServiceRevenueReportController extends GetxController {
   List<ServiceOption> get services => reportData?.services ?? [];
 
   // ── Filter State ──────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now().subtract(const Duration(days: 30)).obs;
+  final Rx<DateTime> fromDate = DateTime.now()
+      .subtract(const Duration(days: 30))
+      .obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
-  final RxnInt selectedBranchId = RxnInt(null);
-  final Rx<dynamic> selectedServiceId = 'all'.obs;
+
+  /// Multi-select filters (stringified ids; empty = All).
+  final RxSet<String> selectedBranchIds = <String>{}.obs;
+  final RxSet<String> selectedServiceIds = <String>{}.obs;
 
   // Temp filters (for bottom sheet)
   final Rx<DateTime> tempFromDate = DateTime.now().obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxnInt tempBranchId = RxnInt(null);
-  final Rx<dynamic> tempServiceId = 'all'.obs;
+  final RxSet<String> tempBranchIds = <String>{}.obs;
+  final RxSet<String> tempServiceIds = <String>{}.obs;
+
+  List<ReportOption> get branchFilterOptions => branches
+      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
+      .toList();
+
+  List<ReportOption> get serviceFilterOptions => services
+      .map((s) => ReportOption(label: s.label, value: s.value.toString()))
+      .toList();
+
+  String get branchFilterDisplay => multiSelectDisplay(
+    selected: selectedBranchIds,
+    options: branchFilterOptions,
+    allLabel: 'reports.filter.allBranches'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
+
+  String get serviceFilterDisplay => multiSelectDisplay(
+    selected: selectedServiceIds,
+    options: serviceFilterOptions,
+    allLabel: 'reports.filter.allServices'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
+
+  String get tempBranchFilterDisplay => multiSelectDisplay(
+    selected: tempBranchIds,
+    options: branchFilterOptions,
+    allLabel: 'reports.filter.allBranches'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
+
+  String get tempServiceFilterDisplay => multiSelectDisplay(
+    selected: tempServiceIds,
+    options: serviceFilterOptions,
+    allLabel: 'reports.filter.allServices'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
 
   // ── Column Selection ──────────────────────────────────────────────────
   final RxList<ServiceRevenueColumn> allColumns = <ServiceRevenueColumn>[
@@ -91,7 +133,21 @@ class ServiceRevenueReportController extends GetxController {
     ),
   ].obs;
 
-  late RxList<bool> tempColumnSelected;
+  /// Set-based column selection backing the shared selector sheet.
+  /// Initialized once per sheet open (never inside build).
+  final RxSet<String> selectedColumnKeys = <String>{
+    'branchName',
+    'from',
+    'to',
+    'totalAmount',
+    'totalDiscount',
+    'netRevenue',
+  }.obs;
+  final RxSet<String> tempColumnKeys = <String>{}.obs;
+
+  List<ReportColumnOption> get columnOptions => allColumns
+      .map((c) => ReportColumnOption(key: c.key, label: c.label))
+      .toList();
 
   // ── Computed ──────────────────────────────────────────────────────────
   List<ServiceRevenueColumn> get selectedColumns =>
@@ -103,19 +159,11 @@ class ServiceRevenueReportController extends GetxController {
   bool get showBranchFilter => isOwner && branches.isNotEmpty;
 
   String get dateRangeLabel =>
-      '${_formatDate(fromDate.value)} - ${_formatDate(toDate.value)}';
+      '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
 
-  String get selectedBranchLabel {
-    if (selectedBranchId.value == null) return 'reports.filter.allBranches'.trns();
-    final branch = branches.firstWhereOrNull((b) => b.value == selectedBranchId.value);
-    return branch?.label ?? 'reports.filter.allBranches'.trns();
-  }
+  String get selectedBranchLabel => branchFilterDisplay;
 
-  String get selectedServiceLabel {
-    if (selectedServiceId.value == 'all') return 'reports.filter.allServices'.trns();
-    final service = services.firstWhereOrNull((s) => s.value == selectedServiceId.value);
-    return service?.label ?? 'reports.filter.allServices'.trns();
-  }
+  String get selectedServiceLabel => serviceFilterDisplay;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────
   @override
@@ -143,11 +191,21 @@ class ServiceRevenueReportController extends GetxController {
   Future<void> _fetchReport() async {
     reportResponse.value = ApiResponse.loading();
 
+    final List<String>? branchIds;
+    if (isOwner) {
+      branchIds = selectedBranchIds.isEmpty ? null : selectedBranchIds.toList();
+    } else {
+      final userBranch = _auth.currentUser.value?.branchId;
+      branchIds = userBranch == null ? null : [userBranch.toString()];
+    }
+
     final response = await _service.getServiceRevenueReport(
       fromDate: _formatDateForApi(fromDate.value),
       toDate: _formatDateForApi(toDate.value),
-      branchId: isOwner ? selectedBranchId.value : _auth.currentUser.value?.branchId,
-      serviceId: selectedServiceId.value,
+      branchIds: branchIds,
+      serviceIds: selectedServiceIds.isEmpty
+          ? null
+          : selectedServiceIds.toList(),
     );
 
     reportResponse.value = response;
@@ -161,54 +219,67 @@ class ServiceRevenueReportController extends GetxController {
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    tempBranchId.value = selectedBranchId.value;
-    tempServiceId.value = selectedServiceId.value;
+    initTempMulti(tempBranchIds, selectedBranchIds);
+    initTempMulti(tempServiceIds, selectedServiceIds);
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchId.value = tempBranchId.value;
-    selectedServiceId.value = tempServiceId.value;
+    selectedBranchIds.assignAll(tempBranchIds);
+    selectedServiceIds.assignAll(tempServiceIds);
     _fetchReport();
   }
 
   void resetFilter() {
     tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
     tempToDate.value = DateTime.now();
-    tempBranchId.value = null;
-    tempServiceId.value = 'all';
+    tempBranchIds.clear();
+    tempServiceIds.clear();
   }
 
   // ── Column Selection ──────────────────────────────────────────────────
   void initTempColumns() {
-    tempColumnSelected = allColumns.map((c) => c.isSelected).toList().obs;
+    initTempMulti(tempColumnKeys, selectedColumnKeys);
   }
 
   void applyColumnSelection() {
-    for (int i = 0; i < allColumns.length; i++) {
-      allColumns[i].isSelected = tempColumnSelected[i];
+    selectedColumnKeys.assignAll(tempColumnKeys);
+    for (final c in allColumns) {
+      c.isSelected = selectedColumnKeys.contains(c.key);
     }
     allColumns.refresh();
   }
 
   void resetColumnSelection() {
-    for (int i = 0; i < tempColumnSelected.length; i++) {
-      tempColumnSelected[i] = true;
-    }
-    tempColumnSelected.refresh();
+    tempColumnKeys.assignAll(allColumns.map((c) => c.key));
   }
 
   void selectAllColumns() {
-    for (int i = 0; i < tempColumnSelected.length; i++) {
-      tempColumnSelected[i] = true;
-    }
-    tempColumnSelected.refresh();
+    tempColumnKeys.assignAll(allColumns.map((c) => c.key));
   }
 
   void toggleTempColumn(int index) {
-    tempColumnSelected[index] = !tempColumnSelected[index];
-    tempColumnSelected.refresh();
+    if (index < 0 || index >= allColumns.length) return;
+    final key = allColumns[index].key;
+    if (tempColumnKeys.contains(key)) {
+      tempColumnKeys.remove(key);
+    } else {
+      tempColumnKeys.add(key);
+    }
+  }
+
+  void openColumnSelector(BuildContext context) {
+    initTempColumns();
+    ReportColumnSelectorSheet.show(
+      context: context,
+      title: 'reports.columns.title'.trns(),
+      columns: columnOptions,
+      tempSelected: tempColumnKeys,
+      onApply: applyColumnSelection,
+      onReset: resetColumnSelection,
+      onSelectAll: selectAllColumns,
+    );
   }
 
   // ── Navigation ────────────────────────────────────────────────────────
@@ -245,22 +316,13 @@ class ServiceRevenueReportController extends GetxController {
     }
   }
 
-  String _formatDate(DateTime date) {
-    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${months[date.month]}/${date.day}/${date.year}';
-  }
-
   String _formatDateForApi(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
   String _formatDateDisplay(String apiDate) {
     try {
-      final parts = apiDate.split('-');
-      if (parts.length != 3) return apiDate;
-      const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      final month = int.tryParse(parts[1]) ?? 1;
-      return '${months[month]}/${parts[2]}/${parts[0]}';
+      return reportHumanDate(DateTime.parse(apiDate));
     } catch (e) {
       return apiDate;
     }

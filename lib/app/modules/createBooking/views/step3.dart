@@ -85,9 +85,7 @@ class Step3Services extends GetView<CreateBookingController> {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
-                  child: CircularProgressIndicator(
-                    color: AppColors.secondary,
-                  ),
+                  child: CircularProgressIndicator(color: AppColors.secondary),
                 ),
               );
             }
@@ -104,8 +102,7 @@ class Step3Services extends GetView<CreateBookingController> {
                 child: const Text(
                   'No services added (optional).\nTap + to add one.',
                   textAlign: TextAlign.center,
-                  style:
-                      TextStyle(fontSize: 13, color: Color(0xFF888888)),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF888888)),
                 ),
               );
             }
@@ -116,153 +113,163 @@ class Step3Services extends GetView<CreateBookingController> {
               separatorBuilder: (_, __) => const SizedBox(height: 14),
               itemBuilder: (context, index) {
                 final item = controller.serviceItems[index];
-                final variationLabels = item.variationOptions
-                    .map((v) => '${v.name} — Rs ${v.price}')
-                    .toList();
-                final variationValues = item.variationOptions
-                    .map((v) => v.id.toString())
-                    .toList();
-                final employeeLabels = item.employeeOptions
-                    .map((o) => o.label)
-                    .toList();
-                final employeeValues = item.employeeOptions
-                    .map((o) => o.value)
-                    .toList();
-                return StepFormCard(
-                  title: 'createBooking.step3.serviceInfo'.trns(),
-                  showDelete: true,
-                  onDelete: () => controller.removeService(index),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _FieldLabel(
-                          'createBooking.step3.service'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText:
-                            'createBooking.step3.selectService'.trns(),
-                        controller: item.serviceCtrl,
-                        readOnly: true,
-                        height: 50,
-                        hintTextSize: 13,
-                        onTap: () => _showThree(
-                          context,
-                          title: 'createBooking.step3.service'
-                              .trns(),
-                          items: controller.serviceLabels,
-                          selectedItem: item.selectedServiceId,
-                          textCtrl: item.serviceCtrl,
-                          values: controller.serviceValues,
-                          onSelected: (v) =>
-                              controller.onServiceSelected(item, v),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      if (item.isVariationType.value) ...[
-                        _FieldLabel('createBooking.step3.variation'
-                            .trns()),
+                return Obx(() {
+                  final variationLabels = item.variationOptions
+                      .map((v) => '${v.name} — Rs ${v.price}')
+                      .toList();
+                  final variationValues = item.variationOptions
+                      .map((v) => v.id.toString())
+                      .toList();
+                  final employeeLabels = item.employeeOptions
+                      .map((o) => o.label)
+                      .toList();
+                  final employeeValues = item.employeeOptions
+                      .map((o) => o.value)
+                      .toList();
+                  return StepFormCard(
+                    title: 'createBooking.step3.serviceInfo'.trns(),
+                    showDelete: true,
+                    onDelete: () => controller.removeService(index),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FieldLabel('createBooking.step3.service'.trns()),
                         const SizedBox(height: 8),
                         CommonTextInputField(
-                          hintText:
-                              'createBooking.step3.selectVariation'
-                                  .trns(),
-                          controller: item.variationCtrl,
+                          hintText: 'createBooking.step3.selectService'.trns(),
+                          controller: item.serviceCtrl,
                           readOnly: true,
                           height: 50,
                           hintTextSize: 13,
                           onTap: () => _showThree(
                             context,
-                            title: 'createBooking.step3.variation'
-                                .trns(),
-                            items: variationLabels,
-                            selectedItem: item.selectedVariationId,
-                            textCtrl: item.variationCtrl,
-                            values: variationValues,
-                            onSelected: (v) => controller
-                                .onVariationSelected(item, v),
+                            title: 'createBooking.step3.service'.trns(),
+                            items: controller.serviceLabels,
+                            selectedItem: item.selectedServiceId,
+                            textCtrl: item.serviceCtrl,
+                            values: controller.serviceValues,
+                            onSelected: (v) =>
+                                controller.onServiceSelected(item, v),
                           ),
                         ),
                         const SizedBox(height: 16),
-                      ],
-                      _FieldLabel(
-                          'createBooking.step3.employee'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText:
-                            'createBooking.step3.selectEmployee'.trns(),
-                        controller: item.employeeCtrl,
-                        readOnly: true,
-                        height: 50,
-                        hintTextSize: 13,
-                        showSuffixIcon: true,
-                        suffixIcon: item.isLoadingStaffs.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.secondary,
+                        if (item.isVariationType.value) ...[
+                          _FieldLabel('createBooking.step3.variation'.trns()),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintText: 'createBooking.step3.selectVariation'
+                                .trns(),
+                            controller: item.variationCtrl,
+                            readOnly: true,
+                            height: 50,
+                            hintTextSize: 13,
+                            onTap: () => _showThree(
+                              context,
+                              title: 'createBooking.step3.variation'.trns(),
+                              items: variationLabels,
+                              selectedItem: item.selectedVariationId,
+                              textCtrl: item.variationCtrl,
+                              values: variationValues,
+                              onSelected: (v) =>
+                                  controller.onVariationSelected(item, v),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        _FieldLabel('createBooking.step3.employee'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: 'createBooking.step3.selectEmployee'.trns(),
+                          controller: item.employeeCtrl,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                          showSuffixIcon: true,
+                          suffixIcon: item.isLoadingStaffs.value
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.secondary,
+                                    ),
                                   ),
+                                )
+                              : const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: Color(0xFF888888),
                                 ),
-                              )
-                            : const SizedBox(),
-                        onTap: item.selectedServiceId.value.isEmpty
-                            ? null
-                            : () => _showThree(
+                          onTap: item.selectedServiceId.value.isEmpty
+                              ? null
+                              : () => _showThree(
                                   context,
-                                  title:
-                                      'createBooking.step3.employee'
-                                          .trns(),
+                                  title: 'createBooking.step3.employee'.trns(),
                                   items: employeeLabels,
-                                  selectedItem:
-                                      item.selectedEmployeeId,
+                                  selectedItem: item.selectedEmployeeId,
                                   textCtrl: item.employeeCtrl,
                                   values: employeeValues,
                                   onSelected: (v) => controller
                                       .onServiceEmployeeSelected(item, v),
                                 ),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step3.amount'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: '00',
-                        controller: item.amountCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                        onChanged: (_) =>
-                            controller.recalcServiceRow(item),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step3.discount'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: '00',
-                        controller: item.discountCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                        onChanged: (_) =>
-                            controller.recalcServiceRow(item),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step3.total'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: '00',
-                        controller: item.totalCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                      ),
-                    ],
-                  ),
-                );
+                        ),
+                        if (item.hasNoStaff &&
+                            item.selectedServiceId.value.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(
+                              'createBooking.step3.noStaffAvailable'.trns(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFFD32F2F),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step3.amount'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: '00',
+                          controller: item.amountCtrl,
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step3.discount'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: '00',
+                          controller: item.discountCtrl,
+                          keyboardType: TextInputType.number,
+                          height: 50,
+                          hintTextSize: 13,
+                          validator: (_) {
+                            final paid =
+                                double.tryParse(item.discountCtrl.text) ?? 0;
+                            if (paid < 0) {
+                              return 'createBooking.step5.amountNegative'
+                                  .trns();
+                            }
+                          },
+                          onChanged: (_) => controller.recalcServiceRow(item),
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step3.total'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: '00',
+                          controller: item.totalCtrl,
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                        ),
+                      ],
+                    ),
+                  );
+                });
               },
             );
           }),

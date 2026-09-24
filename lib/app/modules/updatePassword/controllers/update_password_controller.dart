@@ -138,12 +138,12 @@ class UpdatePasswordController extends GetxController {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF8FC642).withValues(alpha: 0.15),
+                  color: AppColors.primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.check_circle_rounded,
-                  color: Color(0xFF8FC642),
+                  color: AppColors.primary,
                   size: 36,
                 ),
               ),

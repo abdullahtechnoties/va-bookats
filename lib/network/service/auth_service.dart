@@ -14,16 +14,22 @@ class AuthService extends GetxService {
   late final Future<void> ready;
   static final RxBool _logoutInProgress = false.obs;
 
-
-    // Role helpers
+  // Role helpers
   // bool get isVendor => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'vendor') ?? false;
   // bool get isCompany => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'company') ?? false;
-  bool get isCustomer => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'Customer') ?? false;
-  bool get isOwner => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'owner') ?? false;
+  bool get isCustomer =>
+      currentUser.value?.roles?.any(
+        (role) => role.name?.toLowerCase() == 'Customer',
+      ) ??
+      false;
+  bool get isOwner =>
+      currentUser.value?.roles?.any(
+        (role) => role.name?.toLowerCase() == 'owner',
+      ) ??
+      false;
 
   // Check if user has allowed role for this app
   bool get hasAllowedRole => isOwner;
-
 
   @override
   void onInit() async {
@@ -38,7 +44,8 @@ class AuthService extends GetxService {
       _loadCompanyId(),
     ]);
     print({
-      'AuthService init': '${accessToken.value}, ${currentUser.value}, ${companyId.value}'
+      'AuthService init':
+          '${accessToken.value}, ${currentUser.value}, ${companyId.value}',
     });
   }
 
@@ -57,7 +64,9 @@ class AuthService extends GetxService {
       print('Loaded current user: $decoded');
       if (decoded is Map) {
         print('Decoded user data: $decoded');
-        currentUser.value = UserModel.fromJson(Map<String, dynamic>.from(decoded));
+        currentUser.value = UserModel.fromJson(
+          Map<String, dynamic>.from(decoded),
+        );
       }
     } catch (_) {
       print('Failed to decode user data: $raw');
@@ -148,11 +157,10 @@ class AuthService extends GetxService {
     return LocalStorageService.prefs?.getString(AppStrings.appLocale);
   }
 
-
   static Future<void> logout() async {
     // Clear FCM token first
     // await NotificationService.instance.clearTokenOnLogout();
-    await FirebaseMessaging.instance.deleteToken();
+    // await FirebaseMessaging.instance.deleteToken();
     await LocalStorageService.prefs?.clear();
     await LocalStorageService.prefs?.setBool(AppStrings.firstTimeOnApp, false);
   }
@@ -170,6 +178,7 @@ class AuthService extends GetxService {
         final service = Get.find<AuthService>();
         service.accessToken.value = null;
         service.currentUser.value = null;
+        service.companyId.value = null;
       }
       // currentUser = null;
       if (showLogin && Get.currentRoute != '/login') {

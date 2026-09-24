@@ -11,6 +11,7 @@ import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/navigation_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/Global-Widgets/add-service-category.dart';
 import 'package:va_bookats/widgets/Global-Widgets/media-selector-sheet.dart';
 
 /// A single editable variation row (name + price).
@@ -80,10 +81,10 @@ class AddServiceController extends GetxController {
 
   bool get isEditMode => _editingService != null;
   bool get showBranch => _authService.isOwner;
-  bool get isVariationType => selectedType.value == 'variation';
+  bool get isVariationType => selectedType.value.toLowerCase() == 'variation';
 
-  List<String> get statusOptions => ['active', 'inactive'];
-  List<String> get typeOptions => ['normal', 'variation'];
+  List<String> get statusOptions => ['Active', 'Inactive'];
+  List<String> get typeOptions => ['Normal', 'Variation'];
 
   List<String> get branchLabels => branches.map((b) => b.displayLabel).toList();
 
@@ -102,8 +103,9 @@ class AddServiceController extends GetxController {
     _readArguments();
     if (showBranch) {
       fetchBranches();
+    } else {
+      categories.clear();
     }
-    fetchCategories();
   }
 
   void _readArguments() {
@@ -122,12 +124,31 @@ class AddServiceController extends GetxController {
     durationCtrl.text = service.serviceDuration ?? '';
     descriptionCtrl.text = service.description ?? '';
     defaultPriceCtrl.text = service.defaultPrice ?? '';
-    existingImageUrl = service.imageUrl.isEmpty ? null : service.imageUrl;
+    print('Editing service: ${service.name}, duration: ${service.serviceDuration}, price: ${service.defaultPrice}');
+    // variations are prefilled below; the API returns them in the service payload.
+    print('Editing service variations: ${service.variations.map((v) => v.name).join(', ')}');
+    // Prefill picture in edit mode — treat empty strings as absent and
+    // surface a file name so the picker shows "Change" state.
+    final thumb = (service.thumbnailImageUrl ?? '').trim();
+    final full = (service.imageUrl).trim();
+    existingImageUrl = thumb.isNotEmpty
+        ? thumb
+        : (full.isNotEmpty ? full : null);
+    if (existingImageUrl != null) {
+      final seg = existingImageUrl!.split('?').first.split('/');
+      imageFileName.value = seg.isNotEmpty ? seg.last : '';
+    } else {
+      imageFileName.value = '';
+    }
+    selectedMedia.value = null;
 
-    selectedStatus.value = service.status ?? 'active';
+    selectedStatus.value = service.status?.toLowerCase() == 'inactive'
+      ? 'Inactive'
+      : 'Active';
     statusCtrl.text = selectedStatus.value;
 
-    selectedType.value = service.type ?? 'normal';
+    // API values are lowercase, while the form uses display labels.
+    selectedType.value = service.isVariationType ? 'Variation' : 'Normal';
     typeCtrl.text = selectedType.value;
 
     for (final input in variationInputs) {
@@ -153,6 +174,9 @@ class AddServiceController extends GetxController {
     if (response.isCompleted && response.data != null) {
       branches.assignAll(response.data!);
       _prefillBranch();
+      if (selectedBranchId.value != null) {
+        fetchCategories();
+      }
     } else {
       SnackbarService.showError(
         title: 'addService.errorTitle'.trns(),
@@ -163,9 +187,14 @@ class AddServiceController extends GetxController {
   }
 
   Future<void> fetchCategories() async {
-    if (categories.isNotEmpty) return;
+    final branchId = selectedBranchId.value;
+    if (branchId == null) {
+      categories.clear();
+      return;
+    }
+
     isLoadingCategories.value = true;
-    final response = await _repository.getCategories();
+    final response = await _repository.getCategoriesByBranch(branchId);
     if (response.isCompleted && response.data != null) {
       categories.assignAll(_dedupeCategories(response.data!));
       _prefillCategory();
@@ -253,12 +282,79 @@ class AddServiceController extends GetxController {
     selectedBranchId.value = value == null
         ? null
         : int.tryParse(value.toString());
+    selectedBranch.value = value == null
+        ? ''
+        : branches
+                  .firstWhereOrNull(
+                    (branch) => branch.value == selectedBranchId.value,
+                  )
+                  ?.displayLabel ??
+              '';
+    branchCtrl.text = selectedBranch.value;
+    _clearCategorySelection();
+    fetchCategories();
   }
 
   void onCategorySelected(dynamic value) {
     selectedCategoryId.value = value == null
         ? null
         : int.tryParse(value.toString());
+  }
+
+  void _clearCategorySelection() {
+    categories.clear();
+    selectedCategory.value = '';
+    selectedCategoryId.value = null;
+    categoryCtrl.clear();
+  }
+
+  void showBranchRequiredMessage() {
+    SnackbarService.showError(
+      title: 'addService.errorTitle'.trns(),
+      message: 'addService.validation.branchRequired'.trns(),
+    );
+  }
+
+  Future<void> refreshFormData() async {
+    if (isEditMode) return; // Don't reset the form in edit mode — it is prefilled from the service.
+    nameCtrl.clear();
+    durationCtrl.clear();
+    statusCtrl.clear();
+    typeCtrl.clear();
+    defaultPriceCtrl.clear();
+    descriptionCtrl.clear();
+    selectedStatus.value = '';
+    selectedType.value = '';
+    selectedMedia.value = null;
+    imageFileName.value = '';
+    existingImageUrl = null;
+    for (final input in variationInputs) {
+      input.dispose();
+    }
+    variationInputs.clear();
+    _clearCategorySelection();
+
+    if (showBranch) {
+      branches.clear();
+      selectedBranch.value = '';
+      selectedBranchId.value = null;
+      branchCtrl.clear();
+      await fetchBranches();
+    }
+  }
+
+  void openCategoryDialog(BuildContext context) {
+    if (showBranch && selectedBranchId.value == null) {
+      showBranchRequiredMessage();
+      return;
+    }
+
+    Get.dialog(
+      AddServiceCategoryDialog(
+        branchId: showBranch ? selectedBranchId.value : null,
+        onCategoryCreated: onCategoryCreated,
+      ),
+    );
   }
 
   // ─── Variations ──────────────────────────────────────────────────────────
@@ -374,8 +470,8 @@ class AddServiceController extends GetxController {
     final branchId = showBranch ? selectedBranchId.value : null;
     final status = selectedStatus.value.isEmpty
         ? 'active'
-        : selectedStatus.value;
-    final type = selectedType.value.isEmpty ? 'normal' : selectedType.value;
+        : selectedStatus.value.toLowerCase();
+    final type = selectedType.value.isEmpty ? 'normal' : selectedType.value.toLowerCase();
     final bool isVariation = type == 'variation';
     // Only the relevant payload for the chosen type reaches the API:
     // default_price is a normal-service field, variations a variation one.

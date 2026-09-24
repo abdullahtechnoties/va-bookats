@@ -301,9 +301,10 @@ class BookingRepository {
     return ApiResponse.completed(branches);
   }
 
-  Future<ApiResponse<List<LookupOption>>> getCustomers() async {
-    final response =
-        await _network.getRaw(endpoint: ApiPath.bookingCustomers);
+  Future<ApiResponse<List<LookupOption>>> getCustomers({int? branchId}) async {
+    final response = await _network.getRaw(
+      endpoint: ApiPath.bookingCustomers(branchId: branchId),
+    );
     if (!response.isCompleted || response.data == null) {
       return ApiResponse.error(
         response.message ?? 'errors.requestFailed'.trns(),

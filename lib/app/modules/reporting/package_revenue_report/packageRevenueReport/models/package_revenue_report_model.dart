@@ -17,11 +17,7 @@ class PackageFilterOption {
   final dynamic value;
   final String? price;
 
-  PackageFilterOption({
-    required this.label,
-    required this.value,
-    this.price,
-  });
+  PackageFilterOption({required this.label, required this.value, this.price});
 
   factory PackageFilterOption.fromJson(Map<String, dynamic> json) {
     return PackageFilterOption(
@@ -94,22 +90,28 @@ class PackageRevenueReportModel {
 
   factory PackageRevenueReportModel.fromJson(Map<String, dynamic> json) {
     return PackageRevenueReportModel(
-      branches: (json['branches'] as List?)
-              ?.map((e) =>
-                  BranchFilterOption.fromJson(e as Map<String, dynamic>))
+      branches:
+          (json['branches'] as List?)
+              ?.map(
+                (e) => BranchFilterOption.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       branchId: json['branch_id'] as int? ?? 0,
       fromDate: json['from_date'] as String? ?? '',
       toDate: json['to_date'] as String? ?? '',
-      monthlyData: (json['monthlyData'] as List?)
-              ?.map((e) =>
-                  MonthlyPackageData.fromJson(e as Map<String, dynamic>))
+      monthlyData:
+          (json['monthlyData'] as List?)
+              ?.map(
+                (e) => MonthlyPackageData.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
-      packages: (json['packages'] as List?)
-              ?.map((e) =>
-                  PackageFilterOption.fromJson(e as Map<String, dynamic>))
+      packages:
+          (json['packages'] as List?)
+              ?.map(
+                (e) => PackageFilterOption.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       packageId: json['package_id'],

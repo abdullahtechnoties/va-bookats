@@ -31,6 +31,8 @@ class ApiPath {
 
   // Data / Lookups
   static const String branches = '/data/branches';
+  static String dataServiceCategories(int branchId) =>
+      '/data/service-categories?branch_id=$branchId';
   static String dataServices(int branchId) =>
       '/data/services?branch_id=$branchId';
 
@@ -67,8 +69,10 @@ class ApiPath {
   // Package Revenue Reports
   static const String packageRevenueReport = '/reports/packages/revenue';
   static const String packageRevenueDetails = '/reports/packages/revenue/show';
+  // Customer Reports
+  static const String customersReport = '/reports/customers';
+  static const String customersReportDetails = '/reports/customers/show';
   // Commission Reports
-  // Reports
   static const String commissionsReport = '/reports/commissions';
   static String commissionsReportDetails({
     required int branchId,
@@ -90,6 +94,17 @@ class ApiPath {
     return '/reports/commissions/show?$query';
   }
 
+  // Expenses Reports
+  static const String expenseReport = '/reports/expense';
+  static String expenseReportDetails({
+    required int branchId,
+    required String expenseCategoryId,
+    required String fromDate,
+    required String toDate,
+    int page = 1,
+  }) =>
+      '/reports/expense/show?branch_id=$branchId&expenseCategory_id=$expenseCategoryId&from_date=$fromDate&to_date=$toDate&page=$page';
+
   // Geo (Unauthenticated)
   static const String countries = '/data/countries';
   static String countryStates(int countryId) =>
@@ -105,11 +120,6 @@ class ApiPath {
   static String customer(int id) => '/customers/$id';
   static String customerStatus(int id) => '/customers/$id/status';
 
-  // Geo (Authenticated select helpers — same unauthenticated endpoints)
-  static const String geoCountries = '/countries';
-  static String geoStates(int countryId) => '/states?country_id=$countryId';
-  static String geoCities(int stateId) => '/cities?state_id=$stateId';
-  static String geoAreas(int cityId) => '/areas?city_id=$cityId';
 
   // Bookings
   static const String bookings = '/bookings';
@@ -117,7 +127,8 @@ class ApiPath {
   static String bookingStatus(int id) => '/bookings/$id/status';
 
   // Booking lookups
-  static const String bookingCustomers = '/data/customers';
+  static String bookingCustomers({int? branchId}) =>
+      branchId == null ? '/data/customers' : '/data/customers?branch_id=$branchId';
   static String bookingPackages(int branchId) =>
       '/data/packages?branch_id=$branchId';
   static String bookingPackageStaffs(int packageId) =>

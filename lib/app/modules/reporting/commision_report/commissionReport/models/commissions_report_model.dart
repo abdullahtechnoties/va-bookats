@@ -19,11 +19,13 @@ class CommissionsReportResponse {
 
   factory CommissionsReportResponse.fromJson(Map<String, dynamic> json) {
     return CommissionsReportResponse(
-      branches: (json['branches'] as List?)
+      branches:
+          (json['branches'] as List?)
               ?.map((e) => DropdownOption.fromJson(e))
               .toList() ??
           [],
-      staffs: (json['staffs'] as List?)
+      staffs:
+          (json['staffs'] as List?)
               ?.map((e) => DropdownOption.fromJson(e))
               .toList() ??
           [],
@@ -31,7 +33,8 @@ class CommissionsReportResponse {
       staffId: json['staff_id']?.toString(),
       fromDate: json['from_date']?.toString() ?? '',
       toDate: json['to_date']?.toString() ?? '',
-      monthlyData: (json['monthlyData'] as List?)
+      monthlyData:
+          (json['monthlyData'] as List?)
               ?.map((e) => CommissionMonthlyData.fromJson(e))
               .toList() ??
           [],

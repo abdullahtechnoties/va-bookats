@@ -85,9 +85,7 @@ class Step2Packages extends GetView<CreateBookingController> {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
-                  child: CircularProgressIndicator(
-                    color: AppColors.secondary,
-                  ),
+                  child: CircularProgressIndicator(color: AppColors.secondary),
                 ),
               );
             }
@@ -104,8 +102,7 @@ class Step2Packages extends GetView<CreateBookingController> {
                 child: const Text(
                   'No packages added (optional).\nTap + to add one.',
                   textAlign: TextAlign.center,
-                  style:
-                      TextStyle(fontSize: 13, color: Color(0xFF888888)),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF888888)),
                 ),
               );
             }
@@ -116,127 +113,133 @@ class Step2Packages extends GetView<CreateBookingController> {
               separatorBuilder: (_, __) => const SizedBox(height: 14),
               itemBuilder: (context, index) {
                 final item = controller.packageItems[index];
-                final employeeLabels = item.employeeOptions
-                    .map((o) => o.label)
-                    .toList();
-                final employeeValues = item.employeeOptions
-                    .map((o) => o.value)
-                    .toList();
-                return StepFormCard(
-                  title:
-                      'createBooking.step2.packagesInfo'.trns(),
-                  showDelete: true,
-                  onDelete: () => controller.removePackage(index),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _FieldLabel(
-                          'createBooking.step2.package'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintTextColor: AppColors.grey,
-                        hintText: 'createBooking.step2.selectPackage'
-                            .trns(),
-                        controller: item.packageCtrl,
-                        readOnly: true,
-                        height: 50,
-                        hintTextSize: 13,
-                        onTap: () => _showThree(
-                          context,
-                          title: 'createBooking.step2.package'
-                              .trns(),
-                          items: controller.packageLabels,
-                          selectedItem: item.selectedPackageId,
-                          textCtrl: item.packageCtrl,
-                          values: controller.packageValues,
-                          onSelected: (v) =>
-                              controller.onPackageSelected(item, v),
+                return Obx(() {
+                  final employeeLabels = item.employeeOptions
+                      .map((o) => o.label)
+                      .toList();
+                  final employeeValues = item.employeeOptions
+                      .map((o) => o.value)
+                      .toList();
+                  return StepFormCard(
+                    title: 'createBooking.step2.packagesInfo'.trns(),
+                    showDelete: true,
+                    onDelete: () => controller.removePackage(index),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FieldLabel('createBooking.step2.package'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintTextColor: AppColors.grey,
+                          hintText: 'createBooking.step2.selectPackage'.trns(),
+                          controller: item.packageCtrl,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                          onTap: () => _showThree(
+                            context,
+                            title: 'createBooking.step2.package'.trns(),
+                            items: controller.packageLabels,
+                            selectedItem: item.selectedPackageId,
+                            textCtrl: item.packageCtrl,
+                            values: controller.packageValues,
+                            onSelected: (v) =>
+                                controller.onPackageSelected(item, v),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step2.employee'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintTextColor: AppColors.grey,
-                        hintText: 'createBooking.step2.selectEmployee'
-                            .trns(),
-                        controller: item.employeeCtrl,
-                        readOnly: true,
-                        height: 50,
-                        hintTextSize: 13,
-                        showSuffixIcon: true,
-                        suffixIcon: item.isLoadingStaffs.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.secondary,
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step2.employee'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintTextColor: AppColors.grey,
+                          hintText: 'createBooking.step2.selectEmployee'.trns(),
+                          controller: item.employeeCtrl,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                          showSuffixIcon: true,
+                          suffixIcon: item.isLoadingStaffs.value
+                              ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                child: const FittedBox(
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.secondary,
+                                      ),
+                                    ),
                                   ),
-                                ),
                               )
-                            : const SizedBox(),
-                        onTap: item.selectedPackageId.value.isEmpty
-                            ? null
-                            : () => _showThree(
+                              : const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: Color(0xFF888888),
+                                ),
+                          onTap: item.selectedPackageId.value.isEmpty
+                              ? null
+                              : () => _showThree(
                                   context,
-                                  title:
-                                      'createBooking.step2.employee'
-                                          .trns(),
+                                  title: 'createBooking.step2.employee'.trns(),
                                   items: employeeLabels,
-                                  selectedItem:
-                                      item.selectedEmployeeId,
+                                  selectedItem: item.selectedEmployeeId,
                                   textCtrl: item.employeeCtrl,
                                   values: employeeValues,
                                   onSelected: (v) => controller
                                       .onPackageEmployeeSelected(item, v),
                                 ),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step2.amount'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintTextColor: AppColors.grey,
-                        hintText: '00',
-                        controller: item.amountCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                        onChanged: (_) =>
-                            controller.recalcPackageRow(item),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step2.discount'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintTextColor: AppColors.grey,
-                        hintText: '00',
-                        controller: item.discountCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                        onChanged: (_) =>
-                            controller.recalcPackageRow(item),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step2.total'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintTextColor: AppColors.grey,
-                        hintText: '00',
-                        controller: item.totalCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                      ),
-                    ],
-                  ),
-                );
+                        ),
+                        if (item.hasNoStaff &&
+                            item.selectedPackageId.value.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(
+                              'createBooking.step2.noStaffAvailable'.trns(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFFD32F2F),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step2.amount'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintTextColor: AppColors.grey,
+                          hintText: '00',
+                          controller: item.amountCtrl,
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step2.discount'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintTextColor: AppColors.grey,
+                          hintText: '00',
+                          controller: item.discountCtrl,
+                          keyboardType: TextInputType.number,
+                          height: 50,
+                          hintTextSize: 13,
+                          onChanged: (_) => controller.recalcPackageRow(item),
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step2.total'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintTextColor: AppColors.grey,
+                          hintText: '00',
+                          controller: item.totalCtrl,
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                        ),
+                      ],
+                    ),
+                  );
+                });
               },
             );
           }),

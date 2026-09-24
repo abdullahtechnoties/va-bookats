@@ -30,7 +30,8 @@ class PackageRevenueDetailsController extends GetxController {
   // ── Computed ──────────────────────────────────────────────────────────
   BranchInfoModel? get branch => detailsData.value?.branch;
   String get packageName =>
-      detailsData.value?.packageName ?? 'packageRevenue.filter.allPackages'.trns();
+      detailsData.value?.packageName ??
+      'packageRevenue.filter.allPackages'.trns();
   List<DailyPackageSummary> get dailySummaries =>
       detailsData.value?.dailyPackageSummaries.items ?? [];
 
@@ -82,8 +83,7 @@ class PackageRevenueDetailsController extends GetxController {
         detailsData.value = response.data;
         currentPage.value = page;
       } else {
-        errorMessage.value =
-            response.message ?? 'errors.failedToFetch'.trns();
+        errorMessage.value = response.message ?? 'errors.failedToFetch'.trns();
         SnackbarService.showError(
           title: 'errors.errorTitle'.trns(),
           message: errorMessage.value,

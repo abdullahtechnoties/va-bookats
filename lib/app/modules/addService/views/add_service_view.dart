@@ -5,10 +5,9 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addService/controllers/add_service_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
-import 'package:va_bookats/widgets/Global-Widgets/add-service-category.dart';
 import 'package:va_bookats/widgets/app_touchable.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
-import 'package:va_bookats/widgets/common_dropdown_bottom_sheet.dart';
+import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
 
@@ -28,7 +27,7 @@ class AddServiceView extends GetView<AddServiceController> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => CommonDropdownBottomSheet(
+      builder: (_) => CommonDropdownBottomSheetThree(
         title: title,
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.5,
         dropdownItems: items,
@@ -37,19 +36,21 @@ class AddServiceView extends GetView<AddServiceController> {
         selectedItem: selectedItem,
         textController: textCtrl,
         currentlySelectedValue: selectedItem.value,
-        showSearch: false,
+        showSearch: true,
       ),
     );
   }
 
   Widget _loaderSuffix() {
-    return const SizedBox(
-      width: 20,
-      height: 20,
-      child: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.secondary,
+    return SizedBox(
+        width: 20,
+        height: 20,
+      child: const FittedBox(
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.secondary,
+          ),
         ),
       ),
     );
@@ -63,282 +64,320 @@ class AddServiceView extends GetView<AddServiceController> {
         children: [
           const _AddServiceHeader(),
           Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFEEEEEE), width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
+            child: RefreshIndicator(
+              onRefresh: controller.refreshFormData,
+              color: AppColors.secondary,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFEEEEEE),
+                      width: 1,
                     ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Form(
-                    key: controller.formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Obx(
-                          () => Text(
-                            controller.isEditMode
-                                ? 'addService.editFormTitle'.trns()
-                                : 'addService.formTitle'.trns(),
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.black,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Form(
+                      key: controller.formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Obx(
+                            () => Text(
+                              controller.isEditMode
+                                  ? 'addService.editFormTitle'.trns()
+                                  : 'addService.formTitle'.trns(),
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.black,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 22),
+                          const SizedBox(height: 22),
 
-                        // Branch — only for owner role
-                        Obx(
-                          () => controller.showBranch
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _FieldLabel('addService.branch'.trns()),
-                                    const SizedBox(height: 8),
-                                    Obx(
-                                      () => AppTouchable(
-                                        child: CommonTextInputField(
-                                          hintText: 'addService.selectBranch'
-                                              .trns(),
-                                          controller: controller.branchCtrl,
-                                          readOnly: true,
-                                          height: 52,
-                                          hintTextSize: 13,
-                                          showSuffixIcon: true,
-                                          suffixIcon:
-                                              controller.isLoadingBranches.value
-                                              ? _loaderSuffix()
-                                              : const SizedBox(),
-                                          validator: controller.validateBranch,
-                                          onTap:
-                                              controller.isLoadingBranches.value
-                                              ? null
-                                              : () => _showDropdown(
-                                                  context,
-                                                  title: 'addService.branch'
-                                                      .trns(),
-                                                  items:
-                                                      controller.branchLabels,
-                                                  selectedItem:
-                                                      controller.selectedBranch,
-                                                  textCtrl:
-                                                      controller.branchCtrl,
-                                                  values:
-                                                      controller.branchValues,
-                                                  onValueSelected: controller
-                                                      .onBranchSelected,
-                                                ),
+                          // Branch — only for owner role
+                          Obx(
+                            () => controller.showBranch
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _FieldLabel('addService.branch'.trns()),
+                                      const SizedBox(height: 8),
+                                      Obx(
+                                        () => AppTouchable(
+                                          child: CommonTextInputField(
+                                            hintText: 'addService.selectBranch'
+                                                .trns(),
+                                            controller: controller.branchCtrl,
+                                            readOnly: true,
+                                            height: 52,
+                                            hintTextSize: 13,
+                                            showSuffixIcon: true,
+                                            suffixIcon:
+                                                controller
+                                                    .isLoadingBranches
+                                                    .value
+                                                ? _loaderSuffix()
+                                                : const SizedBox(),
+                                            validator:
+                                                controller.validateBranch,
+                                            onTap:
+                                                controller
+                                                    .isLoadingBranches
+                                                    .value
+                                                ? null
+                                                : () => _showDropdown(
+                                                    context,
+                                                    title: 'addService.branch'
+                                                        .trns(),
+                                                    items:
+                                                        controller.branchLabels,
+                                                    selectedItem: controller
+                                                        .selectedBranch,
+                                                    textCtrl:
+                                                        controller.branchCtrl,
+                                                    values:
+                                                        controller.branchValues,
+                                                    onValueSelected: controller
+                                                        .onBranchSelected,
+                                                  ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 20),
-                                  ],
-                                )
-                              : const SizedBox.shrink(),
-                        ),
+                                      const SizedBox(height: 20),
+                                    ],
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
 
-                        // Categories
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _FieldLabel('addService.categories'.trns()),
-                            AppTouchable(
-                              child: GestureDetector(
-                                onTap: () => Get.dialog(
-                                  AddServiceCategoryDialog(
-                                    onCategoryCreated:
-                                        controller.onCategoryCreated,
+                          // Categories
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _FieldLabel('addService.categories'.trns()),
+                              AppTouchable(
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      controller.openCategoryDialog(context),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.secondary,
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.add,
+                                          color: AppColors.white,
+                                          size: 13,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        'addService.addCategory'.trns(),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.secondary,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 18,
-                                      height: 18,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.secondary,
-                                        borderRadius: BorderRadius.circular(4),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => AppTouchable(
+                              child: CommonTextInputField(
+                                hintText: 'addService.selectCategories'.trns(),
+                                controller: controller.categoryCtrl,
+                                readOnly: true,
+                                height: 52,
+                                hintTextSize: 13,
+                                showSuffixIcon: true,
+                                suffixIcon: controller.isLoadingCategories.value
+                                    ? _loaderSuffix()
+                                    : const SizedBox(),
+                                validator: controller.validateCategory,
+                                onTap: controller.isLoadingCategories.value
+                                    ? null
+                                    : controller.showBranch &&
+                                          controller.selectedBranchId.value ==
+                                              null
+                                    ? controller.showBranchRequiredMessage
+                                    : () => _showDropdown(
+                                        context,
+                                        title: 'addService.categories'.trns(),
+                                        items: controller.categoryLabels,
+                                        selectedItem:
+                                            controller.selectedCategory,
+                                        textCtrl: controller.categoryCtrl,
+                                        values: controller.categoryValues,
+                                        onValueSelected:
+                                            controller.onCategorySelected,
                                       ),
-                                      child: const Icon(
-                                        Icons.add,
-                                        color: AppColors.white,
-                                        size: 13,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      'addService.addCategory'.trns(),
+                              ),
+                            ),
+                          ),
+                          Obx(
+                            () =>
+                                controller.showBranch &&
+                                    controller.selectedBranchId.value != null &&
+                                    !controller.isLoadingCategories.value &&
+                                    controller.categories.isEmpty
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: Text(
+                                      'addService.validation.noCategories'
+                                          .trns(),
                                       style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.secondary,
+                                        color: Colors.red,
+                                        fontSize: 12,
                                       ),
                                     ),
-                                  ],
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                          const SizedBox(height: 18),
+
+                          // Name
+                          _FieldLabel('addService.name'.trns()),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintTextColor: AppColors.grey,
+                            hintText: 'addService.enterFullName'.trns(),
+                            controller: controller.nameCtrl,
+                            height: 52,
+                            hintTextSize: 13,
+                            validator: controller.validateName,
+                          ),
+                          const SizedBox(height: 18),
+
+                          // Image
+                          _FieldLabel('addService.addAnImage'.trns()),
+                          const SizedBox(height: 8),
+                          _ImagePickerField(controller: controller),
+                          const SizedBox(height: 18),
+
+                          // Service Duration
+                          _FieldLabel('addService.serviceDuration'.trns()),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintTextColor: AppColors.grey,
+                            hintText: 'addService.durationPlaceholder'.trns(),
+                            controller: controller.durationCtrl,
+                            keyboardType: TextInputType.number,
+                            height: 52,
+                            hintTextSize: 13,
+                          ),
+                          const SizedBox(height: 18),
+
+                          // Status
+                          _FieldLabel('addService.status'.trns()),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => AppTouchable(
+                              child: CommonTextInputField(
+                                hintTextColor: AppColors.grey,
+                                hintText: 'addService.selectStatus'.trns(),
+                                controller: controller.statusCtrl,
+                                readOnly: true,
+                                height: 52,
+                                hintTextSize: 13,
+                                onTap: () => _showDropdown(
+                                  context,
+                                  title: 'addService.status'.trns(),
+                                  items: controller.statusOptions,
+                                  selectedItem: controller.selectedStatus,
+                                  textCtrl: controller.statusCtrl,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Obx(
-                          () => AppTouchable(
-                            child: CommonTextInputField(
-                              hintText: 'addService.selectCategories'.trns(),
-                              controller: controller.categoryCtrl,
-                              readOnly: true,
-                              height: 52,
-                              hintTextSize: 13,
-                              showSuffixIcon: true,
-                              suffixIcon: controller.isLoadingCategories.value
-                                  ? _loaderSuffix()
-                                  : const SizedBox(),
-                              validator: controller.validateCategory,
-                              onTap: controller.isLoadingCategories.value
+                          ),
+                          const SizedBox(height: 18),
+
+                          // Type
+                          _FieldLabel('addService.type'.trns()),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => AppTouchable(
+                              child: CommonTextInputField(
+                                hintTextColor: AppColors.grey,
+                                hintText: 'addService.selectType'.trns(),
+                                controller: controller.typeCtrl,
+                                readOnly: true,
+                                height: 52,
+                                hintTextSize: 13,
+                                onTap: () => _showDropdown(
+                                  context,
+                                  title: 'addService.type'.trns(),
+                                  items: controller.typeOptions,
+                                  selectedItem: controller.selectedType,
+                                  textCtrl: controller.typeCtrl,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+
+                          // Type-specific section: price or variations
+                          Obx(
+                            () => controller.isVariationType
+                                ? _VariationsSection(controller: controller)
+                                : _DefaultPriceSection(controller: controller),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Description
+                          _FieldLabel('addService.description'.trns()),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintTextColor: AppColors.grey,
+                            hintText: 'addService.writeSomething'.trns(),
+                            controller: controller.descriptionCtrl,
+                            maxLines: 4,
+                            height: 120,
+                            hintTextSize: 13,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 26),
+
+                          // Save Button
+                          Obx(
+                            () => MainBtn(
+                              text: controller.isEditMode
+                                  ? 'addService.update'.trns()
+                                  : 'addService.save'.trns(),
+                              onPressed: controller.isSaving.value
                                   ? null
-                                  : () => _showDropdown(
-                                      context,
-                                      title: 'addService.categories'.trns(),
-                                      items: controller.categoryLabels,
-                                      selectedItem: controller.selectedCategory,
-                                      textCtrl: controller.categoryCtrl,
-                                      values: controller.categoryValues,
-                                      onValueSelected:
-                                          controller.onCategorySelected,
-                                    ),
+                                  : () => controller.save(context),
+                              isLoading: controller.isSaving.value,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 18),
-
-                        // Name
-                        _FieldLabel('addService.name'.trns()),
-                        const SizedBox(height: 8),
-                        CommonTextInputField(
-                          hintTextColor: AppColors.grey,
-                          hintText: 'addService.enterFullName'.trns(),
-                          controller: controller.nameCtrl,
-                          height: 52,
-                          hintTextSize: 13,
-                          validator: controller.validateName,
-                        ),
-                        const SizedBox(height: 18),
-
-                        // Image
-                        _FieldLabel('addService.addAnImage'.trns()),
-                        const SizedBox(height: 8),
-                        _ImagePickerField(controller: controller),
-                        const SizedBox(height: 18),
-
-                        // Service Duration
-                        _FieldLabel('addService.serviceDuration'.trns()),
-                        const SizedBox(height: 8),
-                        CommonTextInputField(
-                          hintTextColor: AppColors.grey,
-                          hintText: 'addService.durationPlaceholder'.trns(),
-                          controller: controller.durationCtrl,
-                          keyboardType: TextInputType.number,
-                          height: 52,
-                          hintTextSize: 13,
-                        ),
-                        const SizedBox(height: 18),
-
-                        // Status
-                        _FieldLabel('addService.status'.trns()),
-                        const SizedBox(height: 8),
-                        Obx(
-                          () => AppTouchable(
-                            child: CommonTextInputField(
-                              hintTextColor: AppColors.grey,
-                              hintText: 'addService.selectStatus'.trns(),
-                              controller: controller.statusCtrl,
-                              readOnly: true,
-                              height: 52,
-                              hintTextSize: 13,
-                              onTap: () => _showDropdown(
-                                context,
-                                title: 'addService.status'.trns(),
-                                items: controller.statusOptions,
-                                selectedItem: controller.selectedStatus,
-                                textCtrl: controller.statusCtrl,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-
-                        // Type
-                        _FieldLabel('addService.type'.trns()),
-                        const SizedBox(height: 8),
-                        Obx(
-                          () => AppTouchable(
-                            child: CommonTextInputField(
-                              hintTextColor: AppColors.grey,
-                              hintText: 'addService.selectType'.trns(),
-                              controller: controller.typeCtrl,
-                              readOnly: true,
-                              height: 52,
-                              hintTextSize: 13,
-                              onTap: () => _showDropdown(
-                                context,
-                                title: 'addService.type'.trns(),
-                                items: controller.typeOptions,
-                                selectedItem: controller.selectedType,
-                                textCtrl: controller.typeCtrl,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-
-                        // Type-specific section: price or variations
-                        Obx(
-                          () => controller.isVariationType
-                              ? _VariationsSection(controller: controller)
-                              : _DefaultPriceSection(controller: controller),
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Description
-                        _FieldLabel('addService.description'.trns()),
-                        const SizedBox(height: 8),
-                        CommonTextInputField(
-                          hintTextColor: AppColors.grey,
-                          hintText: 'addService.writeSomething'.trns(),
-                          controller: controller.descriptionCtrl,
-                          maxLines: 4,
-                          height: 120,
-                          hintTextSize: 13,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                        ),
-                        const SizedBox(height: 26),
-
-                        // Save Button
-                        Obx(
-                          () => MainBtn(
-                            text: controller.isEditMode
-                                ? 'addService.update'.trns()
-                                : 'addService.save'.trns(),
-                            onPressed: controller.isSaving.value
-                                ? null
-                                : () => controller.save(context),
-                            isLoading: controller.isSaving.value,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -412,7 +451,7 @@ class _VariationsSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          if (inputs.isEmpty)
+          if (inputs.isEmpty) ...[
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 22),
@@ -426,8 +465,9 @@ class _VariationsSection extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 13, color: Color(0xFF888888)),
               ),
-            )
-          else
+            ),
+            SizedBox(height: 8),
+          ] else
             ...List.generate(inputs.length, (index) {
               final input = inputs[index];
               return Padding(
@@ -581,7 +621,8 @@ class _ImagePickerField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final media = controller.selectedMedia.value;
-      final imageUrl = media?.thumbnailUrl ??
+      final imageUrl =
+          media?.thumbnailUrl ??
           media?.networkUrl ??
           controller.existingImageUrl;
       final fileName = controller.imageFileName.value;
@@ -645,7 +686,9 @@ class _ImagePickerField extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'addService.chooseFile'.trns(),
+                    imageUrl != null
+                        ? 'addService.changeImage'.trns()
+                        : 'addService.chooseFile'.trns(),
                     style: const TextStyle(
                       color: AppColors.white,
                       fontSize: 13,

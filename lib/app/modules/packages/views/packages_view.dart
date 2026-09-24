@@ -19,105 +19,99 @@ class PackagesView extends GetView<PackagesController> {
           _PackagesHeader(controller: controller),
           _PackagesTabBar(controller: controller),
           Expanded(
-            child: Obx(
-              () {
-                if (controller.isLoading.value &&
-                    controller.currentPackages.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.secondary,
-                    ),
-                  );
-                }
-                if (controller.loadFailed.value &&
-                    controller.currentPackages.isEmpty) {
-                  return _ErrorState(onRetry: controller.retry);
-                }
-                return RefreshIndicator(
-                  onRefresh: controller.handleRefresh,
-                  color: AppColors.secondary,
-                  child: ListView(
-                    controller: controller.scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    padding: const EdgeInsets.only(top: 14, bottom: 30),
-                    children: [
-                      // Add New Service Package button
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                        child: GestureDetector(
-                          onTap: () => controller.openAddPage(),
-                          child: Container(
-                            height: 54,
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 22,
-                                  height: 22,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.white
-                                        .withValues(alpha: 0.25),
-                                    borderRadius: BorderRadius.circular(5),
+            child: Obx(() {
+              if (controller.isLoading.value &&
+                  controller.currentPackages.isEmpty) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.secondary),
+                );
+              }
+              if (controller.loadFailed.value &&
+                  controller.currentPackages.isEmpty) {
+                return _ErrorState(onRetry: controller.retry);
+              }
+              return RefreshIndicator(
+                onRefresh: controller.handleRefresh,
+                color: AppColors.secondary,
+                child: ListView(
+                  controller: controller.scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  padding: const EdgeInsets.only(top: 14, bottom: 30),
+                  children: [
+                    // Add New Service Package button
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      child: GestureDetector(
+                        onTap: () => controller.openAddPage(),
+                        child: Container(
+                          height: 54,
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: AppColors.white.withValues(
+                                    alpha: 0.25,
                                   ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: AppColors.white,
-                                    size: 16,
-                                  ),
+                                  borderRadius: BorderRadius.circular(5),
                                 ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'packages.addNewServicePackage'.trns(),
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.white,
-                                  ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: AppColors.white,
+                                  size: 16,
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'packages.addNewServicePackage'.trns(),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                    ),
 
-                      if (controller.currentPackages.isEmpty)
-                        _PackagesEmptyState()
-                      else
-                        ...controller.currentPackages.map(
-                          (pkg) => PackageCard(
-                            package: pkg,
-                            isBusy:
-                                controller.busyPackageId.value == pkg.id,
-                            onViewEdit: () =>
-                                controller.openAddPage(package: pkg),
-                            onDelete: () =>
-                                controller.deletePackage(pkg),
-                            onStatusTap: () =>
-                                controller.updateStatus(pkg),
+                    if (controller.currentPackages.isEmpty)
+                      _PackagesEmptyState()
+                    else
+                      ...controller.currentPackages.map(
+                        (pkg) => PackageCard(
+                          package: pkg,
+                          isBusy: controller.busyPackageId.value == pkg.id,
+                          isDeleting: controller.busyDeleteId.value == pkg.id,
+                          onViewEdit: () =>
+                              controller.openAddPage(package: pkg),
+                          onDelete: () => controller.deletePackage(pkg),
+                          onStatusTap: () => controller.updateStatus(pkg),
+                        ),
+                      ),
+                    if (controller.isLoadingMore.value)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.secondary,
+                            strokeWidth: 2,
                           ),
                         ),
-                      if (controller.isLoadingMore.value)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.secondary,
-                              strokeWidth: 2,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -169,10 +163,41 @@ class _PackagesHeader extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => controller.openFilter(context),
-                child: const Icon(
-                  Icons.filter_alt_outlined,
-                  color: AppColors.white,
-                  size: 22,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(
+                      Icons.filter_alt_outlined,
+                      color: AppColors.white,
+                      size: 22,
+                    ),
+                    Obx(() {
+                      final n = controller.appliedFiltersCount;
+                      if (n == 0) return const SizedBox.shrink();
+                      return Positioned(
+                        right: -6,
+                        top: -6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$n',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
               const SizedBox(width: 12),
@@ -215,12 +240,14 @@ class _PackagesTabBar extends StatelessWidget {
         () => Row(
           children: [
             _TabItem(
-              label: '${'packages.tabs.active'.trns()} (${controller.activeCount})',
+              label:
+                  '${'packages.tabs.active'.trns()} (${controller.activeCount})',
               isSelected: controller.selectedTab.value == 0,
               onTap: () => controller.changeTab(0),
             ),
             _TabItem(
-              label: '${'packages.tabs.inactive'.trns()} (${controller.inactiveCount})',
+              label:
+                  '${'packages.tabs.inactive'.trns()} (${controller.inactiveCount})',
               isSelected: controller.selectedTab.value == 1,
               onTap: () => controller.changeTab(1),
             ),
@@ -263,9 +290,7 @@ class _TabItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected
-                  ? AppColors.black
-                  : const Color(0xFF888888),
+              color: isSelected ? AppColors.black : const Color(0xFF888888),
             ),
           ),
         ),
@@ -320,11 +345,7 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 60,
-              color: Color(0xFFCCCCCC),
-            ),
+            const Icon(Icons.error_outline, size: 60, color: Color(0xFFCCCCCC)),
             const SizedBox(height: 16),
             Text(
               'packages.loadError'.trns(),
@@ -339,7 +360,10 @@ class _ErrorState extends StatelessWidget {
             GestureDetector(
               onTap: onRetry,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(10),

@@ -271,105 +271,41 @@ class LoginView extends GetView<LoginController> {
         ),
 
         // Forgot Password
-        GestureDetector(
-          onTap: controller.goToForgotPassword,
-          child: Text(
-            'auth.login.forgotPassword'.trns(),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
+        // GestureDetector(
+        //   onTap: controller.goToForgotPassword,
+        //   child: Text(
+        //     'auth.login.forgotPassword'.trns(),
+        //     style: const TextStyle(
+        //       fontSize: 14,
+        //       fontWeight: FontWeight.w600,
+        //       color: AppColors.primary,
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
 
   // ── OR Divider ─────────────────────────────────────────────────────
-  Widget _buildOrDivider(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: Divider(color: Color(0xFFE5E7EB), thickness: 1)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            'auth.login.or'.trns(),
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF9CA3AF),
-            ),
-          ),
-        ),
-        const Expanded(child: Divider(color: Color(0xFFE5E7EB), thickness: 1)),
-      ],
-    );
-  }
-
-  // ── Google Button ──────────────────────────────────────────────────
-  Widget _buildGoogleButton(BuildContext context) {
-    return GestureDetector(
-      onTap: controller.continueWithGoogle,
-      child: Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Google G icon
-            _GoogleIcon(),
-            const SizedBox(width: 12),
-            Text(
-              'auth.login.continueWithGoogle'.trns(),
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Don't have account row ─────────────────────────────────────────
-  Widget _buildSignUpRow(BuildContext context) {
-    return Center(
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: 'auth.login.noAccount'.trns(),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF6B7280),
-              ),
-            ),
-            WidgetSpan(
-              child: GestureDetector(
-                onTap: controller.goToSignup,
-                child: Text(
-                  ' ${'auth.login.signUp'.trns()}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildOrDivider(BuildContext context) {
+  //   return Row(
+  //     children: [
+  //       const Expanded(child: Divider(color: Color(0xFFE5E7EB), thickness: 1)),
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 12),
+  //         child: Text(
+  //           'auth.login.or'.trns(),
+  //           style: const TextStyle(
+  //             fontSize: 13,
+  //             fontWeight: FontWeight.w500,
+  //             color: Color(0xFF9CA3AF),
+  //           ),
+  //         ),
+  //       ),
+  //       const Expanded(child: Divider(color: Color(0xFFE5E7EB), thickness: 1)),
+  //     ],
+  //   );
+  // }
 }
 
 // ── Bookats Logo Widget ────────────────────────────────────────────────
@@ -383,81 +319,4 @@ class _BookatsLogo extends StatelessWidget {
       fit: BoxFit.contain,
     );
   }
-}
-
-// ── Google Icon Painter ────────────────────────────────────────────────
-class _GoogleIcon extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 22,
-      height: 22,
-      child: CustomPaint(painter: _GooglePainter()),
-    );
-  }
-}
-
-class _GooglePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double cx = size.width / 2;
-    final double cy = size.height / 2;
-    final double r = size.width / 2;
-
-    // Blue arc (top-right)
-    final paintBlue = Paint()
-      ..color = const Color(0xFF4285F4)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.18
-      ..strokeCap = StrokeCap.butt;
-
-    // Red arc (top-left)
-    final paintRed = Paint()
-      ..color = const Color(0xFFEA4335)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.18
-      ..strokeCap = StrokeCap.butt;
-
-    // Yellow arc (bottom-left)
-    final paintYellow = Paint()
-      ..color = const Color(0xFFFBBC05)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.18
-      ..strokeCap = StrokeCap.butt;
-
-    // Green arc (bottom-right)
-    final paintGreen = Paint()
-      ..color = const Color(0xFF34A853)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.18
-      ..strokeCap = StrokeCap.butt;
-
-    final rect = Rect.fromCircle(
-        center: Offset(cx, cy), radius: r - size.width * 0.09);
-
-    canvas.drawArc(rect, -1.1, 2.2, false, paintBlue);
-    canvas.drawArc(rect, 1.1, 2.2, false, paintYellow);
-    canvas.drawArc(rect, -2.1, 1.0, false, paintRed);
-    canvas.drawArc(rect, 3.2, 1.0, false, paintGreen);
-
-    // White horizontal bar (the G crossbar)
-    final paintWhite = Paint()
-      ..color = Colors.white
-      ..strokeWidth = size.width * 0.18;
-    canvas.drawLine(
-      Offset(cx, cy),
-      Offset(cx + r * 0.85, cy),
-      paintWhite,
-    );
-
-    // Blue horizontal bar
-    canvas.drawLine(
-      Offset(cx, cy),
-      Offset(cx + r * 0.85, cy),
-      paintBlue..strokeWidth = size.width * 0.17,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:va_bookats/app/modules/reporting/commision_report/commissionReport/models/commissions_report_model.dart';
@@ -6,7 +7,9 @@ import 'package:va_bookats/network/api/api_path.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/network/service/network_service.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/report_column_selector_sheet.dart';
 
 class CommissionsReportController extends GetxController {
   final NetworkService _network = Get.find();
@@ -17,30 +20,128 @@ class CommissionsReportController extends GetxController {
       ApiResponse<CommissionsReportResponse>.loading().obs;
 
   // ── Filters ───────────────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now().subtract(const Duration(days: 30)).obs;
+  final Rx<DateTime> fromDate = DateTime.now()
+      .subtract(const Duration(days: 30))
+      .obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
-  final RxnString selectedBranchId = RxnString(null);
-  final RxnString selectedStaffId = RxnString(null);
+
+  /// Multi-select filters (stringified ids; empty = All).
+  final RxSet<String> selectedBranchIds = <String>{}.obs;
+  final RxSet<String> selectedStaffIds = <String>{}.obs;
 
   // Temp filters (inside bottom sheet)
-  final Rx<DateTime> tempFromDate = DateTime.now().subtract(const Duration(days: 30)).obs;
+  final Rx<DateTime> tempFromDate = DateTime.now()
+      .subtract(const Duration(days: 30))
+      .obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxnString tempBranchId = RxnString(null);
-  final RxnString tempStaffId = RxnString(null);
+  final RxSet<String> tempBranchIds = <String>{}.obs;
+  final RxSet<String> tempStaffIds = <String>{}.obs;
+
+  List<ReportOption> get branchFilterOptions => branches
+      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
+      .toList();
+
+  List<ReportOption> get staffFilterOptions => staffs
+      .map((s) => ReportOption(label: s.label, value: s.value.toString()))
+      .toList();
+
+  String get branchFilterDisplay => multiSelectDisplay(
+    selected: selectedBranchIds,
+    options: branchFilterOptions,
+    allLabel: 'commissions.filter.allBranches'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
+
+  String get staffFilterDisplay => multiSelectDisplay(
+    selected: selectedStaffIds,
+    options: staffFilterOptions,
+    allLabel: 'commissions.filter.allStaff'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
+
+  String get tempBranchFilterDisplay => multiSelectDisplay(
+    selected: tempBranchIds,
+    options: branchFilterOptions,
+    allLabel: 'commissions.filter.allBranches'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
+
+  String get tempStaffFilterDisplay => multiSelectDisplay(
+    selected: tempStaffIds,
+    options: staffFilterOptions,
+    allLabel: 'commissions.filter.allStaff'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
 
   // ── Columns ───────────────────────────────────────────────────────────────
   final RxList<CommissionsColumn> allColumns = <CommissionsColumn>[
-    CommissionsColumn(key: 'branchName', labelKey: 'commissions.table.branch', width: 140, isSelected: true),
-    CommissionsColumn(key: 'from', labelKey: 'commissions.table.from', width: 110, isSelected: true),
-    CommissionsColumn(key: 'to', labelKey: 'commissions.table.to', width: 110, isSelected: true),
-    CommissionsColumn(key: 'totalServices', labelKey: 'commissions.table.totalServices', width: 130, isSelected: true),
-    CommissionsColumn(key: 'totalPackages', labelKey: 'commissions.table.totalPackages', width: 130, isSelected: true),
-    CommissionsColumn(key: 'serviceCommission', labelKey: 'commissions.table.serviceCommission', width: 150, isSelected: true),
-    CommissionsColumn(key: 'packageCommission', labelKey: 'commissions.table.packageCommission', width: 150, isSelected: true),
-    CommissionsColumn(key: 'totalCommission', labelKey: 'commissions.table.totalCommission', width: 150, isSelected: true),
+    CommissionsColumn(
+      key: 'branchName',
+      labelKey: 'commissions.table.branch',
+      width: 140,
+      isSelected: true,
+    ),
+    CommissionsColumn(
+      key: 'from',
+      labelKey: 'commissions.table.from',
+      width: 110,
+      isSelected: true,
+    ),
+    CommissionsColumn(
+      key: 'to',
+      labelKey: 'commissions.table.to',
+      width: 110,
+      isSelected: true,
+    ),
+    CommissionsColumn(
+      key: 'totalServices',
+      labelKey: 'commissions.table.totalServices',
+      width: 130,
+      isSelected: true,
+    ),
+    CommissionsColumn(
+      key: 'totalPackages',
+      labelKey: 'commissions.table.totalPackages',
+      width: 130,
+      isSelected: true,
+    ),
+    CommissionsColumn(
+      key: 'serviceCommission',
+      labelKey: 'commissions.table.serviceCommission',
+      width: 150,
+      isSelected: true,
+    ),
+    CommissionsColumn(
+      key: 'packageCommission',
+      labelKey: 'commissions.table.packageCommission',
+      width: 150,
+      isSelected: true,
+    ),
+    CommissionsColumn(
+      key: 'totalCommission',
+      labelKey: 'commissions.table.totalCommission',
+      width: 150,
+      isSelected: true,
+    ),
   ].obs;
 
-  late RxList<bool> tempColumnSelected;
+  /// Set-based column selection backing the shared selector sheet.
+  /// Initialized once per sheet open (never inside build).
+  final RxSet<String> selectedColumnKeys = <String>{
+    'branchName',
+    'from',
+    'to',
+    'totalServices',
+    'totalPackages',
+    'serviceCommission',
+    'packageCommission',
+    'totalCommission',
+  }.obs;
+  final RxSet<String> tempColumnKeys = <String>{}.obs;
+
+  List<ReportColumnOption> get columnOptions => allColumns
+      .map((c) => ReportColumnOption(key: c.key, label: c.labelKey.trns()))
+      .toList();
 
   // ── Computed ──────────────────────────────────────────────────────────────
   List<CommissionsColumn> get selectedColumns =>
@@ -52,33 +153,23 @@ class CommissionsReportController extends GetxController {
 
   int? get userBranchId => _auth.currentUser.value?.branchId;
 
-  List<DropdownOption> get branches =>
-      apiResponse.value.data?.branches ?? [];
+  List<DropdownOption> get branches => apiResponse.value.data?.branches ?? [];
 
-  List<DropdownOption> get staffs =>
-      apiResponse.value.data?.staffs ?? [];
+  List<DropdownOption> get staffs => apiResponse.value.data?.staffs ?? [];
 
   List<CommissionMonthlyData> get monthlyData =>
       apiResponse.value.data?.monthlyData ?? [];
 
   String get dateRangeLabel {
-    final fmt = DateFormat('MMM/d/yyyy');
-    return '${fmt.format(fromDate.value)} - ${fmt.format(toDate.value)}';
+    final fmt = reportHumanDate;
+    return '${fmt(fromDate.value)} - ${fmt(toDate.value)}';
   }
 
-  String? get selectedBranchLabel {
-    if (selectedBranchId.value == null) return null;
-    return branches
-        .firstWhereOrNull((b) => b.value.toString() == selectedBranchId.value)
-        ?.label;
-  }
+  String? get selectedBranchLabel =>
+      selectedBranchIds.isEmpty ? null : branchFilterDisplay;
 
-  String? get selectedStaffLabel {
-    if (selectedStaffId.value == null) return null;
-    return staffs
-        .firstWhereOrNull((s) => s.value.toString() == selectedStaffId.value)
-        ?.label;
-  }
+  String? get selectedStaffLabel =>
+      selectedStaffIds.isEmpty ? null : staffFilterDisplay;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   @override
@@ -90,8 +181,8 @@ class CommissionsReportController extends GetxController {
 
   void _initFilters() {
     if (!isOwner && userBranchId != null) {
-      selectedBranchId.value = userBranchId.toString();
-      tempBranchId.value = userBranchId.toString();
+      selectedBranchIds.assignAll([userBranchId.toString()]);
+      tempBranchIds.assignAll([userBranchId.toString()]);
     }
   }
 
@@ -104,14 +195,16 @@ class CommissionsReportController extends GetxController {
       'to_date': DateFormat('yyyy-MM-dd').format(toDate.value),
     };
 
-    if (isOwner && selectedBranchId.value != null) {
-      params['branch_id'] = selectedBranchId.value;
-    } else if (!isOwner && userBranchId != null) {
-      params['branch_id'] = userBranchId;
+    if (isOwner) {
+      if (selectedBranchIds.isNotEmpty) {
+        addIndexedParams(params, 'branch_ids', selectedBranchIds);
+      }
+    } else if (userBranchId != null) {
+      addIndexedParams(params, 'branch_ids', [userBranchId.toString()]);
     }
 
-    if (selectedStaffId.value != null && selectedStaffId.value != 'all') {
-      params['staff_id'] = selectedStaffId.value;
+    if (selectedStaffIds.isNotEmpty) {
+      addIndexedParams(params, 'staff_ids', selectedStaffIds);
     }
 
     final response = await _network.get(
@@ -124,7 +217,9 @@ class CommissionsReportController extends GetxController {
         final data = CommissionsReportResponse.fromJson(response.data!);
         apiResponse.value = ApiResponse.completed(data);
       } catch (e) {
-        apiResponse.value = ApiResponse.error('commissions.errors.parseFailed'.trns());
+        apiResponse.value = ApiResponse.error(
+          'commissions.errors.parseFailed'.trns(),
+        );
       }
     } else {
       apiResponse.value = ApiResponse.error(
@@ -137,54 +232,70 @@ class CommissionsReportController extends GetxController {
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    tempBranchId.value = selectedBranchId.value;
-    tempStaffId.value = selectedStaffId.value;
+    initTempMulti(tempBranchIds, selectedBranchIds);
+    initTempMulti(tempStaffIds, selectedStaffIds);
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchId.value = tempBranchId.value;
-    selectedStaffId.value = tempStaffId.value;
+    selectedBranchIds.assignAll(tempBranchIds);
+    selectedStaffIds.assignAll(tempStaffIds);
     fetchReport();
   }
 
   void resetFilter() {
     tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
     tempToDate.value = DateTime.now();
-    tempBranchId.value = isOwner ? null : userBranchId?.toString();
-    tempStaffId.value = null;
+    tempBranchIds.clear();
+    if (!isOwner && userBranchId != null) {
+      tempBranchIds.assignAll([userBranchId.toString()]);
+    }
+    tempStaffIds.clear();
   }
 
   // ── Column Selection ──────────────────────────────────────────────────────
   void initTempColumns() {
-    tempColumnSelected = allColumns.map((c) => c.isSelected).toList().obs;
+    initTempMulti(tempColumnKeys, selectedColumnKeys);
   }
 
   void applyColumnSelection() {
-    for (int i = 0; i < allColumns.length; i++) {
-      allColumns[i].isSelected = tempColumnSelected[i];
+    selectedColumnKeys.assignAll(tempColumnKeys);
+    for (final c in allColumns) {
+      c.isSelected = selectedColumnKeys.contains(c.key);
     }
     allColumns.refresh();
   }
 
   void resetColumnSelection() {
-    for (int i = 0; i < tempColumnSelected.length; i++) {
-      tempColumnSelected[i] = true;
-    }
-    tempColumnSelected.refresh();
+    tempColumnKeys.assignAll(allColumns.map((c) => c.key));
   }
 
   void selectAllColumns() {
-    for (int i = 0; i < tempColumnSelected.length; i++) {
-      tempColumnSelected[i] = true;
-    }
-    tempColumnSelected.refresh();
+    tempColumnKeys.assignAll(allColumns.map((c) => c.key));
   }
 
   void toggleTempColumn(int index) {
-    tempColumnSelected[index] = !tempColumnSelected[index];
-    tempColumnSelected.refresh();
+    if (index < 0 || index >= allColumns.length) return;
+    final key = allColumns[index].key;
+    if (tempColumnKeys.contains(key)) {
+      tempColumnKeys.remove(key);
+    } else {
+      tempColumnKeys.add(key);
+    }
+  }
+
+  void openColumnSelector(BuildContext context) {
+    initTempColumns();
+    ReportColumnSelectorSheet.show(
+      context: context,
+      title: 'commissions.columns.title'.trns(),
+      columns: columnOptions,
+      tempSelected: tempColumnKeys,
+      onApply: applyColumnSelection,
+      onReset: resetColumnSelection,
+      onSelectAll: selectAllColumns,
+    );
   }
 
   // ── Cell Value ────────────────────────────────────────────────────────────
@@ -228,8 +339,7 @@ class CommissionsReportController extends GetxController {
         'branch_id': row.branchId.toString(),
         'from_date': DateFormat('yyyy-MM-dd').format(fromDate.value),
         'to_date': DateFormat('yyyy-MM-dd').format(toDate.value),
-        if (selectedStaffId.value != null && selectedStaffId.value != 'all')
-          'staff_id': selectedStaffId.value!,
+        if (selectedStaffIds.isNotEmpty) 'staff_id': selectedStaffIds.first,
       },
     );
   }

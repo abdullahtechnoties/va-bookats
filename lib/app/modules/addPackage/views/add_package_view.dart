@@ -40,29 +40,8 @@ class AddPackageView extends GetView<AddPackageController> {
     );
   }
 
-  Future<void> _pickDate(
-    BuildContext context,
-    TextEditingController ctrl,
-  ) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: AppColors.secondary,
-          ),
-        ),
-        child: child!,
-      ),
-    );
-    if (picked != null) {
-      ctrl.text =
-          '${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}';
-    }
-  }
+  Future<void> _pickDate(BuildContext context, TextEditingController ctrl) =>
+      controller.pickDate(context, ctrl);
 
   @override
   Widget build(BuildContext context) {
@@ -75,9 +54,7 @@ class AddPackageView extends GetView<AddPackageController> {
               _AddPackageHeader(controller: controller),
               const Expanded(
                 child: Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.secondary,
-                  ),
+                  child: CircularProgressIndicator(color: AppColors.secondary),
                 ),
               ),
             ],
@@ -87,45 +64,51 @@ class AddPackageView extends GetView<AddPackageController> {
           children: [
             _AddPackageHeader(controller: controller),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-                child: Column(
-                  children: [
-                    _PackageInfoCard(
-                      controller: controller,
-                      onShowDropdown: _showDropdown,
-                      onPickDate: _pickDate,
-                      buildContext: context,
-                    ),
-                    const SizedBox(height: 14),
-
-                    // ─── Services ────────────────────────────────
-                    _ServicesSection(
-                      controller: controller,
-                      onShowDropdown: _showDropdown,
-                      buildContext: context,
-                    ),
-
-                    // Description
-                    _DescriptionCard(controller: controller),
-                    const SizedBox(height: 14),
-
-                    // Total + Package Price
-                    _PriceSection(controller: controller),
-                    const SizedBox(height: 20),
-
-                    // Save
-                    Obx(
-                      () => MainBtn(
-                        text: controller.saveButtonText,
-                        isLoading: controller.isSaving.value,
-                        onPressed: controller.isSaving.value
-                            ? null
-                            : controller.save,
+              child: RefreshIndicator(
+                color: AppColors.secondary,
+                onRefresh: controller.refreshForm,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                  child: Column(
+                    children: [
+                      _PackageInfoCard(
+                        controller: controller,
+                        onShowDropdown: _showDropdown,
+                        onPickDate: _pickDate,
+                        buildContext: context,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 14),
+
+                      // ─── Services ────────────────────────────────
+                      _ServicesSection(
+                        controller: controller,
+                        onShowDropdown: _showDropdown,
+                        buildContext: context,
+                      ),
+
+                      // Description
+                      _DescriptionCard(controller: controller),
+                      const SizedBox(height: 14),
+
+                      // Total + Package Price
+                      _PriceSection(controller: controller),
+                      const SizedBox(height: 20),
+
+                      // Save
+                      Obx(
+                        () => MainBtn(
+                          text: controller.saveButtonText,
+                          isLoading: controller.isSaving.value,
+                          onPressed: controller.isSaving.value
+                              ? null
+                              : controller.save,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -200,7 +183,8 @@ class _PackageInfoCard extends StatelessWidget {
     List<String>? selectedValue,
     Function(dynamic)? onValueSelected,
     bool showSearch,
-  }) onShowDropdown;
+  })
+  onShowDropdown;
   final Future<void> Function(BuildContext, TextEditingController) onPickDate;
 
   const _PackageInfoCard({
@@ -300,7 +284,7 @@ class _PackageInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Status
+            // Status (capitalized in UI, lowercase to the API)
             _FieldLabel('addPackage.status'.trns()),
             const SizedBox(height: 8),
             CommonTextInputField(
@@ -312,13 +296,11 @@ class _PackageInfoCard extends StatelessWidget {
               onTap: () => onShowDropdown(
                 buildContext,
                 title: 'addPackage.status'.trns(),
-                items: controller.statusOptions,
+                items: controller.statusLabels,
                 selectedItem: controller.selectedStatus,
                 textCtrl: controller.statusCtrl,
-                selectedValue: controller.statusOptions,
-                onValueSelected: (val) {
-                  controller.selectedStatus.value = val.toString();
-                },
+                selectedValue: controller.statusValues,
+                onValueSelected: controller.onStatusSelected,
               ),
             ),
           ],
@@ -342,7 +324,8 @@ class _ServicesSection extends StatelessWidget {
     List<String>? selectedValue,
     Function(dynamic)? onValueSelected,
     bool showSearch,
-  }) onShowDropdown;
+  })
+  onShowDropdown;
 
   const _ServicesSection({
     required this.controller,
@@ -370,7 +353,10 @@ class _ServicesSection extends StatelessWidget {
             GestureDetector(
               onTap: () => controller.addServiceItem(),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(8),
@@ -434,7 +420,8 @@ class _ServiceRow extends StatelessWidget {
     List<String>? selectedValue,
     Function(dynamic)? onValueSelected,
     bool showSearch,
-  }) onShowDropdown;
+  })
+  onShowDropdown;
 
   const _ServiceRow({
     required this.index,
@@ -631,7 +618,10 @@ class _DescriptionCard extends StatelessWidget {
               hintText: 'addPackage.writeSomething'.trns(),
               controller: controller.descriptionCtrl,
               maxLines: 4,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               height: 110,
               hintTextSize: 13,
             ),
@@ -704,6 +694,7 @@ class _PriceSection extends StatelessWidget {
               keyboardType: TextInputType.number,
               height: 50,
               hintTextSize: 13,
+              onChanged: controller.onPackagePriceChanged,
             ),
           ],
         ),
@@ -720,11 +711,11 @@ class _FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: AppColors.black,
-        ),
-      );
+    text,
+    style: const TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w700,
+      color: AppColors.black,
+    ),
+  );
 }

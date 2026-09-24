@@ -85,9 +85,7 @@ class Step4Products extends GetView<CreateBookingController> {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
-                  child: CircularProgressIndicator(
-                    color: AppColors.secondary,
-                  ),
+                  child: CircularProgressIndicator(color: AppColors.secondary),
                 ),
               );
             }
@@ -104,8 +102,7 @@ class Step4Products extends GetView<CreateBookingController> {
                 child: const Text(
                   'No products added (optional).\nTap + to add one.',
                   textAlign: TextAlign.center,
-                  style:
-                      TextStyle(fontSize: 13, color: Color(0xFF888888)),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF888888)),
                 ),
               );
             }
@@ -116,142 +113,147 @@ class Step4Products extends GetView<CreateBookingController> {
               separatorBuilder: (_, __) => const SizedBox(height: 14),
               itemBuilder: (context, index) {
                 final item = controller.productItems[index];
-                final variantLabels = item.variantOptions
-                    .map((v) =>
-                        '${v.displayName} — Rs ${v.price} (Stock: ${v.stock})')
-                    .toList();
-                final variantValues = item.variantOptions
-                    .map((v) => v.id.toString())
-                    .toList();
-                return StepFormCard(
-                  title: 'createBooking.step4.productInfo'.trns(),
-                  showDelete: true,
-                  onDelete: () => controller.removeProduct(index),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _FieldLabel(
-                          'createBooking.step4.product'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText:
-                            'createBooking.step4.selectProduct'.trns(),
-                        controller: item.productCtrl,
-                        readOnly: true,
-                        height: 50,
-                        hintTextSize: 13,
-                        onTap: () => _showThree(
-                          context,
-                          title: 'createBooking.step4.product'
-                              .trns(),
-                          items: controller.productLabels,
-                          selectedItem: item.selectedProductId,
-                          textCtrl: item.productCtrl,
-                          values: controller.productValues,
-                          onSelected: (v) =>
-                              controller.onProductSelected(item, v),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      if (item.variantOptions.isNotEmpty) ...[
-                        _FieldLabel('createBooking.step4.variation'
-                            .trns()),
+                return Obx(() {
+                  final variantLabels = item.variantOptions
+                      .map(
+                        (v) =>
+                            '${v.displayName} — Rs ${v.price} (Stock: ${v.stock})',
+                      )
+                      .toList();
+                  final variantValues = item.variantOptions
+                      .map((v) => v.id.toString())
+                      .toList();
+                  return StepFormCard(
+                    title: 'createBooking.step4.productInfo'.trns(),
+                    showDelete: true,
+                    onDelete: () => controller.removeProduct(index),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FieldLabel('createBooking.step4.product'.trns()),
                         const SizedBox(height: 8),
                         CommonTextInputField(
-                          hintText:
-                              'createBooking.step4.selectVariation'
-                                  .trns(),
-                          controller: item.variantCtrl,
+                          hintText: 'createBooking.step4.selectProduct'.trns(),
+                          controller: item.productCtrl,
                           readOnly: true,
                           height: 50,
                           hintTextSize: 13,
                           onTap: () => _showThree(
                             context,
-                            title: 'createBooking.step4.variation'
-                                .trns(),
-                            items: variantLabels,
-                            selectedItem: item.selectedVariantId,
-                            textCtrl: item.variantCtrl,
-                            values: variantValues,
-                            onSelected: (v) => controller
-                                .onVariantSelected(item, v),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Available stock: ${item.availableStock.value}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF888888),
+                            title: 'createBooking.step4.product'.trns(),
+                            items: controller.productLabels,
+                            selectedItem: item.selectedProductId,
+                            textCtrl: item.productCtrl,
+                            values: controller.productValues,
+                            onSelected: (v) =>
+                                controller.onProductSelected(item, v),
                           ),
                         ),
                         const SizedBox(height: 16),
+                        if (item.variantOptions.isNotEmpty) ...[
+                          _FieldLabel('createBooking.step4.variation'.trns()),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintText: 'createBooking.step4.selectVariation'
+                                .trns(),
+                            controller: item.variantCtrl,
+                            readOnly: true,
+                            height: 50,
+                            hintTextSize: 13,
+                            onTap: () => _showThree(
+                              context,
+                              title: 'createBooking.step4.variation'.trns(),
+                              items: variantLabels,
+                              selectedItem: item.selectedVariantId,
+                              textCtrl: item.variantCtrl,
+                              values: variantValues,
+                              onSelected: (v) =>
+                                  controller.onVariantSelected(item, v),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        if (item.selectedProductId.value.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Text(
+                              '${'createBooking.step4.availableStock'.trns()}: ${item.availableStock.value}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF888888),
+                              ),
+                            ),
+                          ),
+                        _FieldLabel('createBooking.step4.quantity'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: 'createBooking.step4.quantityHint'.trns(),
+                          controller: item.quantityCtrl,
+                          keyboardType: TextInputType.number,
+                          height: 50,
+                          hintTextSize: 13,
+                          onChanged: (_) =>
+                              controller.onProductQtyChanged(item, ''),
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step4.unitPrice'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: '00',
+                          controller: item.unitPriceCtrl,
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step4.total'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: '00',
+                          controller: item.totalCtrl,
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel('createBooking.step4.discount'.trns()),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: '00',
+                          controller: item.discountCtrl,
+                          keyboardType: TextInputType.number,
+                          height: 50,
+                          hintTextSize: 13,
+                          validator: (_) {
+                            final discount =
+                                double.tryParse(item.discountCtrl.text) ?? 0;
+                            if (discount < 0) {
+                              return 'createBooking.step5.amountNegative'
+                                  .trns();
+                            }
+                          },
+                          onChanged: (_) =>
+                              controller.onProductDiscountChanged(item, ''),
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel(
+                          'createBooking.step4.totalAfterDiscount'.trns(),
+                        ),
+                        const SizedBox(height: 8),
+                        CommonTextInputField(
+                          hintText: '00',
+                          controller: item.afterDiscountCtrl,
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                          height: 50,
+                          hintTextSize: 13,
+                        ),
                       ],
-                      _FieldLabel(
-                          'createBooking.step4.quantity'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: '1',
-                        controller: item.quantityCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                        onChanged: (_) => controller.onProductQtyChanged(
-                            item, ''),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step4.unitPrice'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: '00',
-                        controller: item.unitPriceCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                        onChanged: (_) => controller.onProductQtyChanged(
-                            item, ''),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step4.total'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: '00',
-                        controller: item.totalCtrl,
-                        keyboardType: TextInputType.number,
-                        readOnly: true,
-                        height: 50,
-                        hintTextSize: 13,
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel(
-                          'createBooking.step4.discount'.trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: '00',
-                        controller: item.discountCtrl,
-                        keyboardType: TextInputType.number,
-                        height: 50,
-                        hintTextSize: 13,
-                        onChanged: (_) => controller
-                            .onProductDiscountChanged(item, ''),
-                      ),
-                      const SizedBox(height: 16),
-                      _FieldLabel('createBooking.step4.totalAfterDiscount'
-                          .trns()),
-                      const SizedBox(height: 8),
-                      CommonTextInputField(
-                        hintText: '00',
-                        controller: item.afterDiscountCtrl,
-                        keyboardType: TextInputType.number,
-                        readOnly: true,
-                        height: 50,
-                        hintTextSize: 13,
-                      ),
-                    ],
-                  ),
-                );
+                    ),
+                  );
+                });
               },
             );
           }),

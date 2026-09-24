@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/profile/controllers/profile_controller.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
+import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -28,9 +29,50 @@ class ProfileView extends GetView<ProfileController> {
               label: 'profile.updatePassword'.trns(),
               onTap: () => Get.toNamed('/update-password'),
             ),
+            const SizedBox(height: 14),
+            _ProfileMenuTile(
+              icon: Icons.logout_rounded,
+              label: 'profile.logout'.trns(),
+              iconColor: AppColors.red,
+              labelColor: AppColors.red,
+              onTap: _confirmLogout,
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  void _confirmLogout() {
+    if (Get.isDialogOpen == true) return;
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('profile.logoutTitle'.trns()),
+        content: Text('profile.logoutMessage'.trns()),
+        actions: [
+          TextButton(onPressed: Get.back, child: Text('profile.cancel'.trns())),
+          Obx(
+            () => TextButton(
+              onPressed: AuthService.isLogoutInProgress
+                  ? null
+                  : () async {
+                      await AuthService.forceLogout(showLogin: false);
+                      if (Get.isDialogOpen == true) Get.back();
+                      Get.offAllNamed(Routes.LOGIN);
+                    },
+              child: AuthService.isLogoutInProgress
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text('profile.confirmLogout'.trns()),
+            ),
+          ),
+        ],
+      ),
+      barrierDismissible: AuthService.isLogoutInProgress ? false : true,
     );
   }
 
@@ -45,17 +87,17 @@ class ProfileView extends GetView<ProfileController> {
         ),
       ),
       leadingWidth: 60,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: GestureDetector(
-          onTap: () => Get.back(),
-          child: const Icon(
-            Icons.chevron_left,
-            color: AppColors.white,
-            size: 28,
-          ),
-        ),
-      ),
+      // leading: Padding(
+      //   padding: const EdgeInsets.only(left: 16),
+      //   child: GestureDetector(
+      //     onTap: () => Get.back(),
+      //     child: const Icon(
+      //       Icons.chevron_left,
+      //       color: AppColors.white,
+      //       size: 28,
+      //     ),
+      //   ),
+      // ),
       title: Text(
         'profile.title'.trns(),
         style: const TextStyle(
@@ -73,11 +115,15 @@ class ProfileView extends GetView<ProfileController> {
 class _ProfileMenuTile extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color iconColor;
+  final Color labelColor;
   final VoidCallback onTap;
 
   const _ProfileMenuTile({
     required this.icon,
     required this.label,
+    this.iconColor = AppColors.primary,
+    this.labelColor = AppColors.black,
     required this.onTap,
   });
 
@@ -94,15 +140,15 @@ class _ProfileMenuTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 24, color: AppColors.primary),
+            Icon(icon, size: 24, color: iconColor),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.black,
+                  color: labelColor,
                 ),
               ),
             ),

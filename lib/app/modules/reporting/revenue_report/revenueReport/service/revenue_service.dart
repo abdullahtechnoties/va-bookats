@@ -2,18 +2,20 @@ import 'package:get/get.dart';
 import 'package:va_bookats/network/api/api_path.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/service/network_service.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 
 class ReportService extends GetxService {
   final NetworkService _network = Get.find<NetworkService>();
 
-  /// Fetch revenue report
+  /// Fetch revenue report. Branches ride as indexed `branch_ids[0..n]`
+  /// params (absent = All branches).
   Future<ApiResponse<Map<String, dynamic>>> getRevenueReport({
-    int? branchId,
+    List<String>? branchIds,
     String? fromDate,
     String? toDate,
   }) async {
     final Map<String, dynamic> params = {};
-    if (branchId != null) params['branch_id'] = branchId;
+    if (branchIds != null) addIndexedParams(params, 'branch_ids', branchIds);
     if (fromDate != null && fromDate.isNotEmpty) params['from_date'] = fromDate;
     if (toDate != null && toDate.isNotEmpty) params['to_date'] = toDate;
 

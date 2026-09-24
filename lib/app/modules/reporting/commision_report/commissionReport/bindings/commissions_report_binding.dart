@@ -4,6 +4,8 @@ import 'package:va_bookats/app/modules/reporting/commision_report/commissionRepo
 class CommissionsReportBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<CommissionsReportController>(() => CommissionsReportController());
+    Get.lazyPut<CommissionsReportController>(
+      () => CommissionsReportController(),
+    );
   }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/controller/package_revenue_report_controller.dart';
-import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/views/widgets/package_column_selector_sheet.dart';
 import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/views/widgets/package_filter_sheet.dart';
 import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/views/widgets/package_revenue_table.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 
 class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
   const PackageRevenueReportView({super.key});
@@ -60,8 +60,11 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left,
-              color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -78,8 +81,11 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
           padding: const EdgeInsets.only(right: 16),
           child: GestureDetector(
             onTap: () => _openFilterSheet(context),
-            child: const Icon(Icons.filter_alt_outlined,
-                color: AppColors.white, size: 24),
+            child: const Icon(
+              Icons.filter_alt_outlined,
+              color: AppColors.white,
+              size: 24,
+            ),
           ),
         ),
       ],
@@ -96,32 +102,37 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
           Row(
             children: [
               Expanded(
-                child: Obx(() => Container(
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: AppColors.black.withValues(alpha: 0.15),
+                child: Obx(
+                  () => Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.black.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 16,
+                          color: Color(0xFF9CA3AF),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_today_outlined,
-                              size: 16, color: Color(0xFF9CA3AF)),
-                          const SizedBox(width: 8),
-                          Text(
-                            controller.dateRangeLabel,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF374151),
-                            ),
+                        const SizedBox(width: 8),
+                        Text(
+                          controller.dateRangeLabel,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF374151),
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               GestureDetector(
@@ -147,40 +158,49 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
             ],
           ),
           const SizedBox(height: 12),
-          // Package dropdown (always visible)
-          Obx(() => GestureDetector(
-                onTap: () => _showPackagePicker(context),
-                child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppColors.black.withValues(alpha: 0.15),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.inventory_2_outlined,
-                          size: 16, color: Color(0xFF9CA3AF)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          controller.selectedPackageLabel.value,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                      ),
-                      const Icon(Icons.keyboard_arrow_down_rounded,
-                          size: 22, color: Color(0xFF9CA3AF)),
-                    ],
+          // Package multi-select dropdown (always visible)
+          Obx(
+            () => GestureDetector(
+              onTap: () => _showPackagePicker(context),
+              child: Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.black.withValues(alpha: 0.15),
                   ),
                 ),
-              )),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.inventory_2_outlined,
+                      size: 16,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        controller.packageFilterDisplay,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF374151),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 22,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -190,39 +210,47 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
   Widget _buildColumnSelector(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Obx(() => GestureDetector(
-            onTap: () => _openColumnSelector(context),
-            child: Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: AppColors.black.withValues(alpha: 0.15),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.calendar_view_week_outlined,
-                      size: 16, color: Color(0xFF9CA3AF)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${'packageRevenue.columns.selected'.trns()} (${controller.selectedColumnCount})',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF374151),
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.keyboard_arrow_down_rounded,
-                      size: 20, color: Color(0xFF9CA3AF)),
-                ],
+      child: Obx(
+        () => GestureDetector(
+          onTap: () => _openColumnSelector(context),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.black.withValues(alpha: 0.15),
               ),
             ),
-          )),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_view_week_outlined,
+                  size: 16,
+                  color: Color(0xFF9CA3AF),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${'packageRevenue.columns.selected'.trns()} (${controller.selectedColumnCount})',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF374151),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: Color(0xFF9CA3AF),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -252,8 +280,11 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.receipt_long_outlined,
-              size: 80, color: AppColors.black.withValues(alpha: 0.2)),
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 80,
+            color: AppColors.black.withValues(alpha: 0.2),
+          ),
           const SizedBox(height: 16),
           Text(
             'packageRevenue.empty.title'.trns(),
@@ -279,113 +310,33 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
 
   // ── Sheet Openers ─────────────────────────────────────────────────────
   void _openFilterSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => PackageFilterSheet(controller: controller),
-    );
+    PackageFilterSheet.show(context, controller);
   }
 
   void _openColumnSelector(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => PackageColumnSelectorSheet(controller: controller),
-    );
+    controller.openColumnSelector(context);
   }
 
   void _showPackagePicker(BuildContext context) {
+    controller.initTempFilter();
+    final options = controller.packageFilterOptions;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _PackagePickerSheet(controller: controller),
-    );
-  }
-}
-
-// ── Package Picker Sheet ──────────────────────────────────────────────────
-class _PackagePickerSheet extends StatelessWidget {
-  final PackageRevenueReportController controller;
-  const _PackagePickerSheet({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE0E0E0),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'packageRevenue.filter.selectPackage'.trns(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: const Icon(Icons.close, size: 22),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Obx(() {
-            final packages = controller.packages;
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: packages.length,
-              itemBuilder: (context, index) {
-                final pkg = packages[index];
-                final isSelected =
-                    controller.selectedPackageId.value == pkg.value;
-                return ListTile(
-                  title: Text(
-                    pkg.label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color:
-                          isSelected ? AppColors.primary : AppColors.black,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
-                    ),
-                  ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check_rounded,
-                          color: AppColors.primary, size: 20)
-                      : null,
-                  onTap: () {
-                    controller.selectedPackageId.value = pkg.value;
-                    controller.selectedPackageLabel.value = pkg.label;
-                    controller.fetchReport();
-                    Get.back();
-                  },
-                );
-              },
-            );
-          }),
-          const SizedBox(height: 8),
-        ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CommonDropdownBottomSheetThree(
+        title: 'packageRevenue.filter.selectPackage'.trns(),
+        bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
+        dropdownItems: options.map((o) => o.label).toList(),
+        selectedValue: options.map((o) => o.value).toList(),
+        textController: TextEditingController(),
+        showSearch: true,
+        isMultiSelect: true,
+        selectedValues: controller.tempPackageIds,
+        doneButtonText: 'packageRevenue.filter.apply'.trns(),
+        onDone: () => controller.applyMainPackageSelection(
+          controller.tempPackageIds.toSet(),
+        ),
       ),
     );
   }

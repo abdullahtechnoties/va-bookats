@@ -38,6 +38,10 @@ abstract class Routes {
   static const PACKAGE_REVENUE_DETAILS = _Paths.PACKAGE_REVENUE_DETAILS;
   static const COMMISSIONS_REPORT = _Paths.COMMISSIONS_REPORT;
   static const COMMISSIONS_DETAIL = _Paths.COMMISSIONS_DETAIL;
+  static const EXPENSE_REPORT = _Paths.EXPENSE_REPORT;
+  static const EXPENSE_DETAIL = _Paths.EXPENSE_DETAIL;
+  static const CUSTOMER_REPORT = _Paths.CUSTOMER_REPORT;
+  static const CUSTOMER_DETAILS = _Paths.CUSTOMER_DETAILS;
 }
 
 abstract class _Paths {
@@ -77,4 +81,8 @@ abstract class _Paths {
   static const PACKAGE_REVENUE_DETAILS = '/package-revenue-details';
   static const COMMISSIONS_REPORT = '/commissions-report';
   static const COMMISSIONS_DETAIL = '/commissions-detail';
+  static const EXPENSE_REPORT = '/expense-report';
+  static const EXPENSE_DETAIL = '/expense-detail';
+  static const CUSTOMER_REPORT = '/customer-report';
+  static const CUSTOMER_DETAILS = '/customer-details';
 }

@@ -7,7 +7,7 @@ import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 import 'package:va_bookats/widgets/app_touchable.dart';
-import 'package:va_bookats/widgets/common_dropdown_bottom_sheet.dart';
+import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
 
@@ -27,28 +27,31 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => CommonDropdownBottomSheet(
+      builder: (_) => CommonDropdownBottomSheetThree(
         title: title,
-        bottomSheetHeight: MediaQuery.of(context).size.height * 0.5,
+        bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
         dropdownItems: items,
         selectedValue: values,
         onValueSelected: onValueSelected,
         selectedItem: selectedItem,
         textController: textCtrl,
         currentlySelectedValue: selectedItem.value,
-        showSearch: false,
+        showSearch: true,
+        searchHint: 'personalInfo.search'.trns(),
       ),
     );
   }
 
   Widget _loaderSuffix() {
-    return const SizedBox(
-      width: 20,
-      height: 20,
-      child: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.secondary,
+    return SizedBox(
+        width: 20,
+        height: 20,
+      child: const FittedBox(
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.secondary,
+          ),
         ),
       ),
     );
@@ -117,7 +120,10 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                       const SizedBox(height: 8),
                       CommonTextInputField(
                         hintTextColor: AppColors.grey,
-                        hintText: _t('profile.enterEmail', 'Enter Email Address'),
+                        hintText: _t(
+                          'profile.enterEmail',
+                          'Enter Email Address',
+                        ),
                         controller: controller.emailController,
                         keyboardType: TextInputType.emailAddress,
                         height: 52,
@@ -126,11 +132,16 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                       const SizedBox(height: 18),
 
                       // Email Secondary
-                      _FieldLabel(_t('profile.emailSecondary', 'Email Secondary')),
+                      _FieldLabel(
+                        _t('profile.emailSecondary', 'Email Secondary'),
+                      ),
                       const SizedBox(height: 8),
                       CommonTextInputField(
                         hintTextColor: AppColors.grey,
-                        hintText: _t('profile.enterEmailSecondary', 'Enter Secondary Email'),
+                        hintText: _t(
+                          'profile.enterEmailSecondary',
+                          'Enter Secondary Email',
+                        ),
                         controller: controller.emailSecondaryController,
                         keyboardType: TextInputType.emailAddress,
                         height: 52,
@@ -143,7 +154,10 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                       const SizedBox(height: 8),
                       CommonTextInputField(
                         hintTextColor: AppColors.grey,
-                        hintText: _t('profile.enterPhone', 'Enter Phone Number'),
+                        hintText: _t(
+                          'profile.enterPhone',
+                          'Enter Phone Number',
+                        ),
                         controller: controller.phonePrimaryController,
                         keyboardType: TextInputType.phone,
                         height: 52,
@@ -152,11 +166,16 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                       const SizedBox(height: 18),
 
                       // Phone Secondary
-                      _FieldLabel(_t('profile.phoneSecondary', 'Phone Secondary')),
+                      _FieldLabel(
+                        _t('profile.phoneSecondary', 'Phone Secondary'),
+                      ),
                       const SizedBox(height: 8),
                       CommonTextInputField(
                         hintTextColor: AppColors.grey,
-                        hintText: _t('profile.enterPhoneSecondary', 'Enter Secondary Phone'),
+                        hintText: _t(
+                          'profile.enterPhoneSecondary',
+                          'Enter Secondary Phone',
+                        ),
                         controller: controller.phoneSecondaryController,
                         keyboardType: TextInputType.phone,
                         height: 52,
@@ -170,7 +189,10 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                       AppTouchable(
                         child: CommonTextInputField(
                           hintTextColor: AppColors.grey,
-                          hintText: _t('profile.selectDob', 'Select Date of Birth'),
+                          hintText: _t(
+                            'profile.selectDob',
+                            'Select Date of Birth',
+                          ),
                           controller: controller.dobController,
                           readOnly: true,
                           height: 52,
@@ -191,7 +213,10 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                       const SizedBox(height: 8),
                       CommonTextInputField(
                         hintTextColor: AppColors.grey,
-                        hintText: _t('profile.enterQualification', 'Enter Qualification'),
+                        hintText: _t(
+                          'profile.enterQualification',
+                          'Enter Qualification',
+                        ),
                         controller: controller.qualificationController,
                         height: 52,
                         hintTextSize: 13,
@@ -237,7 +262,10 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                       Obx(
                         () => AppTouchable(
                           child: CommonTextInputField(
-                            hintText: _t('profile.selectCountry', 'Select Country'),
+                            hintText: _t(
+                              'profile.selectCountry',
+                              'Select Country',
+                            ),
                             controller: controller.countryCtrl,
                             readOnly: true,
                             height: 52,
@@ -249,14 +277,15 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                             onTap: controller.isLoadingCountries.value
                                 ? null
                                 : () => _showDropdown(
-                                      context,
-                                      title: _t('profile.country', 'Country'),
-                                      items: controller.countryLabels,
-                                      selectedItem: controller.selectedCountry,
-                                      textCtrl: controller.countryCtrl,
-                                      values: controller.countryValues,
-                                      onValueSelected: controller.onCountrySelected,
-                                    ),
+                                    context,
+                                    title: _t('profile.country', 'Country'),
+                                    items: controller.countryLabels,
+                                    selectedItem: controller.selectedCountry,
+                                    textCtrl: controller.countryCtrl,
+                                    values: controller.countryValues,
+                                    onValueSelected:
+                                        controller.onCountrySelected,
+                                  ),
                           ),
                         ),
                       ),
@@ -280,14 +309,14 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                             onTap: controller.selectedCountryId.value == null
                                 ? null
                                 : () => _showDropdown(
-                                      context,
-                                      title: _t('profile.state', 'State'),
-                                      items: controller.stateLabels,
-                                      selectedItem: controller.selectedState,
-                                      textCtrl: controller.stateCtrl,
-                                      values: controller.stateValues,
-                                      onValueSelected: controller.onStateSelected,
-                                    ),
+                                    context,
+                                    title: _t('profile.state', 'State'),
+                                    items: controller.stateLabels,
+                                    selectedItem: controller.selectedState,
+                                    textCtrl: controller.stateCtrl,
+                                    values: controller.stateValues,
+                                    onValueSelected: controller.onStateSelected,
+                                  ),
                           ),
                         ),
                       ),
@@ -311,14 +340,14 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                             onTap: controller.selectedStateId.value == null
                                 ? null
                                 : () => _showDropdown(
-                                      context,
-                                      title: _t('profile.city', 'City'),
-                                      items: controller.cityLabels,
-                                      selectedItem: controller.selectedCity,
-                                      textCtrl: controller.cityCtrl,
-                                      values: controller.cityValues,
-                                      onValueSelected: controller.onCitySelected,
-                                    ),
+                                    context,
+                                    title: _t('profile.city', 'City'),
+                                    items: controller.cityLabels,
+                                    selectedItem: controller.selectedCity,
+                                    textCtrl: controller.cityCtrl,
+                                    values: controller.cityValues,
+                                    onValueSelected: controller.onCitySelected,
+                                  ),
                           ),
                         ),
                       ),
@@ -342,14 +371,14 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                             onTap: controller.selectedCityId.value == null
                                 ? null
                                 : () => _showDropdown(
-                                      context,
-                                      title: _t('profile.area', 'Area'),
-                                      items: controller.areaLabels,
-                                      selectedItem: controller.selectedArea,
-                                      textCtrl: controller.areaCtrl,
-                                      values: controller.areaValues,
-                                      onValueSelected: controller.onAreaSelected,
-                                    ),
+                                    context,
+                                    title: _t('profile.area', 'Area'),
+                                    items: controller.areaLabels,
+                                    selectedItem: controller.selectedArea,
+                                    textCtrl: controller.areaCtrl,
+                                    values: controller.areaValues,
+                                    onValueSelected: controller.onAreaSelected,
+                                  ),
                           ),
                         ),
                       ),
@@ -378,7 +407,10 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                         maxLines: 3,
                         height: 96,
                         hintTextSize: 13,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
                       ),
                       const SizedBox(height: 24),
 
@@ -386,7 +418,9 @@ class PersonalInfoView extends GetView<PersonalInfoController> {
                       Obx(
                         () => MainBtn(
                           text: _t('profile.save', 'Save Changes'),
-                          onPressed: controller.isLoading.value ? null : controller.save,
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : controller.save,
                           isLoading: controller.isLoading.value,
                         ),
                       ),
@@ -510,7 +544,9 @@ class _ImagePickerField extends StatelessWidget {
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
-                  fName.isEmpty ? (imageUrl != null ? 'Existing Image' : 'No File Chosen') : fName,
+                  fName.isEmpty
+                      ? (imageUrl != null ? 'Existing Image' : 'No File Chosen')
+                      : fName,
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF777777),
@@ -531,10 +567,12 @@ class _ImagePickerField extends StatelessWidget {
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'Choose File',
-                    style: TextStyle(
+                    imageUrl != null
+                        ? 'personalInfo.changeImage'.trns()
+                        : 'personalInfo.chooseFile'.trns(),
+                    style: const TextStyle(
                       color: AppColors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

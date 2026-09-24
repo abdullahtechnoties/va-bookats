@@ -110,6 +110,48 @@ class ServiceRepository {
     return ApiResponse.completed(categories);
   }
 
+  /// GET /data/service-categories?branch_id=N — branch lookup for service forms.
+  Future<ApiResponse<List<ServiceCategoryModel>>> getCategoriesByBranch(
+    int branchId,
+  ) async {
+    final response = await _network.getRaw(
+      endpoint: ApiPath.dataServiceCategories(branchId),
+    );
+
+    if (!response.isCompleted || response.data == null) {
+      return ApiResponse.error(
+        response.message ?? 'errors.requestFailed'.trns(),
+        errors: response.errors,
+      );
+    }
+
+    final raw = response.data;
+    if (raw is! List) {
+      return ApiResponse.error('errors.unexpectedShort'.trns());
+    }
+
+    final categories = raw
+        .whereType<Map>()
+        .map((entry) {
+          final json = Map<String, dynamic>.from(entry);
+          final rawId = json['value'];
+          final id = rawId is int
+              ? rawId
+              : rawId is num
+              ? rawId.toInt()
+              : int.tryParse(rawId?.toString() ?? '');
+          return ServiceCategoryModel(
+            id: id,
+            name: json['label']?.toString(),
+            branchId: branchId,
+          );
+        })
+        .where((category) => category.id != null)
+        .toList();
+
+    return ApiResponse.completed(categories);
+  }
+
   /// GET /services — paginated list + available branches & categories.
   Future<ApiResponse<ServicesPage>> getServices({
     required int page,

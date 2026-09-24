@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/mediaLibrary/controllers/media_library_controller.dart';
 import 'package:va_bookats/app/modules/personalInfo/repositories/profile_repository.dart';
 import 'package:va_bookats/models/lookup_option.dart';
-import 'package:va_bookats/models/user_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
@@ -14,7 +13,7 @@ import 'package:va_bookats/widgets/Global-Widgets/media-selector-sheet.dart';
 
 class PersonalInfoController extends GetxController {
   PersonalInfoController({required ProfileRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ProfileRepository _repository;
   final AuthService _auth = Get.find<AuthService>();
@@ -244,8 +243,9 @@ class PersonalInfoController extends GetxController {
   // ─── Geo cascade selection handlers ────────────────────────────────────
 
   void onCountrySelected(dynamic value) {
-    selectedCountryId.value =
-        value == null ? null : int.tryParse(value.toString());
+    selectedCountryId.value = value == null
+        ? null
+        : int.tryParse(value.toString());
     // Cascade reset
     selectedState.value = '';
     stateCtrl.clear();
@@ -264,8 +264,9 @@ class PersonalInfoController extends GetxController {
   }
 
   void onStateSelected(dynamic value) {
-    selectedStateId.value =
-        value == null ? null : int.tryParse(value.toString());
+    selectedStateId.value = value == null
+        ? null
+        : int.tryParse(value.toString());
     selectedCity.value = '';
     cityCtrl.clear();
     selectedCityId.value = null;
@@ -279,8 +280,9 @@ class PersonalInfoController extends GetxController {
   }
 
   void onCitySelected(dynamic value) {
-    selectedCityId.value =
-        value == null ? null : int.tryParse(value.toString());
+    selectedCityId.value = value == null
+        ? null
+        : int.tryParse(value.toString());
     selectedArea.value = '';
     areaCtrl.clear();
     selectedAreaId.value = null;
@@ -290,8 +292,9 @@ class PersonalInfoController extends GetxController {
   }
 
   void onAreaSelected(dynamic value) {
-    selectedAreaId.value =
-        value == null ? null : int.tryParse(value.toString());
+    selectedAreaId.value = value == null
+        ? null
+        : int.tryParse(value.toString());
   }
 
   // ─── Image Pickers (via MediaSelectorSheet) ────────────────────────────
@@ -300,8 +303,9 @@ class PersonalInfoController extends GetxController {
     MediaSelectorSheet.show(
       context,
       allowMultiple: false,
-      initialSelectedIds:
-          profileMedia.value == null ? const [] : [profileMedia.value!.mediaId],
+      initialSelectedIds: profileMedia.value == null
+          ? const []
+          : [profileMedia.value!.mediaId],
       onConfirmed: (items) {
         if (items.isEmpty) return;
         profileMedia.value = items.first;
@@ -346,16 +350,21 @@ class PersonalInfoController extends GetxController {
   // ─── Date Picker ───────────────────────────────────────────────────────
 
   Future<void> pickDate(BuildContext context) async {
+    DateTime initial = DateTime.now().subtract(const Duration(days: 365 * 30));
+    final current = dobController.text.trim();
+    if (current.isNotEmpty) {
+      final parsed = _parseDob(current);
+      if (parsed != null) initial = parsed;
+    }
+    if (initial.isAfter(DateTime.now())) initial = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(1995),
+      initialDate: initial,
       firstDate: DateTime(1950),
       lastDate: DateTime.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: AppColors.primary,
-          ),
+          colorScheme: const ColorScheme.light(primary: AppColors.primary),
         ),
         child: child!,
       ),
@@ -363,6 +372,30 @@ class PersonalInfoController extends GetxController {
     if (picked != null) {
       dobController.text =
           '${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}-${picked.year}';
+    }
+  }
+
+  /// Parses both `MM-DD-YYYY` (app format) and ISO `YYYY-MM-DD`.
+  DateTime? _parseDob(String text) {
+    try {
+      final dash = text.split('-');
+      if (dash.length == 3) {
+        if (dash[0].length == 4) {
+          return DateTime(
+            int.parse(dash[0]),
+            int.parse(dash[1]),
+            int.parse(dash[2]),
+          );
+        }
+        return DateTime(
+          int.parse(dash[2]),
+          int.parse(dash[0]),
+          int.parse(dash[1]),
+        );
+      }
+      return DateTime.parse(text);
+    } catch (_) {
+      return null;
     }
   }
 
@@ -408,8 +441,9 @@ class PersonalInfoController extends GetxController {
         stateId: selectedStateId.value,
         cityId: selectedCityId.value,
         areaId: selectedAreaId.value,
-        zipCode:
-            zipController.text.trim().isEmpty ? null : zipController.text.trim(),
+        zipCode: zipController.text.trim().isEmpty
+            ? null
+            : zipController.text.trim(),
         address: addressController.text.trim().isEmpty
             ? null
             : addressController.text.trim(),
@@ -421,9 +455,7 @@ class PersonalInfoController extends GetxController {
       if (response.isCompleted && response.data != null) {
         // Update AuthService with fresh user data
         await _auth.setCurrentUser(response.data!);
-        _showSuccessDialog(
-          response.message ?? 'Profile updated successfully.',
-        );
+        _showSuccessDialog(response.message ?? 'Profile updated successfully.');
       } else {
         SnackbarService.showError(
           title: 'common.error'.trns(),
@@ -470,10 +502,7 @@ class PersonalInfoController extends GetxController {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF6B7280),
-                ),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
               ),
               const SizedBox(height: 24),
               SizedBox(

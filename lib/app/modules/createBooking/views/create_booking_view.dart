@@ -18,7 +18,7 @@ class CreateBookingView extends GetView<CreateBookingController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => PopScope(
-          canPop: !controller.isSaving.value,
+          canPop: false,
           onPopInvokedWithResult: (didPop, _) async {
             if (didPop) return;
             final mayPop = await controller.handleBack(context);
@@ -128,17 +128,17 @@ class _CreateBookingHeader extends StatelessWidget {
                     ),
                   )),
               Expanded(
-                child: Obx(() => Text(
-                      controller.isEditMode
-                          ? 'Edit Booking'
-                          : 'createBooking.title'.trns(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    )),
+                child: Text(
+                  controller.isEditMode
+                      ? 'Edit Booking'
+                      : 'createBooking.title'.trns(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
               Obx(() => controller.isSaving.value
                   ? const SizedBox(

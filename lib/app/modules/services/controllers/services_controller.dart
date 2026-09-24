@@ -15,7 +15,7 @@ import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
 class ServicesController extends GetxController {
   ServicesController({required ServiceRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ServiceRepository _repository;
   final AuthService _authService = Get.find<AuthService>();
@@ -34,12 +34,18 @@ class ServicesController extends GetxController {
   final RxBool loadFailed = false.obs;
 
   /// A single service is being mutated (delete / status change).
+  /// Kept separate so a delete never shows a loader on the status pill.
   final RxnInt busyServiceId = RxnInt();
+  final RxnInt busyDeleteId = RxnInt();
 
   final Map<String, int> _currentPage = {};
   final Map<String, int> _lastPage = {};
   final Map<String, bool> _hasMoreMap = {};
   final Set<String> _loadedForStatus = {};
+
+  /// Generation guard (same pattern as packages): stale responses are
+  /// dropped so quick tab switches can never duplicate/vanish cards.
+  int _generation = 0;
 
   // ─── Filter state ────────────────────────────────────────────────────────
 
@@ -67,17 +73,35 @@ class ServicesController extends GetxController {
 
   String get _statusKey => selectedTab.value == 0 ? 'active' : 'inactive';
 
-  RxList<ServiceModel> get _listForStatus {
-    return selectedTab.value == 0 ? activeServices : inactiveServices;
+  List<String> get branchFilterOptions => [
+    allBranchesKey,
+    ...branches.map((b) => b.displayLabel),
+  ];
+
+  /// Capitalized for display; lowercased again before hitting the API.
+  List<String> get typeFilterOptions => [allTypesKey, 'Normal', 'Variation'];
+
+  String? get _filterType {
+    final v = selectedTypeFilter.value;
+    if (v.isEmpty || v == allTypesKey) return null;
+    return v.toLowerCase();
   }
 
-  List<String> get branchFilterOptions =>
-      [allBranchesKey, ...branches.map((b) => b.displayLabel)];
+  int get appliedFiltersCount {
+    var n = 0;
+    if (searchCtrl.text.trim().isNotEmpty) n++;
+    if (fromDateCtrl.text.trim().isNotEmpty) n++;
+    if (toDateCtrl.text.trim().isNotEmpty) n++;
+    if (selectedBranchFilter.value.isNotEmpty) n++;
+    if (selectedTypeFilter.value.isNotEmpty) n++;
+    if (selectedCategoryFilter.value.isNotEmpty) n++;
+    return n;
+  }
 
-  List<String> get typeFilterOptions => [allTypesKey, 'normal', 'variation'];
-
-  List<String> get categoryFilterOptions =>
-      [allCategoriesKey, ...categories.map((c) => c.name ?? '')];
+  List<String> get categoryFilterOptions => [
+    allCategoriesKey,
+    ...categories.map((c) => c.name ?? ''),
+  ];
 
   int? get _filterBranchId {
     final label = selectedBranchFilter.value;
@@ -119,8 +143,9 @@ class ServicesController extends GetxController {
   }
 
   void _onScroll() {
-    if (scrollController.position.pixels >=
-            scrollController.position.maxScrollExtent - 200 &&
+    if (scrollController.positions.length != 1) return;
+    final position = scrollController.positions.single;
+    if (position.pixels >= position.maxScrollExtent - 200 &&
         hasMore.value &&
         !isLoadingMore.value &&
         !isLoading.value) {
@@ -140,6 +165,21 @@ class ServicesController extends GetxController {
   }
 
   Future<void> fetchCategories() async {
+    // Non-owners only ever see their own branch's categories.
+    if (!showBranch) {
+      final branchId = _authService.currentUser.value?.branchId;
+      if (branchId == null) {
+        categories.clear();
+        return;
+      }
+      final response = await _repository.getCategoriesByBranch(branchId);
+      if (response.isCompleted &&
+          response.data != null &&
+          response.data!.isNotEmpty) {
+        categories.assignAll(response.data!);
+      }
+      return;
+    }
     final response = await _repository.getCategories();
     if (response.isCompleted &&
         response.data != null &&
@@ -150,21 +190,27 @@ class ServicesController extends GetxController {
 
   Future<void> fetchFirstPage() async {
     final key = _statusKey;
+    final gen = ++_generation;
+    final search = searchCtrl.text.trim();
+    final from = _toApiDate(fromDateCtrl.text);
+    final to = _toApiDate(toDateCtrl.text);
+    final branchId = _filterBranchId;
+    final type = _filterType;
+    final categoryId = _filterCategoryId;
     isLoading.value = true;
     loadFailed.value = false;
     final response = await _repository.getServices(
       page: 1,
       status: key,
-      search: searchCtrl.text.trim(),
-      fromDate: _toApiDate(fromDateCtrl.text),
-      toDate: _toApiDate(toDateCtrl.text),
-      branchId: _filterBranchId,
-      type: selectedTypeFilter.value.isEmpty ||
-              selectedTypeFilter.value == allTypesKey
-          ? null
-          : selectedTypeFilter.value,
-      categoryId: _filterCategoryId,
+      search: search,
+      fromDate: from,
+      toDate: to,
+      branchId: branchId,
+      type: type,
+      categoryId: categoryId,
     );
+
+    if (gen != _generation) return;
 
     if (!response.isCompleted || response.data == null) {
       loadFailed.value = true;
@@ -177,7 +223,7 @@ class ServicesController extends GetxController {
     }
 
     final page = response.data!;
-    _applyPage(page, replace: true);
+    _applyPage(page, key: key, replace: true);
     if (page.branches.isNotEmpty) branches.assignAll(page.branches);
     if (page.categories.isNotEmpty) categories.assignAll(page.categories);
     _loadedForStatus.add(key);
@@ -197,6 +243,7 @@ class ServicesController extends GetxController {
     final last = _lastPage[key] ?? current;
     if (current >= last || isLoadingMore.value) return;
 
+    final gen = ++_generation;
     isLoadingMore.value = true;
     final response = await _repository.getServices(
       page: current + 1,
@@ -205,26 +252,33 @@ class ServicesController extends GetxController {
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
       branchId: _filterBranchId,
-      type: selectedTypeFilter.value.isEmpty ||
-              selectedTypeFilter.value == allTypesKey
-          ? null
-          : selectedTypeFilter.value,
+      type: _filterType,
       categoryId: _filterCategoryId,
     );
 
+    if (gen != _generation) {
+      isLoadingMore.value = false;
+      return;
+    }
+
     if (response.isCompleted && response.data != null) {
-      _applyPage(response.data!, replace: false);
+      _applyPage(response.data!, key: key, replace: false);
     }
     isLoadingMore.value = false;
   }
 
-  void _applyPage(ServicesPage page, {required bool replace}) {
-    final key = _statusKey;
-    final list = _listForStatus;
+  void _applyPage(
+    ServicesPage page, {
+    required String key,
+    required bool replace,
+  }) {
+    final list = key == 'active' ? activeServices : inactiveServices;
     _currentPage[key] = page.meta.currentPage;
     _lastPage[key] = page.meta.lastPage;
     _hasMoreMap[key] = page.meta.hasNextPage;
-    hasMore.value = page.meta.hasNextPage;
+    if (key == _statusKey) {
+      hasMore.value = page.meta.hasNextPage;
+    }
     if (replace) {
       list.assignAll(page.services);
     } else {
@@ -240,8 +294,12 @@ class ServicesController extends GetxController {
 
   void changeTab(int index) {
     if (selectedTab.value == index) return;
+    // Reset filters on tab change so counts stay in sync and stale
+    // filter state can never leak into the other tab.
+    resetFilters(silent: true);
     selectedTab.value = index;
     hasMore.value = _hasMoreMap[_statusKey] ?? false;
+    _generation++;
     final hasLoaded = _loadedForStatus.contains(_statusKey);
     if (!hasLoaded) {
       fetchFirstPage();
@@ -269,13 +327,14 @@ class ServicesController extends GetxController {
           type: FilterFieldType.date,
           controller: toDateCtrl,
         ),
-        FilterField(
-          label: 'services.filter.branches'.trns(),
-          type: FilterFieldType.dropdown,
-          controller: branchFilterCtrl,
-          dropdownItems: branchFilterOptions,
-          selectedValue: selectedBranchFilter,
-        ),
+        if (showBranch)
+          FilterField(
+            label: 'services.filter.branches'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: branchFilterCtrl,
+            dropdownItems: branchFilterOptions,
+            selectedValue: selectedBranchFilter,
+          ),
         FilterField(
           label: 'services.filter.type'.trns(),
           type: FilterFieldType.dropdown,
@@ -283,13 +342,15 @@ class ServicesController extends GetxController {
           dropdownItems: typeFilterOptions,
           selectedValue: selectedTypeFilter,
         ),
-        FilterField(
-          label: 'services.filter.category'.trns(),
-          type: FilterFieldType.dropdown,
-          controller: categoryFilterCtrl,
-          dropdownItems: categoryFilterOptions,
-          selectedValue: selectedCategoryFilter,
-        ),
+        // Category filter is only for non-owner roles (branch-scoped).
+        if (!showBranch)
+          FilterField(
+            label: 'services.filter.category'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: categoryFilterCtrl,
+            dropdownItems: categoryFilterOptions,
+            selectedValue: selectedCategoryFilter,
+          ),
       ],
       onReset: resetFilters,
       onApply: applyFilters,
@@ -301,7 +362,7 @@ class ServicesController extends GetxController {
     fetchFirstPage();
   }
 
-  void resetFilters() {
+  void resetFilters({bool silent = false}) {
     searchCtrl.clear();
     fromDateCtrl.clear();
     toDateCtrl.clear();
@@ -311,6 +372,10 @@ class ServicesController extends GetxController {
     selectedBranchFilter.value = '';
     selectedTypeFilter.value = '';
     selectedCategoryFilter.value = '';
+    if (silent) {
+      _loadedForStatus.clear();
+      return;
+    }
     _loadedForStatus.clear();
     fetchFirstPage();
   }
@@ -324,9 +389,9 @@ class ServicesController extends GetxController {
     final confirmed = await _confirmDelete(service);
     if (confirmed != true) return;
 
-    busyServiceId.value = id;
+    busyDeleteId.value = id;
     final response = await _repository.deleteService(id);
-    busyServiceId.value = null;
+    busyDeleteId.value = null;
 
     if (response.isCompleted) {
       activeServices.removeWhere((s) => s.id == id);
@@ -459,8 +524,19 @@ class ServicesController extends GetxController {
     final parts = text.split('/');
     if (parts.length != 3) return null;
     const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final month = months.indexOf(parts[0]);
     final day = int.tryParse(parts[1]);
@@ -506,7 +582,9 @@ class _StatusOption extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                label,
+                // label,
+                // capitalize first letter for display, but keep the API value lowercased.
+                label[0].toUpperCase() + label.substring(1),
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,

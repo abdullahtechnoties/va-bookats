@@ -12,6 +12,7 @@ class ServiceCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onStatusTap;
   final bool isBusy;
+  final bool isDeleting;
 
   const ServiceCard({
     super.key,
@@ -20,6 +21,7 @@ class ServiceCard extends StatelessWidget {
     this.onDelete,
     this.onStatusTap,
     this.isBusy = false,
+    this.isDeleting = false,
   });
 
   @override
@@ -148,10 +150,7 @@ class ServiceCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Container(
-                          width: 1,
-                          color: const Color(0xFFDDDDDD),
-                        ),
+                        Container(width: 1, color: const Color(0xFFDDDDDD)),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -171,7 +170,7 @@ class ServiceCard extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 3),
                                 Text(
-                                  'services.card.defaultPrice'.trns(),
+                                  service.priceLabelKey.trns(),
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
@@ -213,8 +212,9 @@ class ServiceCard extends StatelessWidget {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.secondary
-                                    .withValues(alpha: 0.13),
+                                color: AppColors.secondary.withValues(
+                                  alpha: 0.13,
+                                ),
                                 borderRadius: BorderRadius.circular(7),
                               ),
                               child: isBusy
@@ -253,7 +253,7 @@ class ServiceCard extends StatelessWidget {
 
                     // Delete button
                     GestureDetector(
-                      onTap: isBusy ? null : onDelete,
+                      onTap: isDeleting || isBusy ? null : onDelete,
                       child: Container(
                         width: 46,
                         height: 46,
@@ -264,20 +264,29 @@ class ServiceCard extends StatelessWidget {
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(
-                          isBusy
-                              ? Icons.hourglass_empty
-                              : Icons.delete_outline,
-                          color: AppColors.secondary,
-                          size: 20,
-                        ),
+                        child: isDeleting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.secondary,
+                                  ),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.delete_outline,
+                                color: AppColors.secondary,
+                                size: 20,
+                              ),
                       ),
                     ),
                     const SizedBox(width: 10),
 
                     // Edit Service button
                     GestureDetector(
-                      onTap: isBusy ? null : onEdit,
+                      onTap: isDeleting || isBusy ? null : onEdit,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,

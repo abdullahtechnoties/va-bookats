@@ -70,9 +70,19 @@ class _TableHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _HeaderCell(label: '#', width: CommissionsTableWidget._indexColWidth, isFirst: true),
-          ...cols.map((c) => _HeaderCell(label: c.labelKey.trns(), width: c.width)),
-          _HeaderCell(label: 'commissions.table.actions'.trns(), width: CommissionsTableWidget._actionsColWidth, isLast: true),
+          _HeaderCell(
+            label: '#',
+            width: CommissionsTableWidget._indexColWidth,
+            isFirst: true,
+          ),
+          ...cols.map(
+            (c) => _HeaderCell(label: c.labelKey.trns(), width: c.width),
+          ),
+          _HeaderCell(
+            label: 'commissions.table.actions'.trns(),
+            width: CommissionsTableWidget._actionsColWidth,
+            isLast: true,
+          ),
         ],
       ),
     );
@@ -102,14 +112,22 @@ class _HeaderCell extends StatelessWidget {
         border: Border(
           right: isLast
               ? BorderSide.none
-              : BorderSide(color: AppColors.white.withValues(alpha: 0.25), width: 0.5),
+              : BorderSide(
+                  color: AppColors.white.withValues(alpha: 0.25),
+                  width: 0.5,
+                ),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.white, letterSpacing: 0.2),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.white,
+          letterSpacing: 0.2,
+        ),
       ),
     );
   }
@@ -146,7 +164,11 @@ class _TableDataRow extends StatelessWidget {
             child: Text(
               '${rows.indexOf(row) + 1}',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
             ),
           ),
           ...cols.map(
@@ -156,7 +178,11 @@ class _TableDataRow extends StatelessWidget {
               child: Text(
                 controller.getCellValue(row, c.key),
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: Color(0xFF374151)),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF374151),
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -169,7 +195,11 @@ class _TableDataRow extends StatelessWidget {
               child: Text(
                 'commissions.table.viewDetails'.trns(),
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ),

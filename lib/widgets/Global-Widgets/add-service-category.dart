@@ -7,16 +7,21 @@ import 'package:va_bookats/app/modules/serviceCategories/repositories/service_ca
 import 'package:va_bookats/models/service_category_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
-import 'package:va_bookats/widgets/common_dropdown_bottom_sheet.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
 
 class AddServiceCategoryDialog extends StatefulWidget {
+  final int? branchId;
+
   /// Invoked with the category created through the API, so the caller can
   /// refresh its dropdown and select the new entry.
   final ValueChanged<ServiceCategoryModel>? onCategoryCreated;
 
-  const AddServiceCategoryDialog({super.key, this.onCategoryCreated});
+  const AddServiceCategoryDialog({
+    super.key,
+    this.branchId,
+    this.onCategoryCreated,
+  });
 
   @override
   State<AddServiceCategoryDialog> createState() =>
@@ -28,25 +33,6 @@ class _AddServiceCategoryDialogState extends State<AddServiceCategoryDialog> {
 
   late final AddServiceCategoryController _controller;
 
-  void _showBranchDropdown(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => CommonDropdownBottomSheet(
-        title: 'addServiceCategory.branch'.trns(),
-        bottomSheetHeight: MediaQuery.of(context).size.height * 0.45,
-        dropdownItems: _controller.branchLabels,
-        selectedValue: _controller.branchValues,
-        selectedItem: _controller.selectedBranch,
-        textController: _controller.branchCtrl,
-        currentlySelectedValue: _controller.selectedBranch.value,
-        onValueSelected: _controller.onBranchSelected,
-        showSearch: false,
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +40,10 @@ class _AddServiceCategoryDialogState extends State<AddServiceCategoryDialog> {
         ? Get.find<ServiceCategoryRepository>()
         : Get.put(ServiceCategoryRepository());
     _controller = Get.put(
-      AddServiceCategoryController(repository: repository),
+      AddServiceCategoryController(
+        repository: repository,
+        initialBranchId: widget.branchId,
+      ),
       tag: _controllerTag,
     );
   }
@@ -88,54 +77,6 @@ class _AddServiceCategoryDialogState extends State<AddServiceCategoryDialog> {
                 ),
               ),
               const SizedBox(height: 22),
-
-              // Branch — only for owner role
-              Obx(
-                () => _controller.showBranch
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'addServiceCategory.branch'.trns(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Obx(
-                            () => CommonTextInputField(
-                              hintText: 'addServiceCategory.selectBranch'
-                                  .trns(),
-                              controller: _controller.branchCtrl,
-                              readOnly: true,
-                              height: 52,
-                              hintTextSize: 13,
-                              showSuffixIcon: true,
-                              suffixIcon: _controller.isLoadingBranches.value
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: AppColors.secondary,
-                                        ),
-                                      ),
-                                    )
-                                  : const SizedBox(),
-                              validator: _controller.validateBranch,
-                              onTap: _controller.isLoadingBranches.value
-                                  ? null
-                                  : () => _showBranchDropdown(context),
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                        ],
-                      )
-                    : const SizedBox.shrink(),
-              ),
 
               // Name
               Text(

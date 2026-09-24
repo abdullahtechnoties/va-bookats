@@ -1,13 +1,16 @@
 // lib/app/modules/reports/revenue/controllers/revenue_report_controller.dart
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/revenue_report/revenueReport/service/revenue_service.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/branch_option.dart';
 import 'package:va_bookats/models/revenue_data_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/report_column_selector_sheet.dart';
 
 class RevenueColumn {
   final String key;
@@ -35,42 +38,157 @@ class RevenueReportController extends GetxController {
   // ── Filter state ─────────────────────────────────────────────────────────
   final Rx<DateTime> fromDate = DateTime.now().obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
-  final RxInt selectedBranchId = 0.obs; // 0 = All branches
-  final RxString selectedBranchLabel = 'All Branches'.obs;
+
+  /// Multi-select branch filter (stringified ids; empty = All branches).
+  final RxSet<String> selectedBranchIds = <String>{}.obs;
 
   // Temp filter (inside sheet before apply)
   final Rx<DateTime> tempFromDate = DateTime.now().obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxInt tempBranchId = 0.obs;
-  final RxString tempBranchLabel = 'All Branches'.obs;
+  final RxSet<String> tempBranchIds = <String>{}.obs;
 
   // Branch options from API
   final RxList<BranchOption> branchOptions = <BranchOption>[].obs;
-  List<String> get branchLabels =>
-      branchOptions.map((b) => b.label).toList();
+  List<ReportOption> get branchFilterOptions => branchOptions
+      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
+      .toList();
+
+  String get branchFilterDisplay => multiSelectDisplay(
+    selected: selectedBranchIds,
+    options: branchFilterOptions,
+    allLabel: 'reports.revenue.filter.allBranches'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
+
+  String get tempBranchFilterDisplay => multiSelectDisplay(
+    selected: tempBranchIds,
+    options: branchFilterOptions,
+    allLabel: 'reports.revenue.filter.allBranches'.trns(),
+    selectedSuffix: 'reports.common.selected'.trns(),
+  );
 
   // ── Column selector ──────────────────────────────────────────────────────
   final RxList<RevenueColumn> allColumns = <RevenueColumn>[
-    RevenueColumn(key: 'branch_name', label: 'reports.revenue.columns.branch', width: 140, isSelected: true),
-    RevenueColumn(key: 'from', label: 'reports.revenue.columns.from', width: 110, isSelected: true),
-    RevenueColumn(key: 'to', label: 'reports.revenue.columns.to', width: 110, isSelected: true),
-    RevenueColumn(key: 'total_amount', label: 'reports.revenue.columns.totalAmount', width: 130, isSelected: true),
-    RevenueColumn(key: 'total_discount', label: 'reports.revenue.columns.totalDiscount', width: 145, isSelected: true),
-    RevenueColumn(key: 'total_revenue', label: 'reports.revenue.columns.totalRevenue', width: 130, isSelected: true),
-    RevenueColumn(key: 'total_balance', label: 'reports.revenue.columns.totalBalance', width: 140, isSelected: true),
-    RevenueColumn(key: 'cash_payment', label: 'reports.revenue.columns.cashPayment', width: 130, isSelected: false),
-    RevenueColumn(key: 'card_payment', label: 'reports.revenue.columns.cardPayment', width: 130, isSelected: false),
-    RevenueColumn(key: 'online_payment', label: 'reports.revenue.columns.onlinePayment', width: 145, isSelected: false),
-    RevenueColumn(key: 'service_revenue', label: 'reports.revenue.columns.serviceRevenue', width: 145, isSelected: false),
-    RevenueColumn(key: 'product_revenue', label: 'reports.revenue.columns.productRevenue', width: 145, isSelected: false),
-    RevenueColumn(key: 'package_revenue', label: 'reports.revenue.columns.packageRevenue', width: 145, isSelected: false),
-    RevenueColumn(key: 'total_count', label: 'reports.revenue.columns.totalCount', width: 110, isSelected: false),
-    RevenueColumn(key: 'paid_count', label: 'reports.revenue.columns.paidCount', width: 110, isSelected: false),
-    RevenueColumn(key: 'unpaid_count', label: 'reports.revenue.columns.unpaidCount', width: 120, isSelected: false),
-    RevenueColumn(key: 'return_count', label: 'reports.revenue.columns.returnCount', width: 120, isSelected: false),
+    RevenueColumn(
+      key: 'branch_name',
+      label: 'reports.revenue.columns.branch',
+      width: 140,
+      isSelected: true,
+    ),
+    RevenueColumn(
+      key: 'from',
+      label: 'reports.revenue.columns.from',
+      width: 110,
+      isSelected: true,
+    ),
+    RevenueColumn(
+      key: 'to',
+      label: 'reports.revenue.columns.to',
+      width: 110,
+      isSelected: true,
+    ),
+    RevenueColumn(
+      key: 'total_amount',
+      label: 'reports.revenue.columns.totalAmount',
+      width: 130,
+      isSelected: true,
+    ),
+    RevenueColumn(
+      key: 'total_discount',
+      label: 'reports.revenue.columns.totalDiscount',
+      width: 145,
+      isSelected: true,
+    ),
+    RevenueColumn(
+      key: 'total_revenue',
+      label: 'reports.revenue.columns.totalRevenue',
+      width: 130,
+      isSelected: true,
+    ),
+    RevenueColumn(
+      key: 'total_balance',
+      label: 'reports.revenue.columns.totalBalance',
+      width: 140,
+      isSelected: true,
+    ),
+    RevenueColumn(
+      key: 'cash_payment',
+      label: 'reports.revenue.columns.cashPayment',
+      width: 130,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'card_payment',
+      label: 'reports.revenue.columns.cardPayment',
+      width: 130,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'online_payment',
+      label: 'reports.revenue.columns.onlinePayment',
+      width: 145,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'service_revenue',
+      label: 'reports.revenue.columns.serviceRevenue',
+      width: 145,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'product_revenue',
+      label: 'reports.revenue.columns.productRevenue',
+      width: 145,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'package_revenue',
+      label: 'reports.revenue.columns.packageRevenue',
+      width: 145,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'total_count',
+      label: 'reports.revenue.columns.totalCount',
+      width: 110,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'paid_count',
+      label: 'reports.revenue.columns.paidCount',
+      width: 110,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'unpaid_count',
+      label: 'reports.revenue.columns.unpaidCount',
+      width: 120,
+      isSelected: false,
+    ),
+    RevenueColumn(
+      key: 'return_count',
+      label: 'reports.revenue.columns.returnCount',
+      width: 120,
+      isSelected: false,
+    ),
   ].obs;
 
-  late RxList<bool> tempColumnSelected;
+  /// Set-based column selection backing the shared selector sheet.
+  /// Initialized once per sheet open (never inside build).
+  final RxSet<String> selectedColumnKeys = <String>{
+    'branch_name',
+    'from',
+    'to',
+    'total_amount',
+    'total_discount',
+    'total_revenue',
+    'total_balance',
+  }.obs;
+  final RxSet<String> tempColumnKeys = <String>{}.obs;
+
+  List<ReportColumnOption> get columnOptions => allColumns
+      .map((c) => ReportColumnOption(key: c.key, label: c.label.trns()))
+      .toList();
 
   // ── Data ─────────────────────────────────────────────────────────────────
   final RxList<RevenueData> revenueDataList = <RevenueData>[].obs;
@@ -86,7 +204,7 @@ class RevenueReportController extends GetxController {
   int get selectedColumnCount => allColumns.where((c) => c.isSelected).length;
 
   String get dateRangeLabel {
-    return '${_formatDate(fromDate.value)} - ${_formatDate(toDate.value)}';
+    return '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
   }
 
   List<RevenueData> get pagedData {
@@ -95,8 +213,9 @@ class RevenueReportController extends GetxController {
     return revenueDataList.sublist(start, end);
   }
 
-  int get totalPages =>
-      revenueDataList.isEmpty ? 1 : (revenueDataList.length / itemsPerPage).ceil();
+  int get totalPages => revenueDataList.isEmpty
+      ? 1
+      : (revenueDataList.length / itemsPerPage).ceil();
 
   bool get isOwner => _authService.isOwner;
 
@@ -128,14 +247,18 @@ class RevenueReportController extends GetxController {
     }
 
     try {
-      final int? branchIdParam = isOwner && selectedBranchId.value > 0
-          ? selectedBranchId.value
-          : (!isOwner
-              ? (_authService.currentUser.value?.branchId ?? 0)
-              : null);
+      final List<String>? branchIdsParam;
+      if (isOwner) {
+        branchIdsParam = selectedBranchIds.isEmpty
+            ? null
+            : selectedBranchIds.toList();
+      } else {
+        final userBranch = _authService.currentUser.value?.branchId;
+        branchIdsParam = userBranch == null ? null : [userBranch.toString()];
+      }
 
       final response = await _reportService.getRevenueReport(
-        branchId: branchIdParam,
+        branchIds: branchIdsParam,
         fromDate: _formatDateApi(fromDate.value),
         toDate: _formatDateApi(toDate.value),
       );
@@ -162,9 +285,7 @@ class RevenueReportController extends GetxController {
   void _parseRevenueResponse(Map<String, dynamic> data) {
     // Parse branches
     if (data['branches'] != null && data['branches'] is List) {
-      final List<BranchOption> branches = [
-        BranchOption(label: 'reports.revenue.filter.allBranches'.trns(), value: 0),
-      ];
+      final List<BranchOption> branches = [];
       for (var b in data['branches']) {
         branches.add(BranchOption.fromJson(b));
       }
@@ -187,15 +308,13 @@ class RevenueReportController extends GetxController {
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    tempBranchId.value = selectedBranchId.value;
-    tempBranchLabel.value = selectedBranchLabel.value;
+    initTempMulti(tempBranchIds, selectedBranchIds);
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchId.value = tempBranchId.value;
-    selectedBranchLabel.value = tempBranchLabel.value;
+    selectedBranchIds.assignAll(tempBranchIds);
 
     fetchRevenueReport();
   }
@@ -204,44 +323,59 @@ class RevenueReportController extends GetxController {
     final now = DateTime.now();
     tempFromDate.value = DateTime(now.year, now.month, 1);
     tempToDate.value = DateTime(now.year, now.month + 1, 0);
-    tempBranchId.value = 0;
-    tempBranchLabel.value = 'reports.revenue.filter.allBranches'.trns();
-  }
-
-  void selectBranch(BranchOption option) {
-    tempBranchId.value = option.value;
-    tempBranchLabel.value = option.label;
+    tempBranchIds.clear();
   }
 
   // ── Column Actions ───────────────────────────────────────────────────────
   void initTempColumns() {
-    tempColumnSelected = allColumns.map((c) => c.isSelected).toList().obs;
+    initTempMulti(tempColumnKeys, selectedColumnKeys);
   }
 
   void applyColumnSelection() {
-    for (int i = 0; i < allColumns.length; i++) {
-      allColumns[i].isSelected = tempColumnSelected[i];
+    selectedColumnKeys.assignAll(tempColumnKeys);
+    for (final c in allColumns) {
+      c.isSelected = selectedColumnKeys.contains(c.key);
     }
     allColumns.refresh();
   }
 
   void resetColumnSelection() {
-    for (int i = 0; i < tempColumnSelected.length; i++) {
-      tempColumnSelected[i] = i < 7; // Default first 7
-    }
-    tempColumnSelected.refresh();
+    tempColumnKeys.assignAll(const {
+      'branch_name',
+      'from',
+      'to',
+      'total_amount',
+      'total_discount',
+      'total_revenue',
+      'total_balance',
+    });
   }
 
   void selectAllColumns() {
-    for (int i = 0; i < tempColumnSelected.length; i++) {
-      tempColumnSelected[i] = true;
-    }
-    tempColumnSelected.refresh();
+    tempColumnKeys.assignAll(allColumns.map((c) => c.key));
   }
 
   void toggleTempColumn(int index) {
-    tempColumnSelected[index] = !tempColumnSelected[index];
-    tempColumnSelected.refresh();
+    if (index < 0 || index >= allColumns.length) return;
+    final key = allColumns[index].key;
+    if (tempColumnKeys.contains(key)) {
+      tempColumnKeys.remove(key);
+    } else {
+      tempColumnKeys.add(key);
+    }
+  }
+
+  void openColumnSelector(BuildContext context) {
+    initTempColumns();
+    ReportColumnSelectorSheet.show(
+      context: context,
+      title: 'reports.revenue.columns.title'.trns(),
+      columns: columnOptions,
+      tempSelected: tempColumnKeys,
+      onApply: applyColumnSelection,
+      onReset: resetColumnSelection,
+      onSelectAll: selectAllColumns,
+    );
   }
 
   // ── Pagination ───────────────────────────────────────────────────────────
@@ -311,13 +445,7 @@ class RevenueReportController extends GetxController {
     return '\$${value.toStringAsFixed(2)}';
   }
 
-  String _formatDate(DateTime date) {
-    const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[date.month]}/${date.day}/${date.year}';
-  }
+  String _formatDate(DateTime date) => reportHumanDate(date);
 
   String _formatDateApi(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';

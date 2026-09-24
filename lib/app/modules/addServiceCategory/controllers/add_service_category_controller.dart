@@ -10,10 +10,13 @@ import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
 class AddServiceCategoryController extends GetxController {
-  AddServiceCategoryController({required ServiceCategoryRepository repository})
-    : _repository = repository;
+  AddServiceCategoryController({
+    required ServiceCategoryRepository repository,
+    this.initialBranchId,
+  }) : _repository = repository;
 
   final ServiceCategoryRepository _repository;
+  final int? initialBranchId;
   final AuthService _authService = Get.find<AuthService>();
 
   final TextEditingController branchCtrl = TextEditingController();
@@ -42,7 +45,9 @@ class AddServiceCategoryController extends GetxController {
   void onInit() {
     super.onInit();
     _readArguments();
-    if (showBranch) {
+    if (initialBranchId != null) {
+      selectedBranchId.value = initialBranchId;
+    } else if (showBranch) {
       fetchBranches();
     }
   }

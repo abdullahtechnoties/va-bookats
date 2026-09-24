@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:va_bookats/app/modules/allBooking/controllers/all_booking_controller.dart';
+import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/booking_card.dart';
@@ -12,13 +13,30 @@ import 'package:va_bookats/widgets/Global-Widgets/booking_status_sheet.dart';
 class AllBookingView extends GetView<AllBookingController> {
   const AllBookingView({super.key});
 
+  /// Standalone route (`/all-booking`) vs embedded bottom-nav page.
+  /// Embedded → hide the header search toggle (home drives search);
+  /// standalone → show the back button.
+  bool get _isStandalone => Get.currentRoute == Routes.ALL_BOOKING;
+
   @override
   Widget build(BuildContext context) {
+    // Never mutate Rx state synchronously inside build — that throws
+    // "setState() or markNeedsBuild() called during build". Handle the
+    // incoming `autoFocusSearch` arg (and bottom-nav reuse) post-frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.isClosed) return;
+      controller.handleIncomingArgs();
+    });
+    final isStandalone = _isStandalone;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: Column(
         children: [
-          _AllBookingHeader(controller: controller),
+          _AllBookingHeader(
+            controller: controller,
+            showBack: isStandalone,
+            showSearchToggle: isStandalone,
+          ),
           Obx(
             () => controller.isSearchOpen.value
                 ? _SearchBar(controller: controller)
@@ -81,6 +99,7 @@ class AllBookingView extends GetView<AllBookingController> {
               );
             }),
           ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
@@ -115,8 +134,14 @@ class AllBookingView extends GetView<AllBookingController> {
 
 class _AllBookingHeader extends StatelessWidget {
   final AllBookingController controller;
+  final bool showBack;
+  final bool showSearchToggle;
 
-  const _AllBookingHeader({required this.controller});
+  const _AllBookingHeader({
+    required this.controller,
+    this.showBack = false,
+    this.showSearchToggle = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -124,24 +149,29 @@ class _AllBookingHeader extends StatelessWidget {
       decoration: const BoxDecoration(
         color: AppColors.secondary,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(0),
-          bottomRight: Radius.circular(0),
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
         ),
       ),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 16, 16),
+          padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                onPressed: () => Get.back(),
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: AppColors.white,
-                  size: 20,
-                ),
-              ),
+              if (showBack)
+                IconButton(
+                  onPressed: () => Get.back(),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new,
+                    color: AppColors.white,
+                    size: 20,
+                  ),
+                )
+              else
+                const SizedBox(width: 88),
               Expanded(
                 child: Text(
                   'home.booking.title'.trns(),
@@ -153,23 +183,57 @@ class _AllBookingHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              Obx(
-                () => GestureDetector(
-                  onTap: () => controller.toggleSearch(),
-                  child: Icon(
-                    controller.isSearchOpen.value ? Icons.close : Icons.search,
-                    color: AppColors.white,
-                    size: 22,
+              if (showSearchToggle)
+                Obx(
+                  () => GestureDetector(
+                    onTap: () => controller.toggleSearch(),
+                    child: Icon(
+                      controller.isSearchOpen.value
+                          ? Icons.close
+                          : Icons.search,
+                      color: AppColors.white,
+                      size: 22,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
+              if (showSearchToggle) const SizedBox(width: 12),
               GestureDetector(
                 onTap: () => controller.openFilter(context),
-                child: const Icon(
-                  Icons.filter_alt_outlined,
-                  color: AppColors.white,
-                  size: 22,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(
+                      Icons.filter_alt_outlined,
+                      color: AppColors.white,
+                      size: 22,
+                    ),
+                    Obx(() {
+                      final n = controller.appliedFiltersCount;
+                      if (n == 0) return const SizedBox.shrink();
+                      return Positioned(
+                        right: -6,
+                        top: -6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$n',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
               const SizedBox(width: 12),
@@ -225,7 +289,7 @@ class _SearchBar extends StatelessWidget {
               child: TextField(
                 controller: controller.searchCtrl,
                 focusNode: controller.searchFocus,
-                autofocus: true,
+                autofocus: false,
                 onChanged: controller.onSearchChanged,
                 textInputAction: TextInputAction.search,
                 style: const TextStyle(fontSize: 14, color: AppColors.black),
