@@ -41,7 +41,7 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
                       else
                         PaymentTableWidget(controller: controller),
                       const SizedBox(height: 16),
-                      if (controller.currentList.isNotEmpty) _buildPagination(),
+                      _buildPagination(),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -70,7 +70,11 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -91,7 +95,9 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
       return Container(
         decoration: const BoxDecoration(
           color: AppColors.white,
-          border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB), width: 1)),
+          border: Border(
+            bottom: BorderSide(color: Color(0xFFE5E7EB), width: 1),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -133,25 +139,67 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
             border: Border.all(color: const Color(0xFFE5E7EB)),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: AppCachedImage(
-                  imageUrl: null,
-                  width: 90,
-                  height: 80,
-                  fit: BoxFit.cover,
-                  fallbackAsset: 'assets/images/placeholder.png',
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    
-                    const SizedBox(height: 4),
+              // ClipRRect(
+              //   borderRadius: BorderRadius.circular(8),
+              //   child: AppCachedImage(
+              //     imageUrl: null,
+              //     width: 90,
+              //     height: 80,
+              //     fit: BoxFit.cover,
+              //     fallbackAsset: 'assets/images/placeholder.png',
+              //   ),
+              // ),
+              // const SizedBox(width: 14),
+              // Expanded(
+              //   child: Column(
+
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       const SizedBox(height: 4),
+              //       if (branch.address != null && branch.address!.isNotEmpty)
+              //         Text(
+              //           branch.address!,
+              //           style: const TextStyle(
+              //             fontSize: 12,
+              //             color: Color(0xFF6B7280),
+              //           ),
+              //           maxLines: 2,
+              //           overflow: TextOverflow.ellipsis,
+              //         ),
+              //     ],
+              //   ),
+              // ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (branch.emailPrimary != null)
+                    Text(
+                      branch.emailPrimary!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  const SizedBox(height: 4),
+                  if (branch.phonePrimary != null)
+                    Text(
+                      branch.phonePrimary!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  const SizedBox(height: 4),
+                  Text(
+                    controller.dateRangeLabel,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                  ),
+                   const SizedBox(height: 4),
                     if (branch.address != null && branch.address!.isNotEmpty)
                       Text(
                         branch.address!,
@@ -162,28 +210,6 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (branch.emailPrimary != null)
-                    Text(
-                      branch.emailPrimary!,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-                    ),
-                  const SizedBox(height: 4),
-                  if (branch.phonePrimary != null)
-                    Text(
-                      branch.phonePrimary!,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-                    ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${controller.fromDate} - ${controller.toDate}',
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
-                  ),
                 ],
               ),
             ],
@@ -211,7 +237,11 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey.shade400),
+            Icon(
+              Icons.receipt_long_outlined,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
             const SizedBox(height: 16),
             Text(
               'reports.paymentDetails.noPayments'.trns(),
@@ -234,24 +264,29 @@ class PaymentDetailsView extends GetView<PaymentDetailsController> {
   }
 
   // ── Pagination ───────────────────────────────────────────────────────────
+  // Shown only when there is a previous or next page, centered.
   Widget _buildPagination() {
-    return Obx(() => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              _PaginationBtn(
-                label: '« ${'reports.paymentDetails.pagination.previous'.trns()}',
-                onTap: controller.hasPrevPage ? controller.prevPage : null,
-              ),
-              const SizedBox(width: 8),
-              _PaginationBtn(
-                label: '${'reports.paymentDetails.pagination.next'.trns()} »',
-                isPrimary: true,
-                onTap: controller.hasNextPage ? controller.nextPage : null,
-              ),
-            ],
-          ),
-        ));
+    return Obx(() {
+      if (!controller.showPagination) return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _PaginationBtn(
+              label: '« ${'reports.paymentDetails.pagination.previous'.trns()}',
+              onTap: controller.hasPrevPage ? controller.prevPage : null,
+            ),
+            const SizedBox(width: 8),
+            _PaginationBtn(
+              label: '${'reports.paymentDetails.pagination.next'.trns()} »',
+              isPrimary: true,
+              onTap: controller.hasNextPage ? controller.nextPage : null,
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 

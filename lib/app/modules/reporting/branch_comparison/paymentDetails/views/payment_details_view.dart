@@ -5,19 +5,53 @@ import 'package:va_bookats/app/modules/reporting/branch_comparison/paymentDetail
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
-class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDetailsController> {
+class BranchComparisonReportDetailsView
+    extends GetView<BranchComparisonReportDetailsController> {
   const BranchComparisonReportDetailsView({super.key});
 
-  // Column definitions
+  // Column definitions: date, creator, approver, status, total amount,
+  // total discount, total paid, total balance.
   static const List<_ColDef> _columns = [
-    _ColDef(key: 'closing_date', label: 'Date', width: 110),
-    _ColDef(key: 'total_revenue', label: 'Revenue', width: 120),
-    _ColDef(key: 'total_amount', label: 'Amount', width: 120),
-    _ColDef(key: 'total_discount', label: 'Discount', width: 120),
-    _ColDef(key: 'service_revenue', label: 'Services', width: 120),
-    _ColDef(key: 'product_revenue', label: 'Products', width: 120),
-    _ColDef(key: 'package_revenue', label: 'Packages', width: 120),
-    _ColDef(key: 'status', label: 'Status', width: 100),
+    _ColDef(
+      key: 'date',
+      label: 'branchComparison.details.columns.date',
+      width: 120,
+    ),
+    _ColDef(
+      key: 'creator',
+      label: 'branchComparison.details.columns.creator',
+      width: 140,
+    ),
+    _ColDef(
+      key: 'approver',
+      label: 'branchComparison.details.columns.approver',
+      width: 140,
+    ),
+    _ColDef(
+      key: 'status',
+      label: 'branchComparison.details.columns.status',
+      width: 100,
+    ),
+    _ColDef(
+      key: 'total_amount',
+      label: 'branchComparison.details.columns.totalAmount',
+      width: 130,
+    ),
+    _ColDef(
+      key: 'total_discount',
+      label: 'branchComparison.details.columns.totalDiscount',
+      width: 130,
+    ),
+    _ColDef(
+      key: 'total_paid',
+      label: 'branchComparison.details.columns.totalPaid',
+      width: 130,
+    ),
+    _ColDef(
+      key: 'total_balance',
+      label: 'branchComparison.details.columns.totalBalance',
+      width: 130,
+    ),
   ];
 
   @override
@@ -35,33 +69,31 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
         }
 
         if (response.isError) {
-          return _buildErrorState(response.message ?? 'branchComparison.errors.fetchDetailsFailed'.trns());
+          return _buildErrorState(
+            response.message ??
+                'branchComparison.errors.fetchDetailsFailed'.trns(),
+          );
         }
 
         return RefreshIndicator(
           onRefresh: controller.refreshDetails,
           color: AppColors.primary,
-          child: Column(
-            children: [
-              _buildTabs(),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 16),
-                      _buildBranchCard(),
-                      const SizedBox(height: 16),
-                      _buildTable(),
-                      const SizedBox(height: 16),
-                      _buildPagination(),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                _buildBranchCard(),
+                const SizedBox(height: 16),
+                _buildTable(),
+                const SizedBox(height: 16),
+                _buildPagination(),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         );
       }),
@@ -84,7 +116,11 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -97,39 +133,6 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
       ),
       centerTitle: true,
     );
-  }
-
-  // ── Tabs ─────────────────────────────────────────────────────────────────
-  Widget _buildTabs() {
-    return Obx(() {
-      return Container(
-        alignment: Alignment.center,
-        decoration: const BoxDecoration(
-          color: AppColors.white,
-          border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB), width: 1)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _TabItem(
-              label: 'branchComparison.details.approved'.trns(),
-              isActive: controller.activeTab.value == ClosingTab.approved,
-              onTap: () => controller.setTab(ClosingTab.approved),
-            ),
-            _TabItem(
-              label: 'branchComparison.details.pending'.trns(),
-              isActive: controller.activeTab.value == ClosingTab.pending,
-              onTap: () => controller.setTab(ClosingTab.pending),
-            ),
-            _TabItem(
-              label: 'branchComparison.details.rejected'.trns(),
-              isActive: controller.activeTab.value == ClosingTab.rejected,
-              onTap: () => controller.setTab(ClosingTab.rejected),
-            ),
-          ],
-        ),
-      );
-    });
   }
 
   // ── Branch Info Card ─────────────────────────────────────────────────────
@@ -151,7 +154,11 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
           children: [
             Text(
               branch.name,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.black),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.black,
+              ),
             ),
             const SizedBox(height: 8),
             if (branch.emailPrimary != null)
@@ -160,6 +167,13 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
               _InfoRow(icon: Icons.phone_outlined, text: branch.phonePrimary!),
             if (branch.address != null)
               _InfoRow(icon: Icons.location_on_outlined, text: branch.address!),
+            if (controller.dateRangeLabel.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _InfoRow(
+                icon: Icons.date_range_outlined,
+                text: controller.dateRangeLabel,
+              ),
+            ],
           ],
         ),
       ),
@@ -169,7 +183,7 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
   // ── Table ────────────────────────────────────────────────────────────────
   Widget _buildTable() {
     return Obx(() {
-      final rows = controller.filteredClosings;
+      final rows = controller.dailyClosings;
 
       if (rows.isEmpty) {
         return Padding(
@@ -194,7 +208,9 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildTableHeader(),
-                ...rows.asMap().entries.map((e) => _buildTableRow(e.value, e.key % 2 == 0)),
+                ...rows.asMap().entries.map(
+                  (e) => _buildTableRow(e.value, e.key % 2 == 0),
+                ),
               ],
             ),
           ),
@@ -210,7 +226,9 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
       child: Row(
         children: [
           _HeaderCell(label: '#', width: 44, isFirst: true),
-          ..._columns.map((c) => _HeaderCell(label: c.label, width: c.width)),
+          ..._columns.map(
+            (c) => _HeaderCell(label: c.label.trns(), width: c.width),
+          ),
         ],
       ),
     );
@@ -229,7 +247,11 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
             child: Text(
               '${row.id}',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
             ),
           ),
           ..._columns.map(
@@ -250,24 +272,29 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
   }
 
   // ── Pagination ───────────────────────────────────────────────────────────
+  // Shown only when there is a previous or next page, centered.
   Widget _buildPagination() {
-    return Obx(() => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              _PaginationBtn(
-                label: '« Previous',
-                onTap: controller.hasPrevPage ? controller.prevPage : null,
-              ),
-              const SizedBox(width: 8),
-              _PaginationBtn(
-                label: 'Next »',
-                isPrimary: true,
-                onTap: controller.hasNextPage ? controller.nextPage : null,
-              ),
-            ],
-          ),
-        ));
+    return Obx(() {
+      if (!controller.showPagination) return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _PaginationBtn(
+              label: '« ${'reports.common.previous'.trns()}',
+              onTap: controller.hasPrevPage ? controller.prevPage : null,
+            ),
+            const SizedBox(width: 8),
+            _PaginationBtn(
+              label: '${'reports.common.next'.trns()} »',
+              isPrimary: true,
+              onTap: controller.hasNextPage ? controller.nextPage : null,
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // ── Error State ──────────────────────────────────────────────────────────
@@ -288,46 +315,16 @@ class BranchComparisonReportDetailsView extends GetView<BranchComparisonReportDe
             onPressed: controller.refreshDetails,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text('branchComparison.retry'.trns(), style: const TextStyle(color: AppColors.white)),
+            child: Text(
+              'branchComparison.retry'.trns(),
+              style: const TextStyle(color: AppColors.white),
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ── Tab Item ──────────────────────────────────────────────────────────────────
-class _TabItem extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _TabItem({required this.label, required this.isActive, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isActive ? AppColors.primary : AppColors.transparent,
-              width: 2.5,
-            ),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-            color: isActive ? AppColors.primary : const Color(0xFF9CA3AF),
-          ),
-        ),
       ),
     );
   }
@@ -374,7 +371,11 @@ class _HeaderCell extends StatelessWidget {
   final double width;
   final bool isFirst;
 
-  const _HeaderCell({required this.label, required this.width, this.isFirst = false});
+  const _HeaderCell({
+    required this.label,
+    required this.width,
+    this.isFirst = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -385,13 +386,20 @@ class _HeaderCell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         border: Border(
-          right: BorderSide(color: AppColors.white.withValues(alpha: 0.25), width: 0.5),
+          right: BorderSide(
+            color: AppColors.white.withValues(alpha: 0.25),
+            width: 0.5,
+          ),
         ),
       ),
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.white),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.white,
+        ),
       ),
     );
   }
@@ -402,7 +410,11 @@ class _DataCell extends StatelessWidget {
   final Widget child;
   final bool showDivider;
 
-  const _DataCell({required this.width, required this.child, required this.showDivider});
+  const _DataCell({
+    required this.width,
+    required this.child,
+    required this.showDivider,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -413,7 +425,9 @@ class _DataCell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         border: Border(
-          right: showDivider ? const BorderSide(color: Color(0xFFE5E7EB), width: 0.5) : BorderSide.none,
+          right: showDivider
+              ? const BorderSide(color: Color(0xFFE5E7EB), width: 0.5)
+              : BorderSide.none,
           bottom: const BorderSide(color: Color(0xFFE5E7EB), width: 0.5),
         ),
       ),
@@ -428,7 +442,11 @@ class _PaginationBtn extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isPrimary;
 
-  const _PaginationBtn({required this.label, required this.onTap, this.isPrimary = false});
+  const _PaginationBtn({
+    required this.label,
+    required this.onTap,
+    this.isPrimary = false,
+  });
 
   @override
   Widget build(BuildContext context) {

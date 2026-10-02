@@ -128,7 +128,7 @@ class RevenueFilterSheet extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Branch multi-select (only if owner)
+          // Branch single-select (only if owner)
           if (controller.isOwner) ...[
             Text(
               'reports.revenue.filter.branch'.trns(),
@@ -141,7 +141,7 @@ class RevenueFilterSheet extends StatelessWidget {
             const SizedBox(height: 8),
             Obx(
               () => _DropdownField(
-                value: controller.tempBranchFilterDisplay,
+                value: controller.tempBranchLabel.value,
                 onTap: () => _showBranchPicker(context, controller),
               ),
             ),
@@ -195,7 +195,7 @@ class RevenueFilterSheet extends StatelessWidget {
     BuildContext context,
     RevenueReportController controller,
   ) {
-    final options = controller.branchFilterOptions;
+    final options = controller.branchOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -204,11 +204,17 @@ class RevenueFilterSheet extends StatelessWidget {
         title: 'reports.revenue.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
         dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        selectedItem: controller.tempBranchLabel,
         textController: TextEditingController(),
+        selectedValue: options.map((o) => o.value.toString()).toList(),
+        currentlySelectedValue: controller.tempBranchId.value.toString(),
+        onValueSelected: (v) {
+          final id = int.tryParse(v.toString()) ?? 0;
+          final label =
+              options.firstWhereOrNull((o) => o.value == id)?.label ?? '';
+          controller.selectBranch(id, label);
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempBranchIds,
       ),
     );
   }

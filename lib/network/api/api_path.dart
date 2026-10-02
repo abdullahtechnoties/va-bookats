@@ -85,11 +85,10 @@ class ApiPath {
       'branch_id': branchId.toString(),
       'from_date': fromDate,
       'to_date': toDate,
+      // Always send staff_id: 'all' when nothing is selected.
+      'staff_id': (staffId == null || staffId.isEmpty) ? 'all' : staffId,
       'page': page.toString(),
     };
-    if (staffId != null && staffId.isNotEmpty) {
-      params['staff_id'] = staffId;
-    }
     final query = params.entries.map((e) => '${e.key}=${e.value}').join('&');
     return '/reports/commissions/show?$query';
   }

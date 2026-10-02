@@ -22,6 +22,11 @@ class PackageRevenueColumn {
     this.width = 130,
     this.isSelected = true,
   });
+
+  String get label => resolveReportColumnLabel(
+        'packageRevenue.table',
+        labelKey,
+      );
 }
 
 class PackageRevenueReportController extends GetxController {
@@ -43,54 +48,27 @@ class PackageRevenueReportController extends GetxController {
       .subtract(const Duration(days: 30))
       .obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
+  final RxInt selectedBranchId = 0.obs;
+  final RxString selectedBranchLabel = ''.obs;
 
-  /// Multi-select filters (stringified ids; empty = All).
-  final RxSet<String> selectedBranchIds = <String>{}.obs;
-  final RxSet<String> selectedPackageIds = <String>{}.obs;
+  /// `Rx<dynamic>` (never `'all'.obs`) so int package ids can never crash
+  /// the setter with `type 'int' is not a subtype of type 'String'`.
+  final Rx<dynamic> selectedPackageId = Rx<dynamic>('all');
+  final RxString selectedPackageLabel = ''.obs;
 
   // Temp filters
   final Rx<DateTime> tempFromDate = DateTime.now()
       .subtract(const Duration(days: 30))
       .obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxSet<String> tempBranchIds = <String>{}.obs;
-  final RxSet<String> tempPackageIds = <String>{}.obs;
+  final RxInt tempBranchId = 0.obs;
+  final RxString tempBranchLabel = ''.obs;
+  final Rx<dynamic> tempPackageId = Rx<dynamic>('all');
+  final RxString tempPackageLabel = ''.obs;
 
   // ── Dropdown Options ──────────────────────────────────────────────────
   final RxList<BranchFilterOption> branches = <BranchFilterOption>[].obs;
   final RxList<PackageFilterOption> packages = <PackageFilterOption>[].obs;
-
-  List<ReportOption> get branchFilterOptions => branches
-      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
-      .toList();
-
-  List<ReportOption> get packageFilterOptions => packages
-      .map((p) => ReportOption(label: p.label, value: p.value.toString()))
-      .toList();
-
-  String get packageFilterDisplay => multiSelectDisplay(
-    selected: selectedPackageIds,
-    options: packageFilterOptions,
-    allLabel: 'packageRevenue.filter.allPackages'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempBranchFilterDisplay => multiSelectDisplay(
-    selected: tempBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'packageRevenue.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempPackageFilterDisplay => multiSelectDisplay(
-    selected: tempPackageIds,
-    options: packageFilterOptions,
-    allLabel: 'packageRevenue.filter.allPackages'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  /// Backwards-compatible single-label accessors (main-view dropdown).
-  String get selectedPackageLabel => packageFilterDisplay;
 
   // ── Column selector ───────────────────────────────────────────────────
   final RxList<PackageRevenueColumn> allColumns = <PackageRevenueColumn>[
@@ -145,7 +123,7 @@ class PackageRevenueReportController extends GetxController {
   final RxSet<String> tempColumnKeys = <String>{}.obs;
 
   List<ReportColumnOption> get columnOptions => allColumns
-      .map((c) => ReportColumnOption(key: c.key, label: c.labelKey.trns()))
+      .map((c) => ReportColumnOption(key: c.key, label: c.label))
       .toList();
 
   // ── Computed ──────────────────────────────────────────────────────────
@@ -172,6 +150,10 @@ class PackageRevenueReportController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    selectedBranchLabel.value = 'packageRevenue.filter.allBranches'.trns();
+    selectedPackageLabel.value = 'packageRevenue.filter.allPackages'.trns();
+    tempBranchLabel.value = selectedBranchLabel.value;
+    tempPackageLabel.value = selectedPackageLabel.value;
     fetchReport();
   }
 
@@ -181,28 +163,27 @@ class PackageRevenueReportController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final List<String>? branchParam;
+      int? branchParam;
       if (showBranchFilter) {
-        branchParam = selectedBranchIds.isEmpty
-            ? null
-            : selectedBranchIds.toList();
+        branchParam = selectedBranchId.value > 0
+            ? selectedBranchId.value
+            : null;
       } else {
-        branchParam = userBranchId == null ? null : [userBranchId.toString()];
+        branchParam = userBranchId;
       }
 
       final response = await _repository.getPackageRevenueReport(
         fromDate: _formatApi(fromDate.value),
         toDate: _formatApi(toDate.value),
-        branchIds: branchParam,
-        packageIds: selectedPackageIds.isEmpty
-            ? null
-            : selectedPackageIds.toList(),
+        branchId: branchParam,
+        packageId: selectedPackageId.value,
       );
 
       if (response.isCompleted && response.data != null) {
         reportData.value = response.data;
         branches.value = response.data!.branches;
         packages.value = response.data!.packages;
+        syncDynamicColumns();
       } else {
         errorMessage.value = response.message ?? 'errors.failedToFetch'.trns();
         SnackbarService.showError(
@@ -231,29 +212,39 @@ class PackageRevenueReportController extends GetxController {
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    initTempMulti(tempBranchIds, selectedBranchIds);
-    initTempMulti(tempPackageIds, selectedPackageIds);
+    tempBranchId.value = selectedBranchId.value;
+    tempBranchLabel.value = selectedBranchLabel.value;
+    tempPackageId.value = selectedPackageId.value;
+    tempPackageLabel.value = selectedPackageLabel.value;
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchIds.assignAll(tempBranchIds);
-    selectedPackageIds.assignAll(tempPackageIds);
+    selectedBranchId.value = tempBranchId.value;
+    selectedBranchLabel.value = tempBranchLabel.value;
+    selectedPackageId.value = tempPackageId.value;
+    selectedPackageLabel.value = tempPackageLabel.value;
     fetchReport();
   }
 
   void resetFilter() {
     tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
     tempToDate.value = DateTime.now();
-    tempBranchIds.clear();
-    tempPackageIds.clear();
+    tempBranchId.value = 0;
+    tempBranchLabel.value = 'packageRevenue.filter.allBranches'.trns();
+    tempPackageId.value = 'all';
+    tempPackageLabel.value = 'packageRevenue.filter.allPackages'.trns();
   }
 
-  /// Main-view package multi-picker: replaces the selection and refetches.
-  void applyMainPackageSelection(Set<String> ids) {
-    selectedPackageIds.assignAll(ids);
-    tempPackageIds.assignAll(ids);
+  /// Main-view package picker: single-select, refetches immediately.
+  /// [id] is `dynamic` (int ids arrive as int) but never crashes thanks to
+  /// the `Rx<dynamic>` backing field.
+  void selectMainPackage(dynamic id, String label) {
+    selectedPackageId.value = id;
+    selectedPackageLabel.value = label;
+    tempPackageId.value = id;
+    tempPackageLabel.value = label;
     fetchReport();
   }
 
@@ -272,6 +263,31 @@ class PackageRevenueReportController extends GetxController {
 
   void resetColumnSelection() {
     tempColumnKeys.assignAll(allColumns.map((c) => c.key));
+  }
+
+  // ── Dynamic columns ───────────────────────────────────────────────────
+  /// Discovers scalar fields present in the API rows and appends them as
+  /// opt-in columns. Technical ids (branch_id, package_id, …) never
+  /// become columns.
+  void syncDynamicColumns() {
+    final known = allColumns.map((c) => c.key).toSet();
+    final fresh = discoverReportColumns(
+      monthlyData.map((r) => r.rawFields),
+      known,
+    );
+    if (fresh.isEmpty) return;
+    for (final key in fresh) {
+      final label = resolveReportColumnLabel('packageRevenue.table', key);
+      allColumns.add(
+        PackageRevenueColumn(
+          key: key,
+          labelKey: key,
+          width: reportColumnWidth(label),
+          isSelected: false,
+        ),
+      );
+    }
+    allColumns.refresh();
   }
 
   void selectAllColumns() {
@@ -311,13 +327,14 @@ class PackageRevenueReportController extends GetxController {
       case 'to':
         return _formatDisplayFromString(row.to);
       case 'total_amount':
-        return '\$${row.totalAmount.toStringAsFixed(2)}';
+        return formatReportCell(key, row.totalAmount);
       case 'total_discount':
-        return '\$${row.totalDiscount.toStringAsFixed(2)}';
+        return formatReportCell(key, row.totalDiscount);
       case 'net_revenue':
-        return '\$${row.netRevenue.toStringAsFixed(2)}';
+        return formatReportCell(key, row.netRevenue);
       default:
-        return '-';
+        // Dynamically discovered columns read straight from the raw row.
+        return formatReportCell(key, row.rawFields[key]);
     }
   }
 
@@ -337,7 +354,7 @@ class PackageRevenueReportController extends GetxController {
         'branch_id': data.branchId,
         'from_date': data.from,
         'to_date': data.to,
-        'package_id': data.packageId,
+        'package_id': data.packageId ?? 'all',
       },
     );
   }

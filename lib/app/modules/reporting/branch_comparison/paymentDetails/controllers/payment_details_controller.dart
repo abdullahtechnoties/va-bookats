@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/controllers/branch_comparison_service.dart';
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
-enum ClosingTab { approved, pending, rejected }
-
 class BranchComparisonReportDetailsController extends GetxController {
-  final BranchComparisonReportService _service = BranchComparisonReportService();
+  final BranchComparisonReportService _service =
+      BranchComparisonReportService();
 
   // ── Arguments from caller ────────────────────────────────────────────────
   late final int branchId;
@@ -24,17 +23,25 @@ class BranchComparisonReportDetailsController extends GetxController {
 
   BranchComparisonDetailsModel? get detailsData => detailsResponse.value.data;
   BranchInfoModel? get branch => detailsData?.branch;
-  List<DailyClosingModel> get dailyClosings => detailsData?.dailyClosings.items ?? [];
+  List<DailyClosingModel> get dailyClosings =>
+      detailsData?.dailyClosings.items ?? [];
   PaginationMeta? get paginationMeta => detailsData?.dailyClosings.meta;
-
-  // ── Tab State ────────────────────────────────────────────────────────────
-  final Rx<ClosingTab> activeTab = ClosingTab.approved.obs;
 
   // ── Pagination ───────────────────────────────────────────────────────────
   final RxInt currentPage = 1.obs;
 
   bool get hasNextPage => paginationMeta?.hasNextPage ?? false;
   bool get hasPrevPage => currentPage.value > 1;
+  bool get showPagination => hasNextPage || hasPrevPage;
+
+  /// `Sep 2, 2026 - Oct 2, 2026` — human readable range passed from the
+  /// previous page, used in the top details card.
+  String get dateRangeLabel {
+    final from = _humanDate(fromDate);
+    final to = _humanDate(toDate);
+    if (from.isEmpty && to.isEmpty) return '';
+    return '$from - $to';
+  }
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
   @override
@@ -70,20 +77,15 @@ class BranchComparisonReportDetailsController extends GetxController {
     } else if (response.isError) {
       SnackbarService.showError(
         title: 'errors.errorTitle'.trns(),
-        message: response.message ?? 'branchComparison.errors.fetchDetailsFailed'.trns(),
+        message:
+            response.message ??
+            'branchComparison.errors.fetchDetailsFailed'.trns(),
       );
     }
   }
 
   Future<void> refreshDetails() async {
     await fetchDetails(page: currentPage.value);
-  }
-
-  // ── Tab Actions ──────────────────────────────────────────────────────────
-  void setTab(ClosingTab tab) {
-    activeTab.value = tab;
-    currentPage.value = 1;
-    fetchDetails(page: 1);
   }
 
   // ── Pagination Actions ───────────────────────────────────────────────────
@@ -99,44 +101,36 @@ class BranchComparisonReportDetailsController extends GetxController {
     }
   }
 
-  // ── Filtered Items by Tab ────────────────────────────────────────────────
-  List<DailyClosingModel> get filteredClosings {
-    switch (activeTab.value) {
-      case ClosingTab.approved:
-        return dailyClosings.where((c) => c.status.toLowerCase() == 'approved').toList();
-      case ClosingTab.pending:
-        return dailyClosings.where((c) => c.status.toLowerCase() == 'pending').toList();
-      case ClosingTab.rejected:
-        return dailyClosings.where((c) => c.status.toLowerCase() == 'rejected').toList();
-    }
-  }
-
   // ── Table Helper ─────────────────────────────────────────────────────────
+  /// Columns: date, creator, approver, status, total amount, total
+  /// discount, total paid (= total revenue), total balance.
   String getCellValue(DailyClosingModel item, String key) {
     switch (key) {
-      case 'closing_date': return item.closingDate;
-      case 'total_revenue': return '\$${item.totalRevenue}';
-      case 'total_amount': return '\$${item.totalAmount}';
-      case 'total_discount': return '\$${item.totalDiscount}';
-      case 'total_balance': return '\$${item.totalBalance}';
-      case 'service_revenue': return '\$${item.serviceRevenue}';
-      case 'product_revenue': return '\$${item.productRevenue}';
-      case 'package_revenue': return '\$${item.packageRevenue}';
-      case 'status': return item.status;
-      default: return '-';
+      case 'date':
+        return _humanDate(item.closingDate);
+      case 'creator':
+        return item.creator?.name ?? '-';
+      case 'approver':
+        return item.approver?.name ?? '-';
+      case 'status':
+        return item.status;
+      case 'total_amount':
+        return formatReportCell(key, item.totalAmount);
+      case 'total_discount':
+        return formatReportCell(key, item.totalDiscount);
+      case 'total_paid':
+        return formatReportCell(key, item.totalRevenue);
+      case 'total_balance':
+        return formatReportCell(key, item.totalBalance);
+      default:
+        return '-';
     }
   }
 
-  String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      const months = [
-        '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-      ];
-      return '${months[date.month]}/${date.day}/${date.year}';
-    } catch (e) {
-      return dateStr;
-    }
+  String _humanDate(String dateStr) {
+    if (dateStr.isEmpty) return '';
+    final parsed = DateTime.tryParse(dateStr);
+    if (parsed == null) return dateStr;
+    return reportHumanDate(parsed);
   }
 }

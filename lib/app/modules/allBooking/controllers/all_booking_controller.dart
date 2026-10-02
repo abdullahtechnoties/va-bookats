@@ -70,8 +70,10 @@ class AllBookingController extends GetxController {
   final TextEditingController toDateCtrl = TextEditingController();
   final TextEditingController branchFilterCtrl = TextEditingController();
   final TextEditingController typeFilterCtrl = TextEditingController();
+  final TextEditingController quickRangeCtrl = TextEditingController();
   final RxString selectedBranchFilter = ''.obs;
   final RxString selectedTypeFilter = ''.obs;
+  final RxString selectedQuickRange = ''.obs;
 
   final RxList<BranchModel> branches = <BranchModel>[].obs;
   static const List<String> typeOptions = ['All', 'Guest', 'Customer'];
@@ -97,6 +99,21 @@ class AllBookingController extends GetxController {
   int get completedCount => completedBookings.length;
   int get cancelledCount => cancelledBookings.length;
 
+  /// Capitalized for display; mapped to API values before hitting the API.
+  static const List<String> quickRangeOptions = [
+    'All',
+    'Today',
+    'Yesterday',
+    'This Week',
+    'This Month',
+  ];
+
+  String? get _filterQuickRange {
+    final v = selectedQuickRange.value;
+    if (v.isEmpty || v == 'All') return null;
+    return v.toLowerCase().replaceAll(' ', '_');
+  }
+
   /// Number of active (non-empty) filters — shown as a badge on the icon.
   int get appliedFiltersCount {
     var n = 0;
@@ -104,6 +121,7 @@ class AllBookingController extends GetxController {
     if (toDateCtrl.text.trim().isNotEmpty) n++;
     if (selectedBranchFilter.value.isNotEmpty) n++;
     if (selectedTypeFilter.value.isNotEmpty) n++;
+    if (selectedQuickRange.value.isNotEmpty) n++;
     return n;
   }
 
@@ -151,6 +169,7 @@ class AllBookingController extends GetxController {
     toDateCtrl.dispose();
     branchFilterCtrl.dispose();
     typeFilterCtrl.dispose();
+    quickRangeCtrl.dispose();
     super.onClose();
   }
 
@@ -229,6 +248,7 @@ class AllBookingController extends GetxController {
     final to = _toApiDate(toDateCtrl.text);
     final branchId = _filterBranchId;
     final bookingType = _filterBookingType;
+    final quickRange = _filterQuickRange;
     final gen = ++_generation;
     isLoading.value = true;
     loadFailed.value = false;
@@ -238,6 +258,7 @@ class AllBookingController extends GetxController {
       search: query.isEmpty ? null : query,
       fromDate: from,
       toDate: to,
+      quickRange: quickRange,
       branchId: branchId,
       bookingType: bookingType,
     );
@@ -301,6 +322,7 @@ class AllBookingController extends GetxController {
     final to = _toApiDate(toDateCtrl.text);
     final branchId = _filterBranchId;
     final bookingType = _filterBookingType;
+    final quickRange = _filterQuickRange;
     final current = _page[key] ?? 1;
     final last = _lastPage[key] ?? current;
     if (current >= last || isLoadingMore.value) return;
@@ -312,6 +334,7 @@ class AllBookingController extends GetxController {
       search: query.isEmpty ? null : query,
       fromDate: from,
       toDate: to,
+      quickRange: quickRange,
       branchId: branchId,
       bookingType: bookingType,
     );
@@ -351,6 +374,13 @@ class AllBookingController extends GetxController {
 
   void openFilter(BuildContext context) {
     final fields = <FilterField>[
+      FilterField(
+        label: 'Quick Range',
+        type: FilterFieldType.dropdown,
+        controller: quickRangeCtrl,
+        dropdownItems: quickRangeOptions,
+        selectedValue: selectedQuickRange,
+      ),
       FilterField(
         label: 'From Date',
         type: FilterFieldType.date,
@@ -396,8 +426,10 @@ class AllBookingController extends GetxController {
     toDateCtrl.clear();
     branchFilterCtrl.clear();
     typeFilterCtrl.clear();
+    quickRangeCtrl.clear();
     selectedBranchFilter.value = '';
     selectedTypeFilter.value = '';
+    selectedQuickRange.value = '';
     _loaded.clear();
     fetchFirstPage();
   }

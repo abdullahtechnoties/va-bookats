@@ -110,7 +110,7 @@ class Step3Services extends GetView<CreateBookingController> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: controller.serviceItems.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
+              separatorBuilder: (_, _) => const SizedBox(height: 14),
               itemBuilder: (context, index) {
                 final item = controller.serviceItems[index];
                 return Obx(() {

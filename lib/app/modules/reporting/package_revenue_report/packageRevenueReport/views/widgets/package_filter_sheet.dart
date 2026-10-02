@@ -129,7 +129,7 @@ class PackageFilterSheet extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Branch multi-select (only if owner)
+          // Branch single-select (only if owner)
           if (controller.showBranchFilter) ...[
             Text(
               'packageRevenue.filter.branch'.trns(),
@@ -142,14 +142,14 @@ class PackageFilterSheet extends StatelessWidget {
             const SizedBox(height: 8),
             Obx(
               () => _DropdownField(
-                value: controller.tempBranchFilterDisplay,
+                value: controller.tempBranchLabel.value,
                 onTap: () => _showBranchPicker(context),
               ),
             ),
             const SizedBox(height: 16),
           ],
 
-          // Package multi-select
+          // Package single-select
           Text(
             'packageRevenue.filter.package'.trns(),
             style: const TextStyle(
@@ -161,7 +161,7 @@ class PackageFilterSheet extends StatelessWidget {
           const SizedBox(height: 8),
           Obx(
             () => _DropdownField(
-              value: controller.tempPackageFilterDisplay,
+              value: controller.tempPackageLabel.value,
               onTap: () => _showPackagePicker(context),
             ),
           ),
@@ -211,7 +211,6 @@ class PackageFilterSheet extends StatelessWidget {
   }
 
   void _showBranchPicker(BuildContext context) {
-    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -219,18 +218,35 @@ class PackageFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'packageRevenue.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          'packageRevenue.filter.allBranches'.trns(),
+          ...controller.branches.map((b) => b.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          '0',
+          ...controller.branches.map((b) => b.value.toString()),
+        ],
+        currentlySelectedValue: controller.tempBranchId.value.toString(),
+        onValueSelected: (v) {
+          final id = int.tryParse(v.toString()) ?? 0;
+          controller.tempBranchId.value = id;
+          controller.tempBranchLabel.value = id == 0
+              ? 'packageRevenue.filter.allBranches'.trns()
+              : controller.branches
+                        .firstWhereOrNull((b) => b.value == id)
+                        ?.label ??
+                    '';
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempBranchIds,
       ),
     );
   }
 
   void _showPackagePicker(BuildContext context) {
-    final options = controller.packageFilterOptions;
+    // The API list already ships its own "All Packages" entry — only
+    // prepend a manual one when it doesn't (avoids twin All rows).
+    final hasAll = reportOptionsContainAll(controller.packages);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -238,12 +254,33 @@ class PackageFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'packageRevenue.filter.selectPackage'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          if (!hasAll) 'packageRevenue.filter.allPackages'.trns(),
+          ...controller.packages.map((p) => p.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          if (!hasAll) 'all',
+          ...controller.packages.map((p) => p.value.toString()),
+        ],
+        currentlySelectedValue: controller.tempPackageId.value.toString(),
+        onValueSelected: (v) {
+          final raw = v.toString();
+          if (raw == 'all') {
+            controller.tempPackageId.value = 'all';
+            controller.tempPackageLabel.value =
+                'packageRevenue.filter.allPackages'.trns();
+            return;
+          }
+          final id = int.tryParse(raw);
+          controller.tempPackageId.value = id ?? raw;
+          controller.tempPackageLabel.value =
+              controller.packages
+                  .firstWhereOrNull((p) => p.value.toString() == raw)
+                  ?.label ??
+              '';
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempPackageIds,
       ),
     );
   }

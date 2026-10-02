@@ -6,8 +6,8 @@ class BranchFilterOption {
 
   factory BranchFilterOption.fromJson(Map<String, dynamic> json) {
     return BranchFilterOption(
-      label: json['label'] as String? ?? '',
-      value: json['value'] as int? ?? 0,
+      label: json['label']?.toString() ?? '',
+      value: int.tryParse(json['value']?.toString() ?? '0') ?? 0,
     );
   }
 }
@@ -21,9 +21,9 @@ class PackageFilterOption {
 
   factory PackageFilterOption.fromJson(Map<String, dynamic> json) {
     return PackageFilterOption(
-      label: json['label'] as String? ?? '',
+      label: json['label']?.toString() ?? '',
       value: json['value'],
-      price: json['price'] as String?,
+      price: json['price']?.toString(),
     );
   }
 }
@@ -38,6 +38,10 @@ class MonthlyPackageData {
   final num totalDiscount;
   final num netRevenue;
 
+  /// Every raw field from the API row, so report columns can be discovered
+  /// dynamically (unknown future keys included).
+  final Map<String, dynamic> rawFields;
+
   MonthlyPackageData({
     required this.branchName,
     required this.from,
@@ -47,25 +51,27 @@ class MonthlyPackageData {
     required this.totalAmount,
     required this.totalDiscount,
     required this.netRevenue,
-  });
+    Map<String, dynamic>? rawFields,
+  }) : rawFields = rawFields ?? const {};
 
   factory MonthlyPackageData.fromJson(Map<String, dynamic> json) {
     return MonthlyPackageData(
-      branchName: json['branch_name'] as String? ?? '',
-      from: json['from'] as String? ?? '',
-      to: json['to'] as String? ?? '',
+      branchName: json['branch_name']?.toString() ?? '',
+      from: json['from']?.toString() ?? '',
+      to: json['to']?.toString() ?? '',
       packageId: json['package_id'],
-      branchId: json['branch_id'] as int? ?? 0,
-      totalAmount: (json['total_amount'] is String)
-          ? num.tryParse(json['total_amount']) ?? 0
-          : json['total_amount'] as num? ?? 0,
-      totalDiscount: (json['total_discount'] is String)
-          ? num.tryParse(json['total_discount']) ?? 0
-          : json['total_discount'] as num? ?? 0,
-      netRevenue: (json['net_revenue'] is String)
-          ? num.tryParse(json['net_revenue']) ?? 0
-          : json['net_revenue'] as num? ?? 0,
+      branchId: int.tryParse(json['branch_id']?.toString() ?? '0') ?? 0,
+      totalAmount: _parseNum(json['total_amount']),
+      totalDiscount: _parseNum(json['total_discount']),
+      netRevenue: _parseNum(json['net_revenue']),
+      rawFields: Map<String, dynamic>.from(json),
     );
+  }
+
+  static num _parseNum(dynamic value) {
+    if (value == null) return 0;
+    if (value is num) return value;
+    return num.tryParse(value.toString()) ?? 0;
   }
 }
 
@@ -97,9 +103,9 @@ class PackageRevenueReportModel {
               )
               .toList() ??
           [],
-      branchId: json['branch_id'] as int? ?? 0,
-      fromDate: json['from_date'] as String? ?? '',
-      toDate: json['to_date'] as String? ?? '',
+      branchId: int.tryParse(json['branch_id']?.toString() ?? '0') ?? 0,
+      fromDate: json['from_date']?.toString() ?? '',
+      toDate: json['to_date']?.toString() ?? '',
       monthlyData:
           (json['monthlyData'] as List?)
               ?.map(

@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/models/package_revenue_details_model.dart';
 import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/repo/package_revenue_report_repository.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -41,6 +41,8 @@ class PackageRevenueDetailsController extends GetxController {
       detailsData.value?.dailyPackageSummaries.meta.lastPage ?? 1;
   bool get hasNextPage =>
       detailsData.value?.dailyPackageSummaries.meta.hasNextPage ?? false;
+  bool get hasPrevPage => currentPage.value > 1;
+  bool get showPagination => hasNextPage || hasPrevPage;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────
   @override
@@ -121,20 +123,13 @@ class PackageRevenueDetailsController extends GetxController {
 
   // ── Helpers ───────────────────────────────────────────────────────────
   String formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      return DateFormat('MMM/dd/yyyy').format(date);
-    } catch (e) {
-      return dateStr;
-    }
+    if (dateStr.isEmpty) return '';
+    final parsed = DateTime.tryParse(dateStr);
+    if (parsed == null) return dateStr;
+    return reportHumanDate(parsed);
   }
 
   String formatCurrency(String amount) {
-    try {
-      final num = double.tryParse(amount) ?? 0;
-      return '\$${num.toStringAsFixed(2)}';
-    } catch (e) {
-      return amount;
-    }
+    return formatReportCell('amount', amount);
   }
 }

@@ -92,6 +92,7 @@ class PackageRepository {
     String? search,
     String? fromDate,
     String? toDate,
+    String? quickRange,
     int? branchId,
     int? serviceId,
   }) async {
@@ -103,6 +104,8 @@ class PackageRepository {
         if (search != null && search.isNotEmpty) 'search': search,
         if (fromDate != null && fromDate.isNotEmpty) 'from_date': fromDate,
         if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
+        if (quickRange != null && quickRange.isNotEmpty)
+          'quick_range': quickRange,
         'branch_id': ?branchId,
         if (serviceId != null) 'service_id': serviceId,
       },

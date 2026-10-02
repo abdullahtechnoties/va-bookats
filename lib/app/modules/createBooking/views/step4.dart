@@ -110,7 +110,7 @@ class Step4Products extends GetView<CreateBookingController> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: controller.productItems.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
+              separatorBuilder: (_, _) => const SizedBox(height: 14),
               itemBuilder: (context, index) {
                 final item = controller.productItems[index];
                 return Obx(() {
@@ -235,6 +235,7 @@ class Step4Products extends GetView<CreateBookingController> {
                               return 'createBooking.step5.amountNegative'
                                   .trns();
                             }
+                            return null;
                           },
                           onChanged: (_) =>
                               controller.onProductDiscountChanged(item, ''),

@@ -131,7 +131,7 @@ class ExpenseFilterSheet extends StatelessWidget {
             if (controller.isOwner) ...[
               Row(
                 children: [
-                  // Branch multi-select Dropdown
+                  // Branch single-select Dropdown
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +147,9 @@ class ExpenseFilterSheet extends StatelessWidget {
                         const SizedBox(height: 8),
                         Obx(
                           () => _DropdownField(
-                            value: controller.tempBranchFilterDisplay,
+                            value:
+                                controller.tempSelectedBranch.value?.label ??
+                                'expense.filter.selectBranch'.trns(),
                             onTap: () => _showBranchPicker(context),
                           ),
                         ),
@@ -155,7 +157,7 @@ class ExpenseFilterSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Expense Category multi-select Dropdown
+                  // Expense Category single-select Dropdown
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,11 +173,13 @@ class ExpenseFilterSheet extends StatelessWidget {
                         const SizedBox(height: 8),
                         Obx(
                           () => _DropdownField(
-                            value: controller.tempCategoryFilterDisplay,
-                            isLoading: controller.isLoadingCategories.value,
-                            onTap: controller.isLoadingCategories.value
-                                ? null
-                                : () => _showCategoryPicker(context),
+                            value:
+                                controller
+                                    .tempSelectedExpenseCategory
+                                    .value
+                                    ?.label ??
+                                'expense.filter.selectCategory'.trns(),
+                            onTap: () => _showCategoryPicker(context),
                           ),
                         ),
                       ],
@@ -196,11 +200,10 @@ class ExpenseFilterSheet extends StatelessWidget {
               const SizedBox(height: 8),
               Obx(
                 () => _DropdownField(
-                  value: controller.tempCategoryFilterDisplay,
-                  isLoading: controller.isLoadingCategories.value,
-                  onTap: controller.isLoadingCategories.value
-                      ? null
-                      : () => _showCategoryPicker(context),
+                  value:
+                      controller.tempSelectedExpenseCategory.value?.label ??
+                      'expense.filter.selectCategory'.trns(),
+                  onTap: () => _showCategoryPicker(context),
                 ),
               ),
             ],
@@ -250,7 +253,6 @@ class ExpenseFilterSheet extends StatelessWidget {
   }
 
   void _showBranchPicker(BuildContext context) {
-    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -258,22 +260,23 @@ class ExpenseFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'expense.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: controller.branches.map((b) => b.label).toList(),
         textController: TextEditingController(),
+        selectedValue: controller.branches
+            .map((b) => b.value.toString())
+            .toList(),
+        currentlySelectedValue:
+            controller.tempSelectedBranch.value?.value.toString() ?? '',
+        onValueSelected: (value) {
+          controller.tempSelectedBranch.value = controller.branches
+              .firstWhereOrNull((b) => b.value.toString() == value.toString());
+        },
         showSearch: true,
-        currentlySelectedValue: controller.tempBranchIds.isEmpty
-            ? ''
-            : controller.tempBranchIds.first,
-        onValueSelected: (value) => controller.onTempBranchSelected(
-          value?.toString(),
-        ),
       ),
     );
   }
 
   void _showCategoryPicker(BuildContext context) {
-    final options = controller.categoryFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -281,12 +284,22 @@ class ExpenseFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'expense.filter.category'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: controller.expenseCategories
+            .map((c) => c.label)
+            .toList(),
         textController: TextEditingController(),
+        selectedValue: controller.expenseCategories
+            .map((c) => c.value.toString())
+            .toList(),
+        currentlySelectedValue:
+            controller.tempSelectedExpenseCategory.value?.value.toString() ??
+            '',
+        onValueSelected: (value) {
+          controller.tempSelectedExpenseCategory.value = controller
+              .expenseCategories
+              .firstWhereOrNull((c) => c.value.toString() == value.toString());
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempCategoryIds,
       ),
     );
   }
@@ -341,13 +354,8 @@ class _DateField extends StatelessWidget {
 class _DropdownField extends StatelessWidget {
   final String value;
   final VoidCallback? onTap;
-  final bool isLoading;
 
-  const _DropdownField({
-    required this.value,
-    required this.onTap,
-    this.isLoading = false,
-  });
+  const _DropdownField({required this.value, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -374,20 +382,11 @@ class _DropdownField extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColors.primary,
-                    ),
-                  )
-                : const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 22,
-                    color: Color(0xFF9CA3AF),
-                  ),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 22,
+              color: Color(0xFF9CA3AF),
+            ),
           ],
         ),
       ),

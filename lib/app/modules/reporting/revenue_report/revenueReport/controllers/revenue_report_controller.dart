@@ -38,34 +38,18 @@ class RevenueReportController extends GetxController {
   // ── Filter state ─────────────────────────────────────────────────────────
   final Rx<DateTime> fromDate = DateTime.now().obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
-
-  /// Multi-select branch filter (stringified ids; empty = All branches).
-  final RxSet<String> selectedBranchIds = <String>{}.obs;
+  final RxInt selectedBranchId = 0.obs; // 0 = All branches
+  final RxString selectedBranchLabel = 'All Branches'.obs;
 
   // Temp filter (inside sheet before apply)
   final Rx<DateTime> tempFromDate = DateTime.now().obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxSet<String> tempBranchIds = <String>{}.obs;
+  final RxInt tempBranchId = 0.obs;
+  final RxString tempBranchLabel = 'All Branches'.obs;
 
   // Branch options from API
   final RxList<BranchOption> branchOptions = <BranchOption>[].obs;
-  List<ReportOption> get branchFilterOptions => branchOptions
-      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
-      .toList();
-
-  String get branchFilterDisplay => multiSelectDisplay(
-    selected: selectedBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'reports.revenue.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempBranchFilterDisplay => multiSelectDisplay(
-    selected: tempBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'reports.revenue.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
+  List<String> get branchLabels => branchOptions.map((b) => b.label).toList();
 
   // ── Column selector ──────────────────────────────────────────────────────
   final RxList<RevenueColumn> allColumns = <RevenueColumn>[
@@ -247,24 +231,19 @@ class RevenueReportController extends GetxController {
     }
 
     try {
-      final List<String>? branchIdsParam;
-      if (isOwner) {
-        branchIdsParam = selectedBranchIds.isEmpty
-            ? null
-            : selectedBranchIds.toList();
-      } else {
-        final userBranch = _authService.currentUser.value?.branchId;
-        branchIdsParam = userBranch == null ? null : [userBranch.toString()];
-      }
+      final int? branchIdParam = isOwner && selectedBranchId.value > 0
+          ? selectedBranchId.value
+          : (!isOwner ? (_authService.currentUser.value?.branchId ?? 0) : null);
 
       final response = await _reportService.getRevenueReport(
-        branchIds: branchIdsParam,
+        branchId: branchIdParam,
         fromDate: _formatDateApi(fromDate.value),
         toDate: _formatDateApi(toDate.value),
       );
 
       if (response.isCompleted && response.data != null) {
         _parseRevenueResponse(response.data!);
+        syncDynamicColumns();
       } else {
         SnackbarService.showError(
           title: 'errors.errorTitle'.trns(),
@@ -285,7 +264,12 @@ class RevenueReportController extends GetxController {
   void _parseRevenueResponse(Map<String, dynamic> data) {
     // Parse branches
     if (data['branches'] != null && data['branches'] is List) {
-      final List<BranchOption> branches = [];
+      final List<BranchOption> branches = [
+        BranchOption(
+          label: 'reports.revenue.filter.allBranches'.trns(),
+          value: 0,
+        ),
+      ];
       for (var b in data['branches']) {
         branches.add(BranchOption.fromJson(b));
       }
@@ -308,13 +292,15 @@ class RevenueReportController extends GetxController {
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    initTempMulti(tempBranchIds, selectedBranchIds);
+    tempBranchId.value = selectedBranchId.value;
+    tempBranchLabel.value = selectedBranchLabel.value;
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchIds.assignAll(tempBranchIds);
+    selectedBranchId.value = tempBranchId.value;
+    selectedBranchLabel.value = tempBranchLabel.value;
 
     fetchRevenueReport();
   }
@@ -323,12 +309,46 @@ class RevenueReportController extends GetxController {
     final now = DateTime.now();
     tempFromDate.value = DateTime(now.year, now.month, 1);
     tempToDate.value = DateTime(now.year, now.month + 1, 0);
-    tempBranchIds.clear();
+    tempBranchId.value = 0;
+    tempBranchLabel.value = 'reports.revenue.filter.allBranches'.trns();
+  }
+
+  void selectBranch(int id, String label) {
+    tempBranchId.value = id;
+    tempBranchLabel.value = label;
   }
 
   // ── Column Actions ───────────────────────────────────────────────────────
   void initTempColumns() {
     initTempMulti(tempColumnKeys, selectedColumnKeys);
+  }
+
+  // ── Dynamic columns ────────────────────────────────────────────────────
+  /// Discovers scalar fields present in the API rows (e.g. cash_count,
+  /// service_discount, total_services_sold) and appends them as opt-in
+  /// columns. Technical ids never become columns.
+  void syncDynamicColumns() {
+    final known = allColumns.map((c) => c.key).toSet();
+    final fresh = discoverReportColumns(
+      revenueDataList.map((r) => r.rawFields),
+      known,
+    );
+    if (fresh.isEmpty) return;
+    for (final key in fresh) {
+      final label = resolveReportColumnLabel(
+        'reports.revenue.columns',
+        key,
+      );
+      allColumns.add(
+        RevenueColumn(
+          key: key,
+          label: label,
+          width: reportColumnWidth(label),
+          isSelected: false,
+        ),
+      );
+    }
+    allColumns.refresh();
   }
 
   void applyColumnSelection() {
@@ -437,7 +457,8 @@ class RevenueReportController extends GetxController {
       case 'return_count':
         return row.returnCount.toString();
       default:
-        return '-';
+        // Dynamically discovered columns read straight from the raw row.
+        return formatReportCell(key, row.rawFields[key]);
     }
   }
 

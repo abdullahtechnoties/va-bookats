@@ -9,16 +9,48 @@ import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
-class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController> {
+class ServiceRevenueDetailsView
+    extends GetView<ServiceRevenueDetailsController> {
   const ServiceRevenueDetailsView({super.key});
 
+  // Columns: service, customers, status, service amount, total discount,
+  // total amount, revenue.
   static const List<_ColDef> _columns = [
-    _ColDef(key: 'serviceName', labelKey: 'reports.serviceRevenue.details.serviceName', width: 150),
-    _ColDef(key: 'totalCustomers', labelKey: 'reports.serviceRevenue.details.totalCustomers', width: 130),
-    _ColDef(key: 'serviceAmount', labelKey: 'reports.serviceRevenue.details.serviceAmount', width: 140),
-    _ColDef(key: 'totalAmount', labelKey: 'reports.serviceRevenue.details.totalAmount', width: 130),
-    _ColDef(key: 'totalDiscount', labelKey: 'reports.serviceRevenue.details.totalDiscount', width: 140),
-    _ColDef(key: 'netRevenue', labelKey: 'reports.serviceRevenue.details.netRevenue', width: 130),
+    _ColDef(
+      key: 'serviceName',
+      labelKey: 'reports.serviceRevenue.details.serviceName',
+      width: 150,
+    ),
+    _ColDef(
+      key: 'totalCustomers',
+      labelKey: 'reports.serviceRevenue.details.totalCustomers',
+      width: 130,
+    ),
+    _ColDef(
+      key: 'status',
+      labelKey: 'reports.serviceRevenue.details.status',
+      width: 110,
+    ),
+    _ColDef(
+      key: 'serviceAmount',
+      labelKey: 'reports.serviceRevenue.details.serviceAmount',
+      width: 140,
+    ),
+    _ColDef(
+      key: 'totalDiscount',
+      labelKey: 'reports.serviceRevenue.details.totalDiscount',
+      width: 140,
+    ),
+    _ColDef(
+      key: 'totalAmount',
+      labelKey: 'reports.serviceRevenue.details.totalAmount',
+      width: 130,
+    ),
+    _ColDef(
+      key: 'netRevenue',
+      labelKey: 'reports.serviceRevenue.details.netRevenue',
+      width: 130,
+    ),
   ];
 
   @override
@@ -55,7 +87,11 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -76,7 +112,9 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
       onRefresh: controller.refreshDetails,
       color: AppColors.primary,
       child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -114,36 +152,45 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: AppCachedImage(
-                  imageUrl: null,
-                  width: 90,
-                  height: 80,
-                  fit: BoxFit.cover,
-                  fallbackAsset: 'assets/images/placeholder.png',
-                ),
-              ),
-              const SizedBox(width: 14),
-              
+              // ClipRRect(
+              //   borderRadius: BorderRadius.circular(8),
+              //   child: AppCachedImage(
+              //     imageUrl: null,
+              //     width: 90,
+              //     height: 80,
+              //     fit: BoxFit.cover,
+              //     fallbackAsset: 'assets/images/placeholder.png',
+              //   ),
+              // ),
+              // const SizedBox(width: 14),
+
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (branch.emailPrimary != null)
                     Text(
                       branch.emailPrimary!,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
                     ),
                   const SizedBox(height: 4),
                   if (branch.phonePrimary != null)
                     Text(
                       branch.phonePrimary!,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
                     ),
                   const SizedBox(height: 4),
                   Text(
                     '${controller.formatDate(controller.fromDate)} - ${controller.formatDate(controller.toDate)}',
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                    ),
                   ),
                   if (controller.detailData?.serviceName != null) ...[
                     const SizedBox(height: 4),
@@ -179,8 +226,8 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
               children: [
                 _buildTableHeader(),
                 ...summaries.asMap().entries.map(
-                      (e) => _buildTableRow(e.value, e.key % 2 == 0),
-                    ),
+                  (e) => _buildTableRow(e.value, e.key % 2 == 0),
+                ),
               ],
             ),
           ),
@@ -195,8 +242,14 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
       color: AppColors.primary,
       child: Row(
         children: [
-          _HeaderCell(labelKey: 'reports.common.index', width: 44, isFirst: true),
-          ..._columns.map((c) => _HeaderCell(labelKey: c.labelKey, width: c.width)),
+          _HeaderCell(
+            labelKey: 'reports.common.index',
+            width: 44,
+            isFirst: true,
+          ),
+          ..._columns.map(
+            (c) => _HeaderCell(labelKey: c.labelKey, width: c.width),
+          ),
         ],
       ),
     );
@@ -247,6 +300,8 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
         return summary.service?.name ?? '-';
       case 'totalCustomers':
         return summary.totalCustomers.toString();
+      case 'status':
+        return '-';
       case 'serviceAmount':
         return controller.formatCurrency(summary.serviceAmount);
       case 'totalAmount':
@@ -260,33 +315,29 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
     }
   }
 
+  // Shown only when there is a previous or next page, centered.
   Widget _buildPagination() {
-    return Obx(() => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${'reports.common.page'.trns()} ${controller.currentPage.value} / ${controller.totalPages}',
-                style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-              ),
-              Row(
-                children: [
-                  _PaginationBtn(
-                    label: '« ${'reports.common.previous'.trns()}',
-                    onTap: controller.hasPrevPage ? controller.prevPage : null,
-                  ),
-                  const SizedBox(width: 8),
-                  _PaginationBtn(
-                    label: '${'reports.common.next'.trns()} »',
-                    onTap: controller.hasNextPage ? controller.nextPage : null,
-                    isPrimary: true,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ));
+    return Obx(() {
+      if (!controller.showPagination) return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _PaginationBtn(
+              label: '« ${'reports.common.previous'.trns()}',
+              onTap: controller.hasPrevPage ? controller.prevPage : null,
+            ),
+            const SizedBox(width: 8),
+            _PaginationBtn(
+              label: '${'reports.common.next'.trns()} »',
+              onTap: controller.hasNextPage ? controller.nextPage : null,
+              isPrimary: true,
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // ── States ────────────────────────────────────────────────────────────
@@ -329,7 +380,11 @@ class ServiceRevenueDetailsView extends GetView<ServiceRevenueDetailsController>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.receipt_long_outlined, size: 64, color: Color(0xFF9CA3AF)),
+            const Icon(
+              Icons.receipt_long_outlined,
+              size: 64,
+              color: Color(0xFF9CA3AF),
+            ),
             const SizedBox(height: 16),
             Text(
               'reports.empty.details'.trns(),
@@ -348,7 +403,11 @@ class _ColDef {
   final String key;
   final String labelKey;
   final double width;
-  const _ColDef({required this.key, required this.labelKey, required this.width});
+  const _ColDef({
+    required this.key,
+    required this.labelKey,
+    required this.width,
+  });
 }
 
 class _HeaderCell extends StatelessWidget {
@@ -356,7 +415,11 @@ class _HeaderCell extends StatelessWidget {
   final double width;
   final bool isFirst;
 
-  const _HeaderCell({required this.labelKey, required this.width, this.isFirst = false});
+  const _HeaderCell({
+    required this.labelKey,
+    required this.width,
+    this.isFirst = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -367,7 +430,10 @@ class _HeaderCell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         border: Border(
-          right: BorderSide(color: AppColors.white.withValues(alpha: 0.25), width: 0.5),
+          right: BorderSide(
+            color: AppColors.white.withValues(alpha: 0.25),
+            width: 0.5,
+          ),
         ),
       ),
       child: Text(
@@ -388,7 +454,11 @@ class _DataCell extends StatelessWidget {
   final Widget child;
   final bool showDivider;
 
-  const _DataCell({required this.width, required this.child, required this.showDivider});
+  const _DataCell({
+    required this.width,
+    required this.child,
+    required this.showDivider,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -415,7 +485,11 @@ class _PaginationBtn extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isPrimary;
 
-  const _PaginationBtn({required this.label, required this.onTap, this.isPrimary = false});
+  const _PaginationBtn({
+    required this.label,
+    required this.onTap,
+    this.isPrimary = false,
+  });
 
   @override
   Widget build(BuildContext context) {

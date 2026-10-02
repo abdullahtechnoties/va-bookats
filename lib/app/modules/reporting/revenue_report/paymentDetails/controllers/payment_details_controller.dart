@@ -5,6 +5,7 @@ import 'package:va_bookats/app/modules/reporting/revenue_report/revenueReport/se
 import 'package:va_bookats/models/branch_info.dart';
 import 'package:va_bookats/models/payment_item.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -65,6 +66,16 @@ class PaymentDetailsController extends GetxController {
 
   bool get hasNextPage => currentMeta?.hasNextPage ?? false;
   bool get hasPrevPage => (currentPage > 1);
+  bool get showPagination => hasNextPage || hasPrevPage;
+
+  /// `Sep 2, 2026 - Oct 2, 2026` — human readable range passed from the
+  /// previous page, used in the top details card.
+  String get dateRangeLabel {
+    final from = _humanDate(fromDate);
+    final to = _humanDate(toDate);
+    if (from.isEmpty && to.isEmpty) return '';
+    return '$from - $to';
+  }
 
   int get currentPage {
     switch (activeTab.value) {
@@ -206,26 +217,52 @@ class PaymentDetailsController extends GetxController {
   }
 
   // ── Table helpers ────────────────────────────────────────────────────────
+  /// Columns: customer_name, customer_email, customer_phone, payment_method,
+  /// date, status, total amount, discount, total paid, total balance.
   String getCellValue(PaymentItem item, String key) {
     switch (key) {
+      case 'customer_name':
+        return item.booking?.displayName ?? 'N/A';
+      case 'customer_email':
+        return item.booking?.guestEmail ?? 'N/A';
+      case 'customer_phone':
+        return item.booking?.guestPhone ?? 'N/A';
+      case 'payment_method':
+        return item.paymentMethod ?? 'N/A';
+      case 'date':
+        return _humanDate(item.date);
+      case 'status':
+        return item.status;
+      case 'total_amount':
+        return formatReportCell(key, item.totalAmount);
+      case 'discount':
+        return formatReportCell(key, item.discountAmount);
+      case 'total_paid':
+        return formatReportCell(key, item.paidAmount);
+      case 'total_balance':
+        return formatReportCell(key, item.balance);
+      // Legacy keys kept for backward compatibility.
       case 'customer':
         return item.booking?.displayName ?? 'N/A';
       case 'bookingSerial':
         return '#${item.booking?.bookingSerial ?? 0}';
-      case 'date':
-        return item.date;
       case 'totalAmount':
-        return '\$${item.totalAmount.toStringAsFixed(2)}';
+        return formatReportCell(key, item.totalAmount);
       case 'paidAmount':
-        return '\$${item.paidAmount.toStringAsFixed(2)}';
+        return formatReportCell(key, item.paidAmount);
       case 'balance':
-        return '\$${item.balance.toStringAsFixed(2)}';
+        return formatReportCell(key, item.balance);
       case 'paymentMethod':
         return item.paymentMethod ?? 'N/A';
-      case 'status':
-        return item.status;
       default:
         return '-';
     }
+  }
+
+  String _humanDate(String dateStr) {
+    if (dateStr.isEmpty) return '';
+    final parsed = DateTime.tryParse(dateStr);
+    if (parsed == null) return dateStr;
+    return reportHumanDate(parsed);
   }
 }

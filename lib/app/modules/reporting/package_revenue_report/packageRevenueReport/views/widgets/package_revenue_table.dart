@@ -75,7 +75,7 @@ class _TableHeader extends StatelessWidget {
             isFirst: true,
           ),
           ...cols.map(
-            (c) => _HeaderCell(label: c.labelKey.trns(), width: c.width),
+            (c) => _HeaderCell(label: c.label, width: c.width),
           ),
           _HeaderCell(
             label: 'packageRevenue.table.actions'.trns(),

@@ -88,6 +88,10 @@ class BranchComparisonItemModel {
   final String to;
   final int branchId;
 
+  /// Every raw field from the API row, so report columns can be discovered
+  /// dynamically (unknown future keys included).
+  final Map<String, dynamic> rawFields;
+
   BranchComparisonItemModel({
     required this.totalAmount,
     required this.totalDiscount,
@@ -119,7 +123,8 @@ class BranchComparisonItemModel {
     required this.from,
     required this.to,
     required this.branchId,
-  });
+    Map<String, dynamic>? rawFields,
+  }) : rawFields = rawFields ?? const {};
 
   factory BranchComparisonItemModel.fromJson(Map<String, dynamic> json) {
     return BranchComparisonItemModel(
@@ -153,6 +158,7 @@ class BranchComparisonItemModel {
       from: json['from']?.toString() ?? '',
       to: json['to']?.toString() ?? '',
       branchId: json['branch_id'] as int? ?? 0,
+      rawFields: Map<String, dynamic>.from(json),
     );
   }
 }

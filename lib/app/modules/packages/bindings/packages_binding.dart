@@ -6,9 +6,7 @@ import '../repositories/package_repository.dart';
 class PackagesBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<PackageRepository>(
-      () => PackageRepository(),
-    );
+    Get.lazyPut<PackageRepository>(() => PackageRepository());
     Get.lazyPut<PackagesController>(
       () => PackagesController(repository: Get.find<PackageRepository>()),
     );

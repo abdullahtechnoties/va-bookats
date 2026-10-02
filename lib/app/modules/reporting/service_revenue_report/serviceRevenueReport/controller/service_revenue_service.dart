@@ -5,7 +5,6 @@ import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceR
 import 'package:va_bookats/network/api/api_path.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/service/network_service.dart';
-import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import '../models/service_revenue_models.dart';
 
@@ -15,8 +14,8 @@ class ServiceRevenueService extends GetxService {
   Future<ApiResponse<ServiceRevenueResponse>> getServiceRevenueReport({
     String? fromDate,
     String? toDate,
-    List<String>? branchIds,
-    List<String>? serviceIds,
+    int? branchId,
+    dynamic serviceId,
   }) async {
     try {
       final queryParams = <String, dynamic>{};
@@ -26,11 +25,11 @@ class ServiceRevenueService extends GetxService {
       if (toDate != null) {
         queryParams['to_date'] = toDate;
       }
-      if (branchIds != null) {
-        addIndexedParams(queryParams, 'branch_ids', branchIds);
+      if (branchId != null) {
+        queryParams['branch_id'] = branchId;
       }
-      if (serviceIds != null) {
-        addIndexedParams(queryParams, 'service_ids', serviceIds);
+      if (serviceId != null) {
+        queryParams['service_id'] = serviceId;
       }
 
       final response = await _network.get(

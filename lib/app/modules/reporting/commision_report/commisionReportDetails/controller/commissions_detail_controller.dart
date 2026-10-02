@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:va_bookats/app/modules/reporting/commision_report/commissionReport/models/commissions_detail_model.dart';
 import 'package:va_bookats/network/api/api_path.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
 import 'package:va_bookats/network/service/network_service.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
 class CommissionsDetailController extends GetxController {
@@ -41,14 +41,17 @@ class CommissionsDetailController extends GetxController {
   bool get hasNextPage => paginationMeta?.hasNextPage ?? false;
 
   String get dateRangeLabel {
-    try {
-      final from = DateTime.parse(fromDate);
-      final to = DateTime.parse(toDate);
-      final fmt = DateFormat('MMM/d/yyyy');
-      return '${fmt.format(from)} - ${fmt.format(to)}';
-    } catch (_) {
-      return '$fromDate - $toDate';
-    }
+    final from = _humanDate(fromDate);
+    final to = _humanDate(toDate);
+    if (from.isEmpty && to.isEmpty) return '';
+    return '$from - $to';
+  }
+
+  String _humanDate(String dateStr) {
+    if (dateStr.isEmpty) return '';
+    final parsed = DateTime.tryParse(dateStr);
+    if (parsed == null) return dateStr;
+    return reportHumanDate(parsed);
   }
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:va_bookats/app/modules/reporting/expense_report/expenseReport/models/expense_item_model.dart';
 import 'package:va_bookats/app/modules/reporting/expense_report/expenseReportDetails/controller/expense_detail_controller.dart';
 import 'package:va_bookats/network/response/status.dart';
 import 'package:va_bookats/utilities/colors.dart';
@@ -8,6 +9,28 @@ import 'package:va_bookats/widgets/app_cached_image.dart';
 
 class ExpenseDetailView extends GetView<ExpenseDetailController> {
   const ExpenseDetailView({super.key});
+
+  // Summary table: branch, from, to, total expense.
+  static const List<_ColDef> _summaryColumns = [
+    _ColDef(key: 'branch', label: 'expense.detail.summary.branch', width: 150),
+    _ColDef(key: 'from', label: 'expense.detail.summary.from', width: 120),
+    _ColDef(key: 'to', label: 'expense.detail.summary.to', width: 120),
+    _ColDef(
+      key: 'total_expense',
+      label: 'expense.detail.summary.totalExpense',
+      width: 140,
+    ),
+  ];
+
+  // Items table: bill, name, category, date, status, amount.
+  static const List<_ColDef> _columns = [
+    _ColDef(key: 'bill', label: 'expense.detail.table.bill', width: 80),
+    _ColDef(key: 'name', label: 'expense.detail.table.name', width: 150),
+    _ColDef(key: 'category', label: 'expense.detail.table.category', width: 130),
+    _ColDef(key: 'date', label: 'expense.detail.table.date', width: 120),
+    _ColDef(key: 'status', label: 'expense.detail.table.status', width: 120),
+    _ColDef(key: 'amount', label: 'expense.detail.table.amount', width: 130),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -74,26 +97,24 @@ class ExpenseDetailView extends GetView<ExpenseDetailController> {
     return RefreshIndicator(
       onRefresh: controller.refreshData,
       color: AppColors.primary,
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  _buildBranchCard(),
-                  const SizedBox(height: 16),
-                  _buildExpensesList(),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
-          ),
-          _buildPagination(),
-          const SizedBox(height: 20),
-        ],
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            _buildBranchCard(),
+            const SizedBox(height: 16),
+            _buildSummaryTable(),
+            const SizedBox(height: 16),
+            _buildExpensesTable(),
+            const SizedBox(height: 16),
+            _buildPagination(),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -107,6 +128,7 @@ class ExpenseDetailView extends GetView<ExpenseDetailController> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.white,
@@ -153,50 +175,226 @@ class ExpenseDetailView extends GetView<ExpenseDetailController> {
     });
   }
 
-  // ── Expenses List ───────────────────────────────────────────────────────
-  Widget _buildExpensesList() {
-    return Obx(() {
-      final expenses = controller.expenses;
-      return ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: expenses.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final expense = expenses[index];
-          return _ExpenseCard(expense: expense, controller: controller);
-        },
-      );
-    });
+  // ── Summary Table (branch / from / to / total expense) ─────────────────
+  Widget _buildSummaryTable() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Obx(
+            () => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTableHeader(_summaryColumns),
+                _buildSummaryRow(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow() {
+    return Container(
+      height: 46,
+      color: AppColors.white,
+      child: Row(
+        children: [
+          _DataCell(
+            width: 44,
+            showDivider: true,
+            child: const Text(
+              '1',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          _DataCell(
+            width: 150,
+            showDivider: true,
+            child: Text(
+              controller.summaryBranch.isNotEmpty
+                  ? controller.summaryBranch
+                  : '-',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          _DataCell(
+            width: 120,
+            showDivider: true,
+            child: Text(
+              controller.formatDate(controller.summaryFrom),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          _DataCell(
+            width: 120,
+            showDivider: true,
+            child: Text(
+              controller.formatDate(controller.summaryTo),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          _DataCell(
+            width: 140,
+            showDivider: false,
+            child: Text(
+              controller.formatAmount(controller.summaryTotalExpense),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Expenses Table ──────────────────────────────────────────────────────
+  Widget _buildExpensesTable() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Obx(() {
+            final expenses = controller.expenses;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTableHeader(_columns),
+                ...expenses.asMap().entries.map(
+                  (e) => _buildTableRow(e.value, e.key % 2 == 0),
+                ),
+              ],
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableHeader(List<_ColDef> columns) {
+    return Container(
+      height: 48,
+      color: AppColors.primary,
+      child: Row(
+        children: [
+          _HeaderCell(label: '#', width: 44, isFirst: true),
+          ...columns.map(
+            (c) => _HeaderCell(label: c.label.trns(), width: c.width),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableRow(ExpenseItemModel expense, bool isEven) {
+    final bg = isEven ? AppColors.white : const Color(0xFFFFF5F2);
+    final index = controller.expenses.indexOf(expense) + 1;
+
+    return Container(
+      height: 46,
+      color: bg,
+      child: Row(
+        children: [
+          _DataCell(
+            width: 44,
+            showDivider: true,
+            child: Text(
+              '$index',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          ..._columns.map((c) {
+            if (c.key == 'bill') {
+              final fullUrl = expense.billUrl ?? expense.billThumbUrl;
+              return _DataCell(
+                width: c.width,
+                showDivider: true,
+                child: _BillThumb(
+                  imageUrl: expense.billThumbUrl ?? expense.billUrl,
+                  onTap: fullUrl != null
+                      ? () => _showBillDialog(fullUrl)
+                      : null,
+                ),
+              );
+            }
+            if (c.key == 'status') {
+              return _DataCell(
+                width: c.width,
+                showDivider: true,
+                child: _StatusPill(
+                  label: controller.formatStatus(expense.status),
+                  status: expense.status,
+                ),
+              );
+            }
+            return _DataCell(
+              width: c.width,
+              showDivider: true,
+              child: Text(
+                controller.getCellValue(expense, c.key),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
   }
 
   // ── Pagination ──────────────────────────────────────────────────────────
+  // Shown only when there is a previous or next page, centered.
   Widget _buildPagination() {
-    return Obx(
-      () => Padding(
+    return Obx(() {
+      if (!controller.showPagination) return const SizedBox.shrink();
+      return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _PaginationBtn(
-              label: '« Previous',
+              label: '« ${'reports.common.previous'.trns()}',
               onTap: controller.hasPrevPage ? controller.prevPage : null,
             ),
-            const Spacer(),
-            Text(
-              '${controller.currentPage.value} / ${controller.totalPages}',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-            const Spacer(),
+            const SizedBox(width: 8),
             _PaginationBtn(
-              label: 'Next »',
+              label: '${'reports.common.next'.trns()} »',
               isPrimary: true,
               onTap: controller.hasNextPage ? controller.nextPage : null,
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 
   // ── Error State ─────────────────────────────────────────────────────────
@@ -245,81 +443,206 @@ class ExpenseDetailView extends GetView<ExpenseDetailController> {
   }
 }
 
-// ── Expense Card ────────────────────────────────────────────────────────────
-class _ExpenseCard extends StatelessWidget {
-  final expense;
-  final ExpenseDetailController controller;
+// ── Column Definition ───────────────────────────────────────────────────────
+class _ColDef {
+  final String key;
+  final String label;
+  final double width;
 
-  const _ExpenseCard({required this.expense, required this.controller});
+  const _ColDef({required this.key, required this.label, required this.width});
+}
+
+// ── Table Cells ─────────────────────────────────────────────────────────────
+class _HeaderCell extends StatelessWidget {
+  final String label;
+  final double width;
+  final bool isFirst;
+
+  const _HeaderCell({
+    required this.label,
+    required this.width,
+    this.isFirst = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      width: width,
+      height: 48,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border(
+          right: BorderSide(
+            color: AppColors.white.withValues(alpha: 0.25),
+            width: 0.5,
+          ),
+        ),
       ),
-      child: Row(
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _DataCell extends StatelessWidget {
+  final double width;
+  final Widget child;
+  final bool showDivider;
+
+  const _DataCell({
+    required this.width,
+    required this.child,
+    required this.showDivider,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: 46,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        border: Border(
+          right: showDivider
+              ? const BorderSide(color: Color(0xFFE5E7EB), width: 0.5)
+              : BorderSide.none,
+          bottom: const BorderSide(color: Color(0xFFE5E7EB), width: 0.5),
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+// ── Bill Thumbnail Cell ─────────────────────────────────────────────────────
+class _BillThumb extends StatelessWidget {
+  final String? imageUrl;
+  final VoidCallback? onTap;
+
+  const _BillThumb({required this.imageUrl, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl == null) {
+      return const Text(
+        '-',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 11, color: Color(0xFF374151)),
+      );
+    }
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: AppCachedImage(
+          imageUrl: imageUrl,
+          width: 38,
+          height: 38,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Status Pill ─────────────────────────────────────────────────────────────
+class _StatusPill extends StatelessWidget {
+  final String label;
+  final String status;
+
+  const _StatusPill({required this.label, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = status.trim().toLowerCase();
+    late final Color bg;
+    late final Color fg;
+    switch (s) {
+      case 'active':
+        bg = const Color(0xFFE8F5E9);
+        fg = const Color(0xFF2E7D32);
+        break;
+      case 'pending':
+        bg = const Color(0xFFFFF8E1);
+        fg = const Color(0xFFF57F00);
+        break;
+      case 'inactive':
+      case 'rejected':
+        bg = const Color(0xFFFDECEA);
+        fg = const Color(0xFFC62828);
+        break;
+      default:
+        bg = const Color(0xFFF3F4F6);
+        fg = const Color(0xFF4B5563);
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: fg,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+
+// ── Bill Expand Dialog ──────────────────────────────────────────────────────
+void _showBillDialog(String imageUrl) {
+  Get.dialog(
+    Dialog(
+      backgroundColor: AppColors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      child: Stack(
         children: [
-          // Bill Image
-          if (expense.billThumbUrl != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: AppCachedImage(
-                imageUrl: expense.billThumbUrl!,
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-              ),
-            ),
-          const SizedBox(width: 12),
-          // Expense Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  expense.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  expense.category?.name ?? '-',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  controller.formatDate(expense.date),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-              ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: AppCachedImage(
+              imageUrl: imageUrl,
+              width: double.infinity,
+              fit: BoxFit.contain,
             ),
           ),
-          // Amount
-          Text(
-            '\$${expense.amount.toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primary,
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: () => Get.back(),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: Color(0x80000000),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.close,
+                  color: AppColors.white,
+                  size: 20,
+                ),
+              ),
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
 }
 
 // ── Pagination Button ───────────────────────────────────────────────────────

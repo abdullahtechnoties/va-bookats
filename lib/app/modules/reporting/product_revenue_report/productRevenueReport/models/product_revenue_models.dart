@@ -43,6 +43,10 @@ class ProductRevenueData {
   final double totalDiscount;
   final double netRevenue;
 
+  /// Every raw field from the API row, so report columns can be discovered
+  /// dynamically (unknown future keys included).
+  final Map<String, dynamic> rawFields;
+
   ProductRevenueData({
     required this.branchName,
     required this.from,
@@ -52,7 +56,8 @@ class ProductRevenueData {
     required this.totalAmount,
     required this.totalDiscount,
     required this.netRevenue,
-  });
+    Map<String, dynamic>? rawFields,
+  }) : rawFields = rawFields ?? const {};
 
   factory ProductRevenueData.fromJson(Map<String, dynamic> json) {
     return ProductRevenueData(
@@ -64,6 +69,7 @@ class ProductRevenueData {
       totalAmount: _parseDouble(json['total_amount']),
       totalDiscount: _parseDouble(json['total_discount']),
       netRevenue: _parseDouble(json['net_revenue']),
+      rawFields: Map<String, dynamic>.from(json),
     );
   }
 
@@ -97,18 +103,23 @@ class ProductRevenueReport {
 
   factory ProductRevenueReport.fromJson(Map<String, dynamic> json) {
     return ProductRevenueReport(
-      branches: (json['branches'] as List?)
+      branches:
+          (json['branches'] as List?)
               ?.map((e) => BranchLookup.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       branchId: int.tryParse(json['branch_id'].toString()) ?? 0,
       fromDate: json['from_date']?.toString() ?? '',
       toDate: json['to_date']?.toString() ?? '',
-      monthlyData: (json['monthlyData'] as List?)
-              ?.map((e) => ProductRevenueData.fromJson(e as Map<String, dynamic>))
+      monthlyData:
+          (json['monthlyData'] as List?)
+              ?.map(
+                (e) => ProductRevenueData.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
-      products: (json['products'] as List?)
+      products:
+          (json['products'] as List?)
               ?.map((e) => ProductLookup.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -250,14 +261,18 @@ class ProductRevenueDetails {
   factory ProductRevenueDetails.fromJson(Map<String, dynamic> json) {
     final summariesData =
         json['dailyProductSummaries'] as Map<String, dynamic>? ?? {};
-    final items = (summariesData['data'] as List?)
-            ?.map((e) => DailyProductSummary.fromJson(e as Map<String, dynamic>))
+    final items =
+        (summariesData['data'] as List?)
+            ?.map(
+              (e) => DailyProductSummary.fromJson(e as Map<String, dynamic>),
+            )
             .toList() ??
         [];
 
     return ProductRevenueDetails(
       branch: ReportBranch.fromJson(
-          json['branch'] as Map<String, dynamic>? ?? {}),
+        json['branch'] as Map<String, dynamic>? ?? {},
+      ),
       fromDate: json['from_date']?.toString() ?? '',
       toDate: json['to_date']?.toString() ?? '',
       productName: json['product_name']?.toString() ?? '',

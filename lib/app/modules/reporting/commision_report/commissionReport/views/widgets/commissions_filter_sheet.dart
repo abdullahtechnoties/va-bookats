@@ -133,7 +133,7 @@ class CommissionsFilterSheet extends StatelessWidget {
           if (controller.isOwner) ...[
             Row(
               children: [
-                // Branch multi-select Dropdown
+                // Branch single-select Dropdown
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +149,15 @@ class CommissionsFilterSheet extends StatelessWidget {
                       const SizedBox(height: 8),
                       Obx(
                         () => _DropdownField(
-                          value: controller.tempBranchFilterDisplay,
+                          value:
+                              controller.branches
+                                  .firstWhereOrNull(
+                                    (b) =>
+                                        b.value.toString() ==
+                                        controller.tempBranchId.value,
+                                  )
+                                  ?.label ??
+                              'commissions.filter.selectBranch'.trns(),
                           onTap: () => _showBranchPicker(context),
                         ),
                       ),
@@ -158,7 +166,7 @@ class CommissionsFilterSheet extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
 
-                // Staff multi-select Dropdown
+                // Staff single-select Dropdown
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +182,15 @@ class CommissionsFilterSheet extends StatelessWidget {
                       const SizedBox(height: 8),
                       Obx(
                         () => _DropdownField(
-                          value: controller.tempStaffFilterDisplay,
+                          value:
+                              controller.staffs
+                                  .firstWhereOrNull(
+                                    (s) =>
+                                        s.value.toString() ==
+                                        controller.tempStaffId.value,
+                                  )
+                                  ?.label ??
+                              'commissions.filter.selectStaff'.trns(),
                           onTap: () => _showStaffPicker(context),
                         ),
                       ),
@@ -199,7 +215,15 @@ class CommissionsFilterSheet extends StatelessWidget {
             const SizedBox(height: 8),
             Obx(
               () => _DropdownField(
-                value: controller.tempStaffFilterDisplay,
+                value:
+                    controller.staffs
+                        .firstWhereOrNull(
+                          (s) =>
+                              s.value.toString() ==
+                              controller.tempStaffId.value,
+                        )
+                        ?.label ??
+                    'commissions.filter.selectStaff'.trns(),
                 onTap: () => _showStaffPicker(context),
               ),
             ),
@@ -250,7 +274,6 @@ class CommissionsFilterSheet extends StatelessWidget {
   }
 
   void _showBranchPicker(BuildContext context) {
-    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -258,18 +281,22 @@ class CommissionsFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'commissions.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: controller.branches.map((b) => b.label).toList(),
         textController: TextEditingController(),
+        selectedValue: controller.branches
+            .map((b) => b.value.toString())
+            .toList(),
+        currentlySelectedValue: controller.tempBranchId.value ?? '',
+        onValueSelected: (v) {
+          final raw = v.toString();
+          controller.tempBranchId.value = raw.isEmpty ? null : raw;
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempBranchIds,
       ),
     );
   }
 
   void _showStaffPicker(BuildContext context) {
-    final options = controller.staffFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -277,12 +304,17 @@ class CommissionsFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'commissions.filter.staff'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: controller.staffs.map((s) => s.label).toList(),
         textController: TextEditingController(),
+        selectedValue: controller.staffs
+            .map((s) => s.value.toString())
+            .toList(),
+        currentlySelectedValue: controller.tempStaffId.value ?? '',
+        onValueSelected: (v) {
+          final raw = v.toString();
+          controller.tempStaffId.value = raw.isEmpty ? null : raw;
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempStaffIds,
       ),
     );
   }

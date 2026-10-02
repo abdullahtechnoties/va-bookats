@@ -59,7 +59,9 @@ class PaymentsController extends GetxController {
   final TextEditingController fromDateCtrl = TextEditingController();
   final TextEditingController toDateCtrl = TextEditingController();
   final TextEditingController branchFilterCtrl = TextEditingController();
+  final TextEditingController quickRangeCtrl = TextEditingController();
   final RxString selectedBranchFilter = ''.obs;
+  final RxString selectedQuickRange = ''.obs;
 
   final RxList<BranchModel> branches = <BranchModel>[].obs;
 
@@ -96,12 +98,28 @@ class PaymentsController extends GetxController {
     return null;
   }
 
+  /// Capitalized for display; mapped to API values before hitting the API.
+  static const List<String> quickRangeOptions = [
+    'All',
+    'Today',
+    'Yesterday',
+    'This Week',
+    'This Month',
+  ];
+
+  String? get _filterQuickRange {
+    final v = selectedQuickRange.value;
+    if (v.isEmpty || v == 'All') return null;
+    return v.toLowerCase().replaceAll(' ', '_');
+  }
+
   int get appliedFiltersCount {
     var n = 0;
     if (searchCtrl.text.trim().isNotEmpty) n++;
     if (fromDateCtrl.text.trim().isNotEmpty) n++;
     if (toDateCtrl.text.trim().isNotEmpty) n++;
     if (selectedBranchFilter.value.isNotEmpty) n++;
+    if (selectedQuickRange.value.isNotEmpty) n++;
     return n;
   }
 
@@ -120,6 +138,7 @@ class PaymentsController extends GetxController {
     fromDateCtrl.dispose();
     toDateCtrl.dispose();
     branchFilterCtrl.dispose();
+    quickRangeCtrl.dispose();
     super.onClose();
   }
 
@@ -157,6 +176,7 @@ class PaymentsController extends GetxController {
       branchId: branchId,
       fromDate: from,
       toDate: to,
+      quickRange: _filterQuickRange,
     );
 
     // Superseded by a newer filter/search request — drop it.
@@ -203,6 +223,7 @@ class PaymentsController extends GetxController {
       branchId: branchId,
       fromDate: from,
       toDate: to,
+      quickRange: _filterQuickRange,
     );
     if (gen != _generation) {
       isLoadingMore.value = false;
@@ -242,6 +263,13 @@ class PaymentsController extends GetxController {
           controller: searchCtrl,
         ),
         FilterField(
+          label: 'packages.filter.quickRange'.trns(),
+          type: FilterFieldType.dropdown,
+          controller: quickRangeCtrl,
+          dropdownItems: quickRangeOptions,
+          selectedValue: selectedQuickRange,
+        ),
+        FilterField(
           label: 'packages.filter.fromDate'.trns(),
           type: FilterFieldType.date,
           controller: fromDateCtrl,
@@ -274,7 +302,9 @@ class PaymentsController extends GetxController {
     fromDateCtrl.clear();
     toDateCtrl.clear();
     branchFilterCtrl.clear();
+    quickRangeCtrl.clear();
     selectedBranchFilter.value = '';
+    selectedQuickRange.value = '';
     fetchFirstPage();
   }
 

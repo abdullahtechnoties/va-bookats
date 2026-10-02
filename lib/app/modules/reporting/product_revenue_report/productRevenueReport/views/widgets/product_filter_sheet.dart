@@ -129,7 +129,7 @@ class ProductFilterSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Branch multi-select (only for owner)
+            // Branch single-select (only for owner)
             if (controller.isOwner) ...[
               Text(
                 'reports.product.filter.branch'.trns(),
@@ -142,14 +142,22 @@ class ProductFilterSheet extends StatelessWidget {
               const SizedBox(height: 8),
               Obx(
                 () => _DropdownField(
-                  value: controller.tempBranchFilterDisplay,
+                  value: controller.tempBranchId.value == 0
+                      ? 'reports.product.filter.allBranches'.trns()
+                      : controller.branches
+                                .firstWhereOrNull(
+                                  (b) =>
+                                      b.value == controller.tempBranchId.value,
+                                )
+                                ?.label ??
+                            '',
                   onTap: () => _showBranchPicker(context),
                 ),
               ),
               const SizedBox(height: 16),
             ],
 
-            // Product multi-select
+            // Product single-select
             Text(
               'reports.product.filter.product'.trns(),
               style: const TextStyle(
@@ -161,7 +169,15 @@ class ProductFilterSheet extends StatelessWidget {
             const SizedBox(height: 8),
             Obx(
               () => _DropdownField(
-                value: controller.tempProductFilterDisplay,
+                value: controller.tempProductId.value == 'all'
+                    ? 'reports.product.filter.allProducts'.trns()
+                    : controller.products
+                              .firstWhereOrNull(
+                                (p) =>
+                                    p.value == controller.tempProductId.value,
+                              )
+                              ?.label ??
+                          '',
                 onTap: () => _showProductPicker(context),
               ),
             ),
@@ -210,7 +226,6 @@ class ProductFilterSheet extends StatelessWidget {
   }
 
   void _showBranchPicker(BuildContext context) {
-    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -218,18 +233,28 @@ class ProductFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'reports.product.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          'reports.product.filter.allBranches'.trns(),
+          ...controller.branches.map((b) => b.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          '0',
+          ...controller.branches.map((b) => b.value.toString()),
+        ],
+        currentlySelectedValue: controller.tempBranchId.value.toString(),
+        onValueSelected: (v) {
+          controller.tempBranchId.value = int.tryParse(v.toString()) ?? 0;
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempBranchIds,
       ),
     );
   }
 
   void _showProductPicker(BuildContext context) {
-    final options = controller.productFilterOptions;
+    // The API list already ships its own "All Products" entry — only
+    // prepend a manual one when it doesn't (avoids twin All rows).
+    final hasAll = reportOptionsContainAll(controller.products);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -237,12 +262,20 @@ class ProductFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'reports.product.filter.product'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          if (!hasAll) 'reports.product.filter.allProducts'.trns(),
+          ...controller.products.map((p) => p.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          if (!hasAll) 'all',
+          ...controller.products.map((p) => p.value),
+        ],
+        currentlySelectedValue: controller.tempProductId.value,
+        onValueSelected: (v) {
+          controller.tempProductId.value = v.toString();
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempProductIds,
       ),
     );
   }

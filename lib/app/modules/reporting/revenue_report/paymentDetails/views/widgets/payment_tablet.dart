@@ -16,16 +16,60 @@ class PaymentTableWidget extends StatelessWidget {
   static const double _rowHeight = 46.0;
   static const double _headerHeight = 48.0;
 
-  // Define columns
+  // Define columns: customer_name, customer_email, customer_phone,
+  // payment_method, date, status, total amount, discount, total paid,
+  // total balance.
   static final List<_ColDef> _columns = [
-    _ColDef(key: 'customer', label: 'reports.paymentDetails.columns.customer', width: 130),
-    _ColDef(key: 'bookingSerial', label: 'reports.paymentDetails.columns.bookingId', width: 110),
-    _ColDef(key: 'date', label: 'reports.paymentDetails.columns.date', width: 110),
-    _ColDef(key: 'totalAmount', label: 'reports.paymentDetails.columns.totalAmount', width: 130),
-    _ColDef(key: 'paidAmount', label: 'reports.paymentDetails.columns.paidAmount', width: 130),
-    _ColDef(key: 'balance', label: 'reports.paymentDetails.columns.balance', width: 120),
-    _ColDef(key: 'paymentMethod', label: 'reports.paymentDetails.columns.paymentMethod', width: 140),
-    _ColDef(key: 'status', label: 'reports.paymentDetails.columns.status', width: 100),
+    _ColDef(
+      key: 'customer_name',
+      label: 'reports.paymentDetails.columns.customerName',
+      width: 140,
+    ),
+    _ColDef(
+      key: 'customer_email',
+      label: 'reports.paymentDetails.columns.customerEmail',
+      width: 170,
+    ),
+    _ColDef(
+      key: 'customer_phone',
+      label: 'reports.paymentDetails.columns.customerPhone',
+      width: 140,
+    ),
+    _ColDef(
+      key: 'payment_method',
+      label: 'reports.paymentDetails.columns.paymentMethod',
+      width: 140,
+    ),
+    _ColDef(
+      key: 'date',
+      label: 'reports.paymentDetails.columns.date',
+      width: 120,
+    ),
+    _ColDef(
+      key: 'status',
+      label: 'reports.paymentDetails.columns.status',
+      width: 100,
+    ),
+    _ColDef(
+      key: 'total_amount',
+      label: 'reports.paymentDetails.columns.totalAmount',
+      width: 130,
+    ),
+    _ColDef(
+      key: 'discount',
+      label: 'reports.paymentDetails.columns.discount',
+      width: 120,
+    ),
+    _ColDef(
+      key: 'total_paid',
+      label: 'reports.paymentDetails.columns.paidAmount',
+      width: 130,
+    ),
+    _ColDef(
+      key: 'total_balance',
+      label: 'reports.paymentDetails.columns.balance',
+      width: 130,
+    ),
   ];
 
   @override
@@ -63,7 +107,9 @@ class PaymentTableWidget extends StatelessWidget {
       child: Row(
         children: [
           _HeaderCell(label: '#', width: _indexColWidth, isFirst: true),
-          ..._columns.map((c) => _HeaderCell(label: c.label.trns(), width: c.width)),
+          ..._columns.map(
+            (c) => _HeaderCell(label: c.label.trns(), width: c.width),
+          ),
         ],
       ),
     );
@@ -136,7 +182,10 @@ class _HeaderCell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         border: Border(
-          right: BorderSide(color: AppColors.white.withValues(alpha: 0.25), width: 0.5),
+          right: BorderSide(
+            color: AppColors.white.withValues(alpha: 0.25),
+            width: 0.5,
+          ),
         ),
       ),
       child: Text(

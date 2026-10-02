@@ -4,17 +4,42 @@ import 'package:va_bookats/app/modules/reporting/product_revenue_report/productR
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
-class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController> {
+class ProductRevenueDetailsView
+    extends GetView<ProductRevenueDetailsController> {
   const ProductRevenueDetailsView({super.key});
 
   // Column definitions
   static const List<_ColDef> _columns = [
-    _ColDef(key: 'product', label: 'reports.product.details.product', width: 150),
-    _ColDef(key: 'quantity', label: 'reports.product.details.quantity', width: 100),
-    _ColDef(key: 'unitPrice', label: 'reports.product.details.unitPrice', width: 120),
-    _ColDef(key: 'totalAmount', label: 'reports.product.details.totalAmount', width: 130),
-    _ColDef(key: 'discount', label: 'reports.product.details.discount', width: 120),
-    _ColDef(key: 'netRevenue', label: 'reports.product.details.netRevenue', width: 130),
+    _ColDef(
+      key: 'product',
+      label: 'reports.product.details.product',
+      width: 150,
+    ),
+    _ColDef(
+      key: 'quantity',
+      label: 'reports.product.details.quantity',
+      width: 100,
+    ),
+    _ColDef(
+      key: 'unitPrice',
+      label: 'reports.product.details.unitPrice',
+      width: 120,
+    ),
+    _ColDef(
+      key: 'totalAmount',
+      label: 'reports.product.details.totalAmount',
+      width: 130,
+    ),
+    _ColDef(
+      key: 'discount',
+      label: 'reports.product.details.discount',
+      width: 120,
+    ),
+    _ColDef(
+      key: 'netRevenue',
+      label: 'reports.product.details.netRevenue',
+      width: 130,
+    ),
   ];
 
   @override
@@ -58,7 +83,11 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -103,7 +132,7 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
   // ── Branch Card ────────────────────────────────────────────────────────
   Widget _buildBranchCard() {
     final branch = controller.details!.branch;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -170,7 +199,7 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
   // ── Product Info ───────────────────────────────────────────────────────
   Widget _buildProductInfo() {
     final details = controller.details!;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -209,7 +238,8 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
             ),
             _InfoRow(
               label: 'reports.product.details.dateRange'.trns(),
-              value: '${controller.formatDate(details.fromDate)} - ${controller.formatDate(details.toDate)}',
+              value:
+                  '${controller.formatDate(details.fromDate)} - ${controller.formatDate(details.toDate)}',
             ),
           ],
         ),
@@ -233,8 +263,8 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
               children: [
                 _buildTableHeader(),
                 ...items.asMap().entries.map(
-                      (e) => _buildTableRow(e.value, e.key % 2 == 0),
-                    ),
+                  (e) => _buildTableRow(e.value, e.key % 2 == 0),
+                ),
               ],
             );
           }),
@@ -250,7 +280,9 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
       child: Row(
         children: [
           _HeaderCell(label: '#', width: 44, isFirst: true),
-          ..._columns.map((c) => _HeaderCell(label: c.label.trns(), width: c.width)),
+          ..._columns.map(
+            (c) => _HeaderCell(label: c.label.trns(), width: c.width),
+          ),
         ],
       ),
     );
@@ -258,7 +290,10 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
 
   Widget _buildTableRow(dynamic item, bool isEven) {
     final bg = isEven ? AppColors.white : const Color(0xFFFFF5F2);
-    final index = controller.items.indexOf(item) + 1 + ((controller.currentPage.value - 1) * 15);
+    final index =
+        controller.items.indexOf(item) +
+        1 +
+        ((controller.currentPage.value - 1) * 15);
 
     return Container(
       height: 46,
@@ -285,10 +320,7 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
               child: Text(
                 _cellValue(item, c.key),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF374151),
-                ),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -318,40 +350,29 @@ class ProductRevenueDetailsView extends GetView<ProductRevenueDetailsController>
   }
 
   // ── Pagination ─────────────────────────────────────────────────────────
+  // Shown only when there is a previous or next page, centered.
   Widget _buildPagination() {
-    return Obx(() => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'reports.product.details.page'.trnsFormat({
-                  'current': controller.currentPage.value.toString(),
-                  'total': controller.totalPages.toString(),
-                }),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF6B7280),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Row(
-                children: [
-                  _PaginationBtn(
-                    label: '« ${'reports.product.details.previous'.trns()}',
-                    onTap: controller.hasPrevPage ? controller.prevPage : null,
-                  ),
-                  const SizedBox(width: 8),
-                  _PaginationBtn(
-                    label: '${'reports.product.details.next'.trns()} »',
-                    isPrimary: true,
-                    onTap: controller.hasNextPage ? controller.nextPage : null,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ));
+    return Obx(() {
+      if (!controller.showPagination) return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _PaginationBtn(
+              label: '« ${'reports.product.details.previous'.trns()}',
+              onTap: controller.hasPrevPage ? controller.prevPage : null,
+            ),
+            const SizedBox(width: 8),
+            _PaginationBtn(
+              label: '${'reports.product.details.next'.trns()} »',
+              isPrimary: true,
+              onTap: controller.hasNextPage ? controller.nextPage : null,
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // ── Empty State ────────────────────────────────────────────────────────
@@ -449,11 +470,7 @@ class _InfoRow extends StatelessWidget {
   final String value;
   final Color? valueColor;
 
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
+  const _InfoRow({required this.label, required this.value, this.valueColor});
 
   @override
   Widget build(BuildContext context) {
@@ -496,11 +513,7 @@ class _ColDef {
   final String label;
   final double width;
 
-  const _ColDef({
-    required this.key,
-    required this.label,
-    required this.width,
-  });
+  const _ColDef({required this.key, required this.label, required this.width});
 }
 
 // ── Table Cells ─────────────────────────────────────────────────────────────

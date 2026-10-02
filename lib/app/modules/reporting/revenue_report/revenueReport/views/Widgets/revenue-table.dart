@@ -92,10 +92,7 @@ class RevenueTableWidget extends StatelessWidget {
             Text(
               'reports.revenue.noDataDesc'.trns(),
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade500,
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
             ),
           ],
         ),
@@ -128,7 +125,9 @@ class _TableHeader extends StatelessWidget {
             width: RevenueTableWidget._indexColWidth,
             isFirst: true,
           ),
-          ...cols.map((c) => _HeaderCell(label: c.label.trns(), width: c.width)),
+          ...cols.map(
+            (c) => _HeaderCell(label: c.label.trns(), width: c.width),
+          ),
           _HeaderCell(
             label: 'reports.revenue.columns.actions'.trns(),
             width: RevenueTableWidget._actionsColWidth,

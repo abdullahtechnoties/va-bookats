@@ -128,7 +128,7 @@ class CustomerFilterSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Branch & Customer multi-select in one row
+            // Branch & Customer single-select in one row
             if (controller.isOwner) ...[
               Row(
                 children: [
@@ -148,7 +148,9 @@ class CustomerFilterSheet extends StatelessWidget {
                         const SizedBox(height: 8),
                         Obx(
                           () => _DropdownField(
-                            value: controller.tempBranchFilterDisplay,
+                            value:
+                                controller.tempBranch.value?.label ??
+                                'customerReport.filter.allBranches'.trns(),
                             onTap: () => _showBranchPicker(context),
                           ),
                         ),
@@ -172,7 +174,9 @@ class CustomerFilterSheet extends StatelessWidget {
                         const SizedBox(height: 8),
                         Obx(
                           () => _DropdownField(
-                            value: controller.tempCustomerFilterDisplay,
+                            value:
+                                controller.tempCustomer.value?.label ??
+                                'customerReport.filter.allCustomers'.trns(),
                             onTap: () => _showCustomerPicker(context),
                           ),
                         ),
@@ -194,7 +198,9 @@ class CustomerFilterSheet extends StatelessWidget {
               const SizedBox(height: 8),
               Obx(
                 () => _DropdownField(
-                  value: controller.tempCustomerFilterDisplay,
+                  value:
+                      controller.tempCustomer.value?.label ??
+                      'customerReport.filter.allCustomers'.trns(),
                   onTap: () => _showCustomerPicker(context),
                 ),
               ),
@@ -247,7 +253,6 @@ class CustomerFilterSheet extends StatelessWidget {
   }
 
   void _showBranchPicker(BuildContext context) {
-    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -255,18 +260,36 @@ class CustomerFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'customerReport.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          'customerReport.filter.allBranches'.trns(),
+          ...controller.branches.map((b) => b.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          '',
+          ...controller.branches.map((b) => b.value.toString()),
+        ],
+        currentlySelectedValue:
+            controller.tempBranch.value?.value.toString() ?? '',
+        onValueSelected: (v) {
+          final raw = v.toString();
+          if (raw.isEmpty) {
+            controller.tempBranch.value = null;
+            return;
+          }
+          controller.tempBranch.value = controller.branches.firstWhereOrNull(
+            (b) => b.value.toString() == raw,
+          );
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempBranchIds,
       ),
     );
   }
 
   void _showCustomerPicker(BuildContext context) {
-    final options = controller.customerFilterOptions;
+    // The API list already ships its own "All Customers" entry — only
+    // prepend a manual one when it doesn't (avoids twin All rows).
+    final hasAll = reportOptionsContainAll(controller.customers);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -274,12 +297,28 @@ class CustomerFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'customerReport.filter.customer'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          if (!hasAll) 'customerReport.filter.allCustomers'.trns(),
+          ...controller.customers.map((c) => c.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          if (!hasAll) '',
+          ...controller.customers.map((c) => c.value.toString()),
+        ],
+        currentlySelectedValue:
+            controller.tempCustomer.value?.value.toString() ?? '',
+        onValueSelected: (v) {
+          final raw = v.toString();
+          if (raw.isEmpty && !hasAll) {
+            controller.tempCustomer.value = null;
+            return;
+          }
+          controller.tempCustomer.value = controller.customers.firstWhereOrNull(
+            (c) => c.value.toString() == raw,
+          );
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempCustomerIds,
       ),
     );
   }

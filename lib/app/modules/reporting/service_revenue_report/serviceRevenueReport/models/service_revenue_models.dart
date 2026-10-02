@@ -37,8 +37,8 @@ class ServiceOption {
       type: json['type']?.toString(),
       variations: json['variations'] != null
           ? (json['variations'] as List)
-              .map((v) => ServiceVariation.fromJson(v))
-              .toList()
+                .map((v) => ServiceVariation.fromJson(v))
+                .toList()
           : null,
     );
   }
@@ -49,11 +49,7 @@ class ServiceVariation {
   final String name;
   final String price;
 
-  ServiceVariation({
-    required this.id,
-    required this.name,
-    required this.price,
-  });
+  ServiceVariation({required this.id, required this.name, required this.price});
 
   factory ServiceVariation.fromJson(Map<String, dynamic> json) {
     return ServiceVariation(
@@ -74,6 +70,10 @@ class ServiceRevenueData {
   final String totalDiscount;
   final String netRevenue;
 
+  /// Every raw field from the API row, so report columns can be discovered
+  /// dynamically (unknown future keys included).
+  final Map<String, dynamic> rawFields;
+
   ServiceRevenueData({
     required this.branchName,
     required this.from,
@@ -83,7 +83,8 @@ class ServiceRevenueData {
     required this.totalAmount,
     required this.totalDiscount,
     required this.netRevenue,
-  });
+    Map<String, dynamic>? rawFields,
+  }) : rawFields = rawFields ?? const {};
 
   factory ServiceRevenueData.fromJson(Map<String, dynamic> json) {
     return ServiceRevenueData(
@@ -95,6 +96,7 @@ class ServiceRevenueData {
       totalAmount: json['total_amount']?.toString() ?? '0',
       totalDiscount: json['total_discount']?.toString() ?? '0',
       netRevenue: json['net_revenue']?.toString() ?? '0',
+      rawFields: Map<String, dynamic>.from(json),
     );
   }
 }
@@ -122,8 +124,8 @@ class ServiceRevenueResponse {
     return ServiceRevenueResponse(
       branches: json['branches'] != null
           ? (json['branches'] as List)
-              .map((b) => BranchOption.fromJson(b))
-              .toList()
+                .map((b) => BranchOption.fromJson(b))
+                .toList()
           : [],
       branchId: json['branch_id'] != null
           ? int.tryParse(json['branch_id'].toString())
@@ -132,13 +134,13 @@ class ServiceRevenueResponse {
       toDate: json['to_date']?.toString() ?? '',
       monthlyData: json['monthlyData'] != null
           ? (json['monthlyData'] as List)
-              .map((d) => ServiceRevenueData.fromJson(d))
-              .toList()
+                .map((d) => ServiceRevenueData.fromJson(d))
+                .toList()
           : [],
       services: json['services'] != null
           ? (json['services'] as List)
-              .map((s) => ServiceOption.fromJson(s))
-              .toList()
+                .map((s) => ServiceOption.fromJson(s))
+                .toList()
           : [],
       serviceId: json['service_id'],
     );

@@ -116,7 +116,7 @@ class Step2Packages extends GetView<CreateBookingController> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: controller.packageItems.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
+              separatorBuilder: (_, _) => const SizedBox(height: 14),
               itemBuilder: (context, index) {
                 final item = controller.packageItems[index];
                 return Obx(() {

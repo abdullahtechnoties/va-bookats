@@ -25,7 +25,10 @@ class ProductRevenueColumn {
     this.isSelected = true,
   });
 
-  String get label => labelKey.trns();
+  String get label => resolveReportColumnLabel(
+        'reports.product.columns',
+        labelKey,
+      );
 }
 
 // ─── Controller ─────────────────────────────────────────────────────────────
@@ -48,61 +51,41 @@ class ProductRevenueReportController extends GetxController {
       .subtract(const Duration(days: 30))
       .obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
-
-  /// Multi-select filters (stringified ids; empty = All).
-  final RxSet<String> selectedBranchIds = <String>{}.obs;
-  final RxSet<String> selectedProductIds = <String>{}.obs;
+  final RxInt selectedBranchId = 0.obs;
+  final RxString selectedProductId = 'all'.obs;
 
   // Temp filters (for bottom sheet)
   final Rx<DateTime> tempFromDate = DateTime.now().obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxSet<String> tempBranchIds = <String>{}.obs;
-  final RxSet<String> tempProductIds = <String>{}.obs;
+  final RxInt tempBranchId = 0.obs;
+  final RxString tempProductId = 'all'.obs;
 
-  List<ReportOption> get branchFilterOptions => branches
-      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
-      .toList();
+  String get selectedBranchName {
+    if (selectedBranchId.value == 0) {
+      return 'reports.product.filter.allBranches'.trns();
+    }
+    final branch = branches.firstWhereOrNull(
+      (b) => b.value == selectedBranchId.value,
+    );
+    return branch?.label ?? 'reports.product.filter.allBranches'.trns();
+  }
 
-  List<ReportOption> get productFilterOptions => products
-      .map((p) => ReportOption(label: p.label, value: p.value))
-      .toList();
-
-  String get branchFilterDisplay => multiSelectDisplay(
-    selected: selectedBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'reports.product.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get productFilterDisplay => multiSelectDisplay(
-    selected: selectedProductIds,
-    options: productFilterOptions,
-    allLabel: 'reports.product.filter.allProducts'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempBranchFilterDisplay => multiSelectDisplay(
-    selected: tempBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'reports.product.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempProductFilterDisplay => multiSelectDisplay(
-    selected: tempProductIds,
-    options: productFilterOptions,
-    allLabel: 'reports.product.filter.allProducts'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get selectedBranchName => branchFilterDisplay;
-
-  String get selectedProductName => productFilterDisplay;
+  String get selectedProductName {
+    if (selectedProductId.value == 'all') {
+      return 'reports.product.filter.allProducts'.trns();
+    }
+    final product = products.firstWhereOrNull(
+      (p) => p.value == selectedProductId.value,
+    );
+    return product?.label ?? 'reports.product.filter.allProducts'.trns();
+  }
 
   // ── Column Selection ───────────────────────────────────────────────────
+  // Keys are snake_case to match API `monthlyData` fields, so dynamic
+  // discovery never duplicates them.
   final RxList<ProductRevenueColumn> allColumns = <ProductRevenueColumn>[
     ProductRevenueColumn(
-      key: 'branch',
+      key: 'branch_name',
       labelKey: 'reports.product.columns.branch',
       width: 140,
       isSelected: true,
@@ -120,19 +103,19 @@ class ProductRevenueReportController extends GetxController {
       isSelected: true,
     ),
     ProductRevenueColumn(
-      key: 'totalAmount',
+      key: 'total_amount',
       labelKey: 'reports.product.columns.totalAmount',
       width: 140,
       isSelected: true,
     ),
     ProductRevenueColumn(
-      key: 'totalDiscount',
+      key: 'total_discount',
       labelKey: 'reports.product.columns.totalDiscount',
       width: 145,
       isSelected: true,
     ),
     ProductRevenueColumn(
-      key: 'netRevenue',
+      key: 'net_revenue',
       labelKey: 'reports.product.columns.netRevenue',
       width: 140,
       isSelected: true,
@@ -142,12 +125,12 @@ class ProductRevenueReportController extends GetxController {
   /// Set-based column selection backing the shared selector sheet.
   /// Initialized once per sheet open (never inside build).
   final RxSet<String> selectedColumnKeys = <String>{
-    'branch',
+    'branch_name',
     'from',
     'to',
-    'totalAmount',
-    'totalDiscount',
-    'netRevenue',
+    'total_amount',
+    'total_discount',
+    'net_revenue',
   }.obs;
   final RxSet<String> tempColumnKeys = <String>{}.obs;
 
@@ -182,8 +165,8 @@ class ProductRevenueReportController extends GetxController {
 
   void _initializeFilters() {
     if (!isOwner) {
-      selectedBranchIds.assignAll([userBranchId.toString()]);
-      tempBranchIds.assignAll([userBranchId.toString()]);
+      selectedBranchId.value = userBranchId;
+      tempBranchId.value = userBranchId;
     }
   }
 
@@ -193,23 +176,18 @@ class ProductRevenueReportController extends GetxController {
       reportResponse.value = ApiResponse.loading();
     }
 
-    final List<String>? branchIds;
-    if (isOwner) {
-      branchIds = selectedBranchIds.isEmpty ? null : selectedBranchIds.toList();
-    } else {
-      branchIds = [userBranchId.toString()];
-    }
-
     final response = await _repository.getProductRevenue(
-      branchIds: branchIds,
+      branchId: selectedBranchId.value == 0 ? null : selectedBranchId.value,
       fromDate: _formatDateForApi(fromDate.value),
       toDate: _formatDateForApi(toDate.value),
-      productIds: selectedProductIds.isEmpty
+      productId: selectedProductId.value == 'all'
           ? null
-          : selectedProductIds.toList(),
+          : selectedProductId.value,
     );
 
     reportResponse.value = response;
+
+    if (response.isCompleted) syncDynamicColumns();
 
     if (response.isError) {
       SnackbarService.showError(
@@ -228,31 +206,53 @@ class ProductRevenueReportController extends GetxController {
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    initTempMulti(tempBranchIds, selectedBranchIds);
-    initTempMulti(tempProductIds, selectedProductIds);
+    tempBranchId.value = selectedBranchId.value;
+    tempProductId.value = selectedProductId.value;
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchIds.assignAll(tempBranchIds);
-    selectedProductIds.assignAll(tempProductIds);
+    selectedBranchId.value = tempBranchId.value;
+    selectedProductId.value = tempProductId.value;
     fetchReport();
   }
 
   void resetFilter() {
     tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
     tempToDate.value = DateTime.now();
-    tempBranchIds.clear();
-    if (!isOwner) {
-      tempBranchIds.assignAll([userBranchId.toString()]);
-    }
-    tempProductIds.clear();
+    tempBranchId.value = isOwner ? 0 : userBranchId;
+    tempProductId.value = 'all';
   }
 
   // ── Column Selection Actions ───────────────────────────────────────────
   void initTempColumns() {
     initTempMulti(tempColumnKeys, selectedColumnKeys);
+  }
+
+  /// Discovers scalar fields present in the API rows and appends them as
+  /// opt-in columns. Technical ids never become columns.
+  void syncDynamicColumns() {
+    final rows = report?.monthlyData ?? [];
+    final known = allColumns.map((c) => c.key).toSet();
+    final fresh = discoverReportColumns(
+      rows.map((r) => r.rawFields),
+      known,
+    );
+    if (fresh.isEmpty) return;
+    for (final key in fresh) {
+      allColumns.add(
+        ProductRevenueColumn(
+          key: key,
+          labelKey: key,
+          width: reportColumnWidth(
+            resolveReportColumnLabel('reports.product.columns', key),
+          ),
+          isSelected: false,
+        ),
+      );
+    }
+    allColumns.refresh();
   }
 
   void applyColumnSelection() {
@@ -310,20 +310,21 @@ class ProductRevenueReportController extends GetxController {
   // ── Helpers ────────────────────────────────────────────────────────────
   String getCellValue(ProductRevenueData row, String key) {
     switch (key) {
-      case 'branch':
+      case 'branch_name':
         return row.branchName;
       case 'from':
         return _formatDisplayDate(row.from);
       case 'to':
         return _formatDisplayDate(row.to);
-      case 'totalAmount':
-        return _formatCurrency(row.totalAmount);
-      case 'totalDiscount':
-        return _formatCurrency(row.totalDiscount);
-      case 'netRevenue':
-        return _formatCurrency(row.netRevenue);
+      case 'total_amount':
+        return formatReportCell(key, row.totalAmount);
+      case 'total_discount':
+        return formatReportCell(key, row.totalDiscount);
+      case 'net_revenue':
+        return formatReportCell(key, row.netRevenue);
       default:
-        return '-';
+        // Dynamically discovered columns read straight from the raw row.
+        return formatReportCell(key, row.rawFields[key]);
     }
   }
 
@@ -340,9 +341,5 @@ class ProductRevenueReportController extends GetxController {
     } catch (_) {
       return dateStr;
     }
-  }
-
-  String _formatCurrency(double amount) {
-    return '\$${amount.toStringAsFixed(2)}';
   }
 }

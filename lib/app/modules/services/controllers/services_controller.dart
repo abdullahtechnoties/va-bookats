@@ -55,9 +55,11 @@ class ServicesController extends GetxController {
   final TextEditingController branchFilterCtrl = TextEditingController();
   final TextEditingController typeFilterCtrl = TextEditingController();
   final TextEditingController categoryFilterCtrl = TextEditingController();
+  final TextEditingController quickRangeCtrl = TextEditingController();
   final RxString selectedBranchFilter = ''.obs;
   final RxString selectedTypeFilter = ''.obs;
   final RxString selectedCategoryFilter = ''.obs;
+  final RxString selectedQuickRange = ''.obs;
 
   String get allBranchesKey => 'services.filter.allBranches'.trns();
   String get allTypesKey => 'services.filter.allTypes'.trns();
@@ -87,6 +89,21 @@ class ServicesController extends GetxController {
     return v.toLowerCase();
   }
 
+  /// Capitalized for display; mapped to API values before hitting the API.
+  static const List<String> quickRangeOptions = [
+    'All',
+    'Today',
+    'Yesterday',
+    'This Week',
+    'This Month',
+  ];
+
+  String? get _filterQuickRange {
+    final v = selectedQuickRange.value;
+    if (v.isEmpty || v == 'All') return null;
+    return v.toLowerCase().replaceAll(' ', '_');
+  }
+
   int get appliedFiltersCount {
     var n = 0;
     if (searchCtrl.text.trim().isNotEmpty) n++;
@@ -95,6 +112,7 @@ class ServicesController extends GetxController {
     if (selectedBranchFilter.value.isNotEmpty) n++;
     if (selectedTypeFilter.value.isNotEmpty) n++;
     if (selectedCategoryFilter.value.isNotEmpty) n++;
+    if (selectedQuickRange.value.isNotEmpty) n++;
     return n;
   }
 
@@ -139,6 +157,7 @@ class ServicesController extends GetxController {
     branchFilterCtrl.dispose();
     typeFilterCtrl.dispose();
     categoryFilterCtrl.dispose();
+    quickRangeCtrl.dispose();
     super.onClose();
   }
 
@@ -197,6 +216,7 @@ class ServicesController extends GetxController {
     final branchId = _filterBranchId;
     final type = _filterType;
     final categoryId = _filterCategoryId;
+    final quickRange = _filterQuickRange;
     isLoading.value = true;
     loadFailed.value = false;
     final response = await _repository.getServices(
@@ -205,6 +225,7 @@ class ServicesController extends GetxController {
       search: search,
       fromDate: from,
       toDate: to,
+      quickRange: quickRange,
       branchId: branchId,
       type: type,
       categoryId: categoryId,
@@ -251,6 +272,7 @@ class ServicesController extends GetxController {
       search: searchCtrl.text.trim(),
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
+      quickRange: _filterQuickRange,
       branchId: _filterBranchId,
       type: _filterType,
       categoryId: _filterCategoryId,
@@ -318,6 +340,13 @@ class ServicesController extends GetxController {
           controller: searchCtrl,
         ),
         FilterField(
+          label: 'services.filter.quickRange'.trns(),
+          type: FilterFieldType.dropdown,
+          controller: quickRangeCtrl,
+          dropdownItems: quickRangeOptions,
+          selectedValue: selectedQuickRange,
+        ),
+        FilterField(
           label: 'services.filter.fromDate'.trns(),
           type: FilterFieldType.date,
           controller: fromDateCtrl,
@@ -369,9 +398,11 @@ class ServicesController extends GetxController {
     branchFilterCtrl.clear();
     typeFilterCtrl.clear();
     categoryFilterCtrl.clear();
+    quickRangeCtrl.clear();
     selectedBranchFilter.value = '';
     selectedTypeFilter.value = '';
     selectedCategoryFilter.value = '';
+    selectedQuickRange.value = '';
     if (silent) {
       _loadedForStatus.clear();
       return;

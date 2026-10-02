@@ -1,3 +1,5 @@
+import 'package:va_bookats/utilities/image_path_helper.dart';
+
 class ExpenseItemModel {
   final int id;
   final int branchId;
@@ -38,14 +40,22 @@ class ExpenseItemModel {
       date: json['date']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       description: json['description']?.toString(),
-      billUrl: json['bill_url']?.toString(),
-      billThumbUrl: json['bill_thumb_url']?.toString(),
+      billUrl: _imageUrl(json['bill_url']?.toString()),
+      billThumbUrl: _imageUrl(json['bill_thumb_url']?.toString()),
       category: json['category'] != null
           ? ExpenseCategoryDetail.fromJson(
               json['category'] as Map<String, dynamic>,
             )
           : null,
     );
+  }
+
+  /// Resolves bill image paths via the shared helper: absolute urls pass
+  /// through untouched, relative paths get the image base url. Null/empty
+  /// stays null so the UI can show a graceful placeholder.
+  static String? _imageUrl(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    return getImage(raw);
   }
 }
 

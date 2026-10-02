@@ -24,7 +24,8 @@ class ExpenseColumn {
     this.isSelected = true,
   });
 
-  String get label => labelKey.trns();
+  String get label =>
+      resolveReportColumnLabel('expense.columns', labelKey);
 }
 
 class ExpenseReportController extends GetxController {
@@ -34,7 +35,6 @@ class ExpenseReportController extends GetxController {
   // ── State ───────────────────────────────────────────────────────────────
   final Rx<Status> status = Status.loading.obs;
   final RxString errorMessage = ''.obs;
-  final RxBool isLoadingCategories = false.obs;
 
   // ── Data ────────────────────────────────────────────────────────────────
   final RxList<BranchModel> branches = <BranchModel>[].obs;
@@ -48,57 +48,24 @@ class ExpenseReportController extends GetxController {
       .subtract(const Duration(days: 30))
       .obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
-
-  /// Multi-select filters (stringified ids; empty = All).
-  final RxSet<String> selectedBranchIds = <String>{}.obs;
-  final RxSet<String> selectedCategoryIds = <String>{}.obs;
+  final Rx<BranchModel?> selectedBranch = Rx<BranchModel?>(null);
+  final Rx<ExpenseCategoryModel?> selectedExpenseCategory =
+      Rx<ExpenseCategoryModel?>(null);
 
   // Temp filter (for bottom sheet)
   final Rx<DateTime> tempFromDate = DateTime.now().obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxSet<String> tempBranchIds = <String>{}.obs;
-  final RxSet<String> tempCategoryIds = <String>{}.obs;
-
-  List<ReportOption> get branchFilterOptions => branches
-      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
-      .toList();
-
-  List<ReportOption> get categoryFilterOptions => expenseCategories
-      .map((c) => ReportOption(label: c.label, value: c.value.toString()))
-      .toList();
-
-  String get branchFilterDisplay => multiSelectDisplay(
-    selected: selectedBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'expense.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get categoryFilterDisplay => multiSelectDisplay(
-    selected: selectedCategoryIds,
-    options: categoryFilterOptions,
-    allLabel: 'expense.filter.allCategories'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempBranchFilterDisplay => multiSelectDisplay(
-    selected: tempBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'expense.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempCategoryFilterDisplay => multiSelectDisplay(
-    selected: tempCategoryIds,
-    options: categoryFilterOptions,
-    allLabel: 'expense.filter.allCategories'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
+  final Rx<BranchModel?> tempSelectedBranch = Rx<BranchModel?>(null);
+  final Rx<ExpenseCategoryModel?> tempSelectedExpenseCategory =
+      Rx<ExpenseCategoryModel?>(null);
 
   // ── Column Selector ─────────────────────────────────────────────────────
+  // Keys are snake_case to match API `monthlyData` fields, so dynamic
+  // discovery never duplicates them. `expense_category_id` is technical
+  // and intentionally has no column.
   final RxList<ExpenseColumn> allColumns = <ExpenseColumn>[
     ExpenseColumn(
-      key: 'branchName',
+      key: 'branch_name',
       labelKey: 'expense.columns.branch',
       width: 180,
       isSelected: true,
@@ -116,26 +83,20 @@ class ExpenseReportController extends GetxController {
       isSelected: true,
     ),
     ExpenseColumn(
-      key: 'totalExpense',
+      key: 'total_expense',
       labelKey: 'expense.columns.totalExpense',
       width: 140,
       isSelected: true,
-    ),
-    ExpenseColumn(
-      key: 'expenseCategoryId',
-      labelKey: 'expense.columns.category',
-      width: 160,
-      isSelected: false,
     ),
   ].obs;
 
   /// Set-based column selection backing the shared selector sheet.
   /// Initialized once per sheet open (never inside build).
   final RxSet<String> selectedColumnKeys = <String>{
-    'branchName',
+    'branch_name',
     'from',
     'to',
-    'totalExpense',
+    'total_expense',
   }.obs;
   final RxSet<String> tempColumnKeys = <String>{}.obs;
 
@@ -155,33 +116,38 @@ class ExpenseReportController extends GetxController {
   bool get isOwner => _auth.isOwner;
 
   // For display
-  String get selectedBranchLabel => branchFilterDisplay;
+  String get selectedBranchLabel =>
+      selectedBranch.value?.label ?? 'expense.filter.allBranches'.trns();
 
-  String get selectedCategoryLabel => categoryFilterDisplay;
+  String get selectedCategoryLabel =>
+      selectedExpenseCategory.value?.label ??
+      'expense.filter.allCategories'.trns();
 
   @override
   void onInit() {
     super.onInit();
+    _initializeDefaults();
     fetchExpenseReport();
+  }
+
+  void _initializeDefaults() {
+    // Set default category to "All"
+    selectedExpenseCategory.value = ExpenseCategoryModel(
+      label: 'expense.filter.allCategories'.trns(),
+      value: 'all',
+    );
   }
 
   // ── API Calls ───────────────────────────────────────────────────────────
   Future<void> fetchExpenseReport() async {
     status.value = Status.loading;
 
-    final List<String>? branchIds;
-    if (isOwner) {
-      branchIds = selectedBranchIds.isEmpty ? null : selectedBranchIds.toList();
-    } else {
-      final userBranch = _auth.currentUser.value?.branchId;
-      branchIds = userBranch == null ? null : [userBranch.toString()];
-    }
+    final branchId = selectedBranch.value?.value ?? _getUserBranchId();
+    final categoryId = selectedExpenseCategory.value?.displayValue ?? 'all';
 
     final response = await _repository.fetchExpenseReport(
-      branchIds: branchIds,
-      expenseCategoryIds: selectedCategoryIds.isEmpty
-          ? null
-          : selectedCategoryIds.toList(),
+      branchId: branchId,
+      expenseCategoryId: categoryId,
       fromDate: _apiDateFormat(fromDate.value),
       toDate: _apiDateFormat(toDate.value),
     );
@@ -191,6 +157,12 @@ class ExpenseReportController extends GetxController {
       branches.value = data.branches;
       expenseCategories.value = data.expenseCategories;
       monthlyData.value = data.monthlyData;
+      syncDynamicColumns();
+
+      // Auto-select first branch if owner and none selected
+      if (isOwner && selectedBranch.value == null && branches.isNotEmpty) {
+        selectedBranch.value = branches.first;
+      }
 
       status.value = Status.completed;
     } else {
@@ -203,58 +175,31 @@ class ExpenseReportController extends GetxController {
     await fetchExpenseReport();
   }
 
+  int _getUserBranchId() {
+    return _auth.currentUser.value?.branchId ?? 1;
+  }
+
   // ── Filter Actions ──────────────────────────────────────────────────────
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    initTempMulti(tempBranchIds, selectedBranchIds);
-    if (isOwner && tempBranchIds.isEmpty && branches.isNotEmpty) {
-      tempBranchIds.add(branches.first.value.toString());
-    }
-    initTempMulti(tempCategoryIds, selectedCategoryIds);
-    if (isOwner && tempBranchIds.isNotEmpty) {
-      fetchCategoriesForBranch(tempBranchIds.first);
-    }
-  }
-
-  Future<void> onTempBranchSelected(String? branchId) async {
-    tempBranchIds.clear();
-    tempCategoryIds.clear();
-    if (branchId == null || branchId.isEmpty) return;
-    tempBranchIds.add(branchId);
-    await fetchCategoriesForBranch(branchId);
-  }
-
-  Future<void> fetchCategoriesForBranch(String branchId) async {
-    isLoadingCategories.value = true;
-    final response = await _repository.fetchExpenseCategories(
-      branchId: branchId,
-    );
-    isLoadingCategories.value = false;
-    if (response.isCompleted && response.data != null) {
-      expenseCategories.assignAll(response.data!);
-    } else {
-      expenseCategories.clear();
-    }
+    tempSelectedBranch.value = selectedBranch.value;
+    tempSelectedExpenseCategory.value = selectedExpenseCategory.value;
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchIds.assignAll(tempBranchIds);
-    selectedCategoryIds.assignAll(tempCategoryIds);
+    selectedBranch.value = tempSelectedBranch.value;
+    selectedExpenseCategory.value = tempSelectedExpenseCategory.value;
     fetchExpenseReport();
   }
 
   void resetFilter() {
     tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
     tempToDate.value = DateTime.now();
-    tempBranchIds.clear();
-    tempCategoryIds.clear();
-    if (isOwner && branches.isNotEmpty) {
-      tempBranchIds.add(branches.first.value.toString());
-      fetchCategoriesForBranch(tempBranchIds.first);
-    }
+    tempSelectedBranch.value = isOwner ? branches.firstOrNull : null;
+    tempSelectedExpenseCategory.value = expenseCategories.firstOrNull;
   }
 
   // ── Column Selector Actions ─────────────────────────────────────────────
@@ -278,11 +223,36 @@ class ExpenseReportController extends GetxController {
 
   void resetColumnSelection() {
     tempColumnKeys.assignAll(const [
-      'branchName',
+      'branch_name',
       'from',
       'to',
-      'totalExpense',
+      'total_expense',
     ]);
+  }
+
+  // ── Dynamic columns ───────────────────────────────────────────────────
+  /// Discovers scalar fields present in the API rows and appends them as
+  /// opt-in columns. Technical ids (branch_id, expense_category_id, …)
+  /// never become columns.
+  void syncDynamicColumns() {
+    final known = allColumns.map((c) => c.key).toSet();
+    final fresh = discoverReportColumns(
+      monthlyData.map((r) => r.rawFields),
+      known,
+    );
+    if (fresh.isEmpty) return;
+    for (final key in fresh) {
+      final label = resolveReportColumnLabel('expense.columns', key);
+      allColumns.add(
+        ExpenseColumn(
+          key: key,
+          labelKey: key,
+          width: reportColumnWidth(label),
+          isSelected: false,
+        ),
+      );
+    }
+    allColumns.refresh();
   }
 
   void applyColumnSelection() {
@@ -316,6 +286,7 @@ class ExpenseReportController extends GetxController {
         'fromDate': data.from,
         'toDate': data.to,
         'branchName': data.branchName,
+        'totalExpense': data.totalExpense,
       },
     );
   }
@@ -323,20 +294,17 @@ class ExpenseReportController extends GetxController {
   // ── Helpers ─────────────────────────────────────────────────────────────
   String getCellValue(ExpenseMonthlyDataModel row, String key) {
     switch (key) {
-      case 'branchName':
+      case 'branch_name':
         return row.branchName;
       case 'from':
         return _formatDate(DateTime.tryParse(row.from) ?? DateTime.now());
       case 'to':
         return _formatDate(DateTime.tryParse(row.to) ?? DateTime.now());
-      case 'totalExpense':
-        return '${row.currencySymbol ?? '\$'}${row.totalExpense.toStringAsFixed(2)}';
-      case 'expenseCategoryId':
-        return row.expenseCategoryId == 'all'
-            ? 'All Categories'
-            : row.expenseCategoryId;
+      case 'total_expense':
+        return formatReportCell(key, row.totalExpense);
       default:
-        return '-';
+        // Dynamically discovered columns read straight from the raw row.
+        return formatReportCell(key, row.rawFields[key]);
     }
   }
 

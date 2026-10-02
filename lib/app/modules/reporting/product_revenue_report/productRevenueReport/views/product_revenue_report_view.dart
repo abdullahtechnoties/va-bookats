@@ -50,7 +50,11 @@ class ProductRevenueReportView extends GetView<ProductRevenueReportController> {
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -122,35 +126,37 @@ class ProductRevenueReportView extends GetView<ProductRevenueReportController> {
       child: Row(
         children: [
           Expanded(
-            child: Obx(() => Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppColors.black.withValues(alpha: 0.15),
+            child: Obx(
+              () => Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.black.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 16,
+                      color: Color(0xFF9CA3AF),
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.calendar_today_outlined,
-                        size: 16,
-                        color: Color(0xFF9CA3AF),
+                    const SizedBox(width: 8),
+                    Text(
+                      controller.dateRangeLabel,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        controller.dateRangeLabel,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF374151),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           GestureDetector(
@@ -182,45 +188,47 @@ class ProductRevenueReportView extends GetView<ProductRevenueReportController> {
   Widget _buildColumnSelectorRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Obx(() => GestureDetector(
-            onTap: () => _openColumnSelector(context),
-            child: Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: AppColors.black.withValues(alpha: 0.15),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.calendar_view_week_outlined,
-                    size: 16,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${'reports.product.columns.selected'.trns()} (${controller.selectedColumnCount})',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF374151),
-                      ),
-                    ),
-                  ),
-                  const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 20,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                ],
+      child: Obx(
+        () => GestureDetector(
+          onTap: () => _openColumnSelector(context),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.black.withValues(alpha: 0.15),
               ),
             ),
-          )),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_view_week_outlined,
+                  size: 16,
+                  color: Color(0xFF9CA3AF),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${'reports.product.columns.selected'.trns()} (${controller.selectedColumnCount})',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF374151),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: Color(0xFF9CA3AF),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -285,7 +293,8 @@ class ProductRevenueReportView extends GetView<ProductRevenueReportController> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              controller.reportResponse.value.message ?? 'reports.product.error.message'.trns(),
+              controller.reportResponse.value.message ??
+                  'reports.product.error.message'.trns(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,

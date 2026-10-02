@@ -47,6 +47,10 @@ class CustomerReportData {
   final int pendingBookings;
   final int cancelledBookings;
 
+  /// Every raw field from the API row, so report columns can be discovered
+  /// dynamically (unknown future keys included).
+  final Map<String, dynamic> rawFields;
+
   CustomerReportData({
     required this.branchName,
     required this.from,
@@ -61,7 +65,8 @@ class CustomerReportData {
     required this.completedBookings,
     required this.pendingBookings,
     required this.cancelledBookings,
-  });
+    Map<String, dynamic>? rawFields,
+  }) : rawFields = rawFields ?? const {};
 
   factory CustomerReportData.fromJson(Map<String, dynamic> json) {
     return CustomerReportData(
@@ -80,6 +85,7 @@ class CustomerReportData {
       pendingBookings: int.tryParse(json['pending_bookings'].toString()) ?? 0,
       cancelledBookings:
           int.tryParse(json['cancelled_bookings'].toString()) ?? 0,
+      rawFields: Map<String, dynamic>.from(json),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:va_bookats/app/modules/reporting/expense_report/expenseReport/controller/expense_report_controller.dart';
 import 'package:va_bookats/app/modules/reporting/expense_report/expenseReport/models/expense_monthly_data_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/translation_extention.dart';
 
 class ExpenseTableWidget extends StatelessWidget {
   final ExpenseReportController controller;
@@ -76,7 +77,7 @@ class _TableHeader extends StatelessWidget {
           ),
           ...cols.map((c) => _HeaderCell(label: c.label, width: c.width)),
           _HeaderCell(
-            label: 'Actions',
+            label: 'expense.table.actions'.trns(),
             width: ExpenseTableWidget._actionsColWidth,
             isLast: true,
           ),
@@ -189,10 +190,10 @@ class _TableDataRow extends StatelessWidget {
             showDivider: false,
             child: GestureDetector(
               onTap: () => controller.navigateToDetails(row),
-              child: const Text(
-                'View Details',
+              child: Text(
+                'expense.table.viewDetails'.trns(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,

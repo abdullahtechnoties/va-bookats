@@ -50,7 +50,11 @@ class ServiceRevenueReportView extends GetView<ServiceRevenueReportController> {
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left, color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -67,7 +71,11 @@ class ServiceRevenueReportView extends GetView<ServiceRevenueReportController> {
           padding: const EdgeInsets.only(right: 16),
           child: GestureDetector(
             onTap: () => _openFilterSheet(Get.context!),
-            child: const Icon(Icons.filter_alt_outlined, color: AppColors.white, size: 24),
+            child: const Icon(
+              Icons.filter_alt_outlined,
+              color: AppColors.white,
+              size: 24,
+            ),
           ),
         ),
       ],
@@ -98,29 +106,37 @@ class ServiceRevenueReportView extends GetView<ServiceRevenueReportController> {
       child: Row(
         children: [
           Expanded(
-            child: Obx(() => Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
+            child: Obx(
+              () => Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.black.withValues(alpha: 0.15),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.calendar_today_outlined, size: 16, color: Color(0xFF9CA3AF)),
-                      const SizedBox(width: 8),
-                      Text(
-                        controller.dateRangeLabel,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF374151),
-                        ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 16,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      controller.dateRangeLabel,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           GestureDetector(
@@ -151,35 +167,47 @@ class ServiceRevenueReportView extends GetView<ServiceRevenueReportController> {
   Widget _buildColumnSelectorRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Obx(() => GestureDetector(
-            onTap: () => _openColumnSelector(Get.context!),
-            child: Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.view_column_outlined, size: 16, color: Color(0xFF9CA3AF)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${'reports.columns.selected'.trns()} (${controller.selectedColumnCount})',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF374151),
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Color(0xFF9CA3AF)),
-                ],
+      child: Obx(
+        () => GestureDetector(
+          onTap: () => _openColumnSelector(Get.context!),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.black.withValues(alpha: 0.15),
               ),
             ),
-          )),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.view_column_outlined,
+                  size: 16,
+                  color: Color(0xFF9CA3AF),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${'reports.columns.selected'.trns()} (${controller.selectedColumnCount})',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF374151),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: Color(0xFF9CA3AF),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -187,15 +215,14 @@ class ServiceRevenueReportView extends GetView<ServiceRevenueReportController> {
     return Obx(() {
       final data = controller.monthlyData;
       return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: ServiceRevenueTable(
-              controller: controller,
-              data: data,
-            ),
+            child: ServiceRevenueTable(controller: controller, data: data),
           ),
         ),
       );
@@ -222,7 +249,8 @@ class ServiceRevenueReportView extends GetView<ServiceRevenueReportController> {
           ),
           const SizedBox(height: 8),
           Text(
-            controller.reportResponse.value.message ?? 'reports.errors.tryAgain'.trns(),
+            controller.reportResponse.value.message ??
+                'reports.errors.tryAgain'.trns(),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
           ),
@@ -246,7 +274,11 @@ class ServiceRevenueReportView extends GetView<ServiceRevenueReportController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.receipt_long_outlined, size: 64, color: Color(0xFF9CA3AF)),
+          const Icon(
+            Icons.receipt_long_outlined,
+            size: 64,
+            color: Color(0xFF9CA3AF),
+          ),
           const SizedBox(height: 16),
           Text(
             'reports.empty.title'.trns(),

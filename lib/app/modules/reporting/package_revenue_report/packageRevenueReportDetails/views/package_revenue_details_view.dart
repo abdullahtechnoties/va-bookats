@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReportDetails/controller/package_revenue_details_controller.dart';
+import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/models/package_revenue_details_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -206,7 +207,7 @@ class PackageRevenueDetailsView
     );
   }
 
-  Widget _buildTableRow(summary, bool isEven) {
+  Widget _buildTableRow(DailyPackageSummary summary, bool isEven) {
     final bg = isEven ? AppColors.white : const Color(0xFFFFF5F2);
     final index = controller.dailySummaries.indexOf(summary) + 1;
 
@@ -298,17 +299,18 @@ class PackageRevenueDetailsView
   }
 
   // ── Pagination ────────────────────────────────────────────────────────
+  // Shown only when there is a previous or next page, centered.
   Widget _buildPagination() {
-    return Obx(
-      () => Padding(
+    return Obx(() {
+      if (!controller.showPagination) return const SizedBox.shrink();
+      return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _PaginationBtn(
               label: '« ${'packageRevenueDetails.pagination.previous'.trns()}',
-              onTap: controller.currentPage.value > 1
-                  ? controller.prevPage
-                  : null,
+              onTap: controller.hasPrevPage ? controller.prevPage : null,
             ),
             const SizedBox(width: 8),
             _PaginationBtn(
@@ -318,8 +320,8 @@ class PackageRevenueDetailsView
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 
   // ── Empty State ───────────────────────────────────────────────────────

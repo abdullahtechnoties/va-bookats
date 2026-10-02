@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/controllers/branch_comparison_controller.dart';
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_report_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/translation_extention.dart';
 
 class BranchComparisonTable extends StatelessWidget {
   final BranchComparisonReportController controller;
   final List<BranchComparisonItemModel> items;
 
-  const BranchComparisonTable({super.key, required this.controller, required this.items});
+  const BranchComparisonTable({
+    super.key,
+    required this.controller,
+    required this.items,
+  });
 
   static const double _indexColWidth = 44.0;
   static const double _actionsColWidth = 120.0;
@@ -22,7 +27,9 @@ class BranchComparisonTable extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: ConstrainedBox(
-        constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 32),
+        constraints: BoxConstraints(
+          minWidth: MediaQuery.of(context).size.width - 32,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -63,9 +70,17 @@ class _TableHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _HeaderCell(label: '#', width: BranchComparisonTable._indexColWidth, isFirst: true),
+          _HeaderCell(
+            label: '#',
+            width: BranchComparisonTable._indexColWidth,
+            isFirst: true,
+          ),
           ...cols.map((c) => _HeaderCell(label: c.label, width: c.width)),
-          _HeaderCell(label: 'Actions', width: BranchComparisonTable._actionsColWidth, isLast: true),
+          _HeaderCell(
+            label: 'branchComparison.table.actions'.trns(),
+            width: BranchComparisonTable._actionsColWidth,
+            isLast: true,
+          ),
         ],
       ),
     );
@@ -95,14 +110,22 @@ class _HeaderCell extends StatelessWidget {
         border: Border(
           right: isLast
               ? BorderSide.none
-              : BorderSide(color: AppColors.white.withValues(alpha: 0.25), width: 0.5),
+              : BorderSide(
+                  color: AppColors.white.withValues(alpha: 0.25),
+                  width: 0.5,
+                ),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.white, letterSpacing: 0.2),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.white,
+          letterSpacing: 0.2,
+        ),
       ),
     );
   }
@@ -140,7 +163,11 @@ class _TableDataRow extends StatelessWidget {
             child: Text(
               '$index',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
             ),
           ),
           // Dynamic columns
@@ -151,7 +178,11 @@ class _TableDataRow extends StatelessWidget {
               child: Text(
                 controller.getCellValue(item, c.key),
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: Color(0xFF374151)),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF374151),
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -162,10 +193,14 @@ class _TableDataRow extends StatelessWidget {
             showDivider: false,
             child: GestureDetector(
               onTap: () => controller.navigateToDetails(item),
-              child: const Text(
-                'View Details',
+              child: Text(
+                'branchComparison.table.viewDetails'.trns(),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -180,7 +215,11 @@ class _DataCell extends StatelessWidget {
   final Widget child;
   final bool showDivider;
 
-  const _DataCell({required this.width, required this.child, required this.showDivider});
+  const _DataCell({
+    required this.width,
+    required this.child,
+    required this.showDivider,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +230,9 @@ class _DataCell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         border: Border(
-          right: showDivider ? const BorderSide(color: Color(0xFFE5E7EB), width: 0.5) : BorderSide.none,
+          right: showDivider
+              ? const BorderSide(color: Color(0xFFE5E7EB), width: 0.5)
+              : BorderSide.none,
           bottom: const BorderSide(color: Color(0xFFE5E7EB), width: 0.5),
         ),
       ),

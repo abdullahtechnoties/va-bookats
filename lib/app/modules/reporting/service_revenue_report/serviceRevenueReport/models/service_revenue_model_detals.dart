@@ -118,8 +118,10 @@ class ServiceRevenueDetailResponse {
   });
 
   factory ServiceRevenueDetailResponse.fromJson(Map<String, dynamic> json) {
-    final summariesJson = json['dailyServiceSummaries'] as Map<String, dynamic>? ?? {};
-    final data = (summariesJson['data'] as List?)
+    final summariesJson =
+        json['dailyServiceSummaries'] as Map<String, dynamic>? ?? {};
+    final data =
+        (summariesJson['data'] as List?)
             ?.map((item) => DailyServiceSummary.fromJson(item))
             .toList() ??
         [];

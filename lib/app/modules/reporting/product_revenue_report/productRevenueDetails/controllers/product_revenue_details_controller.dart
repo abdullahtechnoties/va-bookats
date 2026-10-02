@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueReport/controllers/product_revenue_repo.dart';
 import 'package:va_bookats/app/modules/reporting/product_revenue_report/productRevenueReport/models/product_revenue_models.dart';
 import 'package:va_bookats/network/response/api_response.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -21,16 +22,20 @@ class ProductRevenueDetailsController extends GetxController {
   ProductRevenueDetails? get details => detailsResponse.value.data;
   bool get isLoading => detailsResponse.value.isLoading;
   bool get hasError => detailsResponse.value.isError;
-  bool get hasData => details != null && details!.dailyProductSummaries.items.isNotEmpty;
+  bool get hasData =>
+      details != null && details!.dailyProductSummaries.items.isNotEmpty;
 
   // ── Pagination ─────────────────────────────────────────────────────────
   final RxInt currentPage = 1.obs;
-  
-  int get totalPages => details?.dailyProductSummaries.meta.lastPage ?? 1;
-  bool get hasNextPage => details?.dailyProductSummaries.meta.hasNextPage ?? false;
-  bool get hasPrevPage => currentPage.value > 1;
 
-  List<DailyProductSummary> get items => details?.dailyProductSummaries.items ?? [];
+  int get totalPages => details?.dailyProductSummaries.meta.lastPage ?? 1;
+  bool get hasNextPage =>
+      details?.dailyProductSummaries.meta.hasNextPage ?? false;
+  bool get hasPrevPage => currentPage.value > 1;
+  bool get showPagination => hasNextPage || hasPrevPage;
+
+  List<DailyProductSummary> get items =>
+      details?.dailyProductSummaries.items ?? [];
 
   // ── Lifecycle ──────────────────────────────────────────────────────────
   @override
@@ -67,7 +72,9 @@ class ProductRevenueDetailsController extends GetxController {
     if (response.isError) {
       SnackbarService.showError(
         title: 'reports.product.errors.title'.trns(),
-        message: response.message ?? 'reports.product.errors.detailsFetchFailed'.trns(),
+        message:
+            response.message ??
+            'reports.product.errors.detailsFetchFailed'.trns(),
       );
     }
   }
@@ -94,19 +101,13 @@ class ProductRevenueDetailsController extends GetxController {
 
   // ── Helpers ────────────────────────────────────────────────────────────
   String formatCurrency(double amount) {
-    return '\$${amount.toStringAsFixed(2)}';
+    return formatReportCell('amount', amount);
   }
 
   String formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      const months = [
-        '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-      ];
-      return '${months[date.month]}/${date.day}/${date.year}';
-    } catch (_) {
-      return dateStr;
-    }
+    if (dateStr.isEmpty) return '';
+    final parsed = DateTime.tryParse(dateStr);
+    if (parsed == null) return dateStr;
+    return reportHumanDate(parsed);
   }
 }

@@ -6,12 +6,10 @@ import '../controllers/revenue_report_controller.dart';
 class RevenueReportBinding extends Bindings {
   @override
   void dependencies() {
-        // Register report service if not already registered
+    // Register report service if not already registered
     if (!Get.isRegistered<ReportService>()) {
       Get.lazyPut<ReportService>(() => ReportService());
     }
-    Get.lazyPut<RevenueReportController>(
-      () => RevenueReportController(),
-    );
+    Get.lazyPut<RevenueReportController>(() => RevenueReportController());
   }
 }

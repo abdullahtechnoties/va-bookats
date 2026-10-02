@@ -55,8 +55,10 @@ class PackagesController extends GetxController {
   final TextEditingController toDateCtrl = TextEditingController();
   final TextEditingController branchFilterCtrl = TextEditingController();
   final TextEditingController serviceFilterCtrl = TextEditingController();
+  final TextEditingController quickRangeCtrl = TextEditingController();
   final RxString selectedBranchFilter = ''.obs;
   final RxString selectedServiceFilter = ''.obs;
+  final RxString selectedQuickRange = ''.obs;
   final RxList<DataServiceItem> serviceOptions = <DataServiceItem>[].obs;
 
   String get allBranchesKey => 'packages.filter.allBranches'.trns();
@@ -101,6 +103,21 @@ class PackagesController extends GetxController {
     return null;
   }
 
+  /// Capitalized for display; mapped to API values before hitting the API.
+  static const List<String> quickRangeOptions = [
+    'All',
+    'Today',
+    'Yesterday',
+    'This Week',
+    'This Month',
+  ];
+
+  String? get _filterQuickRange {
+    final v = selectedQuickRange.value;
+    if (v.isEmpty || v == 'All') return null;
+    return v.toLowerCase().replaceAll(' ', '_');
+  }
+
   int get appliedFiltersCount {
     var n = 0;
     if (searchCtrl.text.trim().isNotEmpty) n++;
@@ -108,6 +125,7 @@ class PackagesController extends GetxController {
     if (toDateCtrl.text.trim().isNotEmpty) n++;
     if (selectedBranchFilter.value.isNotEmpty) n++;
     if (selectedServiceFilter.value.isNotEmpty) n++;
+    if (selectedQuickRange.value.isNotEmpty) n++;
     return n;
   }
 
@@ -127,6 +145,7 @@ class PackagesController extends GetxController {
     toDateCtrl.dispose();
     branchFilterCtrl.dispose();
     serviceFilterCtrl.dispose();
+    quickRangeCtrl.dispose();
     super.onClose();
   }
 
@@ -188,6 +207,7 @@ class PackagesController extends GetxController {
       search: searchCtrl.text.trim(),
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
+      quickRange: _filterQuickRange,
       branchId: _filterBranchId,
       serviceId: _filterServiceId,
     );
@@ -234,6 +254,7 @@ class PackagesController extends GetxController {
       search: searchCtrl.text.trim(),
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
+      quickRange: _filterQuickRange,
       branchId: _filterBranchId,
       serviceId: _filterServiceId,
     );
@@ -303,6 +324,13 @@ class PackagesController extends GetxController {
           controller: searchCtrl,
         ),
         FilterField(
+          label: 'packages.filter.quickRange'.trns(),
+          type: FilterFieldType.dropdown,
+          controller: quickRangeCtrl,
+          dropdownItems: quickRangeOptions,
+          selectedValue: selectedQuickRange,
+        ),
+        FilterField(
           label: 'packages.filter.fromDate'.trns(),
           type: FilterFieldType.date,
           controller: fromDateCtrl,
@@ -321,13 +349,13 @@ class PackagesController extends GetxController {
             selectedValue: selectedBranchFilter,
           ),
         if (!showBranch)
-        FilterField(
-          label: 'packages.filter.service'.trns(),
-          type: FilterFieldType.dropdown,
-          controller: serviceFilterCtrl,
-          dropdownItems: serviceFilterOptions,
-          selectedValue: selectedServiceFilter,
-        ),
+          FilterField(
+            label: 'packages.filter.service'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: serviceFilterCtrl,
+            dropdownItems: serviceFilterOptions,
+            selectedValue: selectedServiceFilter,
+          ),
       ],
       onReset: resetFilters,
       onApply: applyFilters,
@@ -352,8 +380,10 @@ class PackagesController extends GetxController {
     toDateCtrl.clear();
     branchFilterCtrl.clear();
     serviceFilterCtrl.clear();
+    quickRangeCtrl.clear();
     selectedBranchFilter.value = '';
     selectedServiceFilter.value = '';
+    selectedQuickRange.value = '';
     _clearPagination();
     if (silent) return;
     fetchFirstPage();

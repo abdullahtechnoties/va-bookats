@@ -81,6 +81,7 @@ class BookingRepository {
     String? search,
     String? fromDate,
     String? toDate,
+    String? quickRange,
     int? branchId,
     String? bookingType,
   }) async {
@@ -89,10 +90,11 @@ class BookingRepository {
       queryParams: {
         'page': page,
         if (status != null && status.isNotEmpty) 'status': status,
-        if (search != null && search.trim().isNotEmpty)
-          'search': search.trim(),
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
         if (fromDate != null && fromDate.isNotEmpty) 'from_date': fromDate,
         if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
+        if (quickRange != null && quickRange.isNotEmpty)
+          'quick_range': quickRange,
         if (branchId != null) 'branch_id': branchId,
         if (bookingType != null && bookingType.isNotEmpty)
           'booking_type': bookingType,
@@ -110,17 +112,14 @@ class BookingRepository {
     final rawList = body['data'];
     final bookings = rawList is List
         ? rawList
-            .whereType<Map>()
-            .map((e) => BookingModel.fromJson(Map<String, dynamic>.from(e)))
-            .where((b) => b.id != 0)
-            .toList()
+              .whereType<Map>()
+              .map((e) => BookingModel.fromJson(Map<String, dynamic>.from(e)))
+              .where((b) => b.id != 0)
+              .toList()
         : <BookingModel>[];
 
     return ApiResponse.completed(
-      BookingsPage(
-        bookings: bookings,
-        meta: PaginationMeta.fromJson(body),
-      ),
+      BookingsPage(bookings: bookings, meta: PaginationMeta.fromJson(body)),
       message: response.message,
     );
   }
@@ -522,8 +521,7 @@ class BookingRepository {
         'packageItems[$i][discount]': packages[i].discount,
         'packageItems[$i][total_amount]': packages[i].totalAmount,
         for (var j = 0; j < packages[i].staffIds.length; j++)
-          'packageItems[$i][staff_ids][$j]':
-              packages[i].staffIds[j],
+          'packageItems[$i][staff_ids][$j]': packages[i].staffIds[j],
       },
       for (var i = 0; i < products.length; i++) ...{
         'productItems[$i][product_id]': products[i].productId,

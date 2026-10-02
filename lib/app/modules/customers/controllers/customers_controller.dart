@@ -41,9 +41,11 @@ class CustomersController extends GetxController {
   final TextEditingController toDateCtrl = TextEditingController();
   final TextEditingController statusFilterCtrl = TextEditingController();
   final TextEditingController countryFilterCtrl = TextEditingController();
+  final TextEditingController quickRangeCtrl = TextEditingController();
 
   final RxString selectedStatusFilter = ''.obs;
   final RxString selectedCountryFilter = ''.obs;
+  final RxString selectedQuickRange = ''.obs;
 
   final List<String> statusOptions = ['All', 'Active', 'Inactive'];
   final RxList<String> countryOptions = <String>['All Country'].obs;
@@ -62,12 +64,30 @@ class CustomersController extends GetxController {
     return _countryIdByLabel[label];
   }
 
+  /// Capitalized for display; mapped to API values before hitting the API.
+  static const List<String> quickRangeOptions = [
+    'All',
+    'Today',
+    'Yesterday',
+    'This Week',
+    'This Month',
+  ];
+
+  String? get _filterQuickRange {
+    final v = selectedQuickRange.value;
+    if (v.isEmpty || v == 'All') return null;
+    return v.toLowerCase().replaceAll(' ', '_');
+  }
+
   RxInt get appliedFiltersCount {
     var n = 0;
     if (searchCtrl.text.trim().isNotEmpty) n++;
-    if (toDateCtrl.text.trim().isNotEmpty && fromDateCtrl.text.trim().isNotEmpty) n++;
+    if (toDateCtrl.text.trim().isNotEmpty &&
+        fromDateCtrl.text.trim().isNotEmpty)
+      n++;
     if (selectedStatusFilter.value.isNotEmpty) n++;
     if (selectedCountryFilter.value.isNotEmpty) n++;
+    if (selectedQuickRange.value.isNotEmpty) n++;
     return n.obs;
   }
 
@@ -88,6 +108,7 @@ class CustomersController extends GetxController {
     toDateCtrl.dispose();
     statusFilterCtrl.dispose();
     countryFilterCtrl.dispose();
+    quickRangeCtrl.dispose();
     super.onClose();
   }
 
@@ -134,6 +155,7 @@ class CustomersController extends GetxController {
       status: _filterStatus,
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
+      quickRange: _filterQuickRange,
       countryId: _filterCountryId,
     );
 
@@ -177,6 +199,7 @@ class CustomersController extends GetxController {
       status: _filterStatus,
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
+      quickRange: _filterQuickRange,
       countryId: _filterCountryId,
     );
     if (response.isCompleted && response.data != null) {
@@ -214,8 +237,10 @@ class CustomersController extends GetxController {
     toDateCtrl.clear();
     statusFilterCtrl.clear();
     countryFilterCtrl.clear();
+    quickRangeCtrl.clear();
     selectedStatusFilter.value = '';
     selectedCountryFilter.value = '';
+    selectedQuickRange.value = '';
     displayDateRange.value = '';
     fetchFirstPage();
   }
@@ -235,6 +260,13 @@ class CustomersController extends GetxController {
               : 'customers.filter.search'.trns(),
           type: FilterFieldType.text,
           controller: searchCtrl,
+        ),
+        FilterField(
+          label: 'customers.filter.quickRange'.trns(),
+          type: FilterFieldType.dropdown,
+          controller: quickRangeCtrl,
+          dropdownItems: quickRangeOptions,
+          selectedValue: selectedQuickRange,
         ),
         FilterField(
           label: 'customers.filter.fromDate'.trns(),

@@ -232,26 +232,29 @@ class CustomerReportView extends GetView<CustomerReportController> {
   Widget _buildPagination() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Obx(
-        () => Row(
+      child: Obx(() {
+        // Hidden entirely on a single page; each button only shows when
+        // there is actually a page to go to.
+        if (controller.totalPages <= 1) {
+          return const SizedBox.shrink();
+        }
+        final showPrev = controller.currentPage.value > 1;
+        final showNext = controller.currentPage.value < controller.totalPages;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _PaginationBtn(
-              label: '« Previous',
-              onTap: controller.currentPage.value > 1
-                  ? controller.prevPage
-                  : null,
-            ),
-            const SizedBox(width: 8),
-            _PaginationBtn(
-              label: 'Next »',
-              onTap: controller.currentPage.value < controller.totalPages
-                  ? controller.nextPage
-                  : null,
-              isPrimary: true,
-            ),
+            if (showPrev)
+              _PaginationBtn(label: '« Previous', onTap: controller.prevPage),
+            if (showPrev && showNext) const SizedBox(width: 8),
+            if (showNext)
+              _PaginationBtn(
+                label: 'Next »',
+                onTap: controller.nextPage,
+                isPrimary: true,
+              ),
           ],
-        ),
-      ),
+        );
+      }),
     );
   }
 

@@ -15,13 +15,16 @@ class BranchComparisonDetailsModel {
 
   factory BranchComparisonDetailsModel.fromJson(Map<String, dynamic> json) {
     final closingsJson = json['dailyClosings'] as Map<String, dynamic>? ?? {};
-    final closingsData = (closingsJson['data'] as List?)
+    final closingsData =
+        (closingsJson['data'] as List?)
             ?.map((e) => DailyClosingModel.fromJson(e as Map<String, dynamic>))
             .toList() ??
         [];
 
     return BranchComparisonDetailsModel(
-      branch: BranchInfoModel.fromJson(json['branch'] as Map<String, dynamic>? ?? {}),
+      branch: BranchInfoModel.fromJson(
+        json['branch'] as Map<String, dynamic>? ?? {},
+      ),
       fromDate: json['from_date']?.toString() ?? '',
       toDate: json['to_date']?.toString() ?? '',
       dailyClosings: PaginatedResult(
@@ -177,7 +180,8 @@ class DailyClosingModel {
       productDiscount: json['product_discount']?.toString() ?? '0.00',
       productRevenue: json['product_revenue']?.toString() ?? '0.00',
       repeatCustomers: json['repeat_customers'] as int? ?? 0,
-      staffCommissionTotal: json['staff_commission_total']?.toString() ?? '0.00',
+      staffCommissionTotal:
+          json['staff_commission_total']?.toString() ?? '0.00',
       totalPackagesSold: json['total_packages_sold'] as int? ?? 0,
       packageAmount: json['package_amount']?.toString() ?? '0.00',
       packageDiscount: json['package_discount']?.toString() ?? '0.00',

@@ -25,7 +25,8 @@ class CustomerReportColumn {
     this.isSelected = true,
   });
 
-  String get label => labelKey.trns();
+  String get label =>
+      resolveReportColumnLabel('customerReport.columns', labelKey);
 }
 
 class CustomerReportController extends GetxController {
@@ -39,52 +40,14 @@ class CustomerReportController extends GetxController {
   // ── Filter state ──────────────────────────────────────────────────────────
   final Rx<DateTime> fromDate = DateTime.now().obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
-
-  /// Multi-select filters (stringified ids; empty = All).
-  final RxSet<String> selectedBranchIds = <String>{}.obs;
-  final RxSet<String> selectedCustomerIds = <String>{}.obs;
+  final Rx<BranchOption?> selectedBranch = Rx<BranchOption?>(null);
+  final Rx<CustomerOption?> selectedCustomer = Rx<CustomerOption?>(null);
 
   // Temp filters (inside sheet before apply)
   final Rx<DateTime> tempFromDate = DateTime.now().obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxSet<String> tempBranchIds = <String>{}.obs;
-  final RxSet<String> tempCustomerIds = <String>{}.obs;
-
-  List<ReportOption> get branchFilterOptions => branches
-      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
-      .toList();
-
-  List<ReportOption> get customerFilterOptions => customers
-      .map((c) => ReportOption(label: c.label, value: c.value.toString()))
-      .toList();
-
-  String get branchFilterDisplay => multiSelectDisplay(
-    selected: selectedBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'customerReport.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get customerFilterDisplay => multiSelectDisplay(
-    selected: selectedCustomerIds,
-    options: customerFilterOptions,
-    allLabel: 'customerReport.filter.allCustomers'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempBranchFilterDisplay => multiSelectDisplay(
-    selected: tempBranchIds,
-    options: branchFilterOptions,
-    allLabel: 'customerReport.filter.allBranches'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
-
-  String get tempCustomerFilterDisplay => multiSelectDisplay(
-    selected: tempCustomerIds,
-    options: customerFilterOptions,
-    allLabel: 'customerReport.filter.allCustomers'.trns(),
-    selectedSuffix: 'reports.common.selected'.trns(),
-  );
+  final Rx<BranchOption?> tempBranch = Rx<BranchOption?>(null);
+  final Rx<CustomerOption?> tempCustomer = Rx<CustomerOption?>(null);
 
   // ── Column selector ───────────────────────────────────────────────────────
   final RxList<CustomerReportColumn> allColumns = <CustomerReportColumn>[
@@ -236,19 +199,15 @@ class CustomerReportController extends GetxController {
         'to_date': _apiDateFormat(toDate.value),
       };
 
-      // If not owner, send branch_ids from user model
+      // If not owner, send branch_id from user model
       if (!isOwner && _auth.currentUser.value?.branchId != null) {
-        addIndexedParams(params, 'branch_ids', [
-          _auth.currentUser.value!.branchId.toString(),
-        ]);
-      } else if (selectedBranchIds.isNotEmpty) {
-        addIndexedParams(params, 'branch_ids', selectedBranchIds);
+        params['branch_id'] = _auth.currentUser.value!.branchId;
+      } else if (selectedBranch.value != null) {
+        params['branch_id'] = selectedBranch.value!.value;
       }
 
-      // Add customer_ids if selected
-      if (selectedCustomerIds.isNotEmpty) {
-        addIndexedParams(params, 'customer_ids', selectedCustomerIds);
-      }
+      // Always send customer_id (sample: customer_id=all when All selected)
+      params['customer_id'] = selectedCustomer.value?.value ?? 'all';
 
       final response = await _network.get(
         endpoint: ApiPath.customersReport,
@@ -258,6 +217,8 @@ class CustomerReportController extends GetxController {
       if (response.isCompleted && response.data != null) {
         final parsed = CustomerReportResponse.fromJson(response.data!);
         reportResponse.value = ApiResponse.completed(parsed);
+        currentPage.value = 1;
+        syncDynamicColumns();
       } else {
         reportResponse.value = ApiResponse.error(
           response.message ?? 'customerReport.errors.fetchFailed'.trns(),
@@ -281,15 +242,15 @@ class CustomerReportController extends GetxController {
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    initTempMulti(tempBranchIds, selectedBranchIds);
-    initTempMulti(tempCustomerIds, selectedCustomerIds);
+    tempBranch.value = selectedBranch.value;
+    tempCustomer.value = selectedCustomer.value;
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchIds.assignAll(tempBranchIds);
-    selectedCustomerIds.assignAll(tempCustomerIds);
+    selectedBranch.value = tempBranch.value;
+    selectedCustomer.value = tempCustomer.value;
     currentPage.value = 1;
     fetchReport();
   }
@@ -298,8 +259,8 @@ class CustomerReportController extends GetxController {
     _initializeDates();
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    tempBranchIds.clear();
-    tempCustomerIds.clear();
+    tempBranch.value = null;
+    tempCustomer.value = null;
   }
 
   // ── Column Actions ────────────────────────────────────────────────────────
@@ -317,6 +278,31 @@ class CustomerReportController extends GetxController {
 
   void resetColumnSelection() {
     tempColumnKeys.assignAll(allColumns.map((c) => c.key));
+  }
+
+  // ── Dynamic columns ───────────────────────────────────────────────────
+  /// Discovers scalar fields present in the API rows and appends them as
+  /// opt-in columns. Technical ids (branch_id, customer_id, …) never
+  /// become columns.
+  void syncDynamicColumns() {
+    final known = allColumns.map((c) => c.key).toSet();
+    final fresh = discoverReportColumns(
+      reportData.map((r) => r.rawFields),
+      known,
+    );
+    if (fresh.isEmpty) return;
+    for (final key in fresh) {
+      final label = resolveReportColumnLabel('customerReport.columns', key);
+      allColumns.add(
+        CustomerReportColumn(
+          key: key,
+          labelKey: key,
+          width: reportColumnWidth(label),
+          isSelected: false,
+        ),
+      );
+    }
+    allColumns.refresh();
   }
 
   void selectAllColumns() {
@@ -382,13 +368,13 @@ class CustomerReportController extends GetxController {
       case 'to':
         return _formatDisplayDate(row.to);
       case 'total_amount':
-        return '\$${row.totalAmount}';
+        return formatReportCell(key, row.totalAmount);
       case 'total_discount':
-        return '\$${row.totalDiscount}';
+        return formatReportCell(key, row.totalDiscount);
       case 'net_revenue':
-        return '\$${row.netRevenue}';
+        return formatReportCell(key, row.netRevenue);
       case 'remaining_amount':
-        return '\$${row.remainingAmount}';
+        return formatReportCell(key, row.remainingAmount);
       case 'total_bookings':
         return row.totalBookings.toString();
       case 'completed_bookings':
@@ -398,7 +384,8 @@ class CustomerReportController extends GetxController {
       case 'cancelled_bookings':
         return row.cancelledBookings.toString();
       default:
-        return '-';
+        // Dynamically discovered columns read straight from the raw row.
+        return formatReportCell(key, row.rawFields[key]);
     }
   }
 

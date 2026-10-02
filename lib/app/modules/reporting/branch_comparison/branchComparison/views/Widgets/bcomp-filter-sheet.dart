@@ -127,7 +127,7 @@ class BranchComparisonFilterSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Branches multi-select (only for owners)
+          // Branch single-select (only for owners)
           if (controller.isOwner) ...[
             Text(
               'branchComparison.filter.branches'.trns(),
@@ -193,7 +193,6 @@ class BranchComparisonFilterSheet extends StatelessWidget {
   }
 
   void _showBranchSelector(BuildContext context) {
-    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -201,12 +200,21 @@ class BranchComparisonFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'branchComparison.filter.selectBranches'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          'branchComparison.filter.allBranches'.trns(),
+          ...controller.availableBranches.map((b) => b.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          '',
+          ...controller.availableBranches.map((b) => b.value.toString()),
+        ],
+        currentlySelectedValue: controller.tempBranchId.value?.toString() ?? '',
+        onValueSelected: (v) {
+          final raw = v.toString();
+          controller.selectTempBranch(raw.isEmpty ? null : int.tryParse(raw));
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempSelectedBranchIds,
       ),
     );
   }

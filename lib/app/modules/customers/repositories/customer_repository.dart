@@ -33,6 +33,7 @@ class CustomerRepository {
     String? status,
     String? fromDate,
     String? toDate,
+    String? quickRange,
     int? countryId,
     int? branchId,
   }) async {
@@ -40,11 +41,12 @@ class CustomerRepository {
       endpoint: ApiPath.customers,
       queryParams: {
         'page': page,
-        if (search != null && search.trim().isNotEmpty)
-          'search': search.trim(),
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
         if (status != null && status.isNotEmpty) 'status': status,
         if (fromDate != null && fromDate.isNotEmpty) 'from_date': fromDate,
         if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
+        if (quickRange != null && quickRange.isNotEmpty)
+          'quick_range': quickRange,
         if (countryId != null) 'country_id': countryId,
         if (branchId != null) 'branch_id': branchId,
       },
@@ -61,17 +63,14 @@ class CustomerRepository {
     final rawList = body['data'];
     final customers = rawList is List
         ? rawList
-            .whereType<Map>()
-            .map((e) => CustomerModel.fromJson(Map<String, dynamic>.from(e)))
-            .where((c) => c.id != 0)
-            .toList()
+              .whereType<Map>()
+              .map((e) => CustomerModel.fromJson(Map<String, dynamic>.from(e)))
+              .where((c) => c.id != 0)
+              .toList()
         : <CustomerModel>[];
 
     return ApiResponse.completed(
-      CustomersPage(
-        customers: customers,
-        meta: PaginationMeta.fromJson(body),
-      ),
+      CustomersPage(customers: customers, meta: PaginationMeta.fromJson(body)),
       message: response.message,
     );
   }
@@ -102,8 +101,9 @@ class CustomerRepository {
       if (rawList is List) {
         attachments = rawList
             .whereType<Map>()
-            .map((e) =>
-                CustomerAttachment.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+              (e) => CustomerAttachment.fromJson(Map<String, dynamic>.from(e)),
+            )
             .where((a) => a.id != 0)
             .toList();
       }
@@ -211,9 +211,7 @@ class CustomerRepository {
 
   /// PUT /customers/{id}/status — toggles active/inactive.
   Future<ApiResponse<String>> changeCustomerStatus(int id) async {
-    final response = await _network.put(
-      endpoint: ApiPath.customerStatus(id),
-    );
+    final response = await _network.put(endpoint: ApiPath.customerStatus(id));
     if (!response.isCompleted || response.data == null) {
       return ApiResponse.error(
         response.message ?? 'errors.requestFailed'.trns(),

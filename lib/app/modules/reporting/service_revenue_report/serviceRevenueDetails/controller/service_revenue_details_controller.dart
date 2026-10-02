@@ -5,6 +5,7 @@ import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceR
 import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceRevenueReport/models/service_revenue_model_detals.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -34,6 +35,7 @@ class ServiceRevenueDetailsController extends GetxController {
   bool get hasNextPage => paginationMeta?.hasNextPage ?? false;
   bool get hasPrevPage => currentPage.value > 1;
   int get totalPages => paginationMeta?.lastPage ?? 1;
+  bool get showPagination => hasNextPage || hasPrevPage;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────
   @override
@@ -58,7 +60,9 @@ class ServiceRevenueDetailsController extends GetxController {
     branchName = args['branchName'] as String? ?? '';
   }
 
-  void _handleResponseChange(ApiResponse<ServiceRevenueDetailResponse> response) {
+  void _handleResponseChange(
+    ApiResponse<ServiceRevenueDetailResponse> response,
+  ) {
     if (response.isError) {
       SnackbarService.showError(
         title: 'reports.errors.title'.trns(),
@@ -107,24 +111,13 @@ class ServiceRevenueDetailsController extends GetxController {
 
   // ── Helpers ───────────────────────────────────────────────────────────
   String formatCurrency(String amount) {
-    try {
-      final value = double.tryParse(amount) ?? 0;
-      if (value == 0) return '\$0';
-      return '\$${value.toStringAsFixed(2)}';
-    } catch (e) {
-      return amount;
-    }
+    return formatReportCell('amount', amount);
   }
 
   String formatDate(String apiDate) {
-    try {
-      final parts = apiDate.split('-');
-      if (parts.length != 3) return apiDate;
-      const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      final month = int.tryParse(parts[1]) ?? 1;
-      return '${months[month]}/${parts[2]}/${parts[0]}';
-    } catch (e) {
-      return apiDate;
-    }
+    if (apiDate.isEmpty) return '';
+    final parsed = DateTime.tryParse(apiDate);
+    if (parsed == null) return apiDate;
+    return reportHumanDate(parsed);
   }
 }

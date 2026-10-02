@@ -106,17 +106,17 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
         ),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: const AppCachedImage(
-                imageUrl: null,
-                width: 70,
-                height: 70,
-                fit: BoxFit.cover,
-                fallbackAsset: 'assets/images/placeholder.png',
-              ),
-            ),
-            const SizedBox(width: 14),
+            // ClipRRect(
+            //   borderRadius: BorderRadius.circular(8),
+            //   child: const AppCachedImage(
+            //     imageUrl: null,
+            //     width: 70,
+            //     height: 70,
+            //     fit: BoxFit.cover,
+            //     fallbackAsset: 'assets/images/placeholder.png',
+            //   ),
+            // ),
+            // const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,6 +307,7 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
   }
 
   // ── Pagination ────────────────────────────────────────────────────────────
+  // Shown only when there is a previous or next page, centered.
   Widget _buildPagination() {
     return Obx(() {
       final meta = controller.paginationMeta;
@@ -316,31 +317,19 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'commissions.detail.pagination.info'.trnsFormat({
-                'from': meta.currentPage.toString(),
-                'to': meta.lastPage.toString(),
-                'total': meta.total.toString(),
-              }),
-              style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+            _PaginationBtn(
+              label: '« ${'commissions.detail.pagination.previous'.trns()}',
+              onTap: controller.currentPage.value > 1
+                  ? controller.prevPage
+                  : null,
             ),
-            Row(
-              children: [
-                _PaginationBtn(
-                  label: '« ${'commissions.detail.pagination.previous'.trns()}',
-                  onTap: controller.currentPage.value > 1
-                      ? controller.prevPage
-                      : null,
-                ),
-                const SizedBox(width: 8),
-                _PaginationBtn(
-                  label: '${'commissions.detail.pagination.next'.trns()} »',
-                  isPrimary: true,
-                  onTap: controller.hasNextPage ? controller.nextPage : null,
-                ),
-              ],
+            const SizedBox(width: 8),
+            _PaginationBtn(
+              label: '${'commissions.detail.pagination.next'.trns()} »',
+              isPrimary: true,
+              onTap: controller.hasNextPage ? controller.nextPage : null,
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageR
 import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/views/widgets/package_filter_sheet.dart';
 import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/views/widgets/package_revenue_table.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 
@@ -158,7 +159,7 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
             ],
           ),
           const SizedBox(height: 12),
-          // Package multi-select dropdown (always visible)
+          // Package single-select dropdown (always visible)
           Obx(
             () => GestureDetector(
               onTap: () => _showPackagePicker(context),
@@ -182,7 +183,7 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        controller.packageFilterDisplay,
+                        controller.selectedPackageLabel.value,
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -318,8 +319,9 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
   }
 
   void _showPackagePicker(BuildContext context) {
-    controller.initTempFilter();
-    final options = controller.packageFilterOptions;
+    // The API list already ships its own "All Packages" entry — only
+    // prepend a manual one when it doesn't (avoids twin All rows).
+    final hasAll = reportOptionsContainAll(controller.packages);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -327,16 +329,34 @@ class PackageRevenueReportView extends GetView<PackageRevenueReportController> {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'packageRevenue.filter.selectPackage'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          if (!hasAll) 'packageRevenue.filter.allPackages'.trns(),
+          ...controller.packages.map((p) => p.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          if (!hasAll) 'all',
+          ...controller.packages.map((p) => p.value.toString()),
+        ],
+        currentlySelectedValue: controller.selectedPackageId.value.toString(),
+        onValueSelected: (v) {
+          final raw = v.toString();
+          if (raw == 'all') {
+            controller.selectMainPackage(
+              'all',
+              'packageRevenue.filter.allPackages'.trns(),
+            );
+            return;
+          }
+          final id = int.tryParse(raw);
+          final label =
+              controller.packages
+                  .firstWhereOrNull((p) => p.value.toString() == raw)
+                  ?.label ??
+              '';
+          controller.selectMainPackage(id ?? raw, label);
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempPackageIds,
-        doneButtonText: 'packageRevenue.filter.apply'.trns(),
-        onDone: () => controller.applyMainPackageSelection(
-          controller.tempPackageIds.toSet(),
-        ),
       ),
     );
   }

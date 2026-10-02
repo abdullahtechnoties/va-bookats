@@ -32,6 +32,10 @@ class RevenueData {
   final String to;
   final int branchId;
 
+  /// Every raw field from the API row, so report columns can be discovered
+  /// dynamically (unknown future keys included).
+  final Map<String, dynamic> rawFields;
+
   RevenueData({
     required this.totalAmount,
     required this.totalDiscount,
@@ -65,7 +69,8 @@ class RevenueData {
     required this.from,
     required this.to,
     required this.branchId,
-  });
+    Map<String, dynamic>? rawFields,
+  }) : rawFields = rawFields ?? const {};
 
   factory RevenueData.fromJson(Map<String, dynamic> json) {
     return RevenueData(
@@ -101,6 +106,7 @@ class RevenueData {
       from: json['from']?.toString() ?? '',
       to: json['to']?.toString() ?? '',
       branchId: _parseInt(json['branch_id']),
+      rawFields: Map<String, dynamic>.from(json),
     );
   }
 

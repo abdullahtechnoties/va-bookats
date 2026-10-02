@@ -975,6 +975,7 @@
       "branches": "Branches",
       "type": "Type",
       "category": "Category",
+      "quickRange": "Quick Range",
       "allBranches": "All Branches",
       "allTypes": "All Types",
       "allCategories": "All Categories"
@@ -1116,6 +1117,7 @@
       "allBranches": "All Branches",
       "service": "Service",
       "allServices": "All Services",
+      "quickRange": "Quick Range",
       "reset": "Reset",
       "applyFilter": "Apply Filter"
     },
@@ -1209,6 +1211,7 @@
       "status": "Status",
       "country": "Country",
       "allCountry": "All Country",
+      "quickRange": "Quick Range",
       "reset": "Reset",
       "applyFilter": "Apply Filter"
     }
@@ -1453,6 +1456,7 @@
         "selectAll": "Select All",
         "selectColumns": "Select columns to display",
         "branch": "Branch",
+        "branchName": "Branch Name",
         "from": "From",
         "to": "To",
         "totalAmount": "Total Amount",
@@ -1510,20 +1514,26 @@
       "title": "Service Revenue Report",
       "columns": {
         "branch": "Branch",
+        "branchName": "Branch Name",
         "from": "From",
         "to": "To",
         "totalAmount": "Total Amount",
         "totalDiscount": "Total Discount",
         "netRevenue": "Net Revenue"
       },
+      "table": {
+        "actions": "Actions",
+        "viewDetails": "View Details"
+      },
       "details": {
         "title": "Service Revenue Details",
-        "serviceName": "Service Name",
-        "totalCustomers": "Total Customers",
+        "serviceName": "Service",
+        "totalCustomers": "Customers",
+        "status": "Status",
         "serviceAmount": "Service Amount",
         "totalAmount": "Total Amount",
         "totalDiscount": "Total Discount",
-        "netRevenue": "Net Revenue"
+        "netRevenue": "Revenue"
       }
     },
     "filter": {
@@ -1590,22 +1600,37 @@
         "fromDate": "From Date",
         "selectAll": "Select All",
         "branch": "Branch",
+        "branchName": "Branch Name",
         "from": "From",
         "to": "To",
         "totalAmount": "Total Amount",
         "totalDiscount": "Total Discount",
         "totalRevenue": "Total Revenue",
         "totalBalance": "Total Balance",
+        "cashCount": "Cash Count",
+        "cardCount": "Card Count",
+        "onlineCount": "Online Count",
         "cashPayment": "Cash Payment",
         "cardPayment": "Card Payment",
         "onlinePayment": "Online Payment",
         "serviceRevenue": "Service Revenue",
         "productRevenue": "Product Revenue",
         "packageRevenue": "Package Revenue",
+        "serviceDiscount": "Service Discount",
+        "productDiscount": "Product Discount",
+        "packageDiscount": "Package Discount",
+        "serviceAmount": "Service Amount",
+        "productAmount": "Product Amount",
+        "packageAmount": "Package Amount",
         "totalCount": "Total Count",
         "paidCount": "Paid Count",
         "unpaidCount": "Unpaid Count",
+        "unpaidAmount": "Unpaid Amount",
         "returnCount": "Return Count",
+        "returnAmount": "Return Amount",
+        "totalServicesSold": "Total Services Sold",
+        "totalProductsSold": "Total Products Sold",
+        "totalPackagesSold": "Total Packages Sold",
         "actions": "Actions"
       },
 
@@ -1628,11 +1653,15 @@
 
       "columns": {
         "customer": "Customer",
+        "customerName": "Customer Name",
+        "customerEmail": "Customer Email",
+        "customerPhone": "Customer Phone",
         "bookingId": "Booking ID",
         "date": "Date",
         "totalAmount": "Total Amount",
-        "paidAmount": "Paid Amount",
-        "balance": "Balance",
+        "discount": "Discount",
+        "paidAmount": "Total Paid",
+        "balance": "Total Balance",
         "paymentMethod": "Payment Method",
         "status": "Status"
       },
@@ -1670,20 +1699,51 @@
       "totalAmount": "Total Amount",
       "totalDiscount": "Total Discount",
       "totalBalance": "Total Balance",
+      "totalCount": "Total Count",
+      "cashCount": "Cash Count",
+      "cardCount": "Card Count",
+      "onlineCount": "Online Count",
       "cashPayment": "Cash Payment",
       "cardPayment": "Card Payment",
       "onlinePayment": "Online Payment",
       "serviceRevenue": "Service Revenue",
       "productRevenue": "Product Revenue",
       "packageRevenue": "Package Revenue",
-      "unpaidAmount": "Unpaid Amount"
+      "serviceDiscount": "Service Discount",
+      "productDiscount": "Product Discount",
+      "packageDiscount": "Package Discount",
+      "serviceAmount": "Service Amount",
+      "productAmount": "Product Amount",
+      "packageAmount": "Package Amount",
+      "paidCount": "Paid Count",
+      "unpaidCount": "Unpaid Count",
+      "unpaidAmount": "Unpaid Amount",
+      "returnCount": "Return Count",
+      "returnAmount": "Return Amount",
+      "totalServicesSold": "Total Services Sold",
+      "totalProductsSold": "Total Products Sold",
+      "totalPackagesSold": "Total Packages Sold"
+    },
+    "table": {
+      "actions": "Actions",
+      "viewDetails": "View Details"
     },
     "details": {
       "title": "Branch Details",
       "approved": "Approved",
       "pending": "Pending",
       "rejected": "Rejected",
-      "empty": "No daily closings found for this tab"
+      "empty": "No daily closings found for this period",
+      "columns": {
+        "date": "Date",
+        "creator": "Creator",
+        "approver": "Approver",
+        "status": "Status",
+        "totalAmount": "Total Amount",
+        "totalDiscount": "Total Discount",
+        "totalPaid": "Total Paid",
+        "totalBalance": "Total Balance"
+      }
     },
     "errors": {
       "fetchFailed": "Failed to fetch branch comparison report",
@@ -1715,6 +1775,7 @@
     },
     "table": {
       "branch": "Branch",
+      "branchName": "Branch Name",
       "from": "From",
       "to": "To",
       "totalAmount": "Total Amount",
@@ -1771,6 +1832,7 @@
     },
     "table": {
       "branch": "Branch",
+      "branchName": "Branch Name",
       "from": "From",
       "to": "To",
       "totalServices": "Total Services",
@@ -1838,6 +1900,7 @@
       "reset": "Reset",
       "apply": "Apply",
       "branch": "Branch",
+      "branchName": "Branch Name",
       "from": "From",
       "to": "To",
       "totalAmount": "Total Amount",
@@ -1900,14 +1963,33 @@
       "selectColumns": "Select Columns",
       "selectAll": "Select All",
       "branch": "Branch",
+      "branchName": "Branch Name",
       "from": "From",
       "to": "To",
       "totalExpense": "Total Expense",
       "category": "Category"
     },
+    "table": {
+      "actions": "Actions",
+      "viewDetails": "View Details"
+    },
     "detail": {
       "title": "Expense Details",
-      "empty": "No expense items found"
+      "empty": "No expense items found",
+      "summary": {
+        "branch": "Branch",
+        "from": "From",
+        "to": "To",
+        "totalExpense": "Total Expense"
+      },
+      "table": {
+        "bill": "Bill",
+        "name": "Name",
+        "category": "Category",
+        "date": "Date",
+        "status": "Status",
+        "amount": "Amount"
+      }
     }
   }
 }

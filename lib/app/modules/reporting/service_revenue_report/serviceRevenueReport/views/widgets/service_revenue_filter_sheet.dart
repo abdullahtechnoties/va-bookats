@@ -170,7 +170,14 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
         const SizedBox(height: 8),
         Obx(
           () => _DropdownField(
-            value: controller.tempBranchFilterDisplay,
+            value: controller.tempBranchId.value == null
+                ? 'reports.filter.allBranches'.trns()
+                : controller.branches
+                          .firstWhereOrNull(
+                            (b) => b.value == controller.tempBranchId.value,
+                          )
+                          ?.label ??
+                      'reports.filter.allBranches'.trns(),
             onTap: () => _showBranchPicker(context),
           ),
         ),
@@ -193,7 +200,14 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
         const SizedBox(height: 8),
         Obx(
           () => _DropdownField(
-            value: controller.tempServiceFilterDisplay,
+            value: controller.tempServiceId.value == 'all'
+                ? 'reports.filter.allServices'.trns()
+                : controller.services
+                          .firstWhereOrNull(
+                            (s) => s.value == controller.tempServiceId.value,
+                          )
+                          ?.label ??
+                      'reports.filter.allServices'.trns(),
             onTap: () => _showServicePicker(context),
           ),
         ),
@@ -240,7 +254,6 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
   }
 
   void _showBranchPicker(BuildContext context) {
-    final options = controller.branchFilterOptions;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -248,18 +261,31 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'reports.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          'reports.filter.allBranches'.trns(),
+          ...controller.branches.map((b) => b.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          '',
+          ...controller.branches.map((b) => b.value.toString()),
+        ],
+        currentlySelectedValue: controller.tempBranchId.value?.toString() ?? '',
+        onValueSelected: (v) {
+          final raw = v.toString();
+          controller.tempBranchId.value = raw.isEmpty
+              ? null
+              : int.tryParse(raw);
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempBranchIds,
       ),
     );
   }
 
   void _showServicePicker(BuildContext context) {
-    final options = controller.serviceFilterOptions;
+    // The API list already ships its own "All Services" entry — only
+    // prepend a manual one when it doesn't (avoids twin All rows).
+    final hasAll = reportOptionsContainAll(controller.services);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -267,12 +293,24 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'reports.filter.service'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: options.map((o) => o.label).toList(),
-        selectedValue: options.map((o) => o.value).toList(),
+        dropdownItems: [
+          if (!hasAll) 'reports.filter.allServices'.trns(),
+          ...controller.services.map((s) => s.label),
+        ],
         textController: TextEditingController(),
+        selectedValue: [
+          if (!hasAll) 'all',
+          ...controller.services.map((s) => s.value.toString()),
+        ],
+        currentlySelectedValue:
+            controller.tempServiceId.value?.toString() ?? 'all',
+        onValueSelected: (v) {
+          final raw = v.toString();
+          controller.tempServiceId.value = raw == 'all'
+              ? 'all'
+              : int.tryParse(raw) ?? raw;
+        },
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempServiceIds,
       ),
     );
   }

@@ -200,7 +200,6 @@ class _TableDataRow extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,
-                  decoration: TextDecoration.underline,
                 ),
               ),
             ),
@@ -232,15 +231,9 @@ class _DataCell extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           right: showDivider
-              ? const BorderSide(
-                  color: Color(0xFFE5E7EB),
-                  width: 0.5,
-                )
+              ? const BorderSide(color: Color(0xFFE5E7EB), width: 0.5)
               : BorderSide.none,
-          bottom: const BorderSide(
-            color: Color(0xFFE5E7EB),
-            width: 0.5,
-          ),
+          bottom: const BorderSide(color: Color(0xFFE5E7EB), width: 0.5),
         ),
       ),
       child: child,

@@ -4,7 +4,6 @@ import 'package:va_bookats/app/modules/reporting/branch_comparison/branchCompari
 import 'package:va_bookats/network/api/api_path.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/service/network_service.dart';
-import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
 class BranchComparisonReportService {
@@ -13,11 +12,11 @@ class BranchComparisonReportService {
   /// Fetch branch comparison report
   /// [fromDate] - format: 2026-08-01
   /// [toDate] - format: 2026-08-31
-  /// [branchIds] - indexed branch IDs (branch_ids[0]=1&branch_ids[1]=2)
+  /// [branchId] - single branch id, sent indexed as `branch_ids[0]`
   Future<ApiResponse<BranchComparisonReportModel>> getBranchComparisonReport({
     required String fromDate,
     required String toDate,
-    List<String>? branchIds,
+    int? branchId,
   }) async {
     try {
       final queryParams = <String, dynamic>{
@@ -25,8 +24,8 @@ class BranchComparisonReportService {
         'to_date': toDate,
       };
 
-      if (branchIds != null) {
-        addIndexedParams(queryParams, 'branch_ids', branchIds);
+      if (branchId != null) {
+        queryParams['branch_ids[0]'] = branchId;
       }
 
       final response = await _network.get(

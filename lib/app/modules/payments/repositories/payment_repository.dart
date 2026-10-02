@@ -27,6 +27,7 @@ class PaymentRepository {
     int? branchId,
     String? fromDate,
     String? toDate,
+    String? quickRange,
   }) async {
     final response = await _network.get(
       endpoint: ApiPath.payments,
@@ -37,6 +38,8 @@ class PaymentRepository {
         if (branchId != null) 'branch_id': branchId,
         if (fromDate != null && fromDate.isNotEmpty) 'from_date': fromDate,
         if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
+        if (quickRange != null && quickRange.isNotEmpty)
+          'quick_range': quickRange,
       },
     );
 

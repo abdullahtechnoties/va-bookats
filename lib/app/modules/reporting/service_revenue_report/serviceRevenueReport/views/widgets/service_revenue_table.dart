@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceRevenueReport/controller/service_revenue_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/translation_extention.dart';
 import '../../models/service_revenue_models.dart';
 
 class ServiceRevenueTable extends StatelessWidget {
@@ -55,13 +56,21 @@ class ServiceRevenueTable extends StatelessWidget {
         children: [
           _HeaderCell(label: '#', width: _indexColWidth, isFirst: true),
           ...cols.map((c) => _HeaderCell(label: c.label, width: c.width)),
-          _HeaderCell(label: 'Actions', width: _actionsColWidth, isLast: true),
+          _HeaderCell(
+            label: 'reports.serviceRevenue.table.actions'.trns(),
+            width: _actionsColWidth,
+            isLast: true,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDataRow(ServiceRevenueData row, bool isEven, List<ServiceRevenueColumn> cols) {
+  Widget _buildDataRow(
+    ServiceRevenueData row,
+    bool isEven,
+    List<ServiceRevenueColumn> cols,
+  ) {
     final bgColor = isEven ? AppColors.white : const Color(0xFFFFF5F2);
     final index = data.indexOf(row) + 1;
 
@@ -100,10 +109,10 @@ class ServiceRevenueTable extends StatelessWidget {
             showDivider: false,
             child: GestureDetector(
               onTap: () => controller.navigateToDetails(row),
-              child: const Text(
-                'View Details',
+              child: Text(
+                'reports.serviceRevenue.table.viewDetails'.trns(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,
@@ -141,7 +150,10 @@ class _HeaderCell extends StatelessWidget {
         border: Border(
           right: isLast
               ? BorderSide.none
-              : BorderSide(color: AppColors.white.withValues(alpha: 0.25), width: 0.5),
+              : BorderSide(
+                  color: AppColors.white.withValues(alpha: 0.25),
+                  width: 0.5,
+                ),
         ),
       ),
       child: Text(
@@ -163,7 +175,11 @@ class _DataCell extends StatelessWidget {
   final Widget child;
   final bool showDivider;
 
-  const _DataCell({required this.width, required this.child, required this.showDivider});
+  const _DataCell({
+    required this.width,
+    required this.child,
+    required this.showDivider,
+  });
 
   @override
   Widget build(BuildContext context) {
