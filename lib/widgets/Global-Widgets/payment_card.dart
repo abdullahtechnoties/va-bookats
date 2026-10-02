@@ -174,23 +174,25 @@ class PaymentCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: onDelete,
-                  child: Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.delete_outline,
-                      color: AppColors.white,
-                      size: 20,
+                if (onDelete != null) ...[
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: onDelete,
+                    child: Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: AppColors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ],
@@ -244,11 +246,7 @@ class _PaymentDetailRow extends StatelessWidget {
           ),
         ),
         if (!isLast)
-          const Divider(
-            height: 1,
-            thickness: 0.8,
-            color: Color(0xFFEEEEEE),
-          ),
+          const Divider(height: 1, thickness: 0.8, color: Color(0xFFEEEEEE)),
       ],
     );
   }

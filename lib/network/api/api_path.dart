@@ -104,6 +104,8 @@ class ApiPath {
     int page = 1,
   }) =>
       '/reports/expense/show?branch_id=$branchId&expenseCategory_id=$expenseCategoryId&from_date=$fromDate&to_date=$toDate&page=$page';
+    static String expenseCategories(int branchId) =>
+            '/data/expense-categories?branch_id=$branchId';
 
   // Geo (Unauthenticated)
   static const String countries = '/data/countries';
@@ -120,15 +122,19 @@ class ApiPath {
   static String customer(int id) => '/customers/$id';
   static String customerStatus(int id) => '/customers/$id/status';
 
-
   // Bookings
   static const String bookings = '/bookings';
   static String booking(int id) => '/bookings/$id';
   static String bookingStatus(int id) => '/bookings/$id/status';
 
+  // Payments
+  static const String payments = '/payments';
+  static String payment(int id) => '/payments/$id';
+
   // Booking lookups
-  static String bookingCustomers({int? branchId}) =>
-      branchId == null ? '/data/customers' : '/data/customers?branch_id=$branchId';
+  static String bookingCustomers({int? branchId}) => branchId == null
+      ? '/data/customers'
+      : '/data/customers?branch_id=$branchId';
   static String bookingPackages(int branchId) =>
       '/data/packages?branch_id=$branchId';
   static String bookingPackageStaffs(int packageId) =>

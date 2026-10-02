@@ -307,10 +307,10 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                             validator: (_) {
                               if (!controller.isGuestType) return null;
                               final v = controller.guestEmailCtrl.text.trim();
-                              if (v.isEmpty) {
-                                return 'Please enter guest email';
-                              }
-                              if (!GetUtils.isEmail(v)) {
+                              // if (v.isEmpty) {
+                              //   return 'Please enter guest email';
+                              // }
+                              if (v.isNotEmpty && !GetUtils.isEmail(v)) {
                                 return 'Please enter a valid email';
                               }
                               return null;
@@ -325,13 +325,13 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                             keyboardType: TextInputType.phone,
                             height: 50,
                             hintTextSize: 13,
-                            validator: (_) =>
-                                controller.isGuestType &&
-                                    controller.guestPhoneCtrl.text
-                                        .trim()
-                                        .isEmpty
-                                ? 'Please enter guest phone'
-                                : null,
+                            // validator: (_) =>
+                            //     controller.isGuestType &&
+                            //         controller.guestPhoneCtrl.text
+                            //             .trim()
+                            //             .isEmpty
+                            //     ? 'Please enter guest phone'
+                            //     : null,
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -342,53 +342,89 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
               // Date
               _FieldLabel('createBooking.step1.date'.trns()),
               const SizedBox(height: 8),
-              CommonTextInputField(
-                hintTextColor: AppColors.grey,
-                hintText: 'createBooking.step1.datePlaceholder'.trns(),
-                controller: controller.dateCtrl,
-                readOnly: true,
-                height: 50,
-                hintTextSize: 13,
-                validator: (_) => controller.dateCtrl.text.trim().isEmpty
-                    ? 'Please select a date'
-                    : null,
-                onTap: () => controller.pickDate(context),
+              Obx(
+                () => CommonTextInputField(
+                  hintTextColor: AppColors.grey,
+                  hintText: 'createBooking.step1.datePlaceholder'.trns(),
+                  controller: controller.dateCtrl,
+                  readOnly: true,
+                  height: 50,
+                  hintTextSize: 13,
+                  showSuffixIcon: controller.apiBookingDate.value.isNotEmpty,
+                  suffixIcon: IconButton(
+                    tooltip: 'Clear date',
+                    onPressed: controller.clearBookingDate,
+                    icon: const Icon(
+                      Icons.clear,
+                      color: AppColors.grey,
+                      size: 18,
+                    ),
+                  ),
+                  validator: (_) => controller.dateCtrl.text.trim().isEmpty
+                      ? 'Please select a date'
+                      : null,
+                  onTap: () => controller.pickDate(context),
+                ),
               ),
               const SizedBox(height: 16),
 
               // Start Time
               _FieldLabel('createBooking.step1.startTime'.trns()),
               const SizedBox(height: 8),
-              CommonTextInputField(
-                hintTextColor: AppColors.grey,
-                hintText: 'createBooking.step1.startTimePlaceholder'.trns(),
-                controller: controller.startTimeCtrl,
-                readOnly: true,
-                height: 50,
-                hintTextSize: 13,
-                validator: (_) => controller.startTimeCtrl.text.trim().isEmpty
-                    ? 'Please select start time'
-                    : null,
-                onTap: () =>
-                    controller.pickTime(context, controller.startTimeCtrl),
+              Obx(
+                () => CommonTextInputField(
+                  hintTextColor: AppColors.grey,
+                  hintText: 'createBooking.step1.startTimePlaceholder'.trns(),
+                  controller: controller.startTimeCtrl,
+                  readOnly: true,
+                  height: 50,
+                  hintTextSize: 13,
+                  showSuffixIcon: controller.apiStartTime.value.isNotEmpty,
+                  suffixIcon: IconButton(
+                    tooltip: 'Clear start time',
+                    onPressed: controller.clearStartTime,
+                    icon: const Icon(
+                      Icons.clear,
+                      color: AppColors.grey,
+                      size: 18,
+                    ),
+                  ),
+                  validator: (_) => controller.endTimeCtrl.text.trim().isNotEmpty && controller.startTimeCtrl.text.trim().isEmpty
+                      ? 'Please select start time'
+                      : null,
+                  onTap: () =>
+                      controller.pickTime(context, controller.startTimeCtrl),
+                ),
               ),
               const SizedBox(height: 16),
 
               // End Time
               _FieldLabel('createBooking.step1.endTime'.trns()),
               const SizedBox(height: 8),
-              CommonTextInputField(
-                hintTextColor: AppColors.grey,
-                hintText: 'createBooking.step1.endTimePlaceholder'.trns(),
-                controller: controller.endTimeCtrl,
-                readOnly: true,
-                height: 50,
-                hintTextSize: 13,
-                validator: (_) => controller.endTimeCtrl.text.trim().isEmpty
-                    ? 'Please select end time'
-                    : null,
-                onTap: () =>
-                    controller.pickTime(context, controller.endTimeCtrl),
+              Obx(
+                () => CommonTextInputField(
+                  hintTextColor: AppColors.grey,
+                  hintText: 'createBooking.step1.endTimePlaceholder'.trns(),
+                  controller: controller.endTimeCtrl,
+                  readOnly: true,
+                  height: 50,
+                  hintTextSize: 13,
+                  showSuffixIcon: controller.apiEndTime.value.isNotEmpty,
+                  suffixIcon: IconButton(
+                    tooltip: 'Clear end time',
+                    onPressed: controller.clearEndTime,
+                    icon: const Icon(
+                      Icons.clear,
+                      color: AppColors.grey,
+                      size: 18,
+                    ),
+                  ),
+                  validator: (_) => controller.startTimeCtrl.text.trim().isNotEmpty && controller.endTimeCtrl.text.trim().isEmpty
+                      ? 'Please select end time'
+                      : null,
+                  onTap: () =>
+                      controller.pickTime(context, controller.endTimeCtrl),
+                ),
               ),
               const SizedBox(height: 16),
 

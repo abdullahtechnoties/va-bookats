@@ -60,7 +60,7 @@ class Step3Services extends GetView<CreateBookingController> {
                     color: AppColors.black,
                   ),
                 ),
-                GestureDetector(
+                InkWell(
                   onTap: controller.addService,
                   child: Container(
                     width: 40,
@@ -141,16 +141,19 @@ class Step3Services extends GetView<CreateBookingController> {
                           readOnly: true,
                           height: 50,
                           hintTextSize: 13,
-                          onTap: () => _showThree(
-                            context,
-                            title: 'createBooking.step3.service'.trns(),
-                            items: controller.serviceLabels,
-                            selectedItem: item.selectedServiceId,
-                            textCtrl: item.serviceCtrl,
-                            values: controller.serviceValues,
-                            onSelected: (v) =>
-                                controller.onServiceSelected(item, v),
-                          ),
+                          onTap: () {
+                            if (!controller.ensureBookingTimeSelected()) return;
+                            _showThree(
+                              context,
+                              title: 'createBooking.step3.service'.trns(),
+                              items: controller.serviceLabels,
+                              selectedItem: item.selectedServiceId,
+                              textCtrl: item.serviceCtrl,
+                              values: controller.serviceValues,
+                              onSelected: (v) =>
+                                  controller.onServiceSelected(item, v),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         if (item.isVariationType.value) ...[
@@ -189,10 +192,12 @@ class Step3Services extends GetView<CreateBookingController> {
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColors.secondary,
+                                  child: FittedBox(
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.secondary,
+                                      ),
                                     ),
                                   ),
                                 )
@@ -233,6 +238,7 @@ class Step3Services extends GetView<CreateBookingController> {
                           controller: item.amountCtrl,
                           keyboardType: TextInputType.number,
                           readOnly: true,
+                          enabled: false,
                           height: 50,
                           hintTextSize: 13,
                         ),
@@ -263,6 +269,7 @@ class Step3Services extends GetView<CreateBookingController> {
                           controller: item.totalCtrl,
                           keyboardType: TextInputType.number,
                           readOnly: true,
+                          enabled: false,
                           height: 50,
                           hintTextSize: 13,
                         ),

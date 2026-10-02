@@ -1,9 +1,13 @@
 // lib/app/modules/createBooking/controllers/create_booking_controller.dart
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:va_bookats/app/modules/allBooking/controllers/all_booking_controller.dart';
 import 'package:va_bookats/app/modules/bookings/repositories/booking_repository.dart';
 import 'package:va_bookats/app/modules/customers/repositories/customer_repository.dart';
+import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
 import 'package:va_bookats/app/modules/mediaLibrary/controllers/media_library_controller.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/models/branch_model.dart';
@@ -25,7 +29,7 @@ class PackageFormItem {
   final TextEditingController totalCtrl = TextEditingController();
 
   final RxString selectedPackageId = ''.obs;
-  final RxString selectedEmployeeId = ''.obs;
+  final RxSet<String> selectedEmployeeIds = <String>{}.obs;
   final RxList<LookupOption> employeeOptions = <LookupOption>[].obs;
   final RxBool isLoadingStaffs = false.obs;
   final RxBool staffFetched = false.obs;
@@ -43,7 +47,7 @@ class PackageFormItem {
   bool get isEmptyRow =>
       selectedPackageId.value.isEmpty &&
       amountCtrl.text.trim().isEmpty &&
-      selectedEmployeeId.value.isEmpty;
+      selectedEmployeeIds.isEmpty;
 
   bool get isComplete =>
       selectedPackageId.value.isNotEmpty &&
@@ -179,6 +183,7 @@ class CreateBookingController extends GetxController {
   // ── Stepper ────────────────────────────────────────────────────────────
   final RxInt currentStep = 0.obs;
   static const int totalSteps = 5;
+  final ScrollController formScrollController = ScrollController();
   final List<GlobalKey<FormState>> stepKeys = List.generate(
     5,
     (_) => GlobalKey<FormState>(),
@@ -285,14 +290,14 @@ class CreateBookingController extends GetxController {
         slipMedia.value != null) {
       return true;
     }
-    if (packageItems.any((p) => !p.isEmptyRow) &&  !isEditMode) return true;
+    if (packageItems.any((p) => !p.isEmptyRow) && !isEditMode) return true;
     if (serviceItems.any((s) => !s.isEmptyRow) && !isEditMode) return true;
     if (productItems.any((p) => !p.isEmptyRow) && !isEditMode) return true;
     return false;
   }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     selectedBookingStatus.value = BookingStatus.pending;
     bookingStatusCtrl.text = BookingStatus.pending;
@@ -437,14 +442,16 @@ class CreateBookingController extends GetxController {
       p.dispose();
     }
     productItems.clear();
-    selectedCustomerId.value = null;
-    selectedCustomerValue.value = '';
-    selectedCustomer.value = '';
-    customerCtrl.clear();
+    // selectedCustomerId.value = null;
+    // selectedCustomerValue.value = '';
+    // selectedCustomer.value = '';
+    // customerCtrl.clear();
     // Keep one empty package card visible by default.
     addPackage();
+    addService();
+    addProduct();
     fetchBranchCatalogs();
-    fetchCustomers();
+    // fetchCustomers();
   }
 
   void onBookingTypeSelected(String type) {
@@ -466,6 +473,43 @@ class CreateBookingController extends GetxController {
         ? null
         : int.tryParse(value.toString());
     selectedCustomerValue.value = value?.toString() ?? '';
+  }
+
+  bool ensureBookingTimeSelected() {
+    final hasDate =
+        apiBookingDate.value.isNotEmpty ||
+        BookingFormHelpers.toApiDate(dateCtrl.text).isNotEmpty;
+    final hasStart =
+        apiStartTime.value.isNotEmpty ||
+        BookingFormHelpers.toApiTime(startTimeCtrl.text).isNotEmpty;
+    final hasEnd =
+        apiEndTime.value.isNotEmpty ||
+        BookingFormHelpers.toApiTime(endTimeCtrl.text).isNotEmpty;
+    if (hasDate && hasStart && hasEnd) return true;
+
+    SnackbarService.showError(
+      title: 'common.error'.trns(),
+      message: 'Please select, start time and end time first',
+    );
+    return false;
+  }
+
+  void clearBookingDate() {
+    apiBookingDate.value = '';
+    dateCtrl.clear();
+    _refreshStaffAvailability();
+  }
+
+  void clearStartTime() {
+    apiStartTime.value = '';
+    startTimeCtrl.clear();
+    _refreshStaffAvailability();
+  }
+
+  void clearEndTime() {
+    apiEndTime.value = '';
+    endTimeCtrl.clear();
+    _refreshStaffAvailability();
   }
 
   Future<void> pickDate(BuildContext context) async {
@@ -536,10 +580,38 @@ class CreateBookingController extends GetxController {
 
   /// Re-fetch staff options once date/time become known.
   void _refreshStaffAvailability() {
+    final hasDate =
+        apiBookingDate.value.isNotEmpty ||
+        BookingFormHelpers.toApiDate(dateCtrl.text).isNotEmpty;
+    final hasStart =
+        apiStartTime.value.isNotEmpty ||
+        BookingFormHelpers.toApiTime(startTimeCtrl.text).isNotEmpty;
+    final hasEnd =
+        apiEndTime.value.isNotEmpty ||
+        BookingFormHelpers.toApiTime(endTimeCtrl.text).isNotEmpty;
+    if (!hasDate || !hasStart || !hasEnd) {
+      for (final p in packageItems) {
+        p.employeeOptions.clear();
+        p.selectedEmployeeIds.clear();
+        p.employeeCtrl.clear();
+        p.staffFetched.value = false;
+        p.isLoadingStaffs.value = false;
+      }
+      for (final s in serviceItems) {
+        s.employeeOptions.clear();
+        s.selectedEmployeeId.value = '';
+        s.employeeCtrl.clear();
+        s.staffFetched.value = false;
+        s.isLoadingStaffs.value = false;
+      }
+      return;
+    }
     for (final p in packageItems) {
       if (p.selectedPackageId.value.isNotEmpty) _fetchPackageStaffs(p);
     }
-    // Service staff endpoint is not date-scoped, nothing to refresh there.
+    for (final s in serviceItems) {
+      if (s.selectedServiceId.value.isNotEmpty) _fetchServiceStaffs(s);
+    }
   }
 
   Future<void> quickAddCustomer() async {
@@ -596,7 +668,21 @@ class CreateBookingController extends GetxController {
 
   // ─── Packages ──────────────────────────────────────────────────────────
 
-  void addPackage() => packageItems.add(PackageFormItem());
+  void addPackage() {
+    packageItems.add(PackageFormItem());
+    _scrollFormToBottom();
+  }
+
+  void _scrollFormToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!formScrollController.hasClients) return;
+      formScrollController.animateTo(
+        formScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
 
   void removePackage(int index) {
     if (index < 0 || index >= packageItems.length) return;
@@ -606,10 +692,11 @@ class CreateBookingController extends GetxController {
 
   void onPackageSelected(PackageFormItem item, dynamic value) {
     item.selectedPackageId.value = value?.toString() ?? '';
-    item.selectedEmployeeId.value = '';
+    item.selectedEmployeeIds.clear();
     item.employeeCtrl.clear();
     item.employeeOptions.clear();
     item.staffFetched.value = false;
+    item.isLoadingStaffs.value = false;
     PackageLookup? found;
     for (final p in packageOptions) {
       if (p.value.toString() == item.selectedPackageId.value) {
@@ -618,10 +705,11 @@ class CreateBookingController extends GetxController {
       }
     }
     if (found != null) {
-      if (item.amountCtrl.text.trim().isEmpty) {
-        item.amountCtrl.text = found.price;
-      }
+      item.amountCtrl.text = found.price;
       _recalcRowTotal(item.amountCtrl, item.discountCtrl, item.totalCtrl);
+    } else {
+      item.amountCtrl.clear();
+      item.totalCtrl.clear();
     }
     _fetchPackageStaffs(item);
   }
@@ -646,31 +734,54 @@ class CreateBookingController extends GetxController {
           : BookingFormHelpers.toSlashDate(apiDate),
       startTime: apiStart.isEmpty ? null : apiStart,
       endTime: apiEnd.isEmpty ? null : apiEnd,
+      bookingId: isEditMode ? _editing?.id.toString() : null,
     );
     item.isLoadingStaffs.value = false;
     item.staffFetched.value = true;
     if (res.isCompleted && res.data != null) {
       item.employeeOptions.assignAll(res.data!);
-      // Drop a stale employee that is no longer available.
-      if (item.selectedEmployeeId.value.isNotEmpty &&
-          item.employeeOptions.every(
-            (o) => o.value != item.selectedEmployeeId.value,
-          )) {
-        item.selectedEmployeeId.value = '';
-        item.employeeCtrl.clear();
-      }
+      // Drop stale employees that are no longer available.
+      final validIds = item.employeeOptions.map((o) => o.value).toSet();
+      item.selectedEmployeeIds.retainAll(validIds);
+      syncPackageEmployeeDisplay(item);
     } else {
       item.employeeOptions.clear();
     }
   }
 
-  void onPackageEmployeeSelected(PackageFormItem item, dynamic value) {
-    item.selectedEmployeeId.value = value?.toString() ?? '';
+  /// Refreshes the package employee field text from the multi-selection:
+  /// empty, a single name, or "{n} selected".
+  void syncPackageEmployeeDisplay(PackageFormItem item) {
+    final ids = item.selectedEmployeeIds;
+    if (ids.isEmpty) {
+      item.employeeCtrl.clear();
+      return;
+    }
+    if (ids.length == 1) {
+      final id = ids.first;
+      for (final o in item.employeeOptions) {
+        if (o.value == id) {
+          item.employeeCtrl.text = o.label;
+          return;
+        }
+      }
+      if (item.employeeCtrl.text.trim().isEmpty) {
+        item.employeeCtrl.text = id;
+      }
+      return;
+    }
+    item.employeeCtrl.text = 'createBooking.step2.nSelected'.trns().replaceAll(
+      '{count}',
+      ids.length.toString(),
+    );
   }
 
   // ─── Services ──────────────────────────────────────────────────────────
 
-  void addService() => serviceItems.add(ServiceFormItem());
+  void addService() {
+    serviceItems.add(ServiceFormItem());
+    _scrollFormToBottom();
+  }
 
   void removeService(int index) {
     if (index < 0 || index >= serviceItems.length) return;
@@ -687,6 +798,8 @@ class CreateBookingController extends GetxController {
     item.employeeCtrl.clear();
     item.employeeOptions.clear();
     item.staffFetched.value = false;
+    item.isLoadingStaffs.value = false;
+    item.isVariationType.value = false;
     ServiceLookup? found;
     for (final s in serviceOptions) {
       if (s.value.toString() == item.selectedServiceId.value) {
@@ -694,7 +807,11 @@ class CreateBookingController extends GetxController {
         break;
       }
     }
-    if (found == null) return;
+    if (found == null) {
+      item.amountCtrl.clear();
+      item.totalCtrl.clear();
+      return;
+    }
     item.isVariationType.value = found.isVariation;
     item.variationOptions.assignAll(found.variations);
     if (!found.isVariation && found.defaultPrice.isNotEmpty) {
@@ -722,7 +839,24 @@ class CreateBookingController extends GetxController {
     final serviceId = int.tryParse(item.selectedServiceId.value);
     if (serviceId == null) return;
     item.isLoadingStaffs.value = true;
-    final res = await _repo.getServiceStaffs(serviceId);
+    final apiDate = apiBookingDate.value.isNotEmpty
+        ? apiBookingDate.value
+        : BookingFormHelpers.toApiDate(dateCtrl.text);
+    final apiStart = apiStartTime.value.isNotEmpty
+        ? apiStartTime.value
+        : BookingFormHelpers.toApiTime(startTimeCtrl.text);
+    final apiEnd = apiEndTime.value.isNotEmpty
+        ? apiEndTime.value
+        : BookingFormHelpers.toApiTime(endTimeCtrl.text);
+    final res = await _repo.getServiceStaffs(
+      bookingId: isEditMode ? _editing?.id.toString() : null,
+      serviceId: serviceId,
+      bookingDate: apiDate.isEmpty
+          ? null
+          : BookingFormHelpers.toSlashDate(apiDate),
+      startTime: apiStart.isEmpty ? null : apiStart,
+      endTime: apiEnd.isEmpty ? null : apiEnd,
+    );
     item.isLoadingStaffs.value = false;
     item.staffFetched.value = true;
     if (res.isCompleted && res.data != null) {
@@ -745,7 +879,10 @@ class CreateBookingController extends GetxController {
 
   // ─── Products ──────────────────────────────────────────────────────────
 
-  void addProduct() => productItems.add(ProductFormItem());
+  void addProduct() {
+    productItems.add(ProductFormItem());
+    _scrollFormToBottom();
+  }
 
   void removeProduct(int index) {
     if (index < 0 || index >= productItems.length) return;
@@ -770,7 +907,7 @@ class CreateBookingController extends GetxController {
     // Prefill stock for normal products too (was only shown for variants).
     item.availableStock.value = found.stock;
     if (item.quantityCtrl.text.trim().isEmpty) {
-      item.quantityCtrl.text = '1';
+      // item.quantityCtrl.text = '1';
     }
     if (!found.hasVariants && found.price.isNotEmpty) {
       item.unitPriceCtrl.text = found.price;
@@ -791,7 +928,7 @@ class CreateBookingController extends GetxController {
         // Max stock follows the selected variation.
         item.availableStock.value = v.stock;
         if (item.quantityCtrl.text.trim().isEmpty) {
-          item.quantityCtrl.text = '1';
+          // item.quantityCtrl.text = '1';
         }
         _recalcProductTotals(item);
         break;
@@ -1050,16 +1187,16 @@ class CreateBookingController extends GetxController {
     final apiDate = apiBookingDate.value.isNotEmpty
         ? apiBookingDate.value
         : BookingFormHelpers.toApiDate(dateCtrl.text);
-    final apiStart = apiStartTime.value.isNotEmpty
-        ? apiStartTime.value
-        : BookingFormHelpers.toApiTime(startTimeCtrl.text);
-    final apiEnd = apiEndTime.value.isNotEmpty
-        ? apiEndTime.value
-        : BookingFormHelpers.toApiTime(endTimeCtrl.text);
-    if (apiDate.isEmpty || apiStart.isEmpty || apiEnd.isEmpty) {
+    // final apiStart = apiStartTime.value.isNotEmpty
+    //     ? apiStartTime.value
+    //     : BookingFormHelpers.toApiTime(startTimeCtrl.text);
+    // final apiEnd = apiEndTime.value.isNotEmpty
+    //     ? apiEndTime.value
+    //     : BookingFormHelpers.toApiTime(endTimeCtrl.text);
+    if (apiDate.isEmpty) {
       SnackbarService.showError(
         title: 'common.error'.trns(),
-        message: 'Please select date, start and end time',
+        message: 'Please select date',
       );
       return false;
     }
@@ -1084,7 +1221,7 @@ class CreateBookingController extends GetxController {
         return false;
       }
       if (p.selectedPackageId.value.isNotEmpty &&
-          p.selectedEmployeeId.value.isEmpty &&
+          p.selectedEmployeeIds.isEmpty &&
           p.staffFetched.value &&
           p.employeeOptions.isNotEmpty) {
         SnackbarService.showError(
@@ -1362,6 +1499,21 @@ class CreateBookingController extends GetxController {
           }
         }
       }
+      if (line.staffIds.isNotEmpty) {
+        row.selectedEmployeeIds.assignAll(
+          line.staffIds.map((id) => id.toString()),
+        );
+        if (line.staffNames.isNotEmpty) {
+          row.employeeCtrl.text = line.staffNames.length == 1
+              ? line.staffNames.first
+              : 'createBooking.step2.nSelected'.trns().replaceAll(
+                  '{count}',
+                  line.staffNames.length.toString(),
+                );
+        } else {
+          syncPackageEmployeeDisplay(row);
+        }
+      }
       row.amountCtrl.text = line.amount ?? '';
       row.discountCtrl.text = line.discount ?? '0';
       row.totalCtrl.text = line.totalAmount ?? '';
@@ -1488,7 +1640,10 @@ class CreateBookingController extends GetxController {
       if (p.isEmptyRow) continue;
       final id = int.tryParse(p.selectedPackageId.value);
       if (id == null) continue;
-      final staffId = int.tryParse(p.selectedEmployeeId.value);
+      final staffIds = p.selectedEmployeeIds
+          .map(int.tryParse)
+          .whereType<int>()
+          .toList();
       out.add(
         PackageDraft(
           packageId: id,
@@ -1501,7 +1656,7 @@ class CreateBookingController extends GetxController {
           totalAmount: p.totalCtrl.text.trim().isEmpty
               ? '0'
               : p.totalCtrl.text.trim(),
-          staffIds: staffId == null ? const [] : [staffId],
+          staffIds: staffIds,
         ),
       );
     }
@@ -1672,7 +1827,9 @@ class CreateBookingController extends GetxController {
               packages: _packageDrafts(),
               products: _productDrafts(),
             );
-
+      log(
+        'Booking submit result: ${res.isCompleted}, message: ${res.message} aamountPaid: ${amountPaidCtrl.text.trim()}, balance: ${balanceCtrl.text.trim()}',
+      );
       if (res.isCompleted && res.data != null) {
         SnackbarService.showSuccess(
           title: 'common.success'.trns(),
@@ -1683,6 +1840,8 @@ class CreateBookingController extends GetxController {
                   : 'Booking created successfully.'),
         );
         if (!context.mounted) return;
+        await Get.find<AllBookingController>().fetchFirstPage();
+        await Get.find<HomeController>().handleRefresh();
         // Pop with the booking so the list can jump to its status tab.
         await NavigationHelper.safePop(context, res.data);
       } else {
@@ -1710,6 +1869,7 @@ class CreateBookingController extends GetxController {
 
   @override
   void onClose() {
+    formScrollController.dispose();
     branchCtrl.dispose();
     bookingTypeCtrl.dispose();
     customerCtrl.dispose();

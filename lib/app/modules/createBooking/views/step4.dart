@@ -60,7 +60,7 @@ class Step4Products extends GetView<CreateBookingController> {
                     color: AppColors.black,
                   ),
                 ),
-                GestureDetector(
+                InkWell(
                   onTap: controller.addProduct,
                   child: Container(
                     width: 40,
@@ -203,6 +203,7 @@ class Step4Products extends GetView<CreateBookingController> {
                           controller: item.unitPriceCtrl,
                           keyboardType: TextInputType.number,
                           readOnly: true,
+                          enabled: false,
                           height: 50,
                           hintTextSize: 13,
                         ),
@@ -214,6 +215,7 @@ class Step4Products extends GetView<CreateBookingController> {
                           controller: item.totalCtrl,
                           keyboardType: TextInputType.number,
                           readOnly: true,
+                          enabled: false,
                           height: 50,
                           hintTextSize: 13,
                         ),
@@ -246,6 +248,7 @@ class Step4Products extends GetView<CreateBookingController> {
                           hintText: '00',
                           controller: item.afterDiscountCtrl,
                           keyboardType: TextInputType.number,
+                          enabled: false,
                           readOnly: true,
                           height: 50,
                           hintTextSize: 13,

@@ -19,17 +19,29 @@ typedef StatusConfirm = void Function({
 
 class BookingStatusSheet extends StatefulWidget {
   final String currentStatus;
+  final String totalAmount;
+  final String discount;
+  final String amountPaid;
+  final String balance;
   final StatusConfirm onConfirmed;
 
   const BookingStatusSheet({
     super.key,
     required this.currentStatus,
+    required this.totalAmount,
+    required this.discount,
+    required this.amountPaid,
+    required this.balance,
     required this.onConfirmed,
   });
 
   static void show(
     BuildContext context, {
     required String currentStatus,
+    required String totalAmount,
+    required String discount,
+    required String amountPaid,
+    required String balance,
     required StatusConfirm onConfirmed,
   }) {
     showModalBottomSheet(
@@ -38,6 +50,10 @@ class BookingStatusSheet extends StatefulWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => BookingStatusSheet(
         currentStatus: currentStatus,
+        totalAmount: totalAmount,
+        discount: discount,
+        amountPaid: amountPaid,
+        balance: balance,
         onConfirmed: onConfirmed,
       ),
     );
@@ -48,8 +64,13 @@ class BookingStatusSheet extends StatefulWidget {
 }
 
 class _BookingStatusSheetState extends State<BookingStatusSheet> {
+  final _formKey = GlobalKey<FormState>();
   late String _selected;
   final _returnCtrl = TextEditingController();
+  final _totalCtrl = TextEditingController();
+  final _discountCtrl = TextEditingController();
+  final _paidCtrl = TextEditingController();
+  final _balanceCtrl = TextEditingController();
   final _txnCtrl = TextEditingController();
   final _methodCtrl = TextEditingController();
   final RxString _selectedMethod = ''.obs;
@@ -61,11 +82,19 @@ class _BookingStatusSheetState extends State<BookingStatusSheet> {
   void initState() {
     super.initState();
     _selected = widget.currentStatus;
+    _totalCtrl.text = widget.totalAmount;
+    _discountCtrl.text = widget.discount;
+    _paidCtrl.text = widget.amountPaid;
+    _balanceCtrl.text = widget.balance;
   }
 
   @override
   void dispose() {
     _returnCtrl.dispose();
+    _totalCtrl.dispose();
+    _discountCtrl.dispose();
+    _paidCtrl.dispose();
+    _balanceCtrl.dispose();
     _txnCtrl.dispose();
     _methodCtrl.dispose();
     super.dispose();
@@ -86,10 +115,12 @@ class _BookingStatusSheetState extends State<BookingStatusSheet> {
       child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Center(
                 child: Container(
                   width: 48,
@@ -115,7 +146,23 @@ class _BookingStatusSheetState extends State<BookingStatusSheet> {
                     selected: _selected.toLowerCase() == s.toLowerCase(),
                     onTap: () => setState(() => _selected = s),
                   )),
-              if (_isCancelled) ...[
+                if (_isCancelled) ...[
+                const SizedBox(height: 12),
+                _label('Total Amount'),
+                const SizedBox(height: 6),
+                _summaryField(_totalCtrl),
+                const SizedBox(height: 12),
+                _label('Discount'),
+                const SizedBox(height: 6),
+                _summaryField(_discountCtrl),
+                const SizedBox(height: 12),
+                _label('Amount Paid'),
+                const SizedBox(height: 6),
+                _summaryField(_paidCtrl),
+                const SizedBox(height: 12),
+                _label('Balance'),
+                const SizedBox(height: 6),
+                _summaryField(_balanceCtrl),
                 const SizedBox(height: 12),
                 _label('Return Amount'),
                 const SizedBox(height: 6),
@@ -125,6 +172,19 @@ class _BookingStatusSheetState extends State<BookingStatusSheet> {
                   keyboardType: TextInputType.number,
                   height: 50,
                   hintTextSize: 13,
+                  validator: (_) {
+                    final value = _returnCtrl.text.trim();
+                    if (value.isEmpty) return null;
+                    final amount = double.tryParse(value);
+                    if (amount == null || amount < 0) {
+                      return 'Enter a valid return amount';
+                    }
+                    if (amount > _number(_paidCtrl.text)) {
+                      return 'Return amount cannot exceed amount paid';
+                    }
+                    return null;
+                  },
+                  onChanged: (_) => _recalculateBalance(),
                 ),
                 const SizedBox(height: 12),
                 _label('Payment Method'),
@@ -135,6 +195,10 @@ class _BookingStatusSheetState extends State<BookingStatusSheet> {
                   readOnly: true,
                   height: 50,
                   hintTextSize: 13,
+                    validator: (_) => _returnValue > 0 &&
+                        _selectedMethod.value.isEmpty
+                      ? 'Please select a payment method'
+                      : null,
                   onTap: () => _pickMethod(context),
                 ),
                 const SizedBox(height: 12),
@@ -218,29 +282,35 @@ class _BookingStatusSheetState extends State<BookingStatusSheet> {
                   );
                 }),
               ],
-              const SizedBox(height: 20),
-              MainBtn(
-                text: 'Update Status'.trns() == 'Update Status'
-                    ? 'Update Status'
-                    : 'Update Status'.trns(),
-                onPressed: () {
-                  Get.back();
-                  widget.onConfirmed(
-                    status: _selected,
-                    returnAmount: _returnCtrl.text.trim().isEmpty
-                        ? null
-                        : _returnCtrl.text.trim(),
-                    paymentMethod: _selectedMethod.value.isEmpty
-                        ? null
-                        : _selectedMethod.value,
-                    transactionId: _txnCtrl.text.trim().isEmpty
-                        ? null
-                        : _txnCtrl.text.trim(),
-                    mediaId: _slip.value?.mediaId,
-                  );
-                },
-              ),
-            ],
+                const SizedBox(height: 20),
+                MainBtn(
+                  text: 'Update Status'.trns() == 'Update Status'
+                      ? 'Update Status'
+                      : 'Update Status'.trns(),
+                  onPressed: () {
+                    if (_isCancelled &&
+                        !(_formKey.currentState?.validate() ?? false)) {
+                      return;
+                    }
+                    _recalculateBalance();
+                    Get.back();
+                    widget.onConfirmed(
+                      status: _selected,
+                      returnAmount: _returnCtrl.text.trim().isEmpty
+                          ? null
+                          : _returnCtrl.text.trim(),
+                      paymentMethod: _selectedMethod.value.isEmpty
+                          ? null
+                          : _selectedMethod.value,
+                      transactionId: _txnCtrl.text.trim().isEmpty
+                          ? null
+                          : _txnCtrl.text.trim(),
+                      mediaId: _slip.value?.mediaId,
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -256,6 +326,44 @@ class _BookingStatusSheetState extends State<BookingStatusSheet> {
         color: AppColors.black,
       ),
     );
+  }
+
+  Widget _summaryField(TextEditingController controller) {
+    return CommonTextInputField(
+      hintText: '0.00',
+      controller: controller,
+      keyboardType: TextInputType.number,
+      enabled: false,
+      readOnly: true,
+      height: 50,
+      hintTextSize: 13,
+    );
+  }
+
+  double _number(String value) => double.tryParse(value.trim()) ?? 0;
+
+  double get _returnValue =>
+      (double.tryParse(_returnCtrl.text.trim()) ?? 0).clamp(0, double.infinity);
+
+  void _recalculateBalance() {
+    final total = _number(_totalCtrl.text).clamp(0, double.infinity).toDouble();
+    final discount =
+        _number(_discountCtrl.text).clamp(0, total).toDouble();
+    final paid = _number(_paidCtrl.text).clamp(0, total).toDouble();
+    final returnText = _returnCtrl.text.trim();
+    final parsedReturn = double.tryParse(returnText);
+    final returnAmount = (parsedReturn ?? 0).clamp(0, paid).toDouble();
+    if (parsedReturn != null &&
+      (parsedReturn < 0 || parsedReturn > paid)) {
+      _returnCtrl.text = returnAmount.toStringAsFixed(2);
+      _returnCtrl.selection = TextSelection.collapsed(
+        offset: _returnCtrl.text.length,
+      );
+    }
+    final balance = (total - discount - paid - returnAmount)
+        .clamp(0, double.infinity)
+        .toDouble();
+    _balanceCtrl.text = balance.toStringAsFixed(2);
   }
 
   void _pickMethod(BuildContext context) {

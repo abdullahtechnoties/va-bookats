@@ -97,7 +97,7 @@ class CommonTextInputFieldState extends State<CommonTextInputField> {
         onTap: widget.onTap,
         autofillHints: widget.autofillHints,
         style: TextStyle(
-          color:
+          color: widget.readOnly && !widget.enabled ? const Color.fromARGB(255, 126, 126, 126) :
               widget.textColor ??
               (themeController.isDarkMode.value
                   ? AppColors.grey
@@ -107,14 +107,14 @@ class CommonTextInputFieldState extends State<CommonTextInputField> {
         ),
         decoration: InputDecoration(
           filled: true,
-          fillColor:
+          fillColor: widget.readOnly && !widget.enabled ? const Color.fromARGB(255, 243, 239, 239) :
               widget.backgroundColor ??
               (themeController.isDarkMode.value
                   ? AppColors.transparent
                   : AppColors.white),
           hintText: widget.hintText,
           hintStyle: TextStyle(
-            color:
+            color: widget.readOnly && !widget.enabled ? const Color.fromARGB(255, 156, 156, 156) :
                 widget.hintTextColor ??
                 (themeController.isDarkMode.value
                     ? AppColors.grey

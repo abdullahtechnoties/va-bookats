@@ -8,6 +8,7 @@ abstract class Routes {
   static const ALL_BOOKING = _Paths.ALL_BOOKING;
   static const BOOKING_DETAILS = _Paths.BOOKING_DETAILS;
   static const PAYMENTS = _Paths.PAYMENTS;
+  static const REAL_PAYMENT_DETAILS = _Paths.REAL_PAYMENT_DETAILS;
   static const CREATE_BOOKING = _Paths.CREATE_BOOKING;
   static const SERVICES = _Paths.SERVICES;
   static const ADD_SERVICE = _Paths.ADD_SERVICE;
@@ -29,7 +30,8 @@ abstract class Routes {
   static const MEDIA_LIBRARY = _Paths.MEDIA_LIBRARY;
   static const BRANCH_COMPARISON = _Paths.BRANCH_COMPARISON;
   static const BRANCH_COMPARISON_REPORT = _Paths.BRANCH_COMPARISON_REPORT;
-  static const BRANCH_COMPARISON_REPORT_DETAILS = _Paths.BRANCH_COMPARISON_REPORT_DETAILS;
+  static const BRANCH_COMPARISON_REPORT_DETAILS =
+      _Paths.BRANCH_COMPARISON_REPORT_DETAILS;
   static const SERVICE_REVENUE_REPORT = _Paths.SERVICE_REVENUE_REPORT;
   static const SERVICE_REVENUE_DETAILS = _Paths.SERVICE_REVENUE_DETAILS;
   static const PRODUCT_REVENUE_REPORT = _Paths.PRODUCT_REVENUE_REPORT;
@@ -51,6 +53,7 @@ abstract class _Paths {
   static const ALL_BOOKING = '/all-booking';
   static const BOOKING_DETAILS = '/booking-details';
   static const PAYMENTS = '/payments';
+  static const REAL_PAYMENT_DETAILS = '/real-payment-details';
   static const CREATE_BOOKING = '/create-booking';
   static const SERVICES = '/services';
   static const ADD_SERVICE = '/add-service';
@@ -72,7 +75,8 @@ abstract class _Paths {
   static const MEDIA_LIBRARY = '/media-library';
   static const BRANCH_COMPARISON = '/branch-comparison';
   static const BRANCH_COMPARISON_REPORT = '/branch-comparison-report';
-  static const BRANCH_COMPARISON_REPORT_DETAILS = '/branch-comparison-report-details';
+  static const BRANCH_COMPARISON_REPORT_DETAILS =
+      '/branch-comparison-report-details';
   static const SERVICE_REVENUE_REPORT = '/service-revenue-report';
   static const SERVICE_REVENUE_DETAILS = '/service-revenue-details';
   static const PRODUCT_REVENUE_REPORT = '/product-revenue-report';

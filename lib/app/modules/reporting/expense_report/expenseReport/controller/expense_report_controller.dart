@@ -34,6 +34,7 @@ class ExpenseReportController extends GetxController {
   // ── State ───────────────────────────────────────────────────────────────
   final Rx<Status> status = Status.loading.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool isLoadingCategories = false.obs;
 
   // ── Data ────────────────────────────────────────────────────────────────
   final RxList<BranchModel> branches = <BranchModel>[].obs;
@@ -207,7 +208,34 @@ class ExpenseReportController extends GetxController {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
     initTempMulti(tempBranchIds, selectedBranchIds);
+    if (isOwner && tempBranchIds.isEmpty && branches.isNotEmpty) {
+      tempBranchIds.add(branches.first.value.toString());
+    }
     initTempMulti(tempCategoryIds, selectedCategoryIds);
+    if (isOwner && tempBranchIds.isNotEmpty) {
+      fetchCategoriesForBranch(tempBranchIds.first);
+    }
+  }
+
+  Future<void> onTempBranchSelected(String? branchId) async {
+    tempBranchIds.clear();
+    tempCategoryIds.clear();
+    if (branchId == null || branchId.isEmpty) return;
+    tempBranchIds.add(branchId);
+    await fetchCategoriesForBranch(branchId);
+  }
+
+  Future<void> fetchCategoriesForBranch(String branchId) async {
+    isLoadingCategories.value = true;
+    final response = await _repository.fetchExpenseCategories(
+      branchId: branchId,
+    );
+    isLoadingCategories.value = false;
+    if (response.isCompleted && response.data != null) {
+      expenseCategories.assignAll(response.data!);
+    } else {
+      expenseCategories.clear();
+    }
   }
 
   void applyFilter() {
@@ -223,6 +251,10 @@ class ExpenseReportController extends GetxController {
     tempToDate.value = DateTime.now();
     tempBranchIds.clear();
     tempCategoryIds.clear();
+    if (isOwner && branches.isNotEmpty) {
+      tempBranchIds.add(branches.first.value.toString());
+      fetchCategoriesForBranch(tempBranchIds.first);
+    }
   }
 
   // ── Column Selector Actions ─────────────────────────────────────────────
@@ -298,7 +330,7 @@ class ExpenseReportController extends GetxController {
       case 'to':
         return _formatDate(DateTime.tryParse(row.to) ?? DateTime.now());
       case 'totalExpense':
-        return '\$${row.totalExpense.toStringAsFixed(2)}';
+        return '${row.currencySymbol ?? '\$'}${row.totalExpense.toStringAsFixed(2)}';
       case 'expenseCategoryId':
         return row.expenseCategoryId == 'all'
             ? 'All Categories'

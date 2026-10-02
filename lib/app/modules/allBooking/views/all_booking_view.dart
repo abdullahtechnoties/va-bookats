@@ -109,6 +109,10 @@ class AllBookingView extends GetView<AllBookingController> {
     BookingStatusSheet.show(
       context,
       currentStatus: booking.status,
+      totalAmount: booking.totalAmount ?? booking.payment?.totalAmount ?? '0',
+      discount: booking.discount ?? booking.payment?.discountAmount ?? '0',
+      amountPaid: booking.amountPaid ?? booking.payment?.paidAmount ?? '0',
+      balance: booking.remainingAmount ?? booking.payment?.balance ?? '0',
       onConfirmed:
           ({
             required String status,

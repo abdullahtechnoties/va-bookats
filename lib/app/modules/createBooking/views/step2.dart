@@ -17,10 +17,13 @@ class Step2Packages extends GetView<CreateBookingController> {
     BuildContext context, {
     required String title,
     required List<String> items,
-    required RxString selectedItem,
+    RxString? selectedItem,
     required TextEditingController textCtrl,
     List<String>? values,
     Function(dynamic)? onSelected,
+    bool isMultiSelect = false,
+    RxSet<String>? selectedValues,
+    VoidCallback? onDone,
   }) {
     showModalBottomSheet(
       context: context,
@@ -33,9 +36,12 @@ class Step2Packages extends GetView<CreateBookingController> {
         selectedItem: selectedItem,
         textController: textCtrl,
         selectedValue: values,
-        currentlySelectedValue: selectedItem.value,
+        currentlySelectedValue: selectedItem?.value ?? '',
         onValueSelected: onSelected,
         showSearch: true,
+        isMultiSelect: isMultiSelect,
+        selectedValues: selectedValues,
+        onDone: onDone,
       ),
     );
   }
@@ -60,7 +66,7 @@ class Step2Packages extends GetView<CreateBookingController> {
                     color: AppColors.black,
                   ),
                 ),
-                GestureDetector(
+                InkWell(
                   onTap: controller.addPackage,
                   child: Container(
                     width: 40,
@@ -136,16 +142,19 @@ class Step2Packages extends GetView<CreateBookingController> {
                           readOnly: true,
                           height: 50,
                           hintTextSize: 13,
-                          onTap: () => _showThree(
-                            context,
-                            title: 'createBooking.step2.package'.trns(),
-                            items: controller.packageLabels,
-                            selectedItem: item.selectedPackageId,
-                            textCtrl: item.packageCtrl,
-                            values: controller.packageValues,
-                            onSelected: (v) =>
-                                controller.onPackageSelected(item, v),
-                          ),
+                          onTap: () {
+                            if (!controller.ensureBookingTimeSelected()) return;
+                            _showThree(
+                              context,
+                              title: 'createBooking.step2.package'.trns(),
+                              items: controller.packageLabels,
+                              selectedItem: item.selectedPackageId,
+                              textCtrl: item.packageCtrl,
+                              values: controller.packageValues,
+                              onSelected: (v) =>
+                                  controller.onPackageSelected(item, v),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         _FieldLabel('createBooking.step2.employee'.trns()),
@@ -155,14 +164,15 @@ class Step2Packages extends GetView<CreateBookingController> {
                           hintText: 'createBooking.step2.selectEmployee'.trns(),
                           controller: item.employeeCtrl,
                           readOnly: true,
+
                           height: 50,
                           hintTextSize: 13,
                           showSuffixIcon: true,
                           suffixIcon: item.isLoadingStaffs.value
                               ? SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                child: const FittedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: const FittedBox(
                                     child: Center(
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
@@ -170,7 +180,7 @@ class Step2Packages extends GetView<CreateBookingController> {
                                       ),
                                     ),
                                   ),
-                              )
+                                )
                               : const Icon(
                                   Icons.keyboard_arrow_down_rounded,
                                   color: Color(0xFF888888),
@@ -181,11 +191,12 @@ class Step2Packages extends GetView<CreateBookingController> {
                                   context,
                                   title: 'createBooking.step2.employee'.trns(),
                                   items: employeeLabels,
-                                  selectedItem: item.selectedEmployeeId,
                                   textCtrl: item.employeeCtrl,
                                   values: employeeValues,
-                                  onSelected: (v) => controller
-                                      .onPackageEmployeeSelected(item, v),
+                                  isMultiSelect: true,
+                                  selectedValues: item.selectedEmployeeIds,
+                                  onDone: () => controller
+                                      .syncPackageEmployeeDisplay(item),
                                 ),
                         ),
                         if (item.hasNoStaff &&
@@ -209,6 +220,7 @@ class Step2Packages extends GetView<CreateBookingController> {
                           controller: item.amountCtrl,
                           keyboardType: TextInputType.number,
                           readOnly: true,
+                          enabled: false,
                           height: 50,
                           hintTextSize: 13,
                         ),
@@ -233,6 +245,7 @@ class Step2Packages extends GetView<CreateBookingController> {
                           controller: item.totalCtrl,
                           keyboardType: TextInputType.number,
                           readOnly: true,
+                          enabled: false,
                           height: 50,
                           hintTextSize: 13,
                         ),

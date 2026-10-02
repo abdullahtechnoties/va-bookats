@@ -346,6 +346,7 @@ class BookingRepository {
     String? bookingDate,
     String? startTime,
     String? endTime,
+    String? bookingId,
   }) async {
     var endpoint = ApiPath.bookingPackageStaffs(packageId);
     final query = <String>[];
@@ -357,6 +358,9 @@ class BookingRepository {
     }
     if (endTime != null && endTime.isNotEmpty) {
       query.add('end_time=${Uri.encodeComponent(endTime)}');
+    }
+    if (bookingId != null && bookingId.isNotEmpty) {
+      query.add('booking_id=${Uri.encodeComponent(bookingId)}');
     }
     if (query.isNotEmpty) endpoint += '?${query.join('&')}';
     return _getLookupList(endpoint);
@@ -383,10 +387,29 @@ class BookingRepository {
     return ApiResponse.completed(items);
   }
 
-  Future<ApiResponse<List<LookupOption>>> getServiceStaffs(
-    int serviceId,
-  ) async {
-    return _getLookupList(ApiPath.bookingServiceStaffs(serviceId));
+  Future<ApiResponse<List<LookupOption>>> getServiceStaffs({
+    required int serviceId,
+    String? bookingDate,
+    String? startTime,
+    String? endTime,
+    String? bookingId,
+  }) async {
+    var endpoint = ApiPath.bookingServiceStaffs(serviceId);
+    final query = <String>[];
+    if (bookingDate != null && bookingDate.isNotEmpty) {
+      query.add('booking_date=${Uri.encodeComponent(bookingDate)}');
+    }
+    if (startTime != null && startTime.isNotEmpty) {
+      query.add('start_time=${Uri.encodeComponent(startTime)}');
+    }
+    if (endTime != null && endTime.isNotEmpty) {
+      query.add('end_time=${Uri.encodeComponent(endTime)}');
+    }
+    if (bookingId != null && bookingId.isNotEmpty) {
+      query.add('booking_id=${Uri.encodeComponent(bookingId)}');
+    }
+    if (query.isNotEmpty) endpoint += '?${query.join('&')}';
+    return _getLookupList(endpoint);
   }
 
   Future<ApiResponse<List<ProductLookup>>> getProducts(int branchId) async {
@@ -466,6 +489,7 @@ class BookingRepository {
       if (guestPhone != null && guestPhone.isNotEmpty)
         'guest_phone': guestPhone,
       'booking_date': bookingDate,
+      'total_discount': discount ?? '0',
       'start_time': startTime,
       'end_time': endTime,
       if (note != null && note.isNotEmpty) 'note': note,
@@ -498,7 +522,7 @@ class BookingRepository {
         'packageItems[$i][discount]': packages[i].discount,
         'packageItems[$i][total_amount]': packages[i].totalAmount,
         for (var j = 0; j < packages[i].staffIds.length; j++)
-          'packageItems[$i][package_employee_id][$j]':
+          'packageItems[$i][staff_ids][$j]':
               packages[i].staffIds[j],
       },
       for (var i = 0; i < products.length; i++) ...{

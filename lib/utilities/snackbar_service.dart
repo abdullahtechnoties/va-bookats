@@ -37,7 +37,7 @@ class SnackbarService {
   static void showError({
     required String title,
     required String message,
-    Duration? duration = const Duration(seconds: 1, milliseconds: 400),
+    Duration? duration = const Duration(seconds: 2, milliseconds: 400),
   }) {
     Get.snackbar(
       title,
@@ -48,6 +48,8 @@ class SnackbarService {
       borderRadius: 8,
       barBlur: 3.0,
       borderWidth: 0,
+      isDismissible: true,
+      
       dismissDirection: DismissDirection.horizontal,
       snackPosition: SnackPosition.TOP,
       duration: duration,

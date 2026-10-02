@@ -5,6 +5,8 @@ class ExpenseMonthlyDataModel {
   final String to;
   final int branchId;
   final String expenseCategoryId;
+  // currency_symbol
+  final String? currencySymbol;
 
   ExpenseMonthlyDataModel({
     required this.totalExpense,
@@ -13,6 +15,7 @@ class ExpenseMonthlyDataModel {
     required this.to,
     required this.branchId,
     required this.expenseCategoryId,
+    this.currencySymbol,
   });
 
   factory ExpenseMonthlyDataModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +25,7 @@ class ExpenseMonthlyDataModel {
       branchName: json['branch_name']?.toString() ?? '',
       from: json['from']?.toString() ?? '',
       to: json['to']?.toString() ?? '',
+      currencySymbol: json['currency_symbol']?.toString() ?? '\$',
       branchId: int.tryParse(json['branch_id']?.toString() ?? '0') ?? 0,
       expenseCategoryId: json['expense_category_id']?.toString() ?? 'all',
     );

@@ -4,6 +4,7 @@ import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/service/network_service.dart';
 import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import '../models/expense_category_model.dart';
 import '../models/expense_report_response_model.dart';
 import '../models/expense_detail_response_model.dart';
 
@@ -43,6 +44,35 @@ class ExpenseReportRepository {
 
       return ApiResponse.error(response.message ?? 'errors.fetchFailed'.trns());
     } catch (e) {
+      return ApiResponse.error('errors.unexpected'.trns());
+    }
+  }
+
+  Future<ApiResponse<List<ExpenseCategoryModel>>> fetchExpenseCategories({
+    required String branchId,
+  }) async {
+    try {
+      final response = await _network.getRaw(
+        endpoint: ApiPath.expenseCategories(int.parse(branchId)),
+      );
+      if (response.isCompleted && response.data != null) {
+        final raw = response.data;
+        final list = raw is List
+            ? raw
+            : (raw is Map && raw['data'] is List ? raw['data'] as List : const []);
+        return ApiResponse.completed(
+          list
+              .whereType<Map>()
+              .map(
+                (e) => ExpenseCategoryModel.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
+              .toList(),
+        );
+      }
+      return ApiResponse.error(response.message ?? 'errors.fetchFailed'.trns());
+    } catch (_) {
       return ApiResponse.error('errors.unexpected'.trns());
     }
   }

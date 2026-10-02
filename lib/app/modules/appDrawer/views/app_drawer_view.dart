@@ -54,6 +54,14 @@ class AppDrawerView extends StatelessWidget {
                       Get.toNamed(Routes.CUSTOMERS);
                     },
                   ),
+                  _DrawerSimpleItem(
+                    icon: Icons.payments_outlined,
+                    label: 'drawer.payments'.trns(),
+                    onTap: () {
+                      Get.find<BottomnavController>().closeDrawer();
+                      Get.toNamed(Routes.PAYMENTS);
+                    },
+                  ),
                   _DrawerExpandable(
                     icon: Icons.insert_drive_file_outlined,
                     label: 'drawer.reporting'.trns(),

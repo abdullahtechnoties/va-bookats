@@ -172,7 +172,10 @@ class ExpenseFilterSheet extends StatelessWidget {
                         Obx(
                           () => _DropdownField(
                             value: controller.tempCategoryFilterDisplay,
-                            onTap: () => _showCategoryPicker(context),
+                            isLoading: controller.isLoadingCategories.value,
+                            onTap: controller.isLoadingCategories.value
+                                ? null
+                                : () => _showCategoryPicker(context),
                           ),
                         ),
                       ],
@@ -194,7 +197,10 @@ class ExpenseFilterSheet extends StatelessWidget {
               Obx(
                 () => _DropdownField(
                   value: controller.tempCategoryFilterDisplay,
-                  onTap: () => _showCategoryPicker(context),
+                  isLoading: controller.isLoadingCategories.value,
+                  onTap: controller.isLoadingCategories.value
+                      ? null
+                      : () => _showCategoryPicker(context),
                 ),
               ),
             ],
@@ -256,8 +262,12 @@ class ExpenseFilterSheet extends StatelessWidget {
         selectedValue: options.map((o) => o.value).toList(),
         textController: TextEditingController(),
         showSearch: true,
-        isMultiSelect: true,
-        selectedValues: controller.tempBranchIds,
+        currentlySelectedValue: controller.tempBranchIds.isEmpty
+            ? ''
+            : controller.tempBranchIds.first,
+        onValueSelected: (value) => controller.onTempBranchSelected(
+          value?.toString(),
+        ),
       ),
     );
   }
@@ -330,9 +340,14 @@ class _DateField extends StatelessWidget {
 // ── Dropdown Field ──────────────────────────────────────────────────────────
 class _DropdownField extends StatelessWidget {
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool isLoading;
 
-  const _DropdownField({required this.value, required this.onTap});
+  const _DropdownField({
+    required this.value,
+    required this.onTap,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -359,11 +374,20 @@ class _DropdownField extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 22,
-              color: Color(0xFF9CA3AF),
-            ),
+            isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 22,
+                    color: Color(0xFF9CA3AF),
+                  ),
           ],
         ),
       ),

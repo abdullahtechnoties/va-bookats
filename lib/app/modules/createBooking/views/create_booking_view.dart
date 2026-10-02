@@ -40,6 +40,7 @@ class CreateBookingView extends GetView<CreateBookingController> {
                           ),
                         )
                       : SingleChildScrollView(
+                          controller: controller.formScrollController,
                           physics: const BouncingScrollPhysics(),
                           padding:
                               const EdgeInsets.fromLTRB(16, 0, 16, 32),

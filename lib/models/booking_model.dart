@@ -123,6 +123,7 @@ class BookingPackageLine {
   final String? discount;
   final String? totalAmount;
   final String? packageName;
+  final List<int> staffIds;
   final List<String> staffNames;
 
   const BookingPackageLine({
@@ -132,6 +133,7 @@ class BookingPackageLine {
     this.discount,
     this.totalAmount,
     this.packageName,
+    this.staffIds = const [],
     this.staffNames = const [],
   });
 
@@ -139,12 +141,15 @@ class BookingPackageLine {
     Map<String, dynamic>? _map(dynamic v) =>
         v is Map ? Map<String, dynamic>.from(v) : null;
     final pkg = _map(json['package']);
+    final staffIds = <int>[];
     final staffs = <String>[];
     final rawStaffs = json['staffs'];
     if (rawStaffs is List) {
       for (final e in rawStaffs) {
         if (e is Map) {
           final m = Map<String, dynamic>.from(e);
+          final staffId = _parseInt(m['staff_id']) ?? _parseInt(_map(m['staff'])?['id']);
+          if (staffId != null) staffIds.add(staffId);
           final staff = _map(m['staff']);
           final name = staff?['name']?.toString();
           if (name != null && name.isNotEmpty) staffs.add(name);
@@ -158,6 +163,7 @@ class BookingPackageLine {
       discount: json['discount']?.toString(),
       totalAmount: json['total_amount']?.toString(),
       packageName: pkg?['name']?.toString(),
+      staffIds: staffIds,
       staffNames: staffs,
     );
   }
@@ -403,9 +409,25 @@ class BookingModel {
     for (final s in services) {
       if ((s.serviceName ?? '').isNotEmpty) names.add(s.serviceName!);
     }
+    // for (final p in packages) {
+    //   if ((p.packageName ?? '').isNotEmpty) names.add(p.packageName!);
+    // }
+    // for (final p in products) {
+    //   if ((p.productName ?? '').isNotEmpty) names.add(p.productName!);
+    // }
+    return names;
+  }
+
+  List<String> get packageNames {
+    final names = <String>[];
     for (final p in packages) {
       if ((p.packageName ?? '').isNotEmpty) names.add(p.packageName!);
     }
+    return names;
+  }
+
+  List<String> get productNames {
+    final names = <String>[];
     for (final p in products) {
       if ((p.productName ?? '').isNotEmpty) names.add(p.productName!);
     }
@@ -416,7 +438,7 @@ class BookingModel {
     final d = _prettyDate(bookingDate);
     final t = _prettyTime(startTime);
     if (d.isEmpty) return createdAt ?? '';
-    return t.isEmpty ? d : '$d | $t';
+    return t.isEmpty ? d : d;
   }
 
   String get dateLabel {

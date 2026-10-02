@@ -59,6 +59,8 @@ import '../modules/reporting/revenue_report/paymentDetails/bindings/payment_deta
 import '../modules/reporting/revenue_report/paymentDetails/views/payment_details_view.dart';
 import '../modules/payments/bindings/payments_binding.dart';
 import '../modules/payments/views/payments_view.dart';
+import '../modules/realPaymentDetails/bindings/real_payment_details_binding.dart';
+import '../modules/realPaymentDetails/views/real_payment_details_view.dart';
 import '../modules/personalInfo/bindings/personal_info_binding.dart';
 import '../modules/personalInfo/views/personal_info_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
@@ -109,6 +111,11 @@ class AppPages {
       name: _Paths.PAYMENTS,
       page: () => const PaymentsView(),
       binding: PaymentsBinding(),
+    ),
+    GetPage(
+      name: _Paths.REAL_PAYMENT_DETAILS,
+      page: () => const RealPaymentDetailsView(),
+      binding: RealPaymentDetailsBinding(),
     ),
     GetPage(
       name: _Paths.CREATE_BOOKING,

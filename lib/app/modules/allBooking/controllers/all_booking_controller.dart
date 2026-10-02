@@ -365,6 +365,7 @@ class AllBookingController extends GetxController {
         FilterField(
           label: 'Branches',
           type: FilterFieldType.dropdown,
+          showSearch: true,
           controller: branchFilterCtrl,
           dropdownItems: branchFilterOptions,
           selectedValue: selectedBranchFilter,

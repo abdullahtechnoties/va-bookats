@@ -183,6 +183,10 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
     BookingStatusSheet.show(
       context,
       currentStatus: booking.status,
+      totalAmount: booking.totalAmount ?? booking.payment?.totalAmount ?? '0',
+      discount: booking.discount ?? booking.payment?.discountAmount ?? '0',
+      amountPaid: booking.amountPaid ?? booking.payment?.paidAmount ?? '0',
+      balance: booking.remainingAmount ?? booking.payment?.balance ?? '0',
       onConfirmed: ({
         required String status,
         String? returnAmount,
@@ -382,6 +386,18 @@ class _BookingInfoCard extends StatelessWidget {
               value: booking.serviceNames.join('  |  '),
             ),
           const SizedBox(height: 8),
+          if (booking.packageNames.isNotEmpty)
+            _DetailLabelRow(
+              label: '${'createBooking.step2.package'.trns()}:',
+              value: booking.packageNames.join('  |  '),
+            ),
+          const SizedBox(height: 8),
+          if (booking.productNames.isNotEmpty)
+            _DetailLabelRow(
+              label: 'reports.product.details.product'.trns(),
+              value: booking.productNames.join('  |  '),
+            ),
+          SizedBox(height: 8),  
           _DetailLabelRow(
             label: 'home.bookingDetails.timeDuration'.trns(),
             value:
@@ -427,6 +443,7 @@ class _CustomerInfoCard extends StatelessWidget {
         : (booking.customer?.phone ?? '—');
     return _SectionCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
             onTap: controller.toggleCustomerInfo,

@@ -350,13 +350,15 @@ class PersonalInfoController extends GetxController {
   // ─── Date Picker ───────────────────────────────────────────────────────
 
   Future<void> pickDate(BuildContext context) async {
-    DateTime initial = DateTime.now().subtract(const Duration(days: 365 * 30));
+    final today = DateTime.now();
+    // Keep a blank DOB neutral while opening near the usual adult age.
+    DateTime initial = DateTime(today.year - 18, today.month, today.day);
     final current = dobController.text.trim();
     if (current.isNotEmpty) {
       final parsed = _parseDob(current);
       if (parsed != null) initial = parsed;
     }
-    if (initial.isAfter(DateTime.now())) initial = DateTime.now();
+    if (initial.isAfter(today)) initial = today;
     final picked = await showDatePicker(
       context: context,
       initialDate: initial,
