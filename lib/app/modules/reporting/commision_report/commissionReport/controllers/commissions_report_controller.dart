@@ -195,6 +195,11 @@ class CommissionsReportController extends GetxController {
         final data = CommissionsReportResponse.fromJson(response.data!);
         apiResponse.value = ApiResponse.completed(data);
         syncDynamicColumns();
+        // First branch/staff become the default selection on first load —
+        // refetch once so the data matches the filter state.
+        if (_applyDefaultSelections()) {
+          await fetchReport();
+        }
       } catch (e) {
         apiResponse.value = ApiResponse.error(
           'commissions.errors.parseFailed'.trns(),
@@ -226,8 +231,50 @@ class CommissionsReportController extends GetxController {
   void resetFilter() {
     tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
     tempToDate.value = DateTime.now();
-    tempBranchId.value = isOwner ? null : userBranchId?.toString();
-    tempStaffId.value = null;
+    // Reset restores the defaults: first branch (owner) / own branch
+    // (non-owner) and first staff.
+    tempBranchId.value =
+        isOwner ? _idOf(_firstRealOption(branches)) : userBranchId?.toString();
+    tempStaffId.value = _idOf(_firstRealOption(staffs));
+  }
+
+  /// First selectable API option, skipping any "All" entry so the default
+  /// is always a real branch/staff. Falls back to the raw first entry.
+  DropdownOption? _firstRealOption(List<DropdownOption> options) {
+    if (options.isEmpty) return null;
+    for (final o in options) {
+      final v = o.value?.toString().trim().toLowerCase() ?? '';
+      if (v.isNotEmpty && v != 'all') return o;
+    }
+    return options.first;
+  }
+
+  String? _idOf(DropdownOption? option) => option?.value?.toString();
+
+  /// Selects the first branch (owner only — non-owner stays scoped to their
+  /// own branch) and the first staff by default once the API lists arrive.
+  /// Returns true when a selection changed (caller refetches once).
+  bool _applyDefaultSelections() {
+    var changed = false;
+    if ((selectedBranchId.value == null ||
+            selectedBranchId.value!.isEmpty) &&
+        isOwner) {
+      final id = _idOf(_firstRealOption(branches));
+      if (id != null) {
+        selectedBranchId.value = id;
+        tempBranchId.value = id;
+        changed = true;
+      }
+    }
+    if (selectedStaffId.value == null || selectedStaffId.value!.isEmpty) {
+      final id = _idOf(_firstRealOption(staffs));
+      if (id != null) {
+        selectedStaffId.value = id;
+        tempStaffId.value = id;
+        changed = true;
+      }
+    }
+    return changed;
   }
 
   // ── Column Selection ──────────────────────────────────────────────────────
@@ -314,11 +361,11 @@ class CommissionsReportController extends GetxController {
       case 'total_packages':
         return row.totalPackages.toString();
       case 'service_commission':
-        return formatReportCell(key, row.serviceCommission);
+        return '${row.currencySymbol ?? '\$'} ${formatReportCell(key, row.serviceCommission)}';
       case 'package_commission':
-        return formatReportCell(key, row.packageCommission);
+        return '${row.currencySymbol ?? '\$'} ${formatReportCell(key, row.packageCommission)}';
       case 'total_commission':
-        return formatReportCell(key, row.totalCommission);
+        return '${row.currencySymbol ?? '\$'} ${formatReportCell(key, row.totalCommission)}';
       default:
         // Dynamically discovered columns read straight from the raw row.
         return formatReportCell(key, row.rawFields[key]);

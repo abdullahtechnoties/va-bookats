@@ -43,6 +43,10 @@ class ServicesController extends GetxController {
   final Map<String, bool> _hasMoreMap = {};
   final Set<String> _loadedForStatus = {};
 
+  /// Server-reported totals per status. These drive the tab badges so the
+  /// count is never derived from a partially-loaded (paginated) list.
+  final Map<String, int> _totalMap = {};
+
   /// Generation guard (same pattern as packages): stale responses are
   /// dropped so quick tab switches can never duplicate/vanish cards.
   int _generation = 0;
@@ -70,8 +74,8 @@ class ServicesController extends GetxController {
   List<ServiceModel> get currentServices =>
       selectedTab.value == 0 ? activeServices : inactiveServices;
 
-  int get activeCount => activeServices.length;
-  int get inactiveCount => inactiveServices.length;
+  int get activeCount => _totalMap['active'] ?? activeServices.length;
+  int get inactiveCount => _totalMap['inactive'] ?? inactiveServices.length;
 
   String get _statusKey => selectedTab.value == 0 ? 'active' : 'inactive';
 
@@ -90,8 +94,8 @@ class ServicesController extends GetxController {
   }
 
   /// Capitalized for display; mapped to API values before hitting the API.
+  /// No 'All' entry — an empty selection already means "no quick range".
   static const List<String> quickRangeOptions = [
-    'All',
     'Today',
     'Yesterday',
     'This Week',
@@ -100,7 +104,7 @@ class ServicesController extends GetxController {
 
   String? get _filterQuickRange {
     final v = selectedQuickRange.value;
-    if (v.isEmpty || v == 'All') return null;
+    if (v.isEmpty) return null;
     return v.toLowerCase().replaceAll(' ', '_');
   }
 
@@ -298,6 +302,7 @@ class ServicesController extends GetxController {
     _currentPage[key] = page.meta.currentPage;
     _lastPage[key] = page.meta.lastPage;
     _hasMoreMap[key] = page.meta.hasNextPage;
+    _totalMap[key] = page.meta.total;
     if (key == _statusKey) {
       hasMore.value = page.meta.hasNextPage;
     }
@@ -427,11 +432,13 @@ class ServicesController extends GetxController {
     if (response.isCompleted) {
       activeServices.removeWhere((s) => s.id == id);
       inactiveServices.removeWhere((s) => s.id == id);
+      _decrementTotalForDeleted(id);
       SnackbarService.showSuccess(
         title: 'services.deleteSuccessTitle'.trns(),
         message: response.message ?? 'services.deleteSuccessMessage'.trns(),
       );
-    } else {
+    } 
+    else {
       SnackbarService.showError(
         title: 'services.errorTitle'.trns(),
         message: response.message ?? 'errors.requestFailed'.trns(),
@@ -467,10 +474,29 @@ class ServicesController extends GetxController {
     }
   }
 
+  /// Keeps the server-side total in sync after a successful delete so the
+  /// tab badge does not jump back up on the next refresh/page fetch.
+  void _decrementTotalForDeleted(int? id) {
+    for (final key in const ['active', 'inactive']) {
+      final total = _totalMap[key];
+      if (total == null || total <= 0) continue;
+      final list = key == 'active' ? activeServices : inactiveServices;
+      final stillPresent = list.any((s) => s.id == id);
+      if (stillPresent) continue;
+      _totalMap[key] = total - 1;
+    }
+  }
+
   void _updateLocalStatus(ServiceModel service, String newStatus) {
     final updated = service.copyWith(status: newStatus);
     activeServices.removeWhere((s) => s.id == service.id);
     inactiveServices.removeWhere((s) => s.id == service.id);
+    final fromKey = service.status == 'active' ? 'active' : 'inactive';
+    final toKey = newStatus == 'active' ? 'active' : 'inactive';
+    if (fromKey != toKey && _totalMap.containsKey(fromKey)) {
+      _totalMap[fromKey] = (_totalMap[fromKey]! - 1).clamp(0, 1 << 31);
+      _totalMap[toKey] = (_totalMap[toKey] ?? 0) + 1;
+    }
     final target = newStatus == 'active' ? activeServices : inactiveServices;
     target.insert(0, updated);
   }

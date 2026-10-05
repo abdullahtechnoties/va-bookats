@@ -429,13 +429,13 @@ class RevenueReportController extends GetxController {
       case 'to':
         return _formatDate(DateTime.tryParse(row.to) ?? DateTime.now());
       case 'total_amount':
-        return _formatCurrency(row.totalAmount);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.totalAmount)}';
       case 'total_discount':
-        return _formatCurrency(row.totalDiscount);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.totalDiscount)}';
       case 'total_revenue':
-        return _formatCurrency(row.totalRevenue);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.totalRevenue)}';
       case 'total_balance':
-        return _formatCurrency(row.totalBalance);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.totalBalance)}';
       case 'cash_payment':
         return _formatCurrency(row.cashPayment);
       case 'card_payment':
@@ -443,11 +443,11 @@ class RevenueReportController extends GetxController {
       case 'online_payment':
         return _formatCurrency(row.onlinePayment);
       case 'service_revenue':
-        return _formatCurrency(row.serviceRevenue);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.serviceRevenue)}';
       case 'product_revenue':
-        return _formatCurrency(row.productRevenue);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.productRevenue)}';
       case 'package_revenue':
-        return _formatCurrency(row.packageRevenue);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.packageRevenue)}';
       case 'total_count':
         return row.totalCount.toString();
       case 'paid_count':

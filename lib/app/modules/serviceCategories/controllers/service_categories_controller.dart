@@ -45,8 +45,10 @@ class ServiceCategoriesController extends GetxController {
   final TextEditingController toDateCtrl = TextEditingController();
   final TextEditingController branchFilterCtrl = TextEditingController();
   final TextEditingController statusFilterCtrl = TextEditingController();
+  final TextEditingController quickRangeCtrl = TextEditingController();
   final RxString selectedBranchFilter = ''.obs;
   final RxString selectedStatusFilter = ''.obs;
+  final RxString selectedQuickRange = ''.obs;
 
   List<String> get statusOptions => [
     'All',
@@ -70,6 +72,20 @@ class ServiceCategoriesController extends GetxController {
     return null;
   }
 
+  /// Capitalized for display; mapped to API values before hitting the API.
+  static const List<String> quickRangeOptions = [
+    'Today',
+    'Yesterday',
+    'This Week',
+    'This Month',
+  ];
+
+  String? get _filterQuickRange {
+    final v = selectedQuickRange.value;
+    if (v.isEmpty) return null;
+    return v.toLowerCase().replaceAll(' ', '_');
+  }
+
   int get appliedFiltersCount {
     var n = 0;
     if (searchCtrl.text.trim().isNotEmpty) n++;
@@ -77,6 +93,7 @@ class ServiceCategoriesController extends GetxController {
     if (toDateCtrl.text.trim().isNotEmpty) n++;
     if (selectedBranchFilter.value.isNotEmpty) n++;
     if (selectedStatusFilter.value.isNotEmpty) n++;
+    if (selectedQuickRange.value.isNotEmpty) n++;
     return n;
   }
 
@@ -104,6 +121,7 @@ class ServiceCategoriesController extends GetxController {
     toDateCtrl.dispose();
     branchFilterCtrl.dispose();
     statusFilterCtrl.dispose();
+    quickRangeCtrl.dispose();
     super.onClose();
   }
 
@@ -135,6 +153,7 @@ class ServiceCategoriesController extends GetxController {
       status: _filterStatus,
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
+      quickRange: _filterQuickRange,
     );
 
     if (!response.isCompleted || response.data == null) {
@@ -166,6 +185,7 @@ class ServiceCategoriesController extends GetxController {
       status: _filterStatus,
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
+      quickRange: _filterQuickRange,
     );
 
     if (response.isCompleted && response.data != null) {
@@ -193,6 +213,7 @@ class ServiceCategoriesController extends GetxController {
       status: _filterStatus,
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
+      quickRange: _filterQuickRange,
     );
 
     if (response.isCompleted && response.data != null) {
@@ -342,6 +363,13 @@ class ServiceCategoriesController extends GetxController {
           controller: searchCtrl,
         ),
         FilterField(
+          label: 'serviceCategories.filter.quickRange'.trns(),
+          type: FilterFieldType.dropdown,
+          controller: quickRangeCtrl,
+          dropdownItems: quickRangeOptions,
+          selectedValue: selectedQuickRange,
+        ),
+        FilterField(
           label: 'serviceCategories.filter.fromDate'.trns(),
           type: FilterFieldType.date,
           controller: fromDateCtrl,
@@ -380,8 +408,10 @@ class ServiceCategoriesController extends GetxController {
     toDateCtrl.clear();
     branchFilterCtrl.clear();
     statusFilterCtrl.clear();
+    quickRangeCtrl.clear();
     selectedBranchFilter.value = '';
     selectedStatusFilter.value = '';
+    selectedQuickRange.value = '';
     fetchFirstPage();
   }
 

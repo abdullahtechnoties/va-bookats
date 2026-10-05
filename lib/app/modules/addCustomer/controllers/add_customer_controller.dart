@@ -571,10 +571,10 @@ class AddCustomerController extends GetxController {
         if (!context.mounted) return;
         await NavigationHelper.safePop(context);
       } else {
-        SnackbarService.showError(
-          title: 'common.error'.trns(),
-          message: response.message ?? 'errors.requestFailed'.trns(),
-        );
+        // SnackbarService.showError(
+        //   title: 'common.error'.trns(),
+        //   message: response.message ?? 'errors.requestFailed'.trns(),
+        // );
       }
     } finally {
       isSaving.value = false;

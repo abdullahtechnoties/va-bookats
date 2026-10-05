@@ -37,6 +37,7 @@ class MonthlyPackageData {
   final num totalAmount;
   final num totalDiscount;
   final num netRevenue;
+  final String? currencySymbol;
 
   /// Every raw field from the API row, so report columns can be discovered
   /// dynamically (unknown future keys included).
@@ -51,6 +52,7 @@ class MonthlyPackageData {
     required this.totalAmount,
     required this.totalDiscount,
     required this.netRevenue,
+    this.currencySymbol,
     Map<String, dynamic>? rawFields,
   }) : rawFields = rawFields ?? const {};
 
@@ -64,6 +66,7 @@ class MonthlyPackageData {
       totalAmount: _parseNum(json['total_amount']),
       totalDiscount: _parseNum(json['total_discount']),
       netRevenue: _parseNum(json['net_revenue']),
+      currencySymbol: json['currency_symbol']?.toString(),
       rawFields: Map<String, dynamic>.from(json),
     );
   }

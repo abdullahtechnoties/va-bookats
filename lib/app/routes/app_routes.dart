@@ -44,6 +44,8 @@ abstract class Routes {
   static const EXPENSE_DETAIL = _Paths.EXPENSE_DETAIL;
   static const CUSTOMER_REPORT = _Paths.CUSTOMER_REPORT;
   static const CUSTOMER_DETAILS = _Paths.CUSTOMER_DETAILS;
+  static const BOOKING_PAYMENT_DETAILS = _Paths.BOOKING_PAYMENT_DETAILS;
+  static const ADD_NEW_PAYMENT = _Paths.ADD_NEW_PAYMENT;
 }
 
 abstract class _Paths {
@@ -89,4 +91,6 @@ abstract class _Paths {
   static const EXPENSE_DETAIL = '/expense-detail';
   static const CUSTOMER_REPORT = '/customer-report';
   static const CUSTOMER_DETAILS = '/customer-details';
+  static const BOOKING_PAYMENT_DETAILS = '/booking-payment-details';
+  static const ADD_NEW_PAYMENT = '/add-new-payment';
 }

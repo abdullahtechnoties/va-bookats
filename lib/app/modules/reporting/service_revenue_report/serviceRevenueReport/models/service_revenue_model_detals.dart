@@ -68,6 +68,7 @@ class DailyServiceSummary {
   final String netRevenue;
   final String createdAt;
   final ServiceInfo? service;
+  final String? currencySymbol;
 
   DailyServiceSummary({
     required this.id,
@@ -80,6 +81,7 @@ class DailyServiceSummary {
     required this.netRevenue,
     required this.createdAt,
     this.service,
+    this.currencySymbol,
   });
 
   factory DailyServiceSummary.fromJson(Map<String, dynamic> json) {
@@ -93,6 +95,7 @@ class DailyServiceSummary {
       totalDiscount: json['total_discount']?.toString() ?? '0',
       netRevenue: json['net_revenue']?.toString() ?? '0',
       createdAt: json['created_at']?.toString() ?? '',
+      currencySymbol: json['currency_symbol']?.toString(),
       service: json['service'] != null
           ? ServiceInfo.fromJson(json['service'])
           : null,

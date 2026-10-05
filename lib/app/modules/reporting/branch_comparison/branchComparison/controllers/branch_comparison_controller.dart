@@ -360,27 +360,27 @@ class BranchComparisonReportController extends GetxController {
       case 'to':
         return _formatDate(DateTime.parse(item.to));
       case 'total_revenue':
-        return '\$${item.totalRevenue}';
+        return '${item.currencySymbol} ${item.totalRevenue}';
       case 'total_amount':
-        return '\$${item.totalAmount}';
+        return '${item.currencySymbol} ${item.totalAmount}';
       case 'total_discount':
-        return '\$${item.totalDiscount}';
+        return '${item.currencySymbol} ${item.totalDiscount}';
       case 'total_balance':
-        return '\$${item.totalBalance}';
+        return '${item.currencySymbol} ${item.totalBalance}';
       case 'cash_payment':
-        return '\$${item.cashPayment}';
+        return '${item.currencySymbol} ${item.cashPayment}';
       case 'card_payment':
-        return '\$${item.cardPayment}';
+        return '${item.currencySymbol} ${item.cardPayment}';
       case 'online_payment':
-        return '\$${item.onlinePayment}';
+        return '${item.currencySymbol} ${item.onlinePayment}';
       case 'service_revenue':
-        return '\$${item.serviceRevenue}';
+        return '${item.currencySymbol} ${item.serviceRevenue}';
       case 'product_revenue':
-        return '\$${item.productRevenue}';
+        return '${item.currencySymbol} ${item.productRevenue}';
       case 'package_revenue':
-        return '\$${item.packageRevenue}';
+        return '${item.currencySymbol} ${item.packageRevenue}';
       case 'unpaid_amount':
-        return '\$${item.unpaidAmount}';
+        return '${item.currencySymbol} ${item.unpaidAmount}';
       default:
         // Dynamically discovered columns read straight from the raw row.
         return formatReportCell(key, item.rawFields[key]);

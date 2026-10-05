@@ -69,6 +69,7 @@ class ServiceRevenueData {
   final String totalAmount;
   final String totalDiscount;
   final String netRevenue;
+  final String? currencySymbol;
 
   /// Every raw field from the API row, so report columns can be discovered
   /// dynamically (unknown future keys included).
@@ -83,6 +84,7 @@ class ServiceRevenueData {
     required this.totalAmount,
     required this.totalDiscount,
     required this.netRevenue,
+    this.currencySymbol,
     Map<String, dynamic>? rawFields,
   }) : rawFields = rawFields ?? const {};
 
@@ -97,6 +99,7 @@ class ServiceRevenueData {
       totalDiscount: json['total_discount']?.toString() ?? '0',
       netRevenue: json['net_revenue']?.toString() ?? '0',
       rawFields: Map<String, dynamic>.from(json),
+      currencySymbol: json['currency_symbol']?.toString(),
     );
   }
 }

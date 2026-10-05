@@ -347,7 +347,7 @@ class _SearchResultsHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Obx(
         () => Text(
-          'Results (${controller.searchResults.length}) — all statuses',
+          'Results (${controller.searchResults.length})',
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,

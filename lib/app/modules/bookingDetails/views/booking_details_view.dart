@@ -100,6 +100,32 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                       Padding(
                         padding:
                             const EdgeInsets.symmetric(horizontal: 16),
+                        child: GestureDetector(
+                          onTap: controller.openPaymentDetails,
+                          child: Container(
+                            width: double.infinity,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'home.bookingDetails.viewDetails'.trns(),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           children: [
                             if (booking.isEditable)

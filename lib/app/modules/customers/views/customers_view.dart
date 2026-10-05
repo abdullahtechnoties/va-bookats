@@ -106,7 +106,7 @@ class CustomersView extends GetView<CustomersController> {
                           ),
                           Obx(
                             () => Text(
-                              '${controller.totalCustomers.value}',
+                              '(${controller.totalCustomers.value})',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,

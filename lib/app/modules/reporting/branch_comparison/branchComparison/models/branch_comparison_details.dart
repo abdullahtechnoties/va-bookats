@@ -117,6 +117,8 @@ class DailyClosingModel {
   final String status;
   final StaffModel? creator;
   final StaffModel? approver;
+    // currency_symbol
+  final String? currencySymbol;
 
   DailyClosingModel({
     required this.id,
@@ -162,6 +164,7 @@ class DailyClosingModel {
     required this.status,
     this.creator,
     this.approver,
+    this.currencySymbol,
   });
 
   factory DailyClosingModel.fromJson(Map<String, dynamic> json) {
@@ -214,6 +217,7 @@ class DailyClosingModel {
       approver: json['approver'] != null
           ? StaffModel.fromJson(json['approver'] as Map<String, dynamic>)
           : null,
+      currencySymbol: json['currency_symbol']?.toString(),
     );
   }
 }

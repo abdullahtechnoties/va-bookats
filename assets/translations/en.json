@@ -63,7 +63,7 @@
       "title": "Let's Sign You In",
       "subtitle": "Welcome back, you've\nbeen missed!",
       "loginLabel": "Email or Phone",
-      "loginHint": "Enter your email or phone number",
+      "loginHint": "Enter your email or phone",
       "companyIdLabel": "Company Id",
       "companyIdHint": "Enter your company id",
       "emailLabel": "Email Address",
@@ -1089,7 +1089,8 @@
       "toDate": "To Date",
       "status": "Status",
       "branches": "Branches",
-      "allBranches": "All Branches"
+      "allBranches": "All Branches",
+      "quickRange": "Quick Range"
     }
   },
   "packages": {
@@ -1404,6 +1405,14 @@
       "unpaid": "Unpaid",
       "returned": "Returned"
     },
+    "filter": {
+      "search": "Search",
+      "quickRange": "Quick Range",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branches": "Branches",
+      "allBranches": "All Branches"
+    },
     "grandTotal": "Grand Total",
     "customerName": "Customer Name",
     "customerEmail": "Customer Email",
@@ -1641,9 +1650,9 @@
     },
 
     "paymentDetails": {
-      "title": "Payment Details",
-      "noPayments": "No Payments Found",
-      "noPaymentsDesc": "No payment records for this period",
+      "title": "Revenue Report Details",
+      "noPayments": "No Revenue Data Found",
+      "noPaymentsDesc": "No revenue records for this period",
 
       "tabs": {
         "paid": "Paid",
@@ -1729,7 +1738,7 @@
       "viewDetails": "View Details"
     },
     "details": {
-      "title": "Branch Details",
+      "title": "Branch Comparison Details",
       "approved": "Approved",
       "pending": "Pending",
       "rejected": "Rejected",
@@ -1853,7 +1862,7 @@
     },
     "retry": "Retry",
     "detail": {
-      "title": "Commission Details",
+      "title": "Commission Report Details",
       "table": {
         "staffName": "Staff Name",
         "totalServices": "Total Services",
@@ -1918,7 +1927,7 @@
     }
   },
   "customerDetails": {
-    "title": "Customer Details",
+    "title": "Customer Report Details",
     "emptyBookings": "No bookings found",
     "retry": "Retry",
     "bookingSerial": "Booking",
@@ -1974,7 +1983,7 @@
       "viewDetails": "View Details"
     },
     "detail": {
-      "title": "Expense Details",
+      "title": "Expense Report Details",
       "empty": "No expense items found",
       "summary": {
         "branch": "Branch",
@@ -1991,5 +2000,94 @@
         "amount": "Amount"
       }
     }
+  },
+  "bookingPaymentDetails": {
+  "title": "Payment Details",
+  "details": "Details",
+  "payments": "Payments",
+  "activities": "Activities",
+  "createNewPayment": "Create New Payment",
+  "print": "Print",
+  "retry": "Retry",
+  "table": {
+    "item": "Services/Products/Packages",
+    "staff": "Staff",
+    "category": "Categories",
+    "variation": "Variation",
+    "price": "Price",
+    "quantity": "Qty",
+    "total": "Total",
+    "discount": "Discount",
+    "afterDiscount": "After Discount"
+  },
+  "summary": {
+    "title": "Payment Summary",
+    "totalAmount": "Total Amount",
+    "discount": "Discount",
+    "paidAmount": "Paid Amount",
+    "remainingAmount": "Remaining Amount",
+    "balance": "Balance"
+  },
+  "paymentsTab": {
+    "edit": "Edit"
+  },
+  "activitiesEmpty": {
+    "title": "No Activities Yet",
+    "message": "Activity updates for this booking will appear here."
+  },
+  "empty": {
+    "title": "No Details Available",
+    "message": "No payment details found for this booking."
+  },
+  "errors": {
+    "fetchFailed": "Failed to fetch payment details",
+    "unexpected": "An unexpected error occurred"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next"
   }
+},
+"addNewPayment": {
+  "title": "Add New Payment",
+  "heading": "Add New Payment",
+  "editTitle": "Edit Payment",
+  "editHeading": "Edit Payment",
+  "totalAmount": "Total Amount",
+  "branch": "Branch",
+  "selectBranch": "Select Branch",
+  "paidAmount": "Paid Amount",
+  "enterFullName": "Enter Full Name",
+  "enterAmount": "Enter amount",
+  "balance": "Balance",
+  "selectParentCategory": "Select Parent Category",
+  "date": "Date",
+  "paymentMethod": "Payment Method",
+  "selectPaymentMethod": "Select Payment Method",
+  "status": "Status",
+  "selectStatus": "Select Status",
+  "paymentSlip": "Payment Slip",
+  "chooseFile": "Choose File",
+  "changeFile": "Change",
+  "noFileChosen": "No File Chosen",
+  "existingSlip": "Existing slip attached",
+  "transactionId": "Transaction ID",
+  "enterTransactionId": "Enter Transaction ID",
+  "save": "Save",
+  "update": "Update",
+  "savedSuccess": "Payment added successfully",
+  "updatedSuccess": "Payment updated successfully",
+  "validation": {
+    "required": "Please fill in all required fields",
+    "invalidAmount": "Please enter valid amounts",
+    "paidExceedsTotal": "Paid amount cannot exceed the total amount"
+  },
+  "errors": {
+    "prefillFailed": "Failed to load payment data",
+    "createFailed": "Failed to create payment",
+    "updateFailed": "Failed to update payment",
+    "saveFailed": "Failed to save payment",
+    "unexpected": "An unexpected error occurred"
+  }
+}
 }

@@ -307,11 +307,11 @@ class ServiceRevenueReportController extends GetxController {
       case 'to':
         return _formatDateDisplay(row.to);
       case 'total_amount':
-        return formatReportCell(key, row.totalAmount);
+        return '${row.currencySymbol ?? '\$'} ${formatReportCell(key, row.totalAmount)}';
       case 'total_discount':
-        return formatReportCell(key, row.totalDiscount);
+        return '${row.currencySymbol ?? '\$'} ${formatReportCell(key, row.totalDiscount)}';
       case 'net_revenue':
-        return formatReportCell(key, row.netRevenue);
+        return '${row.currencySymbol ?? '\$'} ${formatReportCell(key, row.netRevenue)}';
       default:
         // Dynamically discovered columns read straight from the raw row.
         return formatReportCell(key, row.rawFields[key]);

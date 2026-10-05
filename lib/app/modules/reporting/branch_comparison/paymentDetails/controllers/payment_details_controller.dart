@@ -115,13 +115,13 @@ class BranchComparisonReportDetailsController extends GetxController {
       case 'status':
         return item.status;
       case 'total_amount':
-        return formatReportCell(key, item.totalAmount);
+        return '${item.currencySymbol ?? '\$'} ${formatReportCell(key, item.totalAmount)}';
       case 'total_discount':
-        return formatReportCell(key, item.totalDiscount);
+        return '${item.currencySymbol ?? '\$'} ${formatReportCell(key, item.totalDiscount)}';
       case 'total_paid':
-        return formatReportCell(key, item.totalRevenue);
+        return '${item.currencySymbol ?? '\$'} ${formatReportCell(key, item.totalRevenue)}';
       case 'total_balance':
-        return formatReportCell(key, item.totalBalance);
+        return '${item.currencySymbol ?? '\$'} ${formatReportCell(key, item.totalBalance)}';
       default:
         return '-';
     }

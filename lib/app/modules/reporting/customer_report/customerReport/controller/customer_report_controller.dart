@@ -368,13 +368,13 @@ class CustomerReportController extends GetxController {
       case 'to':
         return _formatDisplayDate(row.to);
       case 'total_amount':
-        return formatReportCell(key, row.totalAmount);
+        return '${row.currencySymbol ?? '\$'} ${row.totalAmount}';
       case 'total_discount':
-        return formatReportCell(key, row.totalDiscount);
+        return '${row.currencySymbol ?? '\$'} ${row.totalDiscount}';
       case 'net_revenue':
-        return formatReportCell(key, row.netRevenue);
+        return '${row.currencySymbol ?? '\$'} ${row.netRevenue}';
       case 'remaining_amount':
-        return formatReportCell(key, row.remainingAmount);
+        return '${row.currencySymbol ?? '\$'} ${row.remainingAmount}';
       case 'total_bookings':
         return row.totalBookings.toString();
       case 'completed_bookings':

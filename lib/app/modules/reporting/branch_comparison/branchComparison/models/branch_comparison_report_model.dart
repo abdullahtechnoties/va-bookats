@@ -87,6 +87,8 @@ class BranchComparisonItemModel {
   final String from;
   final String to;
   final int branchId;
+    // currency_symbol
+  final String? currencySymbol;
 
   /// Every raw field from the API row, so report columns can be discovered
   /// dynamically (unknown future keys included).
@@ -123,6 +125,7 @@ class BranchComparisonItemModel {
     required this.from,
     required this.to,
     required this.branchId,
+    this.currencySymbol,
     Map<String, dynamic>? rawFields,
   }) : rawFields = rawFields ?? const {};
 
@@ -159,6 +162,7 @@ class BranchComparisonItemModel {
       to: json['to']?.toString() ?? '',
       branchId: json['branch_id'] as int? ?? 0,
       rawFields: Map<String, dynamic>.from(json),
+      currencySymbol: json['currency_symbol']?.toString() ?? '\$',
     );
   }
 }

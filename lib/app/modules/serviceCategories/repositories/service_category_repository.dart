@@ -59,6 +59,7 @@ class ServiceCategoryRepository {
     String? status,
     String? fromDate,
     String? toDate,
+    String? quickRange,
   }) async {
     final response = await _network.get(
       endpoint: ApiPath.serviceCategories,
@@ -69,6 +70,8 @@ class ServiceCategoryRepository {
         if (status != null && status.isNotEmpty) 'status': status,
         if (fromDate != null && fromDate.isNotEmpty) 'from_date': fromDate,
         if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
+        if (quickRange != null && quickRange.isNotEmpty)
+          'quick_range': quickRange,
       },
     );
 

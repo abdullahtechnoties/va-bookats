@@ -60,6 +60,7 @@ class CommissionMonthlyData {
   final String serviceCommission;
   final String packageCommission;
   final String totalCommission;
+  final String? currencySymbol;
 
   /// Every raw field from the API row, so report columns can be discovered
   /// dynamically (unknown future keys included).
@@ -77,6 +78,7 @@ class CommissionMonthlyData {
     required this.packageCommission,
     required this.totalCommission,
     Map<String, dynamic>? rawFields,
+    this.currencySymbol,
   }) : rawFields = rawFields ?? const {};
 
   factory CommissionMonthlyData.fromJson(Map<String, dynamic> json) {
@@ -91,6 +93,7 @@ class CommissionMonthlyData {
       serviceCommission: json['service_commission']?.toString() ?? '0',
       packageCommission: json['package_commission']?.toString() ?? '0',
       totalCommission: json['total_commission']?.toString() ?? '0',
+      currencySymbol: json['currency_symbol']?.toString(),
       rawFields: Map<String, dynamic>.from(json),
     );
   }

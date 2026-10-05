@@ -12,6 +12,7 @@ class ExpenseItemModel {
   final String? description;
   final String? billUrl;
   final String? billThumbUrl;
+  final String? currencySymbol;
   final ExpenseCategoryDetail? category;
 
   ExpenseItemModel({
@@ -27,6 +28,7 @@ class ExpenseItemModel {
     this.billUrl,
     this.billThumbUrl,
     this.category,
+    this.currencySymbol,
   });
 
   factory ExpenseItemModel.fromJson(Map<String, dynamic> json) {
@@ -42,6 +44,7 @@ class ExpenseItemModel {
       description: json['description']?.toString(),
       billUrl: _imageUrl(json['bill_url']?.toString()),
       billThumbUrl: _imageUrl(json['bill_thumb_url']?.toString()),
+      currencySymbol: json['currency_symbol']?.toString(),
       category: json['category'] != null
           ? ExpenseCategoryDetail.fromJson(
               json['category'] as Map<String, dynamic>,

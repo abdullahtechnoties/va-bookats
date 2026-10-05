@@ -65,8 +65,8 @@ class CustomersController extends GetxController {
   }
 
   /// Capitalized for display; mapped to API values before hitting the API.
+  /// No 'All' entry — an empty selection already means "no quick range".
   static const List<String> quickRangeOptions = [
-    'All',
     'Today',
     'Yesterday',
     'This Week',
@@ -75,7 +75,7 @@ class CustomersController extends GetxController {
 
   String? get _filterQuickRange {
     final v = selectedQuickRange.value;
-    if (v.isEmpty || v == 'All') return null;
+    if (v.isEmpty) return null;
     return v.toLowerCase().replaceAll(' ', '_');
   }
 

@@ -261,7 +261,7 @@ class PackageRevenueDetailsView
             width: 140,
             showDivider: true,
             child: Text(
-              controller.formatCurrency(summary.packageAmount),
+               '${summary.currencySymbol ?? '\$'} ${controller.formatCurrency(summary.packageAmount)}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),
@@ -270,7 +270,7 @@ class PackageRevenueDetailsView
             width: 130,
             showDivider: true,
             child: Text(
-              controller.formatCurrency(summary.totalAmount),
+              '${summary.currencySymbol ?? '\$'} ${controller.formatCurrency(summary.totalAmount)}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),
@@ -279,7 +279,7 @@ class PackageRevenueDetailsView
             width: 120,
             showDivider: true,
             child: Text(
-              controller.formatCurrency(summary.totalDiscount),
+              '${summary.currencySymbol ?? '\$'} ${controller.formatCurrency(summary.totalDiscount)}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),
@@ -288,7 +288,7 @@ class PackageRevenueDetailsView
             width: 130,
             showDivider: false,
             child: Text(
-              controller.formatCurrency(summary.netRevenue),
+              '${summary.currencySymbol ?? '\$'} ${controller.formatCurrency(summary.netRevenue)}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),

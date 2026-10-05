@@ -51,7 +51,7 @@ class OnboardController extends GetxController {
       );
     } else {
       await AuthService.firstTimeCompleted();
-      Get.offAllNamed(Routes.LOGIN);
+      Get.toNamed(Routes.LOGIN);
     }
   }
 

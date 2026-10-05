@@ -71,6 +71,15 @@ class BookingDetailsController extends GetxController {
     isCustomerInfoExpanded.value = !isCustomerInfoExpanded.value;
   }
 
+  void openPaymentDetails() {
+    final current = booking.value;
+    if (current == null) return;
+    Get.toNamed(
+      Routes.BOOKING_PAYMENT_DETAILS,
+      arguments: {'bookingId': current.id},
+    );
+  }
+
   Future<void> openEdit() async {
     final current = booking.value;
     if (current == null || !current.isEditable) {

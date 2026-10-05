@@ -42,6 +42,7 @@ class ProductRevenueData {
   final double totalAmount;
   final double totalDiscount;
   final double netRevenue;
+  final String? currencySymbol;
 
   /// Every raw field from the API row, so report columns can be discovered
   /// dynamically (unknown future keys included).
@@ -56,6 +57,7 @@ class ProductRevenueData {
     required this.totalAmount,
     required this.totalDiscount,
     required this.netRevenue,
+    this.currencySymbol,
     Map<String, dynamic>? rawFields,
   }) : rawFields = rawFields ?? const {};
 
@@ -69,6 +71,7 @@ class ProductRevenueData {
       totalAmount: _parseDouble(json['total_amount']),
       totalDiscount: _parseDouble(json['total_discount']),
       netRevenue: _parseDouble(json['net_revenue']),
+      currencySymbol: json['currency_symbol']?.toString(),
       rawFields: Map<String, dynamic>.from(json),
     );
   }
@@ -90,6 +93,7 @@ class ProductRevenueReport {
   final List<ProductRevenueData> monthlyData;
   final List<ProductLookup> products;
   final String productId;
+  final String? currencySymbol;
 
   ProductRevenueReport({
     required this.branches,
@@ -99,10 +103,12 @@ class ProductRevenueReport {
     required this.monthlyData,
     required this.products,
     required this.productId,
+    this.currencySymbol,
   });
 
   factory ProductRevenueReport.fromJson(Map<String, dynamic> json) {
     return ProductRevenueReport(
+      currencySymbol: json['currency_symbol']?.toString(),
       branches:
           (json['branches'] as List?)
               ?.map((e) => BranchLookup.fromJson(e as Map<String, dynamic>))
@@ -201,6 +207,7 @@ class DailyProductSummary {
   final double netRevenue;
   final String createdAt;
   final ReportProduct? product;
+  final String? currencySymbol;
 
   DailyProductSummary({
     required this.id,
@@ -212,6 +219,7 @@ class DailyProductSummary {
     required this.totalDiscount,
     required this.netRevenue,
     required this.createdAt,
+    this.currencySymbol,
     this.product,
   });
 
@@ -226,6 +234,7 @@ class DailyProductSummary {
       totalDiscount: _parseDouble(json['total_discount']),
       netRevenue: _parseDouble(json['net_revenue']),
       createdAt: json['created_at']?.toString() ?? '',
+      currencySymbol: json['currency_symbol']?.toString(),
       product: json['product'] != null
           ? ReportProduct.fromJson(json['product'] as Map<String, dynamic>)
           : null,
@@ -247,6 +256,7 @@ class ProductRevenueDetails {
   final String toDate;
   final String productName;
   final String productId;
+  final String? currencySymbol;
   final PaginatedResult<DailyProductSummary> dailyProductSummaries;
 
   ProductRevenueDetails({
@@ -256,6 +266,7 @@ class ProductRevenueDetails {
     required this.productName,
     required this.productId,
     required this.dailyProductSummaries,
+    required this.currencySymbol,
   });
 
   factory ProductRevenueDetails.fromJson(Map<String, dynamic> json) {
@@ -277,6 +288,7 @@ class ProductRevenueDetails {
       toDate: json['to_date']?.toString() ?? '',
       productName: json['product_name']?.toString() ?? '',
       productId: json['product_id']?.toString() ?? '',
+      currencySymbol: json['currency_symbol']?.toString() ?? '',
       dailyProductSummaries: PaginatedResult(
         items: items,
         meta: PaginationMeta.fromJson(summariesData),

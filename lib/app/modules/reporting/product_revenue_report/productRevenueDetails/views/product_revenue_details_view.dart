@@ -337,13 +337,13 @@ class ProductRevenueDetailsView
       case 'quantity':
         return item.quantitySold.toString();
       case 'unitPrice':
-        return controller.formatCurrency(item.unitPrice);
+        return '${item.currencySymbol ?? '\$'} ${controller.formatCurrency(item.unitPrice)}';
       case 'totalAmount':
-        return controller.formatCurrency(item.totalAmount);
+        return '${item.currencySymbol ?? '\$'} ${controller.formatCurrency(item.totalAmount)}';
       case 'discount':
-        return controller.formatCurrency(item.totalDiscount);
+        return '${item.currencySymbol ?? '\$'} ${controller.formatCurrency(item.totalDiscount)}';
       case 'netRevenue':
-        return controller.formatCurrency(item.netRevenue);
+        return '${item.currencySymbol ?? '\$'} ${controller.formatCurrency(item.netRevenue)}';
       default:
         return '-';
     }

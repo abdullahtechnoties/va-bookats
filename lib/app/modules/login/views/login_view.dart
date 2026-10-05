@@ -1,6 +1,7 @@
 // lib/app/modules/login/views/login_view.dart
 
 import 'package:va_bookats/app/modules/login/controllers/login_controller.dart';
+import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:flutter/material.dart';
@@ -175,7 +176,7 @@ class LoginView extends GetView<LoginController> {
               alignment:
                   isRtl ? Alignment.centerRight : Alignment.centerLeft,
               child: GestureDetector(
-                onTap: () => Get.back(),
+                onTap: () => Get.toNamed(Routes.ONBOARD),
                 child: const Icon(
                   Icons.arrow_back,
                   color: AppColors.white,

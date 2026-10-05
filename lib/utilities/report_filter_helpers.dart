@@ -195,7 +195,7 @@ String formatReportCell(String key, dynamic value) {
   ];
   if (money.any(k.contains)) {
     final n = double.tryParse(value.toString());
-    if (n != null) return '\$${n.toStringAsFixed(2)}';
+    if (n != null) return n.toStringAsFixed(2);
     return value.toString();
   }
   return value.toString();

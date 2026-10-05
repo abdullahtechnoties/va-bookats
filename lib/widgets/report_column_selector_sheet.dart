@@ -95,6 +95,7 @@ class ReportColumnSelectorSheet extends StatelessWidget {
                   onPressed: () => Get.back(),
                   icon: const Icon(Icons.close, color: AppColors.black),
                 ),
+
               ],
             ),
           ),
@@ -112,6 +113,18 @@ class ReportColumnSelectorSheet extends StatelessWidget {
                     Get.back();
                   },
                   child: Text('reports.filter.reset'.trns()),
+                ),
+                Spacer(),
+                // total no of columns
+                Obx(
+                  () => Text(
+                    '${tempSelected.length} / ${columns.length}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.black,
+                    ),
+                  ),
                 ),
               ],
             ),

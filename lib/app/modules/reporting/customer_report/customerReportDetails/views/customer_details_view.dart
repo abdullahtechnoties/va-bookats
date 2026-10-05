@@ -497,20 +497,20 @@ class _BookingCard extends StatelessWidget {
               Expanded(
                 child: _AmountColumn(
                   label: 'customerDetails.totalAmount'.trns(),
-                  value: '\$${booking.totalAmount}',
+                  value: '${booking.currencySymbol ?? '\$'} ${booking.totalAmount}',
                 ),
               ),
               Expanded(
                 child: _AmountColumn(
                   label: 'customerDetails.amountPaid'.trns(),
-                  value: '\$${booking.amountPaid}',
+                  value: '${booking.currencySymbol ?? '\$'} ${booking.amountPaid}',
                   valueColor: Colors.green,
                 ),
               ),
               Expanded(
                 child: _AmountColumn(
                   label: 'customerDetails.remaining'.trns(),
-                  value: '\$${booking.remainingAmount}',
+                  value: '${booking.currencySymbol ?? '\$'} ${booking.remainingAmount}',
                   valueColor: Colors.red,
                 ),
               ),

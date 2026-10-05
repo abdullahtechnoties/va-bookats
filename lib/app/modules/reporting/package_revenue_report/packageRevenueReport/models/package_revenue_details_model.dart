@@ -63,6 +63,7 @@ class DailyPackageSummary {
   final String totalDiscount;
   final String netRevenue;
   final String createdAt;
+  final String? currencySymbol;
   final PackageInfoInSummary? package;
 
   DailyPackageSummary({
@@ -77,6 +78,7 @@ class DailyPackageSummary {
     required this.netRevenue,
     required this.createdAt,
     this.package,
+    this.currencySymbol,
   });
 
   factory DailyPackageSummary.fromJson(Map<String, dynamic> json) {
@@ -91,6 +93,7 @@ class DailyPackageSummary {
       totalDiscount: json['total_discount']?.toString() ?? '0',
       netRevenue: json['net_revenue']?.toString() ?? '0',
       createdAt: json['created_at'] as String? ?? '',
+      currencySymbol: json['currency_symbol']?.toString(),
       package: json['package'] != null
           ? PackageInfoInSummary.fromJson(
               json['package'] as Map<String, dynamic>,

@@ -30,6 +30,7 @@ class RevenueData {
   final String branchName;
   final String from;
   final String to;
+  final String? currencySymbol;
   final int branchId;
 
   /// Every raw field from the API row, so report columns can be discovered
@@ -37,6 +38,7 @@ class RevenueData {
   final Map<String, dynamic> rawFields;
 
   RevenueData({
+    this.currencySymbol,
     required this.totalAmount,
     required this.totalDiscount,
     required this.totalBalance,
@@ -69,11 +71,13 @@ class RevenueData {
     required this.from,
     required this.to,
     required this.branchId,
+    
     Map<String, dynamic>? rawFields,
   }) : rawFields = rawFields ?? const {};
 
   factory RevenueData.fromJson(Map<String, dynamic> json) {
     return RevenueData(
+      currencySymbol: json['currency_symbol']?.toString(),
       totalAmount: _parseDouble(json['total_amount']),
       totalDiscount: _parseDouble(json['total_discount']),
       totalBalance: _parseDouble(json['total_balance']),

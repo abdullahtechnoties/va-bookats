@@ -82,14 +82,16 @@ class PaymentsController extends GetxController {
   int get unpaidCount => paymentsForTab(1).length;
   int get returnedCount => paymentsForTab(2).length;
 
+  String get allBranchesKey => 'payments.filter.allBranches'.trns();
+
   List<String> get branchFilterOptions => [
-    'packages.filter.allBranches'.trns(),
+    allBranchesKey,
     ...branches.map((b) => b.displayLabel),
   ];
 
   int? get _filterBranchId {
     final label = selectedBranchFilter.value;
-    if (label.isEmpty || label == 'packages.filter.allBranches'.trns()) {
+    if (label.isEmpty || label == allBranchesKey) {
       return null;
     }
     for (final b in branches) {
@@ -99,8 +101,8 @@ class PaymentsController extends GetxController {
   }
 
   /// Capitalized for display; mapped to API values before hitting the API.
+  /// No 'All' entry — an empty selection already means "no quick range".
   static const List<String> quickRangeOptions = [
-    'All',
     'Today',
     'Yesterday',
     'This Week',
@@ -109,7 +111,7 @@ class PaymentsController extends GetxController {
 
   String? get _filterQuickRange {
     final v = selectedQuickRange.value;
-    if (v.isEmpty || v == 'All') return null;
+    if (v.isEmpty) return null;
     return v.toLowerCase().replaceAll(' ', '_');
   }
 
@@ -258,30 +260,30 @@ class PaymentsController extends GetxController {
       context,
       fields: [
         FilterField(
-          label: 'packages.filter.search'.trns(),
+          label: 'payments.filter.search'.trns(),
           type: FilterFieldType.text,
           controller: searchCtrl,
         ),
         FilterField(
-          label: 'packages.filter.quickRange'.trns(),
+          label: 'payments.filter.quickRange'.trns(),
           type: FilterFieldType.dropdown,
           controller: quickRangeCtrl,
           dropdownItems: quickRangeOptions,
           selectedValue: selectedQuickRange,
         ),
         FilterField(
-          label: 'packages.filter.fromDate'.trns(),
+          label: 'payments.filter.fromDate'.trns(),
           type: FilterFieldType.date,
           controller: fromDateCtrl,
         ),
         FilterField(
-          label: 'packages.filter.toDate'.trns(),
+          label: 'payments.filter.toDate'.trns(),
           type: FilterFieldType.date,
           controller: toDateCtrl,
         ),
         if (showBranch)
           FilterField(
-            label: 'packages.filter.branches'.trns(),
+            label: 'payments.filter.branches'.trns(),
             type: FilterFieldType.dropdown,
             controller: branchFilterCtrl,
             dropdownItems: branchFilterOptions,

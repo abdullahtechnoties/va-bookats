@@ -301,7 +301,7 @@ class ExpenseReportController extends GetxController {
       case 'to':
         return _formatDate(DateTime.tryParse(row.to) ?? DateTime.now());
       case 'total_expense':
-        return formatReportCell(key, row.totalExpense);
+        return '${row.currencySymbol ?? '\$'} ${row.totalExpense}';
       default:
         // Dynamically discovered columns read straight from the raw row.
         return formatReportCell(key, row.rawFields[key]);

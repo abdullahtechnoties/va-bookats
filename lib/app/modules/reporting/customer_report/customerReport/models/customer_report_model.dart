@@ -46,6 +46,7 @@ class CustomerReportData {
   final int completedBookings;
   final int pendingBookings;
   final int cancelledBookings;
+  final String? currencySymbol;
 
   /// Every raw field from the API row, so report columns can be discovered
   /// dynamically (unknown future keys included).
@@ -66,6 +67,7 @@ class CustomerReportData {
     required this.pendingBookings,
     required this.cancelledBookings,
     Map<String, dynamic>? rawFields,
+    this.currencySymbol,
   }) : rawFields = rawFields ?? const {};
 
   factory CustomerReportData.fromJson(Map<String, dynamic> json) {
@@ -86,6 +88,7 @@ class CustomerReportData {
       cancelledBookings:
           int.tryParse(json['cancelled_bookings'].toString()) ?? 0,
       rawFields: Map<String, dynamic>.from(json),
+      currencySymbol: json['currency_symbol']?.toString()
     );
   }
 }
@@ -208,6 +211,7 @@ class BookingData {
   final String paymentMethod;
   final String status;
   final String? note;
+  final String? currencySymbol;
   final int branchId;
   final BookingCustomer? customer;
 
@@ -227,6 +231,7 @@ class BookingData {
     required this.paymentMethod,
     required this.status,
     this.note,
+    this.currencySymbol,
     required this.branchId,
     this.customer,
   });
@@ -249,6 +254,7 @@ class BookingData {
       status: json['status']?.toString() ?? '',
       note: json['note']?.toString(),
       branchId: int.tryParse(json['branch_id'].toString()) ?? 0,
+      currencySymbol: json['currency_symbol']?.toString(),
       customer: json['customer'] != null
           ? BookingCustomer.fromJson(json['customer'] as Map<String, dynamic>)
           : null,
@@ -268,6 +274,7 @@ class CustomerDetailsResponse {
   final List<BookingData> bookings;
   final PaginationMeta paginationMeta;
   final dynamic customerId;
+  final String? currencySymbol;
 
   CustomerDetailsResponse({
     required this.branch,
@@ -277,6 +284,7 @@ class CustomerDetailsResponse {
     required this.bookings,
     required this.paginationMeta,
     required this.customerId,
+    this.currencySymbol,
   });
 
   factory CustomerDetailsResponse.fromJson(Map<String, dynamic> json) {
@@ -297,6 +305,7 @@ class CustomerDetailsResponse {
       bookings: bookingsData,
       paginationMeta: PaginationMeta.fromJson(bookingsJson),
       customerId: json['customer_id'],
+      currencySymbol: json['currency_symbol']?.toString(),
     );
   }
 }

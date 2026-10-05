@@ -13,6 +13,7 @@ class PaymentItem {
   final String? paymentMethod;
   final String? paymentSlipUrl;
   final BookingInfo? booking;
+  final String? currencySymbol;
 
   PaymentItem({
     required this.id,
@@ -29,6 +30,7 @@ class PaymentItem {
     this.paymentMethod,
     this.paymentSlipUrl,
     this.booking,
+    this.currencySymbol,
   });
 
   factory PaymentItem.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class PaymentItem {
       discountAmount: _parseDouble(json['discount_amount']),
       paymentMethod: json['payment_method'],
       paymentSlipUrl: json['payment_slip_url'],
+      currencySymbol: json['currency_symbol']?.toString(),
       booking: json['booking'] != null
           ? BookingInfo.fromJson(json['booking'])
           : null,

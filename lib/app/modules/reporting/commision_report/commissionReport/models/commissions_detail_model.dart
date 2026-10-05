@@ -81,6 +81,7 @@ class StaffCommissionSummary {
   final String packageCommission;
   final String totalCommission;
   final StaffInfo? staff;
+  final String? currencySymbol;
 
   StaffCommissionSummary({
     required this.id,
@@ -91,6 +92,7 @@ class StaffCommissionSummary {
     required this.packageCommission,
     required this.totalCommission,
     this.staff,
+    this.currencySymbol,
   });
 
   factory StaffCommissionSummary.fromJson(Map<String, dynamic> json) {
@@ -102,6 +104,7 @@ class StaffCommissionSummary {
       serviceCommission: json['service_commission']?.toString() ?? '0.00',
       packageCommission: json['package_commission']?.toString() ?? '0.00',
       totalCommission: json['total_commission']?.toString() ?? '0.00',
+      currencySymbol: json['currency_symbol']?.toString(),
       staff: json['staff'] != null ? StaffInfo.fromJson(json['staff']) : null,
     );
   }
