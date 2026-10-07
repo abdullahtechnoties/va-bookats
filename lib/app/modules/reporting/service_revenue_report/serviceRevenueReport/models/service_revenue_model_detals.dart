@@ -1,5 +1,6 @@
 // lib/app/modules/service_revenue_report/models/service_revenue_detail_models.dart
 
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
 
 class BranchDetail {
@@ -39,12 +40,14 @@ class ServiceInfo {
   final String name;
   final String? serviceUrl;
   final String? serviceThumbUrl;
+  final ClosingBranchModel? branch;
 
   ServiceInfo({
     required this.id,
     required this.name,
     this.serviceUrl,
     this.serviceThumbUrl,
+    this.branch,
   });
 
   factory ServiceInfo.fromJson(Map<String, dynamic> json) {
@@ -53,6 +56,11 @@ class ServiceInfo {
       name: json['name']?.toString() ?? '',
       serviceUrl: json['service_url']?.toString(),
       serviceThumbUrl: json['service_thumb_url']?.toString(),
+      branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 }

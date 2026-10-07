@@ -1385,6 +1385,7 @@
     "paidAmount": "Paid Amount",
     "balance": "Balance",
     "discount": "Discount",
+    "afterDiscount": "After Discount",
     "paymentMethod": "Payment Method",
     "transactionId": "Transaction ID",
     "date": "Date",

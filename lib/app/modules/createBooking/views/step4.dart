@@ -117,7 +117,7 @@ class Step4Products extends GetView<CreateBookingController> {
                   final variantLabels = item.variantOptions
                       .map(
                         (v) =>
-                            '${v.displayName} — Rs ${v.price} (Stock: ${v.stock})',
+                            '${v.displayName} — ${v.price} (Stock: ${v.stock})',
                       )
                       .toList();
                   final variantValues = item.variantOptions

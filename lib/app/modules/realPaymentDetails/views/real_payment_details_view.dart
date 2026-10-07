@@ -161,20 +161,41 @@ class _PaymentInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _InfoRow(
+            currencySymbol: payment.branchh?.currency?.symbol,
+            isCurrency: true,
             label: 'paymentDetails.totalAmount'.trns(),
             value: payment.totalAmount ?? '—',
           ),
           _InfoRow(
+            currencySymbol: payment.branchh?.currency?.symbol,
+            isCurrency: true,
+            label: 'paymentDetails.discount'.trns(),
+            value: payment.discountAmount ?? '—',
+          ),
+          // after discount, the paid amount is calculated as totalAmount - discountAmount
+          if (payment.discountAmount != null && payment.discountAmount != '0') ...[
+            _InfoRow(
+              currencySymbol: payment.branchh?.currency?.symbol,
+              isCurrency: true,
+              label: 'paymentDetails.afterDiscount'.trns(),
+              value: (payment.totalAmount != null && payment.discountAmount != null)
+                  ? (double.tryParse(payment.totalAmount!)! -
+                          double.tryParse(payment.discountAmount!)!)
+                      .toStringAsFixed(2)
+                  : '—',
+            ),
+          ],
+          _InfoRow(
+            currencySymbol: payment.branchh?.currency?.symbol,
+            isCurrency: true,
             label: 'paymentDetails.paidAmount'.trns(),
             value: payment.paidAmount ?? '—',
           ),
           _InfoRow(
+            currencySymbol: payment.branchh?.currency?.symbol,
+            isCurrency: true, 
             label: 'paymentDetails.balance'.trns(),
             value: payment.balance ?? '—',
-          ),
-          _InfoRow(
-            label: 'paymentDetails.discount'.trns(),
-            value: payment.discountAmount ?? '—',
           ),
           _InfoRow(
             label: 'paymentDetails.paymentMethod'.trns(),
@@ -432,11 +453,15 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
   final bool isLast;
+  final bool isCurrency;
+  final String? currencySymbol;
 
   const _InfoRow({
     required this.label,
     required this.value,
     this.isLast = false,
+    this.isCurrency = false,
+    this.currencySymbol,
   });
 
   @override
@@ -458,7 +483,7 @@ class _InfoRow extends StatelessWidget {
               ),
               Flexible(
                 child: Text(
-                  value,
+                  '${isCurrency ? '$currencySymbol ' : ''}$value',
                   textAlign: TextAlign.end,
                   style: const TextStyle(
                     fontSize: 13,

@@ -15,6 +15,7 @@ class PaymentCardModel {
   final String paid;
   final String remaining;
 
+
   const PaymentCardModel({
     required this.grandTotal,
     required this.status,
@@ -32,12 +33,14 @@ class PaymentCard extends StatelessWidget {
   final PaymentCardModel payment;
   final VoidCallback? onViewDetails;
   final VoidCallback? onDelete;
+  final String? currencySymbol;
 
   const PaymentCard({
     super.key,
     required this.payment,
     this.onViewDetails,
     this.onDelete,
+    this.currencySymbol,
   });
 
   @override
@@ -79,7 +82,7 @@ class PaymentCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '\$ ${payment.grandTotal}',
+                      '${currencySymbol ?? '\$'} ${payment.grandTotal}',
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
@@ -128,18 +131,26 @@ class PaymentCard extends StatelessWidget {
               value: payment.branch,
             ),
             _PaymentDetailRow(
+              currencySymbol: currencySymbol,
+              isCurrency: true,
               label: 'payments.total'.trns(),
               value: payment.total,
             ),
             _PaymentDetailRow(
+              currencySymbol: currencySymbol,
+              isCurrency: true,
               label: 'payments.paid'.trns(),
               value: payment.paid,
             ),
             _PaymentDetailRow(
+              currencySymbol: currencySymbol,
+              isCurrency: true,
               label: 'payments.remaining'.trns(),
               value: payment.remaining,
             ),
             _PaymentDetailRow(
+              currencySymbol: currencySymbol,
+              isCurrency: true,
               label: 'payments.grandTotal'.trns(),
               value: payment.grandTotal,
               isLast: true,
@@ -206,10 +217,14 @@ class _PaymentDetailRow extends StatelessWidget {
   final String label;
   final String value;
   final bool isLast;
+  final String? currencySymbol;
+  final bool isCurrency;
 
   const _PaymentDetailRow({
     required this.label,
     required this.value,
+    this.currencySymbol,
+    this.isCurrency = false,
     this.isLast = false,
   });
 
@@ -232,7 +247,7 @@ class _PaymentDetailRow extends StatelessWidget {
               ),
               Flexible(
                 child: Text(
-                  value,
+                  '${isCurrency ? '$currencySymbol ' : ''}$value',
                   textAlign: TextAlign.end,
                   style: const TextStyle(
                     fontSize: 13,

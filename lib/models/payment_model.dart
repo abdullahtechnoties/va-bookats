@@ -1,5 +1,6 @@
 // lib/models/payment_model.dart
 
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/widgets/Global-Widgets/payment_card.dart';
 
 class PaymentCustomer {
@@ -113,6 +114,7 @@ class PaymentModel {
   final String? slipUrl;
   final String? slipThumbUrl;
   final PaymentBranch? branch;
+  final ClosingBranchModel? branchh;
   final PaymentBooking? booking;
 
   const PaymentModel({
@@ -133,6 +135,7 @@ class PaymentModel {
     this.slipThumbUrl,
     this.branch,
     this.booking,
+    this.branchh,
   });
 
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
@@ -160,6 +163,11 @@ class PaymentModel {
       booking: bookingJson == null
           ? null
           : PaymentBooking.fromJson(bookingJson),
+      branchh: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 

@@ -276,7 +276,7 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
           _DataCell(
             width: 150,
             child: Text(
-              '${row.currencySymbol ?? '\$'} ${row.serviceCommission}',
+              '${row.staff?.branch?.currency?.symbol ?? '\$'} ${row.serviceCommission}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),
@@ -284,7 +284,7 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
           _DataCell(
             width: 150,
             child: Text(
-              '${row.currencySymbol ?? '\$'} ${row.packageCommission}',
+              '${row.staff?.branch?.currency?.symbol ?? '\$'} ${row.packageCommission}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),
@@ -292,7 +292,7 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
           _DataCell(
             width: 150,
             child: Text(
-              '${row.currencySymbol ?? '\$'} ${row.totalCommission}',
+              '${row.staff?.branch?.currency?.symbol ?? '\$'} ${row.totalCommission}',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 11,

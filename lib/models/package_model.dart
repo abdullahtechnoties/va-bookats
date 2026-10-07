@@ -1,3 +1,4 @@
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -66,7 +67,7 @@ class PackageModel {
   final String? description;
   final String? startingFrom;
   final String? endingOn;
-  final BranchModel? branch;
+  final ClosingBranchModel? branch;
   final List<PackageServiceModel> packageServices;
 
   const PackageModel({
@@ -95,8 +96,10 @@ class PackageModel {
       description: json['description']?.toString(),
       startingFrom: json['starting_from']?.toString(),
       endingOn: json['ending_on']?.toString(),
-      branch: rawBranch is Map
-          ? BranchModel.fromJson(Map<String, dynamic>.from(rawBranch))
+       branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
           : null,
       packageServices: rawPs is List
           ? rawPs
@@ -113,14 +116,14 @@ class PackageModel {
 
   bool get isActive => status?.toLowerCase() == 'active';
 
-  String get branchName => branch?.label ?? '';
+  String get branchName => branch?.name ?? '';
 
   String get statusDisplay =>
       isActive ? 'packages.card.active'.trns() : 'packages.card.inactive'.trns();
 
   String get priceDisplay {
     if (price == null || price!.isEmpty) return '—';
-    return 'Rs: $price';
+    return '$price';
   }
 
   PackageModel copyWith({String? status}) {

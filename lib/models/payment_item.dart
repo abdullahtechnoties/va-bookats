@@ -1,3 +1,5 @@
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
+
 class PaymentItem {
   final int id;
   final int branchId;
@@ -13,6 +15,7 @@ class PaymentItem {
   final String? paymentMethod;
   final String? paymentSlipUrl;
   final BookingInfo? booking;
+  final ClosingBranchModel? branch;
   final String? currencySymbol;
 
   PaymentItem({
@@ -30,6 +33,7 @@ class PaymentItem {
     this.paymentMethod,
     this.paymentSlipUrl,
     this.booking,
+    this.branch,
     this.currencySymbol,
   });
 
@@ -51,6 +55,11 @@ class PaymentItem {
       currencySymbol: json['currency_symbol']?.toString(),
       booking: json['booking'] != null
           ? BookingInfo.fromJson(json['booking'])
+          : null,
+      branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
           : null,
     );
   }

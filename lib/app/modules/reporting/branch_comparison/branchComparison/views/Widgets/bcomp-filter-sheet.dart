@@ -127,7 +127,7 @@ class BranchComparisonFilterSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Branch single-select (only for owners)
+          // Branch multi-select (only for owners; empty = All branches)
           if (controller.isOwner) ...[
             Text(
               'branchComparison.filter.branches'.trns(),
@@ -200,20 +200,16 @@ class BranchComparisonFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'branchComparison.filter.selectBranches'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems: [
-          'branchComparison.filter.allBranches'.trns(),
-          ...controller.availableBranches.map((b) => b.label),
-        ],
+        dropdownItems:
+            controller.availableBranches.map((b) => b.label).toList(),
         textController: TextEditingController(),
-        selectedValue: [
-          '',
-          ...controller.availableBranches.map((b) => b.value.toString()),
-        ],
-        currentlySelectedValue: controller.tempBranchId.value?.toString() ?? '',
-        onValueSelected: (v) {
-          final raw = v.toString();
-          controller.selectTempBranch(raw.isEmpty ? null : int.tryParse(raw));
-        },
+        selectedValue: controller.availableBranches
+            .map((b) => b.value.toString())
+            .toList(),
+        currentlySelectedValue: '',
+        isMultiSelect: true,
+        selectedValues: controller.tempBranchIds,
+        doneButtonText: 'reports.common.done'.trns(),
         showSearch: true,
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/utilities/image_path_helper.dart';
 
 class ExpenseItemModel {
@@ -14,6 +15,7 @@ class ExpenseItemModel {
   final String? billThumbUrl;
   final String? currencySymbol;
   final ExpenseCategoryDetail? category;
+   final ClosingBranchModel? branch;
 
   ExpenseItemModel({
     required this.id,
@@ -29,6 +31,7 @@ class ExpenseItemModel {
     this.billThumbUrl,
     this.category,
     this.currencySymbol,
+    this.branch,
   });
 
   factory ExpenseItemModel.fromJson(Map<String, dynamic> json) {
@@ -48,6 +51,11 @@ class ExpenseItemModel {
       category: json['category'] != null
           ? ExpenseCategoryDetail.fromJson(
               json['category'] as Map<String, dynamic>,
+            )
+          : null,
+      branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
             )
           : null,
     );

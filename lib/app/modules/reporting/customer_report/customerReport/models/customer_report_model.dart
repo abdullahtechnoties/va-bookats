@@ -1,5 +1,6 @@
 // lib/models/customer_report_model.dart
 
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
 
 class BranchOption {
@@ -214,6 +215,7 @@ class BookingData {
   final String? currencySymbol;
   final int branchId;
   final BookingCustomer? customer;
+  final ClosingBranchModel? branch;
 
   BookingData({
     required this.id,
@@ -234,6 +236,7 @@ class BookingData {
     this.currencySymbol,
     required this.branchId,
     this.customer,
+    this.branch,
   });
 
   factory BookingData.fromJson(Map<String, dynamic> json) {
@@ -257,6 +260,11 @@ class BookingData {
       currencySymbol: json['currency_symbol']?.toString(),
       customer: json['customer'] != null
           ? BookingCustomer.fromJson(json['customer'] as Map<String, dynamic>)
+          : null,
+      branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
           : null,
     );
   }

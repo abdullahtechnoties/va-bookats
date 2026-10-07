@@ -389,7 +389,7 @@ class _BookingInfoCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             booking.displayLocation.isEmpty
-                                ? (booking.branch?.address ?? '—')
+                                ? (booking.branch?.name ?? '—')
                                 : booking.displayLocation,
                             style: const TextStyle(
                               fontSize: 12,
@@ -556,7 +556,7 @@ class _LinesCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'Rs ${booking.totalAmount ?? '0'}',
+            '${booking.branch?.currency?.symbol ?? '\$'} ${booking.totalAmount ?? '0'}',
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w800,
@@ -568,18 +568,18 @@ class _LinesCard extends StatelessWidget {
             _PriceRow(
               label:
                   '${s.serviceName ?? 'Service'}${s.variationName != null ? ' (${s.variationName})' : ''}',
-              value: 'Rs ${s.totalAmount ?? s.amount ?? '0'}',
+              value: '${booking.branch?.currency?.symbol ?? '\$'} ${s.totalAmount ?? s.amount ?? '0'}',
             ),
           for (final p in booking.packages)
             _PriceRow(
               label: p.packageName ?? 'Package',
-              value: 'Rs ${p.totalAmount ?? p.amount ?? '0'}',
+              value: '${booking.branch?.currency?.symbol ?? '\$'} ${p.totalAmount ?? p.amount ?? '0'}',
             ),
           for (final p in booking.products)
             _PriceRow(
               label:
                   '${p.productName ?? 'Product'}${p.variantName != null ? ' (${p.variantName})' : ''} x${p.quantity ?? 1}',
-              value: 'Rs ${p.afterDiscountPrice ?? p.totalPrice ?? '0'}',
+              value: '${booking.branch?.currency?.symbol ?? '\$'} ${p.afterDiscountPrice ?? p.totalPrice ?? '0'}',
               isLast: p == booking.products.last &&
                   booking.services.isEmpty &&
                   booking.packages.isEmpty,
@@ -619,7 +619,7 @@ class _GrandTotalCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Rs ${booking.totalAmount ?? '0'}',
+                    '${booking.branch?.currency?.symbol ?? '\$'} ${booking.totalAmount ?? '0'}',
                     style: const TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
@@ -662,17 +662,17 @@ class _GrandTotalCard extends StatelessWidget {
           ),
           _PriceRow(
             label: 'home.bookingDetails.total'.trns(),
-            value: 'Rs ${booking.totalAmount ?? '0'}',
+            value: '${booking.branch?.currency?.symbol ?? '\$'} ${booking.totalAmount ?? '0'}',
           ),
           _PriceRow(
             label: 'home.bookingDetails.paid'.trns(),
             value:
-                'Rs ${booking.amountPaid ?? payment?.paidAmount ?? '0'}',
+                '${booking.branch?.currency?.symbol ?? '\$'} ${booking.amountPaid ?? payment?.paidAmount ?? '0'}',
           ),
           _PriceRow(
             label: 'home.bookingDetails.remaining'.trns(),
             value:
-                'Rs ${booking.remainingAmount ?? payment?.balance ?? '0'}',
+                '${booking.branch?.currency?.symbol ?? '\$'} ${booking.remainingAmount ?? payment?.balance ?? '0'}',
           ),
           _PriceRow(
             label: 'Payment Method',
@@ -702,7 +702,7 @@ class _GrandTotalCard extends StatelessWidget {
             ),
           _PriceRow(
             label: 'home.bookingDetails.grandTotal'.trns(),
-            value: 'Rs ${booking.totalAmount ?? '0'}',
+            value: '${booking.branch?.currency?.symbol ?? '\$'} ${booking.totalAmount ?? '0'}',
             isLast: true,
           ),
         ],

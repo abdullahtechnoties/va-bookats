@@ -234,13 +234,13 @@ class PaymentDetailsController extends GetxController {
       case 'status':
         return item.status;
       case 'total_amount':
-        return '${item.currencySymbol ?? '\$'} ${formatReportCell(key, item.totalAmount)}';
+        return '${item.branch?.currency?.symbol ?? '\$'} ${formatReportCell(key, item.totalAmount)}';
       case 'discount':
-        return '${item.currencySymbol ?? '\$'} ${formatReportCell(key, item.discountAmount)}';
+        return '${item.branch?.currency?.symbol ?? '\$'} ${formatReportCell(key, item.discountAmount)}';
       case 'total_paid':
-        return '${item.currencySymbol ?? '\$'} ${formatReportCell(key, item.paidAmount)}';
+        return '${item.branch?.currency?.symbol ?? '\$'} ${formatReportCell(key, item.paidAmount)}';
       case 'total_balance':
-        return '${item.currencySymbol ?? '\$'} ${formatReportCell(key, item.balance)}';
+        return '${item.branch?.currency?.symbol ?? '\$'} ${formatReportCell(key, item.balance)}';
       // Legacy keys kept for backward compatibility.
       case 'customer':
         return item.booking?.displayName ?? 'N/A';

@@ -1,3 +1,4 @@
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
 
@@ -168,6 +169,7 @@ class ReportProduct {
   final String? shortDescription;
   final String? productType;
   final double price;
+   final ClosingBranchModel? branch;
 
   ReportProduct({
     required this.id,
@@ -175,6 +177,7 @@ class ReportProduct {
     this.shortDescription,
     this.productType,
     required this.price,
+    this.branch,
   });
 
   factory ReportProduct.fromJson(Map<String, dynamic> json) {
@@ -184,6 +187,11 @@ class ReportProduct {
       shortDescription: json['short_description']?.toString(),
       productType: json['product_type']?.toString(),
       price: _parseDouble(json['price']),
+      branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 

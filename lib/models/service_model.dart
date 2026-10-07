@@ -1,3 +1,4 @@
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/models/service_category_model.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
@@ -58,6 +59,8 @@ class ServiceModel {
   final BranchModel? branch;
   final ServiceCategoryModel? category;
   final List<ServiceVariation> variations;
+  final ClosingBranchModel? branchh;
+
 
   const ServiceModel({
     this.id,
@@ -73,6 +76,7 @@ class ServiceModel {
     this.branch,
     this.thumbnailImageUrl,
     this.category,
+    this.branchh,
     this.variations = const [],
   });
 
@@ -93,6 +97,11 @@ class ServiceModel {
       type: json['type']?.toString(),
       defaultPrice: json['default_price']?.toString(),
       description: json['description']?.toString(),
+      branchh: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
+          : null,
       branch: rawBranch is Map
           ? BranchModel.fromJson(Map<String, dynamic>.from(rawBranch))
           : null,
@@ -142,12 +151,12 @@ class ServiceModel {
         prices.sort();
         final min = _trimPrice(prices.first);
         final max = _trimPrice(prices.last);
-        if (min == max) return 'Rs: $min';
-        return 'Rs: $min - $max';
+        if (min == max) return '${branchh?.currency?.symbol ?? ''} $min';
+        return '${branchh?.currency?.symbol ?? ''} $min - $max';
       }
     }
     final price = defaultPrice;
-    if (price != null && price.isNotEmpty) return 'Rs: $price';
+    if (price != null && price.isNotEmpty) return '${branchh?.currency?.symbol ?? ''} $price';
     return '—';
   }
 

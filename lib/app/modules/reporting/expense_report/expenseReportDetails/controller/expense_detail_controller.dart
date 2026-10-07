@@ -161,7 +161,7 @@ class ExpenseDetailController extends GetxController {
       case 'status':
         return item.status.isNotEmpty ? item.status : '-';
       case 'amount':
-        return '${item.currencySymbol ?? '\$'} ${formatAmount(item.amount)}';
+        return '${item.branch?.currency?.symbol ?? '\$'} ${formatAmount(item.amount)}';
       default:
         return '-';
     }

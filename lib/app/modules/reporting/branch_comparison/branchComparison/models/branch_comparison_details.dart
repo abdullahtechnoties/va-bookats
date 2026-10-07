@@ -119,6 +119,7 @@ class DailyClosingModel {
   final StaffModel? approver;
     // currency_symbol
   final String? currencySymbol;
+  final ClosingBranchModel? branch;
 
   DailyClosingModel({
     required this.id,
@@ -165,6 +166,7 @@ class DailyClosingModel {
     this.creator,
     this.approver,
     this.currencySymbol,
+    this.branch,
   });
 
   factory DailyClosingModel.fromJson(Map<String, dynamic> json) {
@@ -218,6 +220,55 @@ class DailyClosingModel {
           ? StaffModel.fromJson(json['approver'] as Map<String, dynamic>)
           : null,
       currencySymbol: json['currency_symbol']?.toString(),
+      branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
+          : null,
+    );
+  }
+}
+
+class ClosingBranchModel {
+  final int id;
+  final String name;
+  final int currencyId;
+  final CurrencyModel? currency;
+
+  ClosingBranchModel({
+    required this.id,
+    required this.name,
+    required this.currencyId,
+    this.currency,
+  });
+
+  factory ClosingBranchModel.fromJson(Map<String, dynamic> json) {
+    return ClosingBranchModel(
+      id: json['id'] as int? ?? 0,
+      name: json['name']?.toString() ?? '',
+      currencyId: json['currency_id'] as int? ?? 0,
+      currency: json['currency'] != null
+          ? CurrencyModel.fromJson(
+              json['currency'] as Map<String, dynamic>,
+            )
+          : null,
+    );
+  }
+}
+
+class CurrencyModel {
+  final int id;
+  final String symbol;
+
+  CurrencyModel({
+    required this.id,
+    required this.symbol,
+  });
+
+  factory CurrencyModel.fromJson(Map<String, dynamic> json) {
+    return CurrencyModel(
+      id: json['id'] as int? ?? 0,
+      symbol: json['symbol']?.toString() ?? '',
     );
   }
 }

@@ -673,7 +673,7 @@ class _PriceSection extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Rs: ${controller.computedTotal.toStringAsFixed(2)}',
+                    controller.computedTotal.toStringAsFixed(2),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

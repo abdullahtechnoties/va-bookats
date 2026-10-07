@@ -62,6 +62,7 @@ class PaymentsView extends GetView<PaymentsController> {
                       payment: payment.toCardModel(),
                       onViewDetails: () => controller.openDetails(payment),
                       onDelete: null,
+                      currencySymbol: payment.branchh?.currency?.symbol ?? '\$',
                     );
                   },
                 ),

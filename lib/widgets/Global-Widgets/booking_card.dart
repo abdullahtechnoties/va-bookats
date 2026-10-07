@@ -259,7 +259,7 @@ class BookingCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Rs: ${booking.totalAmount ?? '0'}',
+                              '${booking.branch?.currency?.symbol ?? '\$'} ${booking.totalAmount ?? '0'}',
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,

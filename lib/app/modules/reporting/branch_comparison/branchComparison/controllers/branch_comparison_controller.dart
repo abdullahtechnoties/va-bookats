@@ -47,9 +47,11 @@ class BranchComparisonReportController extends GetxController {
       .obs;
   final Rx<DateTime> toDate = DateTime.now().obs;
 
-  /// Single-select branch filter (null = All branches). Sent indexed as
-  /// `branch_ids[0]` — the only indexed param across reporting.
-  final RxnInt selectedBranchId = RxnInt(null);
+  /// Multi-select branch filter (empty = All branches). Sent indexed as
+  /// `branch_ids[0]`, `branch_ids[1]`, … — the only indexed param across
+  /// reporting. Ids are strings so int/String API payloads can never
+  /// crash the sheet.
+  final RxSet<String> selectedBranchIds = <String>{}.obs;
 
   // Available branches from API
   final RxList<BranchFilterOption> availableBranches =
@@ -60,24 +62,32 @@ class BranchComparisonReportController extends GetxController {
       .subtract(const Duration(days: 30))
       .obs;
   final Rx<DateTime> tempToDate = DateTime.now().obs;
-  final RxnInt tempBranchId = RxnInt(null);
+  final RxSet<String> tempBranchIds = <String>{}.obs;
 
-  String get branchFilterDisplay {
-    final id = selectedBranchId.value;
-    if (id == null) {
-      return 'branchComparison.filter.allBranches'.trns();
-    }
-    return availableBranches.firstWhereOrNull((b) => b.value == id)?.label ??
-        'branchComparison.filter.allBranches'.trns();
-  }
+  List<ReportOption> get branchOptions => availableBranches
+      .map((b) => ReportOption(label: b.label, value: b.value.toString()))
+      .toList();
 
-  String get tempBranchFilterDisplay {
-    final id = tempBranchId.value;
-    if (id == null) {
-      return 'branchComparison.filter.allBranches'.trns();
-    }
-    return availableBranches.firstWhereOrNull((b) => b.value == id)?.label ??
-        'branchComparison.filter.allBranches'.trns();
+  String get branchFilterDisplay => multiSelectDisplay(
+        selected: selectedBranchIds,
+        options: branchOptions,
+        allLabel: 'branchComparison.filter.allBranches'.trns(),
+        selectedSuffix: 'branchComparison.filter.branchesSelected'.trns(),
+      );
+
+  String get tempBranchFilterDisplay => multiSelectDisplay(
+        selected: tempBranchIds,
+        options: branchOptions,
+        allLabel: 'branchComparison.filter.allBranches'.trns(),
+        selectedSuffix: 'branchComparison.filter.branchesSelected'.trns(),
+      );
+
+  /// Selected ids as ints for the indexed API params (null = All).
+  List<int>? get filterBranchIds {
+    if (selectedBranchIds.isEmpty) return null;
+    final ids =
+        selectedBranchIds.map(int.tryParse).whereType<int>().toList();
+    return ids.isEmpty ? null : ids;
   }
 
   // ── Column Selection State ───────────────────────────────────────────────
@@ -216,7 +226,7 @@ class BranchComparisonReportController extends GetxController {
     final response = await _service.getBranchComparisonReport(
       fromDate: _apiDateFormat(fromDate.value),
       toDate: _apiDateFormat(toDate.value),
-      branchId: selectedBranchId.value,
+      branchIds: isOwner ? filterBranchIds : null,
     );
 
     reportResponse.value = response;
@@ -242,24 +252,30 @@ class BranchComparisonReportController extends GetxController {
   void initTempFilter() {
     tempFromDate.value = fromDate.value;
     tempToDate.value = toDate.value;
-    tempBranchId.value = selectedBranchId.value;
+    initTempMulti(tempBranchIds, selectedBranchIds);
   }
 
   void applyFilter() {
     fromDate.value = tempFromDate.value;
     toDate.value = tempToDate.value;
-    selectedBranchId.value = tempBranchId.value;
+    selectedBranchIds.assignAll(tempBranchIds);
     fetchReport();
   }
 
   void resetFilter() {
     tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
     tempToDate.value = DateTime.now();
-    tempBranchId.value = null;
+    tempBranchIds.clear();
   }
 
-  void selectTempBranch(int? branchId) {
-    tempBranchId.value = branchId;
+  void selectAllTempBranches() {
+    tempBranchIds.assignAll(
+      availableBranches.map((b) => b.value.toString()),
+    );
+  }
+
+  void clearTempBranches() {
+    tempBranchIds.clear();
   }
 
   // ── Column Selection Actions ─────────────────────────────────────────────
@@ -381,6 +397,18 @@ class BranchComparisonReportController extends GetxController {
         return '${item.currencySymbol} ${item.packageRevenue}';
       case 'unpaid_amount':
         return '${item.currencySymbol} ${item.unpaidAmount}';
+      case 'service_discount':
+        return '${item.currencySymbol} ${item.serviceDiscount.toString()}';
+      case 'product_discount':
+        return '${item.currencySymbol} ${item.productDiscount.toString()}';
+      case 'package_discount':
+        return '${item.currencySymbol} ${item.packageDiscount.toString()}';
+      case 'service_amount':
+        return '${item.currencySymbol} ${item.serviceAmount.toString()}';
+      case 'product_amount':
+        return '${item.currencySymbol} ${item.productAmount.toString()}';
+      case 'package_amount':
+        return '${item.currencySymbol} ${item.packageAmount.toString()}';
       default:
         // Dynamically discovered columns read straight from the raw row.
         return formatReportCell(key, item.rawFields[key]);

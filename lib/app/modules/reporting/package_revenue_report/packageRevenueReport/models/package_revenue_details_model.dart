@@ -1,3 +1,4 @@
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
 
 class BranchInfoModel {
@@ -36,11 +37,13 @@ class PackageInfoInSummary {
   final int id;
   final String name;
   final String price;
+  final ClosingBranchModel? branch;
 
   PackageInfoInSummary({
     required this.id,
     required this.name,
     required this.price,
+    this.branch,
   });
 
   factory PackageInfoInSummary.fromJson(Map<String, dynamic> json) {
@@ -48,6 +51,11 @@ class PackageInfoInSummary {
       id: json['id'] as int? ?? 0,
       name: json['name'] as String? ?? '',
       price: json['price'] as String? ?? '0',
+      branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 }
@@ -65,6 +73,7 @@ class DailyPackageSummary {
   final String createdAt;
   final String? currencySymbol;
   final PackageInfoInSummary? package;
+
 
   DailyPackageSummary({
     required this.id,

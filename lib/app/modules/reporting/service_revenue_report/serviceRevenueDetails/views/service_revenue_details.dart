@@ -303,13 +303,13 @@ class ServiceRevenueDetailsView
       case 'status':
         return '-';
       case 'serviceAmount':
-        return controller.formatCurrency(summary.serviceAmount);
+        return '${summary.service?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(summary.serviceAmount)}';
       case 'totalAmount':
-        return controller.formatCurrency(summary.totalAmount);
+        return '${summary.service?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(summary.totalAmount)}';
       case 'totalDiscount':
-        return controller.formatCurrency(summary.totalDiscount);
+        return '${summary.service?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(summary.totalDiscount)}';
       case 'netRevenue':
-        return controller.formatCurrency(summary.netRevenue);
+        return '${summary.service?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(summary.netRevenue)}';
       default:
         return '-';
     }

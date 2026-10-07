@@ -81,7 +81,7 @@ class Step5Payment extends GetView<CreateBookingController> {
               const SizedBox(height: 8),
               Obx(
                 () => Text(
-                  'Items total: Rs ${controller.computedGrandTotal.toStringAsFixed(2)} '
+                  'Items total: ${controller.computedGrandTotal.toStringAsFixed(2)} '
                   '(Pkg ${controller.packagesSum.toStringAsFixed(2)} + '
                   'Svc ${controller.servicesSum.toStringAsFixed(2)} + '
                   'Prd ${controller.productsSum.toStringAsFixed(2)})',

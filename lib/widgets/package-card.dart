@@ -134,6 +134,8 @@ class PackageCard extends StatelessWidget {
 
           // Price Row
           _InfoRow(
+            currencySymbol: package.branch?.currency?.symbol,
+            isCurrency: true,
             label: 'packages.card.price'.trns(),
             value: package.priceDisplay,
           ),
@@ -206,8 +208,10 @@ class PackageCard extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
+  final bool isCurrency;
+  final String? currencySymbol;
 
-  const _InfoRow({required this.label, required this.value});
+  const _InfoRow({required this.label, required this.value, this.isCurrency = false, this.currencySymbol});
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +227,7 @@ class _InfoRow extends StatelessWidget {
         ),
         Expanded(
           child: Text(
-            value,
+            isCurrency ? '${currencySymbol ?? ''} $value' : value,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,

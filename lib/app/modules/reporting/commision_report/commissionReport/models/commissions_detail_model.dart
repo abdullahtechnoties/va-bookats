@@ -1,3 +1,4 @@
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
 import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/response/pagination_helper.dart';
 
@@ -109,6 +110,9 @@ class StaffCommissionSummary {
     );
   }
 
+
+
+
   static int _parseInt(dynamic v) {
     if (v == null) return 0;
     if (v is int) return v;
@@ -123,13 +127,14 @@ class StaffInfo {
   final String? email;
   final String? phonePrimary;
   final String? imageUrl;
-
+ final ClosingBranchModel? branch;
   StaffInfo({
     required this.id,
     required this.name,
     this.email,
     this.phonePrimary,
     this.imageUrl,
+    this.branch,
   });
 
   factory StaffInfo.fromJson(Map<String, dynamic> json) {
@@ -139,6 +144,11 @@ class StaffInfo {
       email: json['email']?.toString(),
       phonePrimary: json['phone_primary']?.toString(),
       imageUrl: json['image_url']?.toString(),
+      branch: json['branch'] != null
+          ? ClosingBranchModel.fromJson(
+              json['branch'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 
@@ -149,3 +159,4 @@ class StaffInfo {
     return 0;
   }
 }
+

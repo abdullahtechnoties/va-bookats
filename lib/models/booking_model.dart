@@ -1,5 +1,7 @@
 // lib/models/booking_model.dart
 
+import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
+
 /// Booking statuses used by the API (capitalized by backend).
 class BookingStatus {
   static const String pending = 'Pending';
@@ -297,7 +299,7 @@ class BookingModel {
   final String? note;
   final String? source;
   final String? createdAt;
-  final BookingBranch? branch;
+  final ClosingBranchModel? branch;
   final BookingCustomerRef? customer;
   final List<BookingServiceLine> services;
   final List<BookingPackageLine> packages;
@@ -372,7 +374,7 @@ class BookingModel {
       createdAt: json['created_at']?.toString(),
       branch: _map(json['branch']) == null
           ? null
-          : BookingBranch.fromJson(_map(json['branch'])!),
+          : ClosingBranchModel.fromJson(_map(json['branch'])!),
       customer: _map(json['customer']) == null
           ? null
           : BookingCustomerRef.fromJson(_map(json['customer'])!),

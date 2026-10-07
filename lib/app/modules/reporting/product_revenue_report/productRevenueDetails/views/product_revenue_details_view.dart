@@ -337,13 +337,13 @@ class ProductRevenueDetailsView
       case 'quantity':
         return item.quantitySold.toString();
       case 'unitPrice':
-        return '${item.currencySymbol ?? '\$'} ${controller.formatCurrency(item.unitPrice)}';
+        return '${item.product?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(item.unitPrice)}';
       case 'totalAmount':
-        return '${item.currencySymbol ?? '\$'} ${controller.formatCurrency(item.totalAmount)}';
+        return '${item.product?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(item.totalAmount)}';
       case 'discount':
-        return '${item.currencySymbol ?? '\$'} ${controller.formatCurrency(item.totalDiscount)}';
+        return '${item.product?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(item.totalDiscount)}';
       case 'netRevenue':
-        return '${item.currencySymbol ?? '\$'} ${controller.formatCurrency(item.netRevenue)}';
+        return '${item.product?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(item.netRevenue)}';
       default:
         return '-';
     }

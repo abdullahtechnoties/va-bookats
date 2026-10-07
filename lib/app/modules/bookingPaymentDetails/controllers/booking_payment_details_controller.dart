@@ -257,7 +257,7 @@ class BookingPaymentDetailsController extends GetxController {
   String money(String raw) {
     final n = double.tryParse(raw);
     if (n == null) return raw.isEmpty ? '-' : raw;
-    return '$currencySymbol${n.toStringAsFixed(2)}';
+    return '$currencySymbol ${n.toStringAsFixed(2)}';
   }
 
   String humanDate(String dateStr) {

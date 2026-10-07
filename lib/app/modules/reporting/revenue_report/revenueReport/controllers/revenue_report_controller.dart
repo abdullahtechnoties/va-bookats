@@ -437,11 +437,11 @@ class RevenueReportController extends GetxController {
       case 'total_balance':
         return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.totalBalance)}';
       case 'cash_payment':
-        return _formatCurrency(row.cashPayment);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.cashPayment)}';
       case 'card_payment':
-        return _formatCurrency(row.cardPayment);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.cardPayment)}';
       case 'online_payment':
-        return _formatCurrency(row.onlinePayment);
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.onlinePayment)}';
       case 'service_revenue':
         return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.serviceRevenue)}';
       case 'product_revenue':
@@ -456,6 +456,22 @@ class RevenueReportController extends GetxController {
         return row.unpaidCount.toString();
       case 'return_count':
         return row.returnCount.toString();
+      case 'unpaid_amount':
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.unpaidAmount)}';
+      case 'return_amount':
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.returnAmount)}';
+      case 'service_discount':
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.serviceDiscount)}';
+      case 'product_discount':
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.productDiscount)}';
+      case 'package_discount':
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.packageDiscount)}';
+      case 'service_amount':
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.serviceAmount)}';
+      case 'product_amount':
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.productAmount)}';
+      case 'package_amount':
+        return '${row.currencySymbol ?? '\$'} ${_formatCurrency(row.packageAmount)}';
       default:
         // Dynamically discovered columns read straight from the raw row.
         return formatReportCell(key, row.rawFields[key]);
@@ -463,7 +479,7 @@ class RevenueReportController extends GetxController {
   }
 
   String _formatCurrency(double value) {
-    return '\$${value.toStringAsFixed(2)}';
+    return value.toStringAsFixed(2);
   }
 
   String _formatDate(DateTime date) => reportHumanDate(date);

@@ -115,7 +115,7 @@ class Step3Services extends GetView<CreateBookingController> {
                 final item = controller.serviceItems[index];
                 return Obx(() {
                   final variationLabels = item.variationOptions
-                      .map((v) => '${v.name} — Rs ${v.price}')
+                      .map((v) => '${v.name} — ${v.price}')
                       .toList();
                   final variationValues = item.variationOptions
                       .map((v) => v.id.toString())
