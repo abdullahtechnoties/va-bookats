@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addService/controllers/add_service_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_touchable.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
@@ -168,37 +169,42 @@ class AddServiceView extends GetView<AddServiceController> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               _FieldLabel('addService.categories'.trns()),
-                              AppTouchable(
-                                child: GestureDetector(
-                                  onTap: () =>
-                                      controller.openCategoryDialog(context),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 18,
-                                        height: 18,
-                                        decoration: BoxDecoration(
-                                          color: AppColors.secondary,
-                                          borderRadius: BorderRadius.circular(
-                                            4,
+                              Can(
+                                AppPerm.create(AppPerm.serviceCategories),
+                                child: AppTouchable(
+                                  child: GestureDetector(
+                                    onTap: () => controller.openCategoryDialog(
+                                        context),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 18,
+                                          height: 18,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.secondary,
+                                            borderRadius:
+                                                BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.add,
+                                            color: AppColors.white,
+                                            size: 13,
                                           ),
                                         ),
-                                        child: const Icon(
-                                          Icons.add,
-                                          color: AppColors.white,
-                                          size: 13,
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          'addService.addCategory'.trns(),
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.secondary,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        'addService.addCategory'.trns(),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.secondary,
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:va_bookats/models/service_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
@@ -204,9 +205,9 @@ class ServiceCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 5),
-                          GestureDetector(
-                            onTap: isBusy ? null : onStatusTap,
-                            child: Container(
+                          Can(
+                            AppPerm.update(AppPerm.services),
+                            fallback: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 6,
@@ -217,34 +218,57 @@ class ServiceCard extends StatelessWidget {
                                 ),
                                 borderRadius: BorderRadius.circular(7),
                               ),
-                              child: isBusy
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppColors.secondary,
-                                      ),
-                                    )
-                                  : Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          service.statusDisplay,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.secondary,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        const Icon(
-                                          Icons.arrow_drop_down,
-                                          size: 16,
+                              child: Text(
+                                service.statusDisplay,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
+                            ),
+                            child: GestureDetector(
+                              onTap: isBusy ? null : onStatusTap,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary.withValues(
+                                    alpha: 0.13,
+                                  ),
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                                child: isBusy
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
                                           color: AppColors.secondary,
                                         ),
-                                      ],
-                                    ),
+                                      )
+                                    : Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            service.statusDisplay,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.secondary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          const Icon(
+                                            Icons.arrow_drop_down,
+                                            size: 16,
+                                            color: AppColors.secondary,
+                                          ),
+                                        ],
+                                      ),
+                              ),
                             ),
                           ),
                         ],
@@ -252,56 +276,67 @@ class ServiceCard extends StatelessWidget {
                     ),
 
                     // Delete button
-                    GestureDetector(
-                      onTap: isDeleting || isBusy ? null : onDelete,
-                      child: Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColors.secondary,
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: isDeleting
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.secondary,
-                                  ),
+                    Can(
+                      AppPerm.destroy(AppPerm.services),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: isDeleting || isBusy ? null : onDelete,
+                            child: Container(
+                              width: 46,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColors.secondary,
+                                  width: 1.5,
                                 ),
-                              )
-                            : const Icon(
-                                Icons.delete_outline,
-                                color: AppColors.secondary,
-                                size: 20,
+                                borderRadius: BorderRadius.circular(10),
                               ),
+                              child: isDeleting
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.secondary,
+                                        ),
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.delete_outline,
+                                      color: AppColors.secondary,
+                                      size: 20,
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10),
 
                     // Edit Service button
-                    GestureDetector(
-                      onTap: isDeleting || isBusy ? null : onEdit,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 13,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          'services.card.editService'.trns(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.white,
+                    Can(
+                      AppPerm.edit(AppPerm.services),
+                      child: GestureDetector(
+                        onTap: isDeleting || isBusy ? null : onEdit,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 13,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'services.card.editService'.trns(),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.white,
+                            ),
                           ),
                         ),
                       ),

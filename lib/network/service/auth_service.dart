@@ -11,6 +11,27 @@ class AuthService extends GetxService {
   final Rx<String?> accessToken = Rx<String?>(null);
   final Rx<UserModel?> currentUser = Rx<UserModel?>(null);
   final Rx<String?> companyId = Rx<String?>(null);
+
+  /// Laravel permissions from the login response (`resource.action`).
+  /// Single source of truth — read via `Permissions.can()` /
+  /// the `Can` widget, never directly.
+  final RxSet<String> permissions = <String>{}.obs;
+
+  /// Bumped on every permissions change so `Permissions.can()` calls
+  /// inside `Obx` builders stay reactive. (Local tick — not to be
+  /// confused with the backend `perm_version` below.)
+  final RxInt permissionsVersion = 0.obs;
+
+  /// Backend permission version (`perm_version`, e.g. `2:uuid`).
+  /// Every API response carries it as the `X-Perm-Version` header;
+  /// a mismatch triggers a background refresh from
+  /// `GET /current-permissions`.
+  final RxString permVersion = ''.obs;
+
+  /// Whether permissions were loaded this session (fresh login or
+  /// restored cache). Until then `can()` falls back to the legacy
+  /// owner check so cached sessions never brick the UI.
+  final RxBool permissionsLoaded = false.obs;
   late final Future<void> ready;
   static final RxBool _logoutInProgress = false.obs;
 
@@ -31,6 +52,18 @@ class AuthService extends GetxService {
   // Check if user has allowed role for this app
   bool get hasAllowedRole => isOwner;
 
+  /// Mirrors the admin panel `can("users.create")` check.
+  /// Strict once permissions load; legacy owner fallback before that
+  /// (e.g. cached sessions from before permissions existed).
+  bool can(String permission) {
+    if (permissionsLoaded.value) return permissions.contains(permission);
+    return isOwner;
+  }
+
+  bool canAny(Iterable<String> perms) => perms.any(can);
+
+  bool canAll(Iterable<String> perms) => perms.every(can);
+
   @override
   void onInit() async {
     super.onInit();
@@ -42,6 +75,8 @@ class AuthService extends GetxService {
       _loadAccessToken(),
       _loadCurrentUser(),
       _loadCompanyId(),
+      _loadPermissions(),
+      _loadPermVersion(),
     ]);
     print({
       'AuthService init':
@@ -78,6 +113,53 @@ class AuthService extends GetxService {
     final id = await getSavedCompanyId();
     companyId.value = (id == null || id.isEmpty) ? null : id;
     print('Loaded company id: ${companyId.value}');
+  }
+
+  Future<void> _loadPermissions() async {
+    final stored =
+        LocalStorageService.prefs?.getStringList(AppStrings.userPermissionsKey);
+    if (stored == null) return;
+    permissions.assignAll(stored.where((p) => p.isNotEmpty));
+    permissionsLoaded.value = true;
+    permissionsVersion.value++;
+  }
+
+  Future<void> _loadPermVersion() async {
+    final stored =
+        LocalStorageService.prefs?.getString(AppStrings.userPermVersionKey);
+    if (stored == null || stored.isEmpty) return;
+    permVersion.value = stored;
+  }
+
+  /// Persists + exposes the login response `perm_version`.
+  Future<void> setPermVersion(String version) async {
+    final clean = version.trim();
+    await LocalStorageService.prefs?.setString(
+      AppStrings.userPermVersionKey,
+      clean,
+    );
+    permVersion.value = clean;
+  }
+
+  /// Persists + exposes the login response permissions.
+  Future<void> setPermissions(Iterable<String> perms) async {
+    final clean = perms.map((p) => p.trim()).where((p) => p.isNotEmpty).toList();
+    await LocalStorageService.prefs?.setStringList(
+      AppStrings.userPermissionsKey,
+      clean,
+    );
+    permissions.assignAll(clean);
+    permissionsLoaded.value = true;
+    permissionsVersion.value++;
+  }
+
+  Future<void> clearPermissions() async {
+    await LocalStorageService.prefs?.remove(AppStrings.userPermissionsKey);
+    await LocalStorageService.prefs?.remove(AppStrings.userPermVersionKey);
+    permissions.clear();
+    permVersion.value = '';
+    permissionsLoaded.value = false;
+    permissionsVersion.value++;
   }
 
   Future<void> setAccessToken(String token) async {
@@ -179,6 +261,10 @@ class AuthService extends GetxService {
         service.accessToken.value = null;
         service.currentUser.value = null;
         service.companyId.value = null;
+        service.permissions.clear();
+        service.permVersion.value = '';
+        service.permissionsLoaded.value = false;
+        service.permissionsVersion.value++;
       }
       // currentUser = null;
       if (showLogin && Get.currentRoute != '/login') {

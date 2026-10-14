@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:va_bookats/app/routes/app_pages.dart';
@@ -67,7 +68,104 @@ class NetworkService extends GetxService {
 
   void _onResponse(Response response, ResponseInterceptorHandler handler) {
     _log('${response.statusCode}  ${response.requestOptions.uri}', icon: '📥');
+    _sniffPermVersion(response);
     handler.next(response);
+  }
+
+  // ─── Live permission sync ─────────────────────────────────────────────────
+  //
+  // Every API response carries the backend permission version as the
+  // `X-Perm-Version` header. On mismatch we refresh once in the background
+  // from `GET /current-permissions` (single-flight, silent) so gated UI
+  // updates instantly and no permission-less requests pile up.
+
+  /// Guards the background refresh so concurrent responses trigger at most
+  /// one `current-permissions` call.
+  bool _permSyncInFlight = false;
+
+  void _sniffPermVersion(Response response) {
+    final header = response.headers.value('x-perm-version');
+    if (header == null || header.trim().isEmpty) return;
+    final path = response.requestOptions.path;
+    // Never self-trigger, and never race the login storing its version.
+    if (path.contains('current-permissions') || path == ApiPath.login) return;
+    final token = _auth.accessToken.value;
+    if (token == null || token.isEmpty) return;
+    if (header.trim() == _auth.permVersion.value) return;
+    unawaited(_refreshPermissions());
+  }
+
+  Future<void> _refreshPermissions() async {
+    if (_permSyncInFlight) return;
+    _permSyncInFlight = true;
+    try {
+      final response = await _dio.get(ApiPath.currentPermissions);
+      final raw = response.data;
+      if (raw is! Map) return;
+      final body = Map<String, dynamic>.from(raw);
+
+      // Deactivated account → validation payload instead of permissions.
+      if (_isAccountInactive(body)) {
+        final msg = body['message']?.toString() ?? '';
+        _handleInactive(
+          msg.isNotEmpty ? msg : 'errors.sessionExpired.message'.trns(),
+        );
+        return;
+      }
+
+      // Only a real permissions payload may touch local state — anything
+      // else is ignored (never nuke good state on a shape we don't know).
+      final rawPerms = body['permissions'];
+      if (rawPerms is! List) {
+        _log('current-permissions: unexpected shape, ignored', icon: '⚠️');
+        return;
+      }
+      if (body.containsKey('status') &&
+          body['status']?.toString() != 'active') {
+        final msg = body['message']?.toString() ?? '';
+        _handleInactive(
+          msg.isNotEmpty ? msg : 'errors.sessionExpired.message'.trns(),
+        );
+        return;
+      }
+
+      // Logged out while the refresh was in flight → drop stale data.
+      final token = _auth.accessToken.value;
+      if (token == null || token.isEmpty) return;
+
+      await _auth.setPermissions(rawPerms.map((e) => e.toString()));
+      final version = body['perm_version']?.toString().trim() ?? '';
+      if (version.isNotEmpty) await _auth.setPermVersion(version);
+      _log(
+        'Permissions refreshed (${_auth.permissions.length} perms)',
+        icon: '🔑',
+      );
+    } catch (_) {
+      // Silent: the next mismatched response retries. A background sync
+      // failure must never break the original request.
+    } finally {
+      _permSyncInFlight = false;
+    }
+  }
+
+  bool _isAccountInactive(Map<String, dynamic> body) =>
+      body['code']?.toString() == 'account_inactive';
+
+  /// Set while an inactive-account logout is being handled so parallel
+  /// in-flight responses can't stack identical snackbars.
+  static bool _inactiveHandling = false;
+
+  /// Deactivated account: inform + revoke the session (exit to login).
+  void _handleInactive(String message) {
+    if (_inactiveHandling) return;
+    _inactiveHandling = true;
+    _log('Account inactive — revoking session', icon: '🔒');
+    _showError(message);
+    unawaited(AuthService.forceLogout(showLogin: true));
+    // Re-arm shortly so a later, genuinely new incident still surfaces.
+    Future.delayed(const Duration(seconds: 3), () {
+      _inactiveHandling = false;
+    });
   }
 
   void _onError(DioException error, ErrorInterceptorHandler handler) {
@@ -283,6 +381,17 @@ class NetworkService extends GetxService {
     final body = raw is Map<String, dynamic> ? raw : <String, dynamic>{};
     final String message = _messageFromBody(body);
 
+    // Deactivated account → revoke the session, whatever the endpoint.
+    // (Code match only here: generic `status` fields belong to bookings,
+    // branches, users, … and must never trigger this.)
+    if (_isAccountInactive(body)) {
+      final display = message.isNotEmpty
+          ? message
+          : 'errors.sessionExpired.message'.trns();
+      _handleInactive(display);
+      return ApiResponse.error(display, errors: _extractValidationErrors(body));
+    }
+
     if (_hasInvalidCompanyId(body)) {
       final display = message.isNotEmpty
           ? message
@@ -332,17 +441,17 @@ class NetworkService extends GetxService {
     }
 
     // ── 401 Unauthorised → dialog + redirect ──────────────────────────────────
+    // Never a snackbar here: on the login screen the login controller
+    // already surfaces the failure, everywhere else the dialog does.
     if (statusCode == 401) {
       final display = message.isNotEmpty
           ? message
           : 'errors.unauthorized'.trns();
       _log('Unauthorised — redirecting to login', icon: '🔒');
-      // Already on the login screen (e.g. failed credentials) → just snackbar.
       if (Get.currentRoute == Routes.LOGIN) {
-        _showError(display);
         return ApiResponse.error(display);
       }
-      _showUnauthorisedDialog();
+      // _showUnauthorisedDialog();
       return ApiResponse.error(display);
     }
 
@@ -353,7 +462,12 @@ class NetworkService extends GetxService {
           ? message
           : 'errors.requestFailed'.trns();
       _log('[$statusCode] $display', icon: '⚠️');
-      _showError(display);
+      if (message.isNotEmpty && message.contains('permission')) {
+        // _showError('errors.noAccess'.trns());
+      } else {
+        _showError(display);
+      }
+      // _showError(display);
       return ApiResponse.error(display, errors: errors);
     }
 

@@ -3,9 +3,13 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/allBooking/controllers/all_booking_controller.dart';
 import 'package:va_bookats/app/modules/bookings/repositories/booking_repository.dart';
 import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
+import 'package:va_bookats/app/modules/home/models/home_charts_model.dart';
+import 'package:va_bookats/app/modules/home/repositories/home_repository.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/booking_model.dart';
+import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -23,12 +27,21 @@ class HomeController extends GetxController {
   }
 
   final AuthService auth = Get.find<AuthService>();
+  final HomeRepository _homeRepo = HomeRepository();
 
   final RxList<BookingModel> todayBookings = <BookingModel>[].obs;
   final RxBool isLoading = true.obs;
   final RxBool isRefreshing = false.obs;
   final RxBool loadFailed = false.obs;
   final RxnInt busyBookingId = RxnInt();
+
+  // ── Home charts (counts + revenue graph) ──────────────────────────────
+  final Rx<ApiResponse<HomeChartsData>> chartsResponse =
+      ApiResponse<HomeChartsData>.loading().obs;
+
+  HomeChartsData? get charts => chartsResponse.value.data;
+  bool get hasCharts => charts != null;
+  bool get isLoadingCharts => chartsResponse.value.isLoading;
 
   String get userName => auth.currentUser.value?.displayName ?? '';
   String get userImage => auth.currentUser.value?.image ?? '';
@@ -37,6 +50,12 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     fetchTodayBookings();
+    fetchCharts();
+  }
+
+  Future<void> fetchCharts() async {
+    chartsResponse.value = ApiResponse.loading();
+    chartsResponse.value = await _homeRepo.getCharts();
   }
 
   String _todayApiDate() {
@@ -84,11 +103,14 @@ class HomeController extends GetxController {
   Future<void> handleRefresh() async {
     isRefreshing.value = true;
     loadFailed.value = false;
-    await fetchTodayBookings();
+    await Future.wait([fetchTodayBookings(), fetchCharts()]);
     isRefreshing.value = false;
   }
 
-  void retry() => fetchTodayBookings();
+  void retry() {
+    fetchTodayBookings();
+    fetchCharts();
+  }
 
   /// Homepage search bar → AllBookings with search opened + focused.
   /// The AllBookings controller already lives inside the bottom-nav
@@ -96,6 +118,10 @@ class HomeController extends GetxController {
   /// pushing a duplicate route with Get.arguments (which caused the
   /// setState-during-build red screen).
   void openSearch() {
+    if (!Permissions.can(AppPerm.index(AppPerm.bookings))) {
+      showNoAccessDialog();
+      return;
+    }
     try {
       final bottomnav = Get.find<BottomnavController>();
       bottomnav.changeTabIndex(1);
@@ -113,6 +139,10 @@ class HomeController extends GetxController {
   }
 
   void openAllBookings() {
+    if (!Permissions.can(AppPerm.index(AppPerm.bookings))) {
+      showNoAccessDialog();
+      return;
+    }
     try {
       Get.find<BottomnavController>().changeTabIndex(1);
     } catch (_) {

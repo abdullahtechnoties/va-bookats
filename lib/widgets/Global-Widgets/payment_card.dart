@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
 class PaymentCardModel {
@@ -160,50 +161,58 @@ class PaymentCard extends StatelessWidget {
             // Buttons
             Row(
               children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: onViewDetails,
-                    child: Container(
-                      height: 46,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppColors.secondary,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'payments.viewDetails'.trns(),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                if (Permissions.can(AppPerm.show(AppPerm.payments)))
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: onViewDetails,
+                      child: Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          border: Border.all(
                             color: AppColors.secondary,
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'payments.viewDetails'.trns(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.secondary,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                if (onDelete != null) ...[
-                  const SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: onDelete,
-                    child: Container(
-                      width: 46,
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.delete_outline,
-                        color: AppColors.white,
-                        size: 20,
-                      ),
+                if (onDelete != null)
+                  Can(
+                    AppPerm.destroy(AppPerm.payments),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: onDelete,
+                          child: Container(
+                            width: 46,
+                            height: 46,
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.delete_outline,
+                              color: AppColors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
               ],
             ),
           ],

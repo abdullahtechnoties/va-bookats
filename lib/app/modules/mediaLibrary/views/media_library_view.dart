@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/mediaLibrary/controllers/media_library_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
@@ -96,8 +97,15 @@ class MediaLibraryBody extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Upload zone
-                  _UploadZone(controller: controller),
-                  const SizedBox(height: 24),
+                  Can(
+                    AppPerm.create(AppPerm.media),
+                    child: Column(
+                      children: [
+                        _UploadZone(controller: controller),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
                   // Recent files label
                   Text(
                     'mediaLibrary.recentFile'.trns(),
@@ -579,14 +587,16 @@ class _SelectionDetail extends StatelessWidget {
                         label: 'mediaLibrary.dimensions'.trns(),
                         value: item.dimensions),
                     const SizedBox(height: 8),
-                    Obx(() {
-                      final busy =
-                          controller.busyDeleteId.value == item.id;
-                      return GestureDetector(
-                        onTap: busy
-                            ? null
-                            : () => controller.deleteItem(item.id),
-                        child: Row(
+                    Can(
+                      AppPerm.destroy(AppPerm.media),
+                      child: Obx(() {
+                        final busy =
+                            controller.busyDeleteId.value == item.id;
+                        return GestureDetector(
+                          onTap: busy
+                              ? null
+                              : () => controller.deleteItem(item.id),
+                          child: Row(
                           children: [
                             if (busy)
                               const SizedBox(
@@ -612,11 +622,12 @@ class _SelectionDetail extends StatelessWidget {
                           ],
                         ),
                       );
-                    }),
-                  ],
-                ),
+                      }),
+                    ),
+                ],
               ),
-            ],
+            ),
+          ],
           ),
         ),
         const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),

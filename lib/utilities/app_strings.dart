@@ -5,6 +5,8 @@ class AppStrings {
   static String authenticated = "authenticated";
   static String userAuthToken = "auth_token";
   static String userKey = "user";
+  static String userPermissionsKey = "user_permissions";
+  static String userPermVersionKey = "user_perm_version";
   static String userCompanyId = "company_id";
   static String appLocale = "locale";
   static String notificationsKey = "notifications";

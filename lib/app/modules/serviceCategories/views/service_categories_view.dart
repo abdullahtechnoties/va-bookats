@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/serviceCategories/controllers/service_categories_controller.dart';
 import 'package:va_bookats/models/service_category_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
 class ServiceCategoriesView extends GetView<ServiceCategoriesController> {
@@ -40,14 +41,18 @@ class ServiceCategoriesView extends GetView<ServiceCategoriesController> {
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
                   children: [
                     // Add New Category Button
-                    GestureDetector(
-                      onTap: () => controller.openAddPage(),
-                      child: Container(
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                    Can(
+                      AppPerm.create(AppPerm.serviceCategories),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () => controller.openAddPage(),
+                            child: Container(
+                              height: 54,
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -75,9 +80,12 @@ class ServiceCategoriesView extends GetView<ServiceCategoriesController> {
                             ),
                           ],
                         ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
 
                     // Category Cards
                     if (controller.categories.isEmpty)
@@ -200,21 +208,29 @@ class _ServiceCategoriesHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: () => controller.openAddPage(),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Icon(
-                    Icons.add,
-                    color: AppColors.white,
-                    size: 20,
-                  ),
+              Can(
+                AppPerm.create(AppPerm.serviceCategories),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () => controller.openAddPage(),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: AppColors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -299,9 +315,9 @@ class _CategoryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               // Status badge (tappable → change status)
-              GestureDetector(
-                onTap: isBusy ? null : onStatusTap,
-                child: Container(
+              Can(
+                AppPerm.update(AppPerm.serviceCategories),
+                fallback: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 7,
@@ -310,34 +326,55 @@ class _CategoryCard extends StatelessWidget {
                     color: AppColors.secondary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: isBusy
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.secondary,
-                          ),
-                        )
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              category.statusDisplay,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.secondary,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              size: 16,
+                  child: Text(
+                    category.statusDisplay,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                ),
+                child: GestureDetector(
+                  onTap: isBusy ? null : onStatusTap,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: isBusy
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
                               color: AppColors.secondary,
                             ),
-                          ],
-                        ),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                category.statusDisplay,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: 16,
+                                color: AppColors.secondary,
+                              ),
+                            ],
+                          ),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -345,32 +382,43 @@ class _CategoryCard extends StatelessWidget {
               // Delete + Edit Icons
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: isBusy || isDeleting ? null : onDelete,
-                    child: isDeleting
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.secondary,
-                              ),
-                            ),
-                          )
-                        : const Icon(
-                            Icons.delete_outline,
-                            size: 22,
-                            color: AppColors.black,
-                          ),
+                  Can(
+                    AppPerm.destroy(AppPerm.serviceCategories),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          onTap: isBusy || isDeleting ? null : onDelete,
+                          child: isDeleting
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.secondary,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.delete_outline,
+                                  size: 22,
+                                  color: AppColors.black,
+                                ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: isBusy || isDeleting ? null : onEdit,
-                    child: const Icon(
-                      Icons.edit_outlined,
-                      size: 22,
-                      color: AppColors.black,
+                  Can(
+                    AppPerm.edit(AppPerm.serviceCategories),
+                    child: GestureDetector(
+                      onTap: isBusy || isDeleting ? null : onEdit,
+                      child: const Icon(
+                        Icons.edit_outlined,
+                        size: 22,
+                        color: AppColors.black,
+                      ),
                     ),
                   ),
                 ],

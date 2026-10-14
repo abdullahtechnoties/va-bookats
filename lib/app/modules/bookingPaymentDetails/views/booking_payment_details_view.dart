@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/bookingPaymentDetails/controllers/booking_payment_details_controller.dart';
 import 'package:va_bookats/app/modules/bookingPaymentDetails/models/booking_payment_details_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
@@ -155,35 +156,42 @@ class BookingPaymentDetailsView
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Create New Payment button
-            GestureDetector(
-              onTap: controller.openCreatePayment,
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.add_circle_outline,
-                        color: AppColors.white, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'bookingPaymentDetails.createNewPayment'.trns(),
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
+          // Create New Payment button
+          Can(
+            AppPerm.create(AppPerm.payments),
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: controller.openCreatePayment,
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.add_circle_outline,
+                            color: AppColors.white, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          'bookingPaymentDetails.createNewPayment'.trns(),
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 12),
+              ],
             ),
-            const SizedBox(height: 12),
+          ),
 
             // Print button
             // GestureDetector(
@@ -775,33 +783,41 @@ class _PaymentCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => controller.openEditPayment(payment),
-            child: Container(
-              width: double.infinity,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.primary, width: 1.2),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.edit_outlined,
-                      color: AppColors.primary, size: 16),
-                  const SizedBox(width: 6),
-                  Text(
-                    'bookingPaymentDetails.paymentsTab.edit'.trns(),
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+          Can(
+            AppPerm.edit(AppPerm.payments),
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () => controller.openEditPayment(payment),
+                  child: Container(
+                    width: double.infinity,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border:
+                          Border.all(color: AppColors.primary, width: 1.2),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.edit_outlined,
+                            color: AppColors.primary, size: 16),
+                        const SizedBox(width: 6),
+                        Text(
+                          'bookingPaymentDetails.paymentsTab.edit'.trns(),
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

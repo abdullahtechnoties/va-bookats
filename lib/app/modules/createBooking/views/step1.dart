@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/createBooking/controllers/create_booking_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/add-customer_dialog.dart';
 import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
@@ -190,34 +191,38 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                               _FieldLabel(
                                 'createBooking.step1.customer'.trns(),
                               ),
-                              GestureDetector(
-                                onTap: () =>
-                                    Get.dialog(const AddCustomerDialog()),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 18,
-                                      height: 18,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.secondary,
-                                        borderRadius: BorderRadius.circular(4),
+                              Can(
+                                AppPerm.create(AppPerm.customers),
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      Get.dialog(const AddCustomerDialog()),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.secondary,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: const Icon(
+                                          Icons.add,
+                                          color: AppColors.white,
+                                          size: 14,
+                                        ),
                                       ),
-                                      child: const Icon(
-                                        Icons.add,
-                                        color: AppColors.white,
-                                        size: 14,
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'createBooking.step1.addCustomer'.trns(),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.secondary,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'createBooking.step1.addCustomer'.trns(),
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.secondary,
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],

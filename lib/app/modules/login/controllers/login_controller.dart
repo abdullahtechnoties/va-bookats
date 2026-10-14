@@ -82,6 +82,11 @@ class LoginController extends GetxController {
       if (data.user != null) {
         await _authService.setCurrentUser(data.user);
       }
+      // Laravel permissions → single source of truth for UI gating.
+      await _authService.setPermissions(data.permissions);
+      if (data.permVersion.isNotEmpty) {
+        await _authService.setPermVersion(data.permVersion);
+      }
       final companyId = data.companyId ?? companyIdController.text.trim();
       if (companyId.isNotEmpty) {
         await _authService.setCompanyId(companyId);

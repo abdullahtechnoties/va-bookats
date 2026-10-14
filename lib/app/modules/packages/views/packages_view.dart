@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/packages/controllers/packages_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/package-card.dart';
 
@@ -41,16 +42,18 @@ class PackagesView extends GetView<PackagesController> {
                   padding: const EdgeInsets.only(top: 14, bottom: 30),
                   children: [
                     // Add New Service Package button
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: GestureDetector(
-                        onTap: () => controller.openAddPage(),
-                        child: Container(
-                          height: 54,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                    Can(
+                      AppPerm.create(AppPerm.packages),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: GestureDetector(
+                          onTap: () => controller.openAddPage(),
+                          child: Container(
+                            height: 54,
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -81,6 +84,7 @@ class PackagesView extends GetView<PackagesController> {
                             ],
                           ),
                         ),
+                      ),
                       ),
                     ),
 
@@ -200,21 +204,29 @@ class _PackagesHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: () => controller.openAddPage(),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Icon(
-                    Icons.add,
-                    color: AppColors.white,
-                    size: 20,
-                  ),
+              Can(
+                AppPerm.create(AppPerm.packages),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () => controller.openAddPage(),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: AppColors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/app/modules/services/controllers/services_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/services-card.dart';
 
@@ -44,8 +45,16 @@ class ServicesView extends GetView<ServicesController> {
                   ),
                   padding: const EdgeInsets.only(top: 12, bottom: 30),
                   children: [
-                    _AddServiceButton(onTap: () => controller.openAddPage()),
-                    const SizedBox(height: 8),
+                    Can(
+                      AppPerm.create(AppPerm.services),
+                      child: Column(
+                        children: [
+                          _AddServiceButton(
+                              onTap: () => controller.openAddPage()),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
                     if (controller.currentServices.isEmpty)
                       _EmptyState()
                     else
@@ -167,21 +176,29 @@ class _ServicesHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: () => controller.openAddPage(),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Icon(
-                    Icons.add,
-                    color: AppColors.white,
-                    size: 20,
-                  ),
+              Can(
+                AppPerm.create(AppPerm.services),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () => controller.openAddPage(),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: AppColors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

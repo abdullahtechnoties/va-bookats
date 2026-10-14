@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/bookingDetails/controllers/booking_details_controller.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/booking_status_sheet.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
@@ -97,38 +98,47 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                       const SizedBox(height: 10),
                       _GrandTotalCard(booking: booking),
                       const SizedBox(height: 16),
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16),
-                        child: GestureDetector(
-                          onTap: controller.openPaymentDetails,
-                          child: Container(
-                            width: double.infinity,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'home.bookingDetails.viewDetails'.trns(),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.white,
+                      Can(
+                        AppPerm.show(AppPerm.bookings),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16),
+                              child: GestureDetector(
+                                onTap: controller.openPaymentDetails,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'home.bookingDetails.viewDetails'.trns(),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.white,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            const SizedBox(height: 10),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 10),
                       Padding(
                         padding:
                             const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           children: [
-                            if (booking.isEditable)
+                            if (booking.isEditable &&
+                                Permissions.can(
+                                    AppPerm.edit(AppPerm.bookings)))
                               Expanded(
                                 child: GestureDetector(
                                   onTap: controller.openEdit,
@@ -136,7 +146,8 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                                     height: 52,
                                     decoration: BoxDecoration(
                                       color: AppColors.secondary,
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius:
+                                          BorderRadius.circular(12),
                                     ),
                                     child: const Center(
                                       child: Text(
@@ -151,45 +162,49 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                                   ),
                                 ),
                               ),
-                            if (booking.isEditable)
+                            if (booking.isEditable &&
+                                Permissions.can(
+                                    AppPerm.edit(AppPerm.bookings)))
                               const SizedBox(width: 10),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () =>
-                                    _showStatusSheet(context, booking),
-                                child: Container(
-                                  height: 52,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppColors.secondary,
-                                      width: 1.5,
+                            if (Permissions.can(
+                                AppPerm.update(AppPerm.bookings)))
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      _showStatusSheet(context, booking),
+                                  child: Container(
+                                    height: 52,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: AppColors.secondary,
+                                        width: 1.5,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Center(
-                                    child: Obx(() => controller
-                                                .busyStatus.value ==
-                                            booking.id
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: AppColors.secondary,
-                                            ),
-                                          )
-                                        : Text(
-                                            'Status: ${booking.status}',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppColors.secondary,
-                                            ),
-                                          )),
+                                    child: Center(
+                                      child: Obx(() => controller
+                                                  .busyStatus.value ==
+                                              booking.id
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: AppColors.secondary,
+                                              ),
+                                            )
+                                          : Text(
+                                              'Status: ${booking.status}',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.secondary,
+                                              ),
+                                            )),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -270,7 +285,9 @@ class _BookingDetailsHeader extends StatelessWidget {
               ),
               Obx(() {
                 final booking = controller.booking.value;
-                if (booking == null || !booking.isEditable) {
+                if (booking == null ||
+                    !booking.isEditable ||
+                    !Permissions.can(AppPerm.edit(AppPerm.bookings))) {
                   return const SizedBox(width: 30);
                 }
                 return GestureDetector(

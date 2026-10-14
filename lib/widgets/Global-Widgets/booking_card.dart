@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
@@ -330,9 +331,9 @@ class BookingCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    GestureDetector(
-                      onTap: isBusy ? null : onStatusTap,
-                      child: Container(
+                    Can(
+                      AppPerm.update(AppPerm.bookings),
+                      fallback: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 5,
@@ -341,36 +342,58 @@ class BookingCard extends StatelessWidget {
                           color: _statusColor(booking.status),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: isBusy
-                            ? const SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    booking.status,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: _statusTextColor(booking.status),
-                                    ),
+                        child: Text(
+                          booking.status,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: _statusTextColor(booking.status),
+                          ),
+                        ),
+                      ),
+                      child: GestureDetector(
+                        onTap: isBusy ? null : onStatusTap,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _statusColor(booking.status),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: isBusy
+                              ? const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                   ),
-                                  if (onStatusTap != null) ...[
-                                    const SizedBox(width: 2),
-                                    Icon(
-                                      Icons.arrow_drop_down,
-                                      size: 16,
-                                      color:
-                                          _statusTextColor(booking.status),
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      booking.status,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color:
+                                            _statusTextColor(booking.status),
+                                      ),
                                     ),
+                                    if (onStatusTap != null) ...[
+                                      const SizedBox(width: 2),
+                                      Icon(
+                                        Icons.arrow_drop_down,
+                                        size: 16,
+                                        color: _statusTextColor(
+                                            booking.status),
+                                      ),
+                                    ],
                                   ],
-                                ],
-                              ),
+                                ),
+                        ),
                       ),
                     ),
                   ],
@@ -378,48 +401,54 @@ class BookingCard extends StatelessWidget {
                 Row(
                   children: [
                     if (onEdit != null && booking.isEditable)
-                      GestureDetector(
-                        onTap: isBusy ? null : onEdit,
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text(
-                            'Edit',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.white,
+                      Can(
+                        AppPerm.edit(AppPerm.bookings),
+                        child: GestureDetector(
+                          onTap: isBusy ? null : onEdit,
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              'Edit',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.white,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    GestureDetector(
-                      onTap: onViewDetails,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 22,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColors.secondary,
-                            width: 1.5,
+                    Can(
+                      AppPerm.show(AppPerm.bookings),
+                      child: GestureDetector(
+                        onTap: onViewDetails,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 12,
                           ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          'home.booking.card.viewDetails'.trns(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.secondary,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.secondary,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'home.booking.card.viewDetails'.trns(),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.secondary,
+                            ),
                           ),
                         ),
                       ),

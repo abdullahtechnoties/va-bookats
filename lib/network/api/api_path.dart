@@ -21,6 +21,10 @@ class ApiPath {
   static const String resendCode = '/resend-code';
   static const String login = '/login';
   static const String logout = '/logout';
+
+  /// Live permission sync — returns `{role, permissions, perm_version,
+  /// status}`. A deactivated account gets `{code: account_inactive, …}`.
+  static const String currentPermissions = '/current-permissions';
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
   static const String changePassword = '/change-password';
@@ -115,6 +119,9 @@ class ApiPath {
 
   // Media Library
   static const String media = '/media';
+
+  // Home charts (booking counts + revenue graph)
+  static const String charts = '/charts';
 
   // Customers
   static const String customers = '/customers';

@@ -10,6 +10,7 @@ import 'package:va_bookats/app/modules/profile/views/profile_view.dart';
 import 'package:va_bookats/app/modules/services/views/services_view.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import '../../home/views/home_view.dart';
 
 
@@ -79,9 +80,15 @@ class BottomnavView extends GetView<BottomnavController> {
       body: Obx(
         () => IndexedStack(index: controller.tabIndex.value, children: pages),
       ),
+      // Always visible so the bar keeps its shape; denied taps show a
+      // graceful "no access" popup instead of navigating.
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         onPressed: () {
+          if (!Permissions.can(AppPerm.create(AppPerm.bookings))) {
+            showNoAccessDialog();
+            return;
+          }
           Get.toNamed(Routes.CREATE_BOOKING);
           // AuthServices.logout();
           // Get.offAllNamed(Routes.SPLASH);
@@ -123,12 +130,33 @@ class BottomnavView extends GetView<BottomnavController> {
     );
   }
 
- Widget navItem(_NavItem icon, int index) {
+  /// Permission required to open a tab (`null` = always allowed).
+  /// Tabs stay visible so the bar keeps its shape; denied taps show a
+  /// graceful "no access" popup instead of navigating.
+  String? _tabPermission(int index) {
+    switch (index) {
+      case 1:
+        return AppPerm.index(AppPerm.bookings);
+      case 2:
+        return AppPerm.index(AppPerm.services);
+      default:
+        return null;
+    }
+  }
+
+  Widget navItem(_NavItem icon, int index) {
     return Obx(() {
       final isSelected = controller.tabIndex.value == index;
       final _NavItem navItem = _navItems[index];
       return GestureDetector(
-        onTap: () => controller.changeTabIndex(index),
+        onTap: () {
+          final permission = _tabPermission(index);
+          if (permission != null && !Permissions.can(permission)) {
+            showNoAccessDialog();
+            return;
+          }
+          controller.changeTabIndex(index);
+        },
         child: Column(
           children: [
             Image.asset(

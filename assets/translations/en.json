@@ -191,6 +191,16 @@
     "searchHint": "Search Something",
     "todayBooking": "Today Booking",
     "viewAll": "View All",
+    "stats": {
+      "totalBookings": "Total Bookings",
+      "pendingBookings": "Pending",
+      "completedBookings": "Completed",
+      "cancelledBookings": "Cancelled"
+    },
+    "revenue": {
+      "title": "Revenue",
+      "noData": "No sales data yet"
+    },
     "menu": {
       "booking": "Booking",
       "inventory": "Inventory",
@@ -497,7 +507,7 @@
     "requestCancelled": "Request was cancelled.",
     "unexpected": "An unexpected error occurred. Please try again.",
     "validationFailed": "Validation failed.",
-    "unauthorized": "Unauthorised. Please login again.",
+    "unauthorized": "Unauthorised. You Don't Have Permissions To Access.",
     "requestFailed": "Request failed.",
     "internalServerError": "Internal server error. Please try again later.",
     "emptyResponse": "Empty response from server.",
@@ -579,6 +589,13 @@
     "no": "No",
     "success": "Success",
     "error": "Error"
+  },
+  "permissions": {
+    "noAccess": {
+      "title": "No Access",
+      "message": "You don't have access to this resource.",
+      "ok": "OK"
+    }
   },
   "newPassword": {
     "title": "New Password",

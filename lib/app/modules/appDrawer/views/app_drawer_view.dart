@@ -5,6 +5,7 @@ import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controlle
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
@@ -30,38 +31,58 @@ class AppDrawerView extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.zero,
                 children: [
-                  _DrawerExpandable(
-                    icon: Icons.calendar_today_outlined,
-                    label: 'drawer.booking'.trns(),
-                    isExpanded: controller.isBookingExpanded,
-                    onTap: controller.toggleBooking,
-                    subItems: controller.bookingSubItems,
-                    onSubItemTap: _handleBookingNavigation,
+                  Can.any(
+                    [
+                      AppPerm.index(AppPerm.bookings),
+                      AppPerm.create(AppPerm.bookings),
+                    ],
+                    child: _DrawerExpandable(
+                      icon: Icons.calendar_today_outlined,
+                      label: 'drawer.booking'.trns(),
+                      isExpanded: controller.isBookingExpanded,
+                      onTap: controller.toggleBooking,
+                      subItems: controller.bookingSubItems,
+                      onSubItemTap: _handleBookingNavigation,
+                    ),
                   ),
-                  _DrawerExpandable(
-                    icon: Icons.credit_card_outlined,
-                    label: 'drawer.inventory'.trns(),
-                    isExpanded: controller.isInventoryExpanded,
-                    onTap: controller.toggleInventory,
-                    subItems: controller.inventorySubItems,
-                    onSubItemTap: _handleInventoryNavigation,
+                  Can.any(
+                    [
+                      AppPerm.index(AppPerm.services),
+                      AppPerm.index(AppPerm.serviceCategories),
+                      AppPerm.index(AppPerm.packages),
+                    ],
+                    child: _DrawerExpandable(
+                      icon: Icons.credit_card_outlined,
+                      label: 'drawer.inventory'.trns(),
+                      isExpanded: controller.isInventoryExpanded,
+                      onTap: controller.toggleInventory,
+                      subItems: controller.inventorySubItems,
+                      onSubItemTap: _handleInventoryNavigation,
+                    ),
                   ),
-                  _DrawerSimpleItem(
-                    icon: Icons.groups_outlined,
-                    label: 'drawer.customers'.trns(),
-                    onTap: () {
-                      Get.find<BottomnavController>().closeDrawer();
-                      Get.toNamed(Routes.CUSTOMERS);
-                    },
+                  Can(
+                    AppPerm.index(AppPerm.customers),
+                    child: _DrawerSimpleItem(
+                      icon: Icons.groups_outlined,
+                      label: 'drawer.customers'.trns(),
+                      onTap: () {
+                        Get.find<BottomnavController>().closeDrawer();
+                        Get.toNamed(Routes.CUSTOMERS);
+                      },
+                    ),
                   ),
-                  _DrawerSimpleItem(
-                    icon: Icons.payments_outlined,
-                    label: 'drawer.payments'.trns(),
-                    onTap: () {
-                      Get.find<BottomnavController>().closeDrawer();
-                      Get.toNamed(Routes.PAYMENTS);
-                    },
+                  Can(
+                    AppPerm.index(AppPerm.payments),
+                    child: _DrawerSimpleItem(
+                      icon: Icons.payments_outlined,
+                      label: 'drawer.payments'.trns(),
+                      onTap: () {
+                        Get.find<BottomnavController>().closeDrawer();
+                        Get.toNamed(Routes.PAYMENTS);
+                      },
+                    ),
                   ),
+                  if(Get.find<AuthService>().isOwner)
                   _DrawerExpandable(
                     icon: Icons.insert_drive_file_outlined,
                     label: 'drawer.reporting'.trns(),

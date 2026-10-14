@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:va_bookats/models/package_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
 class PackageCard extends StatelessWidget {
@@ -55,9 +56,9 @@ class PackageCard extends StatelessWidget {
                   color: AppColors.black,
                 ),
               ),
-              GestureDetector(
-                onTap: isBusy ? null : onStatusTap,
-                child: Container(
+              Can(
+                AppPerm.update(AppPerm.packages),
+                fallback: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 7,
@@ -66,34 +67,55 @@ class PackageCard extends StatelessWidget {
                     color: AppColors.secondary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: isBusy
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.secondary,
-                          ),
-                        )
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              package.statusDisplay,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.secondary,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.arrow_drop_down,
-                              size: 16,
+                  child: Text(
+                    package.statusDisplay,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                ),
+                child: GestureDetector(
+                  onTap: isBusy ? null : onStatusTap,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: isBusy
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
                               color: AppColors.secondary,
                             ),
-                          ],
-                        ),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                package.statusDisplay,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.arrow_drop_down,
+                                size: 16,
+                                color: AppColors.secondary,
+                              ),
+                            ],
+                          ),
+                  ),
                 ),
               ),
             ],
@@ -144,57 +166,66 @@ class PackageCard extends StatelessWidget {
           // Action Buttons
           Row(
             children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: isBusy || isDeleting ? null : onViewEdit,
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AppColors.secondary,
-                        width: 1.5,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'packages.card.viewOrEdit'.trns(),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+              if (Permissions.can(AppPerm.edit(AppPerm.packages)))
+                Expanded(
+                  child: GestureDetector(
+                    onTap: isBusy || isDeleting ? null : onViewEdit,
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        border: Border.all(
                           color: AppColors.secondary,
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'packages.card.viewOrEdit'.trns(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.secondary,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              GestureDetector(
-                onTap: isBusy || isDeleting ? null : onDelete,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: isDeleting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.white,
-                            ),
-                          ),
-                        )
-                      : const Icon(
-                          Icons.delete_outline,
-                          color: AppColors.white,
-                          size: 20,
+              Can(
+                AppPerm.destroy(AppPerm.packages),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: isBusy || isDeleting ? null : onDelete,
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        child: isDeleting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.delete_outline,
+                                color: AppColors.white,
+                                size: 20,
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

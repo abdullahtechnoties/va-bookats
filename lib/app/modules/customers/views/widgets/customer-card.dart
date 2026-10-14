@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:va_bookats/models/customer_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 
@@ -38,7 +39,8 @@ class CustomerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap:
+          Permissions.can(AppPerm.edit(AppPerm.customers)) ? onTap : null,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         decoration: BoxDecoration(
@@ -108,9 +110,9 @@ class CustomerCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  GestureDetector(
-                    onTap: isBusy ? null : onStatusTap,
-                    child: Container(
+                  Can(
+                    AppPerm.update(AppPerm.customers),
+                    fallback: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 7,
@@ -119,36 +121,59 @@ class CustomerCard extends StatelessWidget {
                         color: _statusBgColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: isBusy
-                          ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.secondary,
-                              ),
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  customer.isActive
-                                      ? 'customers.card.active'.trns()
-                                      : 'customers.card.inactive'.trns(),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                      child: Text(
+                        customer.isActive
+                            ? 'customers.card.active'.trns()
+                            : 'customers.card.inactive'.trns(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _statusTextColor,
+                        ),
+                      ),
+                    ),
+                    child: GestureDetector(
+                      onTap: isBusy ? null : onStatusTap,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _statusBgColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: isBusy
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.secondary,
+                                ),
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    customer.isActive
+                                        ? 'customers.card.active'.trns()
+                                        : 'customers.card.inactive'.trns(),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: _statusTextColor,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    size: 16,
                                     color: _statusTextColor,
                                   ),
-                                ),
-                                const SizedBox(width: 2),
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  size: 16,
-                                  color: _statusTextColor,
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                      ),
                     ),
                   ),
                 ],
@@ -184,70 +209,93 @@ class CustomerCard extends StatelessWidget {
               ],
 
               // Actions — edit / delete (status toggles via the pill above)
-              if (onEdit != null || onDelete != null) ...[
-                const SizedBox(height: 12),
-                Row(
+              Can.any(
+                [
+                  AppPerm.edit(AppPerm.customers),
+                  AppPerm.destroy(AppPerm.customers),
+                ],
+                child: Column(
                   children: [
-                    const Spacer(),
-                    if (onDelete != null)
-                      GestureDetector(
-                        onTap: isBusy || isDeleting ? null : onDelete,
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.secondary,
-                              width: 1.4,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: isDeleting
-                              ? const SizedBox(
-                                  width: 19,
-                                  height: 19,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.secondary,
+                    if (onEdit != null || onDelete != null) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          const Spacer(),
+                          if (onDelete != null)
+                            Can(
+                              AppPerm.destroy(AppPerm.customers),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  GestureDetector(
+                                    onTap: isBusy || isDeleting
+                                        ? null
+                                        : onDelete,
+                                    child: Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppColors.secondary,
+                                          width: 1.4,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: isDeleting
+                                          ? const SizedBox(
+                                              width: 19,
+                                              height: 19,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: AppColors.secondary,
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.delete_outline,
+                                              color: AppColors.secondary,
+                                              size: 19,
+                                            ),
+                                    ),
                                   ),
-                                )
-                              : const Icon(
-                                  Icons.delete_outline,
-                                  color: AppColors.secondary,
-                                  size: 19,
-                                ),
-                        ),
-                      ),
-                    if (onDelete != null && onEdit != null)
-                      const SizedBox(width: 10),
-                    if (onEdit != null)
-                      GestureDetector(
-                        onTap: isBusy || isDeleting ? null : onEdit,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 22,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            'customers.card.edit'.trns() ==
-                                    'customers.card.edit'
-                                ? 'Edit'
-                                : 'customers.card.edit'.trns(),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.white,
+                                  const SizedBox(width: 10),
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
+                          if (onEdit != null)
+                            Can(
+                              AppPerm.edit(AppPerm.customers),
+                              child: GestureDetector(
+                                onTap:
+                                    isBusy || isDeleting ? null : onEdit,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 22,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondary,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    'customers.card.edit'.trns() ==
+                                            'customers.card.edit'
+                                        ? 'Edit'
+                                        : 'customers.card.edit'.trns(),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
+                    ],
                   ],
                 ),
-              ],
+              ),
             ],
           ),
         ),
