@@ -1,13 +1,15 @@
-// lib/app/modules/home/models/home_charts_model.dart
+// lib/app/modules/home/models/home_model.dart
 //
-// Models for `GET /charts`:
+// Model for `GET /home`:
 // {
 //   "totalBookingCount": 1,
 //   "totalPendingBookingCount": 0,
 //   "totalCancelBookingCount": 0,
 //   "totalCompletedBookingCount": 1,
-//   "salesData": [{"date": "2026-10-14", "total": "1750.00"}]
+//   "salesData": [{"date": "2026-10-14", "total": "1750.00"}],
+//   "bookings": [...]
 // }
+import 'package:va_bookats/models/booking_model.dart';
 
 class SalesPoint {
   final String date;
@@ -23,22 +25,24 @@ class SalesPoint {
   }
 }
 
-class HomeChartsData {
+class HomeData {
   final int totalBookings;
   final int pendingBookings;
   final int cancelledBookings;
   final int completedBookings;
   final List<SalesPoint> salesData;
+  final List<BookingModel> bookings;
 
-  HomeChartsData({
+  HomeData({
     required this.totalBookings,
     required this.pendingBookings,
     required this.cancelledBookings,
     required this.completedBookings,
     required this.salesData,
+    required this.bookings,
   });
 
-  factory HomeChartsData.fromJson(Map<String, dynamic> json) {
+  factory HomeData.fromJson(Map<String, dynamic> json) {
     int count(dynamic v) {
       if (v == null) return 0;
       if (v is int) return v;
@@ -47,20 +51,26 @@ class HomeChartsData {
     }
 
     final sales = json['salesData'];
-    return HomeChartsData(
+    final rawBookings = json['bookings'];
+    return HomeData(
       totalBookings: count(json['totalBookingCount']),
       pendingBookings: count(json['totalPendingBookingCount']),
       cancelledBookings: count(json['totalCancelBookingCount']),
       completedBookings: count(json['totalCompletedBookingCount']),
       salesData: sales is List
           ? sales
-              .whereType<Map>()
-              .map((e) => SalesPoint.fromJson(Map<String, dynamic>.from(e)))
-              .toList()
+                .whereType<Map>()
+                .map((e) => SalesPoint.fromJson(Map<String, dynamic>.from(e)))
+                .toList()
+          : const [],
+      bookings: rawBookings is List
+          ? rawBookings
+                .whereType<Map>()
+                .map((e) => BookingModel.fromJson(Map<String, dynamic>.from(e)))
+                .toList()
           : const [],
     );
   }
 
-  double get totalSales =>
-      salesData.fold<double>(0, (sum, p) => sum + p.total);
+  double get totalSales => salesData.fold<double>(0, (sum, p) => sum + p.total);
 }

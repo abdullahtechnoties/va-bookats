@@ -258,10 +258,10 @@ class CommissionsFilterSheet extends StatelessWidget {
     );
   }
 
-  Future<DateTime?> _pickDate(BuildContext context, DateTime initial) {
+  Future<DateTime?> _pickDate(BuildContext context, DateTime? initial) {
     return showDatePicker(
       context: context,
-      initialDate: initial,
+      initialDate: initial ?? DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
       builder: (ctx, child) => Theme(
@@ -322,13 +322,14 @@ class CommissionsFilterSheet extends StatelessWidget {
 
 // ── Date Field ────────────────────────────────────────────────────────────────
 class _DateField extends StatelessWidget {
-  final DateTime value;
+  final DateTime? value;
   final VoidCallback onTap;
 
   const _DateField({required this.value, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final v = value;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -343,11 +344,15 @@ class _DateField extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                reportHumanDate(value),
-                style: const TextStyle(
+                v == null
+                    ? 'reports.common.selectDate'.trns()
+                    : reportHumanDate(v),
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.black,
+                  color: v == null
+                      ? const Color(0xFF9CA3AF)
+                      : AppColors.black,
                 ),
               ),
             ),

@@ -10,6 +10,7 @@ import 'package:va_bookats/models/package_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
+import 'package:va_bookats/utilities/filter_loader.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
@@ -129,11 +130,16 @@ class PackagesController extends GetxController {
     return n;
   }
 
+  /// Dynamic lookups (branches + filter services) are fetched lazily — only
+  /// when the filter sheet opens (see [openFilter]), never on init.
+  final RxBool isFilterLoading = false.obs;
+  bool _filterBranchesLoaded = false;
+  bool _filterServicesLoaded = false;
+
   @override
   void onInit() {
     super.onInit();
     scrollController.addListener(_onScroll);
-    fetchBranches();
     fetchFirstPage();
   }
 
@@ -162,18 +168,21 @@ class PackagesController extends GetxController {
   // ─── Fetching ────────────────────────────────────────────────────────────
 
   Future<void> fetchBranches() async {
+    if (_filterBranchesLoaded && branches.isNotEmpty) return;
     final response = await _repository.getBranches();
     if (response.isCompleted &&
         response.data != null &&
         response.data!.isNotEmpty) {
       branches.assignAll(response.data!);
+      _filterBranchesLoaded = true;
     }
   }
 
   /// Services for the service-filter dropdown (`/data/services`).
   /// Scoped to the selected filter branch, else the user's branch, else the
-  /// first known branch.
-  Future<void> fetchFilterServices() async {
+  /// first known branch. Lazily called from [openFilter]/[ensureFilterData].
+  Future<void> fetchFilterServices({bool force = false}) async {
+    if (_filterServicesLoaded && serviceOptions.isNotEmpty && !force) return;
     var branchId = _filterBranchId;
     branchId ??= _authService.currentUser.value?.branchId;
     branchId ??= branches.firstOrNull?.value;
@@ -184,6 +193,7 @@ class PackagesController extends GetxController {
     final response = await _repository.getDataServices(branchId);
     if (response.isCompleted && response.data != null) {
       serviceOptions.assignAll(response.data!);
+      _filterServicesLoaded = true;
       // Drop a stale selection that no longer exists for this branch.
       if (selectedServiceFilter.value.isNotEmpty &&
           selectedServiceFilter.value != allServicesKey &&
@@ -193,6 +203,23 @@ class PackagesController extends GetxController {
         selectedServiceFilter.value = '';
         serviceFilterCtrl.clear();
       }
+    }
+  }
+
+  /// Ensures filter lookups are ready before the sheet opens, showing a
+  /// graceful loader only while the (first) fetch is in flight.
+  Future<void> ensureFilterData() async {
+    final needsBranches =
+        showBranch && (!_filterBranchesLoaded || branches.isEmpty);
+    final needsServices =
+        !showBranch && (!_filterServicesLoaded || serviceOptions.isEmpty);
+    if (!needsBranches && !needsServices) return;
+    isFilterLoading.value = true;
+    try {
+      if (needsBranches) await fetchBranches();
+      if (needsServices) await fetchFilterServices();
+    } finally {
+      isFilterLoading.value = false;
     }
   }
 
@@ -229,7 +256,12 @@ class PackagesController extends GetxController {
 
     final page = response.data!;
     _applyPage(page, key: key, replace: true);
-    if (page.branches.isNotEmpty) branches.assignAll(page.branches);
+    // The list response may also seed branches; keep them only when the
+    // lazy filter fetch hasn't populated anything yet.
+    if (page.branches.isNotEmpty && branches.isEmpty) {
+      branches.assignAll(page.branches);
+      _filterBranchesLoaded = true;
+    }
     _loadedForStatus.add(key);
   }
 
@@ -313,8 +345,21 @@ class PackagesController extends GetxController {
 
   // ─── Filtering ───────────────────────────────────────────────────────────
 
-  void openFilter(BuildContext context) {
-    fetchFilterServices();
+  void openFilter(BuildContext context) async {
+    final needsBranches =
+        showBranch && (!_filterBranchesLoaded || branches.isEmpty);
+    final needsServices =
+        !showBranch && (!_filterServicesLoaded || serviceOptions.isEmpty);
+    await runWithFilterLoader(
+      () => ensureFilterData(),
+      shouldShow: needsBranches || needsServices,
+    );
+    if (isClosed) return;
+    if (!context.mounted) return;
+    _showFilterSheet(context);
+  }
+
+  void _showFilterSheet(BuildContext context) {
     FilterBottomSheet.show(
       context,
       fields: [

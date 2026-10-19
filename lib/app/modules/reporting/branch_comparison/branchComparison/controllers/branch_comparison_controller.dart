@@ -42,10 +42,10 @@ class BranchComparisonReportController extends GetxController {
   List<BranchComparisonItemModel> get items => reportData?.monthlyData ?? [];
 
   // ── Filter State ─────────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> toDate = DateTime.now().obs;
+  /// Nullable dates: null = "no date filter" — nothing is sent to the API
+  /// until the user picks a date in the filter sheet and taps Apply.
+  final Rxn<DateTime> fromDate = Rxn<DateTime>();
+  final Rxn<DateTime> toDate = Rxn<DateTime>();
 
   /// Multi-select branch filter (empty = All branches). Sent indexed as
   /// `branch_ids[0]`, `branch_ids[1]`, … — the only indexed param across
@@ -58,10 +58,8 @@ class BranchComparisonReportController extends GetxController {
       <BranchFilterOption>[].obs;
 
   // Temp filter (used in bottom sheet before applying)
-  final Rx<DateTime> tempFromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> tempToDate = DateTime.now().obs;
+  final Rxn<DateTime> tempFromDate = Rxn<DateTime>();
+  final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final RxSet<String> tempBranchIds = <String>{}.obs;
 
   List<ReportOption> get branchOptions => availableBranches
@@ -203,12 +201,20 @@ class BranchComparisonReportController extends GetxController {
   bool get isOwner => _auth.isOwner;
 
   String get dateRangeLabel {
-    return '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from == null && to == null) {
+      return 'reports.common.allDates'.trns();
+    }
+    String fmt(DateTime? d) =>
+        d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
+    return '${fmt(from)} - ${fmt(to)}';
   }
 
   String _formatDate(DateTime d) => reportHumanDate(d);
 
-  String _apiDateFormat(DateTime d) {
+  String? _apiDateFormat(DateTime? d) {
+    if (d == null) return null;
     return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
   }
 
@@ -263,8 +269,8 @@ class BranchComparisonReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
-    tempToDate.value = DateTime.now();
+    tempFromDate.value = null;
+    tempToDate.value = null;
     tempBranchIds.clear();
   }
 
@@ -360,8 +366,8 @@ class BranchComparisonReportController extends GetxController {
       arguments: {
         'branchId': item.branchId,
         'branchName': item.branchName,
-        'fromDate': _apiDateFormat(fromDate.value),
-        'toDate': _apiDateFormat(toDate.value),
+        'fromDate': _apiDateFormat(fromDate.value) ?? item.from,
+        'toDate': _apiDateFormat(toDate.value) ?? item.to,
       },
     );
   }

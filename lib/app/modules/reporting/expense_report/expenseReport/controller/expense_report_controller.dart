@@ -44,17 +44,17 @@ class ExpenseReportController extends GetxController {
       <ExpenseMonthlyDataModel>[].obs;
 
   // ── Filter State ────────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> toDate = DateTime.now().obs;
+  /// Nullable dates: null = "no date filter" — nothing is sent to the API
+  /// until the user picks a date in the filter sheet and taps Apply.
+  final Rxn<DateTime> fromDate = Rxn<DateTime>();
+  final Rxn<DateTime> toDate = Rxn<DateTime>();
   final Rx<BranchModel?> selectedBranch = Rx<BranchModel?>(null);
   final Rx<ExpenseCategoryModel?> selectedExpenseCategory =
       Rx<ExpenseCategoryModel?>(null);
 
   // Temp filter (for bottom sheet)
-  final Rx<DateTime> tempFromDate = DateTime.now().obs;
-  final Rx<DateTime> tempToDate = DateTime.now().obs;
+  final Rxn<DateTime> tempFromDate = Rxn<DateTime>();
+  final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final Rx<BranchModel?> tempSelectedBranch = Rx<BranchModel?>(null);
   final Rx<ExpenseCategoryModel?> tempSelectedExpenseCategory =
       Rx<ExpenseCategoryModel?>(null);
@@ -110,8 +110,16 @@ class ExpenseReportController extends GetxController {
 
   int get selectedColumnCount => selectedColumns.length;
 
-  String get dateRangeLabel =>
-      '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
+  String get dateRangeLabel {
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from == null && to == null) {
+      return 'reports.common.allDates'.trns();
+    }
+    String fmt(DateTime? d) =>
+        d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
+    return '${fmt(from)} - ${fmt(to)}';
+  }
 
   bool get isOwner => _auth.isOwner;
 
@@ -196,8 +204,8 @@ class ExpenseReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
-    tempToDate.value = DateTime.now();
+    tempFromDate.value = null;
+    tempToDate.value = null;
     tempSelectedBranch.value = isOwner ? branches.firstOrNull : null;
     tempSelectedExpenseCategory.value = expenseCategories.firstOrNull;
   }
@@ -310,7 +318,8 @@ class ExpenseReportController extends GetxController {
 
   String _formatDate(DateTime date) => reportHumanDate(date);
 
-  String _apiDateFormat(DateTime date) {
+  String? _apiDateFormat(DateTime? date) {
+    if (date == null) return null;
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }

@@ -30,6 +30,7 @@ class Step2Packages extends GetView<CreateBookingController> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => CommonDropdownBottomSheetThree(
+        doneButtonText: 'Select'.trns(),
         title: title,
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
         dropdownItems: items,
@@ -215,11 +216,12 @@ class Step2Packages extends GetView<CreateBookingController> {
                         _FieldLabel('createBooking.step2.amount'.trns()),
                         const SizedBox(height: 8),
                         CommonTextInputField(
+                          
                           hintTextColor: AppColors.grey,
                           hintText: '00',
                           controller: item.amountCtrl,
                           keyboardType: TextInputType.number,
-                          readOnly: true,
+                          readOnly:  true,
                           enabled: false,
                           height: 50,
                           hintTextSize: 13,
@@ -234,6 +236,8 @@ class Step2Packages extends GetView<CreateBookingController> {
                           keyboardType: TextInputType.number,
                           height: 50,
                           hintTextSize: 13,
+                          readOnly: item.selectedPackageId.value.isEmpty,
+                          enabled: !item.isLoadingStaffs.value && item.selectedPackageId.value.isNotEmpty,
                           onChanged: (_) => controller.recalcPackageRow(item),
                         ),
                         const SizedBox(height: 16),

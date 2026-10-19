@@ -16,15 +16,18 @@ class BranchComparisonReportService {
   /// [branchIds] - selected branch ids, sent indexed as
   /// `branch_ids[0]`, `branch_ids[1]`, … Absent/empty = All branches.
   Future<ApiResponse<BranchComparisonReportModel>> getBranchComparisonReport({
-    required String fromDate,
-    required String toDate,
+    String? fromDate,
+    String? toDate,
     List<int>? branchIds,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'from_date': fromDate,
-        'to_date': toDate,
-      };
+      final queryParams = <String, dynamic>{};
+      if (fromDate != null && fromDate.isNotEmpty) {
+        queryParams['from_date'] = fromDate;
+      }
+      if (toDate != null && toDate.isNotEmpty) {
+        queryParams['to_date'] = toDate;
+      }
 
       if (branchIds != null) {
         addIndexedParams(

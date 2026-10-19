@@ -38,14 +38,16 @@ class CustomerReportController extends GetxController {
       ApiResponse<CustomerReportResponse>.loading().obs;
 
   // ── Filter state ──────────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now().obs;
-  final Rx<DateTime> toDate = DateTime.now().obs;
+  /// Nullable dates: null = "no date filter" — nothing is sent to the API
+  /// until the user picks a date in the filter sheet and taps Apply.
+  final Rxn<DateTime> fromDate = Rxn<DateTime>();
+  final Rxn<DateTime> toDate = Rxn<DateTime>();
   final Rx<BranchOption?> selectedBranch = Rx<BranchOption?>(null);
   final Rx<CustomerOption?> selectedCustomer = Rx<CustomerOption?>(null);
 
   // Temp filters (inside sheet before apply)
-  final Rx<DateTime> tempFromDate = DateTime.now().obs;
-  final Rx<DateTime> tempToDate = DateTime.now().obs;
+  final Rxn<DateTime> tempFromDate = Rxn<DateTime>();
+  final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final Rx<BranchOption?> tempBranch = Rx<BranchOption?>(null);
   final Rx<CustomerOption?> tempCustomer = Rx<CustomerOption?>(null);
 
@@ -166,27 +168,27 @@ class CustomerReportController extends GetxController {
       reportData.isEmpty ? 1 : (reportData.length / itemsPerPage).ceil();
 
   String get dateRangeLabel {
-    return '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from == null && to == null) {
+      return 'reports.common.allDates'.trns();
+    }
+    String fmt(DateTime? d) =>
+        d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
+    return '${fmt(from)} - ${fmt(to)}';
   }
 
-  String _fmt(DateTime d) => reportHumanDate(d);
+  String _fmt(DateTime? d) =>
+      d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   @override
   void onInit() {
     super.onInit();
-    _initializeDates();
+    // No preset dates: the first load sends no from/to params so the
+    // backend decides the default range. Dates are only sent after the
+    // user picks them in the filter sheet and taps Apply.
     fetchReport();
-  }
-
-  void _initializeDates() {
-    final now = DateTime.now();
-    final firstDay = DateTime(now.year, now.month, 1);
-    final lastDay = DateTime(now.year, now.month + 1, 0);
-    fromDate.value = firstDay;
-    toDate.value = lastDay;
-    tempFromDate.value = firstDay;
-    tempToDate.value = lastDay;
   }
 
   // ── API Calls ─────────────────────────────────────────────────────────────
@@ -194,10 +196,13 @@ class CustomerReportController extends GetxController {
     try {
       reportResponse.value = ApiResponse.loading();
 
-      final params = <String, dynamic>{
-        'from_date': _apiDateFormat(fromDate.value),
-        'to_date': _apiDateFormat(toDate.value),
-      };
+      // Dates are only sent when the user picked them in the filter sheet.
+      // First load sends no from/to params (backend decides the range).
+      final params = <String, dynamic>{};
+      final from = _apiDateFormat(fromDate.value);
+      final to = _apiDateFormat(toDate.value);
+      if (from != null) params['from_date'] = from;
+      if (to != null) params['to_date'] = to;
 
       // If not owner, send branch_id from user model
       if (!isOwner && _auth.currentUser.value?.branchId != null) {
@@ -229,7 +234,8 @@ class CustomerReportController extends GetxController {
     }
   }
 
-  String _apiDateFormat(DateTime date) {
+  String? _apiDateFormat(DateTime? date) {
+    if (date == null) return null;
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
@@ -256,9 +262,10 @@ class CustomerReportController extends GetxController {
   }
 
   void resetFilter() {
-    _initializeDates();
-    tempFromDate.value = fromDate.value;
-    tempToDate.value = toDate.value;
+    fromDate.value = null;
+    toDate.value = null;
+    tempFromDate.value = null;
+    tempToDate.value = null;
     tempBranch.value = null;
     tempCustomer.value = null;
   }

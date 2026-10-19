@@ -648,8 +648,8 @@ class ProductLookup {
             .toList()
         : <ProductVariantLookup>[];
     return ProductLookup(
-      value: _parseInt(json['value']) ?? 0,
-      label: json['label']?.toString() ?? '',
+      value: _parseInt(json['value']) ?? _parseInt(json['id']) ?? 0,
+      label: json['label']?.toString() ?? json['name']?.toString() ?? '',
       price: json['price']?.toString() ?? '0',
       stock: _parseInt(json['stock']) ?? 0,
       variants: vars,

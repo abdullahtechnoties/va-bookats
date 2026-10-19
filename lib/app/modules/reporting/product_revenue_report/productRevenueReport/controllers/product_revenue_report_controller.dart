@@ -47,16 +47,16 @@ class ProductRevenueReportController extends GetxController {
   bool get hasData => report != null && report!.monthlyData.isNotEmpty;
 
   // ── Filter State ───────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> toDate = DateTime.now().obs;
+  /// Nullable dates: null = "no date filter" — nothing is sent to the API
+  /// until the user picks a date in the filter sheet and taps Apply.
+  final Rxn<DateTime> fromDate = Rxn<DateTime>();
+  final Rxn<DateTime> toDate = Rxn<DateTime>();
   final RxInt selectedBranchId = 0.obs;
   final RxString selectedProductId = 'all'.obs;
 
   // Temp filters (for bottom sheet)
-  final Rx<DateTime> tempFromDate = DateTime.now().obs;
-  final Rx<DateTime> tempToDate = DateTime.now().obs;
+  final Rxn<DateTime> tempFromDate = Rxn<DateTime>();
+  final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final RxInt tempBranchId = 0.obs;
   final RxString tempProductId = 'all'.obs;
 
@@ -144,8 +144,16 @@ class ProductRevenueReportController extends GetxController {
 
   int get selectedColumnCount => selectedColumns.length;
 
-  String get dateRangeLabel =>
-      '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
+  String get dateRangeLabel {
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from == null && to == null) {
+      return 'reports.common.allDates'.trns();
+    }
+    String fmt(DateTime? d) =>
+        d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
+    return '${fmt(from)} - ${fmt(to)}';
+  }
 
   bool get isOwner => _authService.isOwner;
 
@@ -219,8 +227,8 @@ class ProductRevenueReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
-    tempToDate.value = DateTime.now();
+    tempFromDate.value = null;
+    tempToDate.value = null;
     tempBranchId.value = isOwner ? 0 : userBranchId;
     tempProductId.value = 'all';
   }
@@ -300,8 +308,8 @@ class ProductRevenueReportController extends GetxController {
       Routes.PRODUCT_REVENUE_DETAILS,
       parameters: {
         'branch_id': data.branchId.toString(),
-        'from_date': _formatDateForApi(fromDate.value),
-        'to_date': _formatDateForApi(toDate.value),
+        'from_date': _formatDateForApi(fromDate.value) ?? data.from,
+        'to_date': _formatDateForApi(toDate.value) ?? data.to,
         'product_id': data.productId,
       },
     );
@@ -330,7 +338,8 @@ class ProductRevenueReportController extends GetxController {
 
   String _formatDate(DateTime date) => reportHumanDate(date);
 
-  String _formatDateForApi(DateTime date) {
+  String? _formatDateForApi(DateTime? date) {
+    if (date == null) return null;
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 

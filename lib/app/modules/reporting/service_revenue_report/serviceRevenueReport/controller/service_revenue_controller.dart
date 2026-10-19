@@ -43,10 +43,10 @@ class ServiceRevenueReportController extends GetxController {
   List<ServiceOption> get services => reportData?.services ?? [];
 
   // ── Filter State ──────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> toDate = DateTime.now().obs;
+  /// Nullable dates: null = "no date filter" — nothing is sent to the API
+  /// until the user picks a date in the filter sheet and taps Apply.
+  final Rxn<DateTime> fromDate = Rxn<DateTime>();
+  final Rxn<DateTime> toDate = Rxn<DateTime>();
   final RxnInt selectedBranchId = RxnInt(null);
 
   /// `Rx<dynamic>` (never `'all'.obs`) so int service ids can never crash
@@ -54,8 +54,8 @@ class ServiceRevenueReportController extends GetxController {
   final Rx<dynamic> selectedServiceId = Rx<dynamic>('all');
 
   // Temp filters (for bottom sheet)
-  final Rx<DateTime> tempFromDate = DateTime.now().obs;
-  final Rx<DateTime> tempToDate = DateTime.now().obs;
+  final Rxn<DateTime> tempFromDate = Rxn<DateTime>();
+  final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final RxnInt tempBranchId = RxnInt(null);
   final Rx<dynamic> tempServiceId = Rx<dynamic>('all');
 
@@ -126,8 +126,16 @@ class ServiceRevenueReportController extends GetxController {
   bool get isOwner => _auth.isOwner;
   bool get showBranchFilter => isOwner && branches.isNotEmpty;
 
-  String get dateRangeLabel =>
-      '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
+  String get dateRangeLabel {
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from == null && to == null) {
+      return 'reports.common.allDates'.trns();
+    }
+    String fmt(DateTime? d) =>
+        d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
+    return '${fmt(from)} - ${fmt(to)}';
+  }
 
   String get selectedBranchLabel {
     if (selectedBranchId.value == null) {
@@ -209,8 +217,8 @@ class ServiceRevenueReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
-    tempToDate.value = DateTime.now();
+    tempFromDate.value = null;
+    tempToDate.value = null;
     tempBranchId.value = null;
     tempServiceId.value = 'all';
   }
@@ -318,7 +326,8 @@ class ServiceRevenueReportController extends GetxController {
     }
   }
 
-  String _formatDateForApi(DateTime date) {
+  String? _formatDateForApi(DateTime? date) {
+    if (date == null) return null;
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 

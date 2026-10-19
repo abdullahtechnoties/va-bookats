@@ -167,6 +167,7 @@ class Step4Products extends GetView<CreateBookingController> {
                               selectedItem: item.selectedVariantId,
                               textCtrl: item.variantCtrl,
                               values: variantValues,
+                              
                               onSelected: (v) =>
                                   controller.onVariantSelected(item, v),
                             ),
@@ -228,6 +229,9 @@ class Step4Products extends GetView<CreateBookingController> {
                           keyboardType: TextInputType.number,
                           height: 50,
                           hintTextSize: 13,
+                          readOnly: item.selectedProductId.value.isEmpty,
+                          enabled: 
+                              item.selectedProductId.value.isNotEmpty,
                           validator: (_) {
                             final discount =
                                 double.tryParse(item.discountCtrl.text) ?? 0;

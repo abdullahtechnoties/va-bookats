@@ -8,7 +8,7 @@ import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'dart:math' as math;
 
-import 'package:va_bookats/app/modules/home/models/home_charts_model.dart';
+import 'package:va_bookats/app/modules/home/models/home_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/report_filter_helpers.dart';
@@ -64,7 +64,8 @@ class HomeView extends GetView<HomeController> {
                               () => BookingCard(
                                 booking: booking,
                                 isBusy:
-                                    controller.busyBookingId.value == booking.id,
+                                    controller.busyBookingId.value ==
+                                    booking.id,
                                 onViewDetails: () =>
                                     controller.openDetails(booking),
                                 onEdit: () => _openEdit(booking),
@@ -81,8 +82,6 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
             ),
-                  
-      
           ],
         ),
       ),
@@ -275,7 +274,7 @@ class _HomeHeader extends StatelessWidget {
 
 // ─── Home Insights (booking stat cards + revenue graph) ─────────────────────
 // The old non-functional menu tiles are now live stat cards fed by
-// GET /charts; the revenue graph sits beneath them. Display-only —
+// GET /home; the revenue graph sits beneath them. Display-only —
 // no tap handling except the Total card (booking entry point).
 
 class _HomeInsights extends StatelessWidget {
@@ -285,17 +284,17 @@ class _HomeInsights extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return 
+    return
     // Can(
     //   AppPerm.index(AppPerm.bookings),
     //   child:
-       Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _StatsGrid(controller: controller),
-          _RevenueCard(controller: controller),
-        ],
-      );
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _StatsGrid(controller: controller),
+        _RevenueCard(controller: controller),
+      ],
+    );
     // );
   }
 }
@@ -308,9 +307,9 @@ class _StatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.isLoadingCharts) return _statsShimmer();
-      final charts = controller.charts;
-      if (charts == null) return const SizedBox.shrink();
+      if (controller.isLoadingHome) return _statsShimmer();
+      final home = controller.home;
+      if (home == null) return const SizedBox.shrink();
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
         child: GridView.count(
@@ -323,7 +322,7 @@ class _StatsGrid extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           children: [
             _StatCard(
-              value: '${charts.totalBookings}',
+              value: '${home.totalBookings}',
               label: 'home.stats.totalBookings'.trns(),
               icon: Icons.calendar_today_rounded,
               background: AppColors.secondary,
@@ -332,7 +331,7 @@ class _StatsGrid extends StatelessWidget {
               onTap: controller.openAllBookings,
             ),
             _StatCard(
-              value: '${charts.pendingBookings}',
+              value: '${home.pendingBookings}',
               label: 'home.stats.pendingBookings'.trns(),
               icon: Icons.schedule_outlined,
               background: AppColors.white,
@@ -341,7 +340,7 @@ class _StatsGrid extends StatelessWidget {
               accent: const Color(0xFFF57F00),
             ),
             _StatCard(
-              value: '${charts.completedBookings}',
+              value: '${home.completedBookings}',
               label: 'home.stats.completedBookings'.trns(),
               icon: Icons.check_circle_outline_rounded,
               background: AppColors.white,
@@ -350,7 +349,7 @@ class _StatsGrid extends StatelessWidget {
               accent: const Color(0xFF2E7D32),
             ),
             _StatCard(
-              value: '${charts.cancelledBookings}',
+              value: '${home.cancelledBookings}',
               label: 'home.stats.cancelledBookings'.trns(),
               icon: Icons.cancel_outlined,
               background: AppColors.white,
@@ -468,10 +467,7 @@ class _StatCard extends StatelessWidget {
             Container(
               width: 34,
               height: 34,
-              decoration: BoxDecoration(
-                color: iconBg,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
               child: Icon(icon, color: iconFg, size: 18),
             ),
           ],
@@ -491,7 +487,7 @@ class _RevenueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.isLoadingCharts) {
+      if (controller.isLoadingHome) {
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Shimmer.fromColors(
@@ -507,8 +503,8 @@ class _RevenueCard extends StatelessWidget {
           ),
         );
       }
-      final charts = controller.charts;
-      if (charts == null) return const SizedBox.shrink();
+      final home = controller.home;
+      if (home == null) return const SizedBox.shrink();
       return Container(
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(16),
@@ -539,7 +535,7 @@ class _RevenueCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  _fullNumber(charts.totalSales),
+                  _fullNumber(home.totalSales),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -548,18 +544,15 @@ class _RevenueCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (charts.salesData.isNotEmpty) ...[
+            if (home.salesData.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
-                '${_shortDate(charts.salesData.first.date)} — ${_shortDate(charts.salesData.last.date)}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF9CA3AF),
-                ),
+                '${_shortDate(home.salesData.first.date)} — ${_shortDate(home.salesData.last.date)}',
+                style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
               ),
             ],
             const SizedBox(height: 12),
-            if (charts.salesData.isEmpty)
+            if (home.salesData.isEmpty)
               SizedBox(
                 height: 120,
                 child: Center(
@@ -573,7 +566,7 @@ class _RevenueCard extends StatelessWidget {
                 ),
               )
             else
-              _RevenueBars(points: charts.salesData),
+              _RevenueBars(points: home.salesData),
           ],
         ),
       );
@@ -590,17 +583,14 @@ class _RevenueBars extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width =
-            math.max(constraints.maxWidth, points.length * 48.0);
+        final width = math.max(constraints.maxWidth, points.length * 48.0);
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
           child: SizedBox(
             width: width,
             height: 190,
-            child: CustomPaint(
-              painter: _BarsPainter(points: points),
-            ),
+            child: CustomPaint(painter: _BarsPainter(points: points)),
           ),
         );
       },
@@ -664,10 +654,7 @@ class _BarsPainter extends CustomPainter {
             : AppColors.secondary.withValues(alpha: 0.75);
       final radius = Radius.circular(math.min(6.0, h / 2));
       canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(x, y, barW, h),
-          radius,
-        ),
+        RRect.fromRectAndRadius(Rect.fromLTWH(x, y, barW, h), radius),
         paint,
       );
     }
@@ -705,10 +692,7 @@ class _BarsPainter extends CustomPainter {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: const TextStyle(
-          fontSize: 10,
-          color: Color(0xFF9CA3AF),
-        ),
+        style: const TextStyle(fontSize: 10, color: Color(0xFF9CA3AF)),
       ),
       textDirection: TextDirection.ltr,
       maxLines: 1,
@@ -728,10 +712,9 @@ class _BarsPainter extends CustomPainter {
 
 /// 1750 → "1,750"; 1750.5 → "1,750.50".
 String _fullNumber(double v) {
-  final parts = (v == v.roundToDouble()
-          ? v.toInt().toString()
-          : v.toStringAsFixed(2))
-      .split('.');
+  final parts =
+      (v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(2))
+          .split('.');
   final intPart = parts[0].replaceAllMapped(
     RegExp(r'\B(?=(\d{3})+(?!\d))'),
     (_) => ',',

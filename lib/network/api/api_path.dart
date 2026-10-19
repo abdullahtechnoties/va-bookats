@@ -112,8 +112,8 @@ class ApiPath {
     int page = 1,
   }) =>
       '/reports/expense/show?branch_id=$branchId&expenseCategory_id=$expenseCategoryId&from_date=$fromDate&to_date=$toDate&page=$page';
-    static String expenseCategories(int branchId) =>
-            '/data/expense-categories?branch_id=$branchId';
+  static String expenseCategories(int branchId) =>
+      '/data/expense-categories?branch_id=$branchId';
 
   // Geo (Unauthenticated)
   static const String countries = '/data/countries';
@@ -125,8 +125,8 @@ class ApiPath {
   // Media Library
   static const String media = '/media';
 
-  // Home charts (booking counts + revenue graph)
-  static const String charts = '/charts';
+  // Home dashboard (booking counts, revenue graph, and recent bookings)
+  static const String home = '/home';
 
   // Customers
   static const String customers = '/customers';

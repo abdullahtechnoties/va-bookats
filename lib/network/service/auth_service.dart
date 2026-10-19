@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:va_bookats/models/user_model.dart';
+import 'package:va_bookats/network/api/api_path.dart';
 import 'package:va_bookats/network/service/local_storage.dart';
+import 'package:va_bookats/network/service/network_service.dart';
 import 'package:va_bookats/utilities/app_strings.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
@@ -243,6 +246,17 @@ class AuthService extends GetxService {
     // Clear FCM token first
     // await NotificationService.instance.clearTokenOnLogout();
     // await FirebaseMessaging.instance.deleteToken();
+    if (Get.isRegistered<NetworkService>()) {
+      final response = await Get.find<NetworkService>().post(
+        endpoint: ApiPath.logout,
+      );
+      if (!response.isCompleted) {
+        developer.log(
+          'Logout request failed: ${response.message}',
+          name: 'AuthService',
+        );
+      }
+    }
     await LocalStorageService.prefs?.clear();
     await LocalStorageService.prefs?.setBool(AppStrings.firstTimeOnApp, false);
   }

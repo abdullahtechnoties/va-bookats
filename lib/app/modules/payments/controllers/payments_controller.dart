@@ -8,6 +8,7 @@ import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/models/payment_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
+import 'package:va_bookats/utilities/filter_loader.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
@@ -64,6 +65,11 @@ class PaymentsController extends GetxController {
   final RxString selectedQuickRange = ''.obs;
 
   final RxList<BranchModel> branches = <BranchModel>[].obs;
+
+  /// Branch lookups are fetched lazily — only when the filter sheet opens
+  /// (see [openFilter]), never on controller init.
+  final RxBool isFilterLoading = false.obs;
+  bool _filterBranchesLoaded = false;
 
   /// Tab index for a payment, derived from its own status string.
   static int tabIndexFor(PaymentModel p) {
@@ -129,7 +135,6 @@ class PaymentsController extends GetxController {
   void onInit() {
     super.onInit();
     scrollController.addListener(_onScroll);
-    if (showBranch) fetchBranches();
     fetchFirstPage();
   }
 
@@ -158,9 +163,24 @@ class PaymentsController extends GetxController {
   // ─── Fetching ────────────────────────────────────────────────────────────
 
   Future<void> fetchBranches() async {
+    if (_filterBranchesLoaded && branches.isNotEmpty) return;
     final response = await _repo.getBranches();
     if (response.isCompleted && response.data != null) {
       branches.assignAll(response.data!);
+      _filterBranchesLoaded = true;
+    }
+  }
+
+  /// Ensures filter lookups are ready before the sheet opens, showing a
+  /// graceful loader only while the (first) fetch is in flight.
+  Future<void> ensureFilterData() async {
+    if (_filterBranchesLoaded && branches.isNotEmpty) return;
+    if (!showBranch) return;
+    isFilterLoading.value = true;
+    try {
+      await fetchBranches();
+    } finally {
+      isFilterLoading.value = false;
     }
   }
 
@@ -255,7 +275,19 @@ class PaymentsController extends GetxController {
 
   // ─── Filters ─────────────────────────────────────────────────────────────
 
-  void openFilter(BuildContext context) {
+  void openFilter(BuildContext context) async {
+    final needsFetch =
+        showBranch && (!_filterBranchesLoaded || branches.isEmpty);
+    await runWithFilterLoader(
+      () => ensureFilterData(),
+      shouldShow: needsFetch,
+    );
+    if (isClosed) return;
+    if (!context.mounted) return;
+    _showFilterSheet(context);
+  }
+
+  void _showFilterSheet(BuildContext context) {
     FilterBottomSheet.show(
       context,
       fields: [

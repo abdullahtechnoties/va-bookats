@@ -588,7 +588,8 @@
     "yes": "Yes",
     "no": "No",
     "success": "Success",
-    "error": "Error"
+    "error": "Error",
+    "loadingFilters": "Loading filters…"
   },
   "permissions": {
     "noAccess": {
@@ -1586,7 +1587,9 @@
       "previous": "Previous",
       "next": "Next",
       "selected": "selected",
-      "done": "Done"
+      "done": "Done",
+      "selectDate": "Select date",
+      "allDates": "All dates"
     },
     "errors": {
       "title": "Error",

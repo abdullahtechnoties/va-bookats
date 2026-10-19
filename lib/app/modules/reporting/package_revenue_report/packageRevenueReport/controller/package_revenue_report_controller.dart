@@ -44,10 +44,10 @@ class PackageRevenueReportController extends GetxController {
       Rx<PackageRevenueReportModel?>(null);
 
   // ── Filter state ──────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> toDate = DateTime.now().obs;
+  /// Nullable dates: null = "no date filter" — nothing is sent to the API
+  /// until the user picks a date in the filter sheet and taps Apply.
+  final Rxn<DateTime> fromDate = Rxn<DateTime>();
+  final Rxn<DateTime> toDate = Rxn<DateTime>();
   final RxInt selectedBranchId = 0.obs;
   final RxString selectedBranchLabel = ''.obs;
 
@@ -57,10 +57,8 @@ class PackageRevenueReportController extends GetxController {
   final RxString selectedPackageLabel = ''.obs;
 
   // Temp filters
-  final Rx<DateTime> tempFromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> tempToDate = DateTime.now().obs;
+  final Rxn<DateTime> tempFromDate = Rxn<DateTime>();
+  final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final RxInt tempBranchId = 0.obs;
   final RxString tempBranchLabel = ''.obs;
   final Rx<dynamic> tempPackageId = Rx<dynamic>('all');
@@ -135,8 +133,16 @@ class PackageRevenueReportController extends GetxController {
 
   int get selectedColumnCount => selectedColumns.length;
 
-  String get dateRangeLabel =>
-      '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
+  String get dateRangeLabel {
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from == null && to == null) {
+      return 'reports.common.allDates'.trns();
+    }
+    String fmt(DateTime? d) =>
+        d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
+    return '${fmt(from)} - ${fmt(to)}';
+  }
 
   bool get showBranchFilter => _authService.isOwner;
 
@@ -144,7 +150,8 @@ class PackageRevenueReportController extends GetxController {
 
   int? get userBranchId => _authService.currentUser.value?.branchId;
 
-  String _formatApi(DateTime d) => DateFormat('yyyy-MM-dd').format(d);
+  String? _formatApi(DateTime? d) =>
+      d == null ? null : DateFormat('yyyy-MM-dd').format(d);
 
   // ── Lifecycle ─────────────────────────────────────────────────────────
   @override
@@ -229,8 +236,8 @@ class PackageRevenueReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
-    tempToDate.value = DateTime.now();
+    tempFromDate.value = null;
+    tempToDate.value = null;
     tempBranchId.value = 0;
     tempBranchLabel.value = 'packageRevenue.filter.allBranches'.trns();
     tempPackageId.value = 'all';

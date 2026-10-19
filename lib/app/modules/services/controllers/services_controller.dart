@@ -9,8 +9,8 @@ import 'package:va_bookats/models/service_category_model.dart';
 import 'package:va_bookats/models/service_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
-import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
+import 'package:va_bookats/utilities/filter_loader.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
@@ -43,6 +43,7 @@ class ServicesController extends GetxController {
   final Map<String, int> _lastPage = {};
   final Map<String, bool> _hasMoreMap = {};
   final Set<String> _loadedForStatus = {};
+  final Set<String> _staleForStatus = {};
 
   /// Server-reported totals per status. These drive the tab badges so the
   /// count is never derived from a partially-loaded (paginated) list.
@@ -144,17 +145,21 @@ class ServicesController extends GetxController {
     return null;
   }
 
+  /// Dynamic lookups (branches / categories) are fetched lazily — only when
+  /// the filter sheet opens (see [onFilter]), never on controller init.
+  final RxBool isFilterLoading = false.obs;
+  bool _filterBranchesLoaded = false;
+  bool _filterCategoriesLoaded = false;
+
   @override
   void onInit() {
     super.onInit();
     scrollController.addListener(_onScroll);
     // if (Permissions.can(AppPerm.services)) {
-      // fetchBranches();
-      // fetchCategories();
-      // fetchFirstPage();
+    // fetchBranches();
+    // fetchCategories();
+    // fetchFirstPage();
     // }
-    fetchBranches();
-    fetchCategories();
     fetchFirstPage();
   }
 
@@ -185,15 +190,18 @@ class ServicesController extends GetxController {
   // ─── Fetching ────────────────────────────────────────────────────────────
 
   Future<void> fetchBranches() async {
+    if (_filterBranchesLoaded) return;
     final response = await _repository.getBranches();
     if (response.isCompleted &&
         response.data != null &&
         response.data!.isNotEmpty) {
       branches.assignAll(response.data!);
+      _filterBranchesLoaded = true;
     }
   }
 
   Future<void> fetchCategories() async {
+    if (_filterCategoriesLoaded && categories.isNotEmpty) return;
     // Non-owners only ever see their own branch's categories.
     if (!showBranch) {
       final branchId = _authService.currentUser.value?.branchId;
@@ -206,14 +214,37 @@ class ServicesController extends GetxController {
           response.data != null &&
           response.data!.isNotEmpty) {
         categories.assignAll(response.data!);
+        _filterCategoriesLoaded = true;
       }
       return;
     }
-    final response = await _repository.getCategories();
-    if (response.isCompleted &&
-        response.data != null &&
-        response.data!.isNotEmpty) {
-      categories.assignAll(response.data!);
+    // final response = await _repository.getCategories();
+    // if (response.isCompleted &&
+    //     response.data != null &&
+    //     response.data!.isNotEmpty) {
+    //   categories.assignAll(response.data!);
+    //   _filterCategoriesLoaded = true;
+    // }
+  }
+
+  /// Ensures filter lookups are ready before the sheet opens, showing a
+  /// graceful loader only while the (first) fetch is in flight.
+  Future<void> ensureFilterData() async {
+    if (_filterBranchesLoaded &&
+        _filterCategoriesLoaded &&
+        branches.isNotEmpty) {
+      return;
+    }
+    isFilterLoading.value = true;
+    try {
+      if (showBranch && (!_filterBranchesLoaded || branches.isEmpty)) {
+        await fetchBranches();
+      }
+      if (!_filterCategoriesLoaded || categories.isEmpty) {
+        await fetchCategories();
+      }
+    } finally {
+      isFilterLoading.value = false;
     }
   }
 
@@ -258,6 +289,7 @@ class ServicesController extends GetxController {
     if (page.branches.isNotEmpty) branches.assignAll(page.branches);
     if (page.categories.isNotEmpty) categories.assignAll(page.categories);
     _loadedForStatus.add(key);
+    _staleForStatus.remove(key);
     isLoading.value = false;
   }
 
@@ -327,23 +359,41 @@ class ServicesController extends GetxController {
 
   void changeTab(int index) {
     if (selectedTab.value == index) return;
-    // Reset filters on tab change so counts stay in sync and stale
-    // filter state can never leak into the other tab.
-    resetFilters(silent: true);
+    final hadFilters = appliedFiltersCount > 0;
+    // Reset filter values without invalidating cached tab data. Each status
+    // keeps its own list and is fetched only on first visit or after a
+    // mutation marks it stale.
+    _clearFilterValues();
+    if (hadFilters) {
+      _loadedForStatus.clear();
+      _staleForStatus.clear();
+    }
     selectedTab.value = index;
     hasMore.value = _hasMoreMap[_statusKey] ?? false;
     _generation++;
     final hasLoaded = _loadedForStatus.contains(_statusKey);
-    if (!hasLoaded) {
+    if (!hasLoaded || _staleForStatus.contains(_statusKey)) {
       fetchFirstPage();
     }
   }
 
   // ─── Filtering ───────────────────────────────────────────────────────────
 
-  void onFilter() {
+  void onFilter() async {
+    final ctx = Get.context;
+    if (ctx == null) return;
+    final needsFetch =
+        (showBranch && (!_filterBranchesLoaded || branches.isEmpty)) ||
+        (!_filterCategoriesLoaded || categories.isEmpty);
+    await runWithFilterLoader(() => ensureFilterData(), shouldShow: needsFetch);
+    if (isClosed) return;
+    if (!ctx.mounted) return;
+    _showFilterSheet(ctx);
+  }
+
+  void _showFilterSheet(BuildContext context) {
     FilterBottomSheet.show(
-      Get.context!,
+      context,
       fields: [
         FilterField(
           label: 'services.filter.search'.trns(),
@@ -399,10 +449,18 @@ class ServicesController extends GetxController {
 
   void applyFilters() {
     _loadedForStatus.clear();
+    _staleForStatus.clear();
     fetchFirstPage();
   }
 
   void resetFilters({bool silent = false}) {
+    _clearFilterValues();
+    _loadedForStatus.clear();
+    _staleForStatus.clear();
+    if (!silent) fetchFirstPage();
+  }
+
+  void _clearFilterValues() {
     searchCtrl.clear();
     fromDateCtrl.clear();
     toDateCtrl.clear();
@@ -414,12 +472,6 @@ class ServicesController extends GetxController {
     selectedTypeFilter.value = '';
     selectedCategoryFilter.value = '';
     selectedQuickRange.value = '';
-    if (silent) {
-      _loadedForStatus.clear();
-      return;
-    }
-    _loadedForStatus.clear();
-    fetchFirstPage();
   }
 
   // ─── Mutations ───────────────────────────────────────────────────────────
@@ -443,8 +495,7 @@ class ServicesController extends GetxController {
         title: 'services.deleteSuccessTitle'.trns(),
         message: response.message ?? 'services.deleteSuccessMessage'.trns(),
       );
-    } 
-    else {
+    } else {
       SnackbarService.showError(
         title: 'services.errorTitle'.trns(),
         message: response.message ?? 'errors.requestFailed'.trns(),
@@ -505,6 +556,9 @@ class ServicesController extends GetxController {
     }
     final target = newStatus == 'active' ? activeServices : inactiveServices;
     target.insert(0, updated);
+    _staleForStatus
+      ..add(fromKey)
+      ..add(toKey);
   }
 
   Future<bool?> _confirmDelete(ServiceModel service) {

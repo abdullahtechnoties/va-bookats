@@ -25,7 +25,7 @@ class PackageFormItem {
   final TextEditingController packageCtrl = TextEditingController();
   final TextEditingController employeeCtrl = TextEditingController();
   final TextEditingController amountCtrl = TextEditingController();
-  final TextEditingController discountCtrl = TextEditingController(text: '0');
+  final TextEditingController discountCtrl = TextEditingController(text: '');
   final TextEditingController totalCtrl = TextEditingController();
 
   final RxString selectedPackageId = ''.obs;
@@ -60,7 +60,7 @@ class ServiceFormItem {
   final TextEditingController variationCtrl = TextEditingController();
   final TextEditingController employeeCtrl = TextEditingController();
   final TextEditingController amountCtrl = TextEditingController();
-  final TextEditingController discountCtrl = TextEditingController(text: '0');
+  final TextEditingController discountCtrl = TextEditingController(text: '');
   final TextEditingController totalCtrl = TextEditingController();
 
   final RxString selectedServiceId = ''.obs;
@@ -105,7 +105,7 @@ class ProductFormItem {
   final TextEditingController quantityCtrl = TextEditingController(text: '');
   final TextEditingController unitPriceCtrl = TextEditingController();
   final TextEditingController totalCtrl = TextEditingController();
-  final TextEditingController discountCtrl = TextEditingController(text: '0');
+  final TextEditingController discountCtrl = TextEditingController(text: '');
   final TextEditingController afterDiscountCtrl = TextEditingController();
 
   final RxString selectedProductId = ''.obs;
@@ -307,8 +307,10 @@ class CreateBookingController extends GetxController {
       if (userBranch != null) selectedBranchId.value = userBranch;
     }
     _readArguments();
-    fetchBranches();
-    fetchCustomers();
+    if (branches.isEmpty) {
+      await fetchBranches();
+    }
+    // fetchCustomers();
     fetchBranchCatalogs();
     // Step 2 shows one package card by default.
     if (packageItems.isEmpty && _editing == null) addPackage();
@@ -419,6 +421,36 @@ class CreateBookingController extends GetxController {
     isLoadingProducts.value = false;
     if (res.isCompleted && res.data != null) {
       productOptions.assignAll(res.data!);
+      _syncRestoredProductRows();
+    }
+  }
+
+  void _syncRestoredProductRows() {
+    for (final row in productItems) {
+      final productId = int.tryParse(row.selectedProductId.value);
+      if (productId == null) continue;
+
+      final product = productOptions.firstWhereOrNull(
+        (option) => option.value == productId,
+      );
+      if (product == null) continue;
+
+      row.productCtrl.text = product.label;
+      row.variantOptions.assignAll(product.variants);
+
+      final variantId = int.tryParse(row.selectedVariantId.value);
+      if (variantId == null) {
+        row.availableStock.value = product.stock;
+        continue;
+      }
+
+      final variant = product.variants.firstWhereOrNull(
+        (option) => option.id == variantId,
+      );
+      if (variant == null) continue;
+
+      row.variantCtrl.text = variant.displayName;
+      row.availableStock.value = variant.stock;
     }
   }
 
@@ -462,6 +494,7 @@ class CreateBookingController extends GetxController {
       customerCtrl.clear();
       selectedCustomerId.value = null;
     } else {
+      if (customerOptions.isEmpty) fetchCustomers();
       guestNameCtrl.clear();
       guestEmailCtrl.clear();
       guestPhoneCtrl.clear();
@@ -814,24 +847,17 @@ class CreateBookingController extends GetxController {
     }
     item.isVariationType.value = found.isVariation;
     item.variationOptions.assignAll(found.variations);
-    if (!found.isVariation && found.defaultPrice.isNotEmpty) {
-      item.amountCtrl.text = found.defaultPrice;
-      _recalcRowTotal(item.amountCtrl, item.discountCtrl, item.totalCtrl);
-    } else {
-      item.amountCtrl.clear();
-      item.totalCtrl.clear();
-    }
+    _restoreServicePricing(item, found);
     _fetchServiceStaffs(item);
   }
 
   void onVariationSelected(ServiceFormItem item, dynamic value) {
     item.selectedVariationId.value = value?.toString() ?? '';
-    for (final v in item.variationOptions) {
-      if (v.id.toString() == item.selectedVariationId.value) {
-        item.amountCtrl.text = v.price;
-        _recalcRowTotal(item.amountCtrl, item.discountCtrl, item.totalCtrl);
-        break;
-      }
+    final service = serviceOptions.firstWhereOrNull(
+      (option) => option.value.toString() == item.selectedServiceId.value,
+    );
+    if (service != null) {
+      _restoreServicePricing(item, service);
     }
   }
 
@@ -875,6 +901,40 @@ class CreateBookingController extends GetxController {
 
   void onServiceEmployeeSelected(ServiceFormItem item, dynamic value) {
     item.selectedEmployeeId.value = value?.toString() ?? '';
+    if (value == null) {
+      item.employeeCtrl.clear();
+      item.amountCtrl.clear();
+      item.totalCtrl.clear();
+      return;
+    }
+
+    final service = serviceOptions.firstWhereOrNull(
+      (option) => option.value.toString() == item.selectedServiceId.value,
+    );
+    if (service != null) {
+      _restoreServicePricing(item, service);
+    }
+  }
+
+  void _restoreServicePricing(ServiceFormItem item, ServiceLookup service) {
+    if (service.isVariation) {
+      final variation = item.variationOptions.firstWhereOrNull(
+        (option) => option.id.toString() == item.selectedVariationId.value,
+      );
+      if (variation == null || variation.price.isEmpty) {
+        item.amountCtrl.clear();
+        item.totalCtrl.clear();
+        return;
+      }
+      item.amountCtrl.text = variation.price;
+    } else if (service.defaultPrice.isNotEmpty) {
+      item.amountCtrl.text = service.defaultPrice;
+    } else {
+      item.amountCtrl.clear();
+      item.totalCtrl.clear();
+      return;
+    }
+    _recalcRowTotal(item.amountCtrl, item.discountCtrl, item.totalCtrl);
   }
 
   // ─── Products ──────────────────────────────────────────────────────────
@@ -894,6 +954,7 @@ class CreateBookingController extends GetxController {
     item.selectedProductId.value = value?.toString() ?? '';
     item.selectedVariantId.value = '';
     item.variantCtrl.clear();
+    item.unitPriceCtrl.clear();
     item.variantOptions.clear();
     ProductLookup? found;
     for (final p in productOptions) {
@@ -921,6 +982,8 @@ class CreateBookingController extends GetxController {
   }
 
   void onVariantSelected(ProductFormItem item, dynamic value) {
+    item.availableStock.value = 0;
+    item.unitPriceCtrl.clear();
     item.selectedVariantId.value = value?.toString() ?? '';
     for (final v in item.variantOptions) {
       if (v.id.toString() == item.selectedVariantId.value) {
@@ -1337,9 +1400,9 @@ class CreateBookingController extends GetxController {
     if (!_validateStep(currentStep.value)) return;
     if (currentStep.value == 0 && effectiveBranchId != null) {
       // Catalogs must be ready before package/service/product steps.
-      fetchBranchCatalogs();
-      fetchCustomers();
-      if (packageItems.isEmpty) addPackage();
+      // fetchBranchCatalogs();
+      // fetchCustomers();
+      // if (packageItems.isEmpty) addPackage();
     }
     if (currentStep.value == 3) {
       recalcPaymentTotals();
@@ -1404,16 +1467,17 @@ class CreateBookingController extends GetxController {
       selectedBranchValue.value = selectedBranchId.value?.toString() ?? '';
     }
     if (selectedBranchId.value != null) {
-      fetchBranches().then((_) {
-        for (final br in branches) {
-          if (br.value == selectedBranchId.value) {
-            selectedBranch.value = br.displayLabel;
-            branchCtrl.text = br.displayLabel;
-            break;
-          }
+      // fetchBranches().then((_) {
+      for (final br in branches) {
+        if (br.value == selectedBranchId.value) {
+          selectedBranch.value = br.displayLabel;
+          branchCtrl.text = br.displayLabel;
+          break;
         }
-      });
-      fetchBranchCatalogs();
+        // }
+      }
+      // );
+      // fetchBranchCatalogs();
     }
     final type = (b.bookingType ?? '').isEmpty
         ? 'Customer'
@@ -1465,9 +1529,9 @@ class CreateBookingController extends GetxController {
   Future<void> fetchDetail(int id) async {
     isLoadingDetail.value = true;
     // Ensure catalogs exist so ids can resolve to labels/options.
-    await fetchBranches();
-    await fetchCustomers();
-    await fetchBranchCatalogs();
+    // await fetchBranches();
+    // await fetchCustomers();
+    // await fetchBranchCatalogs();
     final res = await _repo.getBookingDetail(id);
     isLoadingDetail.value = false;
     if (!res.isCompleted || res.data == null) {
@@ -1479,7 +1543,7 @@ class CreateBookingController extends GetxController {
     }
     final detail = res.data!;
     _editing = detail;
-    _prefillFromBooking(detail);
+    // _prefillFromBooking(detail);
     _rebuildItems(detail);
   }
 
@@ -1570,6 +1634,7 @@ class CreateBookingController extends GetxController {
       final row = ProductFormItem();
       if (line.productId != null) {
         row.selectedProductId.value = line.productId.toString();
+        row.productCtrl.text = line.productName ?? '';
         for (final p in productOptions) {
           if (p.value == line.productId) {
             row.productCtrl.text = p.label;
@@ -1580,6 +1645,7 @@ class CreateBookingController extends GetxController {
       }
       if (line.variantId != null) {
         row.selectedVariantId.value = line.variantId.toString();
+        row.variantCtrl.text = line.variantName ?? '';
         for (final v in row.variantOptions) {
           if (v.id == line.variantId) {
             row.variantCtrl.text = v.displayName;
@@ -1604,6 +1670,7 @@ class CreateBookingController extends GetxController {
       row.afterDiscountCtrl.text = line.afterDiscountPrice ?? '';
       productItems.add(row);
     }
+    _syncRestoredProductRows();
   }
 
   // ─── Submit ────────────────────────────────────────────────────────────

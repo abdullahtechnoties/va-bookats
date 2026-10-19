@@ -9,6 +9,7 @@ import 'package:va_bookats/models/service_category_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
+import 'package:va_bookats/utilities/filter_loader.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
@@ -105,11 +106,16 @@ class ServiceCategoriesController extends GetxController {
     return value.toLowerCase();
   }
 
+  /// Branch lookups are fetched lazily — only when the filter sheet opens
+  /// (see [onFilter]), never on controller init. The main list response
+  /// already seeds [branches], so a separate call is rarely needed.
+  final RxBool isFilterLoading = false.obs;
+  bool _filterBranchesLoaded = false;
+
   @override
   void onInit() {
     super.onInit();
     scrollController.addListener(_onScroll);
-    fetchBranches();
     fetchFirstPage();
   }
 
@@ -137,9 +143,24 @@ class ServiceCategoriesController extends GetxController {
   // ─── Fetching ────────────────────────────────────────────────────────────
 
   Future<void> fetchBranches() async {
+    if (_filterBranchesLoaded && branches.isNotEmpty) return;
     final response = await _repository.getBranches();
     if (response.isCompleted && response.data != null) {
       branches.assignAll(response.data!);
+      _filterBranchesLoaded = true;
+    }
+  }
+
+  /// Ensures filter lookups are ready before the sheet opens. Gracefully
+  /// shows a loader only when branches still need fetching.
+  Future<void> ensureFilterData() async {
+    if (_filterBranchesLoaded && branches.isNotEmpty) return;
+    if (!showBranch) return;
+    isFilterLoading.value = true;
+    try {
+      await fetchBranches();
+    } finally {
+      isFilterLoading.value = false;
     }
   }
 
@@ -168,7 +189,12 @@ class ServiceCategoriesController extends GetxController {
 
     final page = response.data!;
     categories.assignAll(page.categories);
-    branches.assignAll(page.branches);
+    // The list response seeds branches; only take them when we don't have
+    // filter branches yet so a lazy fetch is never clobbered.
+    if (page.branches.isNotEmpty && branches.isEmpty) {
+      branches.assignAll(page.branches);
+      _filterBranchesLoaded = true;
+    }
     _currentPage = page.meta.currentPage;
     _lastPage = page.meta.lastPage;
     hasMore.value = page.meta.hasNextPage;
@@ -191,7 +217,10 @@ class ServiceCategoriesController extends GetxController {
     if (response.isCompleted && response.data != null) {
       final page = response.data!;
       categories.assignAll(page.categories);
-      branches.assignAll(page.branches);
+      if (page.branches.isNotEmpty && branches.isEmpty) {
+        branches.assignAll(page.branches);
+        _filterBranchesLoaded = true;
+      }
       _currentPage = page.meta.currentPage;
       _lastPage = page.meta.lastPage;
       hasMore.value = page.meta.hasNextPage;
@@ -353,7 +382,19 @@ class ServiceCategoriesController extends GetxController {
     );
   }
 
-  void onFilter(BuildContext context) {
+  void onFilter(BuildContext context) async {
+    final needsFetch =
+        showBranch && (!_filterBranchesLoaded || branches.isEmpty);
+    await runWithFilterLoader(
+      () => ensureFilterData(),
+      shouldShow: needsFetch,
+    );
+    if (isClosed) return;
+    if (!context.mounted) return;
+    _showFilterSheet(context);
+  }
+
+  void _showFilterSheet(BuildContext context) {
     FilterBottomSheet.show(
       context,
       fields: [

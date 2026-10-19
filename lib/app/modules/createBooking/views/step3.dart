@@ -214,7 +214,8 @@ class Step3Services extends GetView<CreateBookingController> {
                                   selectedItem: item.selectedEmployeeId,
                                   textCtrl: item.employeeCtrl,
                                   values: employeeValues,
-                                  onSelected: (v) => controller
+                                  onSelected: (v) => 
+                                   controller
                                       .onServiceEmployeeSelected(item, v),
                                 ),
                         ),
@@ -250,6 +251,9 @@ class Step3Services extends GetView<CreateBookingController> {
                           controller: item.discountCtrl,
                           keyboardType: TextInputType.number,
                           height: 50,
+                          enabled: !item.isLoadingStaffs.value &&
+                              item.selectedServiceId.value.isNotEmpty,
+                          readOnly: item.selectedServiceId.value.isEmpty,
                           hintTextSize: 13,
                           validator: (_) {
                             final paid =

@@ -13,18 +13,24 @@ class ExpenseReportRepository {
   Future<ApiResponse<ExpenseReportResponseModel>> fetchExpenseReport({
     required int branchId,
     required String expenseCategoryId,
-    required String fromDate,
-    required String toDate,
+    String? fromDate,
+    String? toDate,
   }) async {
     try {
+      final params = <String, dynamic>{
+        'branch_id': branchId,
+        'expenseCategory_id': expenseCategoryId,
+      };
+      // Dates are only sent when the user picked them (null = backend range).
+      if (fromDate != null && fromDate.isNotEmpty) {
+        params['from_date'] = fromDate;
+      }
+      if (toDate != null && toDate.isNotEmpty) {
+        params['to_date'] = toDate;
+      }
       final response = await _network.get(
         endpoint: ApiPath.expenseReport,
-        queryParams: {
-          'branch_id': branchId,
-          'expenseCategory_id': expenseCategoryId,
-          'from_date': fromDate,
-          'to_date': toDate,
-        },
+        queryParams: params,
       );
 
       if (response.isCompleted && response.data != null) {

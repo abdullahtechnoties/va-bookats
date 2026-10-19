@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/allBooking/controllers/all_booking_controller.dart';
 import 'package:va_bookats/app/modules/bookings/repositories/booking_repository.dart';
 import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
-import 'package:va_bookats/app/modules/home/models/home_charts_model.dart';
+import 'package:va_bookats/app/modules/home/models/home_model.dart';
 import 'package:va_bookats/app/modules/home/repositories/home_repository.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/booking_model.dart';
@@ -35,13 +35,13 @@ class HomeController extends GetxController {
   final RxBool loadFailed = false.obs;
   final RxnInt busyBookingId = RxnInt();
 
-  // ── Home charts (counts + revenue graph) ──────────────────────────────
-  final Rx<ApiResponse<HomeChartsData>> chartsResponse =
-      ApiResponse<HomeChartsData>.loading().obs;
+  // ── Home dashboard (counts, revenue graph, and recent bookings) ───────
+  final Rx<ApiResponse<HomeData>> homeResponse =
+      ApiResponse<HomeData>.loading().obs;
 
-  HomeChartsData? get charts => chartsResponse.value.data;
-  bool get hasCharts => charts != null;
-  bool get isLoadingCharts => chartsResponse.value.isLoading;
+  HomeData? get home => homeResponse.value.data;
+  bool get hasHome => home != null;
+  bool get isLoadingHome => homeResponse.value.isLoading;
 
   String get userName => auth.currentUser.value?.displayName ?? '';
   String get userImage => auth.currentUser.value?.image ?? '';
@@ -49,71 +49,32 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchTodayBookings();
-    fetchCharts();
+    fetchHome();
   }
 
-  Future<void> fetchCharts() async {
-    chartsResponse.value = ApiResponse.loading();
-    chartsResponse.value = await _homeRepo.getCharts();
-  }
-
-  String _todayApiDate() {
-    final now = DateTime.now();
-    return '${now.year.toString().padLeft(4, '0')}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')}';
-  }
-
-  Future<void> fetchTodayBookings() async {
+  Future<void> fetchHome() async {
     isLoading.value = true;
     loadFailed.value = false;
- 
-    
-    // Today's bookings via date filter; backend ignores unknown params safely.
-    final today = _todayApiDate();
-    final response = await _repo.getBookings(
-      page: 1,
-      fromDate: today,
-      // toDate: today,
-    );
-    if (response.isCompleted || response.data != null) {
-      // Fallback: unfiltered first page so home never looks broken when the
-      // backend doesn't support date params.
-      // final fallback = await _repo.getBookings(page: 1);
-      // if (!fallback.isCompleted || fallback.data == null) {
-      //   loadFailed.value = true;
-      //   isLoading.value = false;
-      //   return;
-      // }
-      // todayBookings.assignAll(fallback.data!.bookings);
-      todayBookings.assignAll(response.data!.bookings);
 
-      isLoading.value = false;
-      return;
+    final response = await _homeRepo.getHome();
+    homeResponse.value = response;
+    if (response.isCompleted && response.data != null) {
+      todayBookings.assignAll(response.data!.bookings);
+    } else {
+      loadFailed.value = true;
     }
-    var list = response.data!.bookings;
-    // If date filter returned nothing, show recent bookings instead.
-    if (list.isEmpty) {
-      final fallback = await _repo.getBookings(page: 1);
-      if (fallback.isCompleted && fallback.data != null) {
-        list = fallback.data!.bookings;
-      }
-    }
-    todayBookings.assignAll(list);
     isLoading.value = false;
   }
 
   Future<void> handleRefresh() async {
     isRefreshing.value = true;
     loadFailed.value = false;
-    await Future.wait([fetchTodayBookings(), fetchCharts()]);
+    await fetchHome();
     isRefreshing.value = false;
   }
 
   void retry() {
-    fetchTodayBookings();
-    fetchCharts();
+    fetchHome();
   }
 
   /// Homepage search bar → AllBookings with search opened + focused.
@@ -157,7 +118,7 @@ class HomeController extends GetxController {
   void openDetails(BookingModel booking) {
     Get.toNamed(Routes.BOOKING_DETAILS, arguments: booking.id)?.then((_) {
       // Details may change status → refresh silently.
-      fetchTodayBookings();
+      fetchHome();
     });
   }
 

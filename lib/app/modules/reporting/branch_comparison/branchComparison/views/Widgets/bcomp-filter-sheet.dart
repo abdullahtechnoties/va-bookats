@@ -177,10 +177,10 @@ class BranchComparisonFilterSheet extends StatelessWidget {
     );
   }
 
-  Future<DateTime?> _pickDate(BuildContext context, DateTime initial) {
+  Future<DateTime?> _pickDate(BuildContext context, DateTime? initial) {
     return showDatePicker(
       context: context,
-      initialDate: initial,
+      initialDate: initial ?? DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
       builder: (ctx, child) => Theme(
@@ -218,15 +218,17 @@ class BranchComparisonFilterSheet extends StatelessWidget {
 
 // ── Date Field ────────────────────────────────────────────────────────────────
 class _DateField extends StatelessWidget {
-  final DateTime value;
+  final DateTime? value;
   final VoidCallback onTap;
 
   const _DateField({required this.value, required this.onTap});
 
-  String _fmt(DateTime d) => reportHumanDate(d);
+  String _fmt(DateTime? d) =>
+      d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
 
   @override
   Widget build(BuildContext context) {
+    final v = value;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -241,11 +243,13 @@ class _DateField extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                _fmt(value),
-                style: const TextStyle(
+                _fmt(v),
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.black,
+                  color: v == null
+                      ? const Color(0xFF9CA3AF)
+                      : AppColors.black,
                 ),
               ),
             ),

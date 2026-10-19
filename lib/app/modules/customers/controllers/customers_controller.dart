@@ -8,6 +8,7 @@ import 'package:va_bookats/models/customer_model.dart';
 import 'package:va_bookats/models/lookup_option.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
+import 'package:va_bookats/utilities/filter_loader.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
@@ -51,6 +52,11 @@ class CustomersController extends GetxController {
   final RxList<String> countryOptions = <String>['All Country'].obs;
   final Map<String, int?> _countryIdByLabel = {'All Country': null};
   final RxBool isLoadingCountries = false.obs;
+
+  /// Country lookups are fetched lazily — only when the filter sheet opens
+  /// (see [openFilter]), never on controller init.
+  final RxBool isFilterLoading = false.obs;
+  bool _filterCountriesLoaded = false;
 
   String? get _filterStatus {
     final v = selectedStatusFilter.value.trim().toLowerCase();
@@ -96,7 +102,6 @@ class CustomersController extends GetxController {
     super.onInit();
     scrollController.addListener(_onScroll);
     displayDateRange.value = _defaultRangeLabel();
-    fetchCountries();
     fetchFirstPage();
   }
 
@@ -131,9 +136,12 @@ class CustomersController extends GetxController {
   // ─── Fetching ──────────────────────────────────────────────────────────
 
   Future<void> fetchCountries() async {
+    if (_filterCountriesLoaded && countryOptions.length > 1) return;
     isLoadingCountries.value = true;
+    isFilterLoading.value = true;
     final response = await _repository.getCountries();
     isLoadingCountries.value = false;
+    isFilterLoading.value = false;
     if (response.isCompleted && response.data != null) {
       final options = response.data!;
       countryOptions.assignAll(['All Country', ...options.map((o) => o.label)]);
@@ -143,7 +151,15 @@ class CustomersController extends GetxController {
       for (final LookupOption o in options) {
         _countryIdByLabel[o.label] = o.valueAsInt;
       }
+      _filterCountriesLoaded = true;
     }
+  }
+
+  /// Ensures filter lookups are ready before the sheet opens, showing a
+  /// graceful loader only while the (first) fetch is in flight.
+  Future<void> ensureFilterData() async {
+    if (_filterCountriesLoaded && countryOptions.length > 1) return;
+    await fetchCountries();
   }
 
   Future<void> fetchFirstPage() async {
@@ -250,7 +266,19 @@ class CustomersController extends GetxController {
     fetchFirstPage();
   }
 
-  void openFilter(BuildContext context) {
+  void openFilter(BuildContext context) async {
+    final needsFetch =
+        !_filterCountriesLoaded || countryOptions.length <= 1;
+    await runWithFilterLoader(
+      () => ensureFilterData(),
+      shouldShow: needsFetch,
+    );
+    if (isClosed) return;
+    if (!context.mounted) return;
+    _showFilterSheet(context);
+  }
+
+  void _showFilterSheet(BuildContext context) {
     FilterBottomSheet.show(
       context,
       fields: [

@@ -20,18 +20,16 @@ class CommissionsReportController extends GetxController {
       ApiResponse<CommissionsReportResponse>.loading().obs;
 
   // ── Filters ───────────────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> toDate = DateTime.now().obs;
+  /// Nullable dates: null = "no date filter" — nothing is sent to the API
+  /// until the user picks a date in the filter sheet and taps Apply.
+  final Rxn<DateTime> fromDate = Rxn<DateTime>();
+  final Rxn<DateTime> toDate = Rxn<DateTime>();
   final RxnString selectedBranchId = RxnString(null);
   final RxnString selectedStaffId = RxnString(null);
 
   // Temp filters (inside bottom sheet)
-  final Rx<DateTime> tempFromDate = DateTime.now()
-      .subtract(const Duration(days: 30))
-      .obs;
-  final Rx<DateTime> tempToDate = DateTime.now().obs;
+  final Rxn<DateTime> tempFromDate = Rxn<DateTime>();
+  final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final RxnString tempBranchId = RxnString(null);
   final RxnString tempStaffId = RxnString(null);
 
@@ -131,8 +129,14 @@ class CommissionsReportController extends GetxController {
       apiResponse.value.data?.monthlyData ?? [];
 
   String get dateRangeLabel {
-    final fmt = reportHumanDate;
-    return '${fmt(fromDate.value)} - ${fmt(toDate.value)}';
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from == null && to == null) {
+      return 'reports.common.allDates'.trns();
+    }
+    String fmt(DateTime? d) =>
+        d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
+    return '${fmt(from)} - ${fmt(to)}';
   }
 
   String? get selectedBranchLabel {
@@ -168,10 +172,17 @@ class CommissionsReportController extends GetxController {
   Future<void> fetchReport() async {
     apiResponse.value = ApiResponse.loading();
 
-    final params = <String, dynamic>{
-      'from_date': DateFormat('yyyy-MM-dd').format(fromDate.value),
-      'to_date': DateFormat('yyyy-MM-dd').format(toDate.value),
-    };
+    // Dates are only sent when the user picked them in the filter sheet.
+    // First load sends no from/to params (backend decides the range).
+    final params = <String, dynamic>{};
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from != null) {
+      params['from_date'] = DateFormat('yyyy-MM-dd').format(from);
+    }
+    if (to != null) {
+      params['to_date'] = DateFormat('yyyy-MM-dd').format(to);
+    }
 
     if (isOwner && selectedBranchId.value != null) {
       params['branch_id'] = selectedBranchId.value;
@@ -229,8 +240,8 @@ class CommissionsReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = DateTime.now().subtract(const Duration(days: 30));
-    tempToDate.value = DateTime.now();
+    tempFromDate.value = null;
+    tempToDate.value = null;
     // Reset restores the defaults: first branch (owner) / own branch
     // (non-owner) and first staff.
     tempBranchId.value =
@@ -384,12 +395,14 @@ class CommissionsReportController extends GetxController {
   // ── Navigation ────────────────────────────────────────────────────────────
   void viewDetails(CommissionMonthlyData row) {
     final staffId = selectedStaffId.value;
+    String fmt(DateTime? d, String fallback) =>
+        d == null ? fallback : DateFormat('yyyy-MM-dd').format(d);
     Get.toNamed(
       Routes.COMMISSIONS_DETAIL,
       parameters: {
         'branch_id': row.branchId.toString(),
-        'from_date': DateFormat('yyyy-MM-dd').format(fromDate.value),
-        'to_date': DateFormat('yyyy-MM-dd').format(toDate.value),
+        'from_date': fmt(fromDate.value, row.from),
+        'to_date': fmt(toDate.value, row.to),
         // Always forward staff_id: 'all' when nothing is selected.
         'staff_id': (staffId == null || staffId.isEmpty) ? 'all' : staffId,
       },

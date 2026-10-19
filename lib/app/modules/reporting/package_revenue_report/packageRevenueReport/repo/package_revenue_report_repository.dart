@@ -10,16 +10,19 @@ class PackageRevenueReportRepository {
   final NetworkService _network = Get.find<NetworkService>();
 
   Future<ApiResponse<PackageRevenueReportModel>> getPackageRevenueReport({
-    required String fromDate,
-    required String toDate,
+    String? fromDate,
+    String? toDate,
     int? branchId,
     dynamic packageId,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'from_date': fromDate,
-        'to_date': toDate,
-      };
+      final queryParams = <String, dynamic>{};
+      if (fromDate != null && fromDate.isNotEmpty) {
+        queryParams['from_date'] = fromDate;
+      }
+      if (toDate != null && toDate.isNotEmpty) {
+        queryParams['to_date'] = toDate;
+      }
 
       if (branchId != null && branchId > 0) {
         queryParams['branch_id'] = branchId;

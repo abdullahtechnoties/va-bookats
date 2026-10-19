@@ -59,7 +59,16 @@ class AllBookingView extends GetView<AllBookingController> {
                 return _ErrorState(onRetry: controller.retry);
               }
               if (controller.currentBookings.isEmpty) {
-                return const _EmptyState();
+                return RefreshIndicator(
+                  color: AppColors.secondary,
+                  onRefresh: controller.handleRefresh,
+                  child: ListView(
+                    children: [
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                      const _EmptyState(),
+                    ],
+                  ),
+                );
               }
               return RefreshIndicator(
                 color: AppColors.secondary,

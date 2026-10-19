@@ -65,50 +65,50 @@ class ServiceRepository {
   /// GET /service-categories — fetches every page so all categories are
   /// available for the dropdowns. Duplicate rows (same id across pages or
   /// repeated by the backend) are collapsed to a single entry.
-  Future<ApiResponse<List<ServiceCategoryModel>>> getCategories() async {
-    final categories = <ServiceCategoryModel>[];
-    final seenIds = <int>{};
-    int page = 1;
+  // Future<ApiResponse<List<ServiceCategoryModel>>> getCategories() async {
+  //   final categories = <ServiceCategoryModel>[];
+  //   final seenIds = <int>{};
+  //   int page = 1;
 
-    while (true) {
-      final response = await _network.get(
-        endpoint: ApiPath.serviceCategories,
-        queryParams: {'page': page},
-      );
+  //   while (true) {
+  //     final response = await _network.get(
+  //       endpoint: ApiPath.serviceCategories,
+  //       queryParams: {'page': page},
+  //     );
 
-      if (!response.isCompleted || response.data == null) {
-        return ApiResponse.error(
-          response.message ?? 'errors.requestFailed'.trns(),
-          errors: response.errors,
-        );
-      }
+  //     if (!response.isCompleted || response.data == null) {
+  //       return ApiResponse.error(
+  //         response.message ?? 'errors.requestFailed'.trns(),
+  //         errors: response.errors,
+  //       );
+  //     }
 
-      final body = response.data!;
-      final rawPage = body['serviceCategories'];
-      if (rawPage is! Map) {
-        return ApiResponse.error('errors.unexpectedShort'.trns());
-      }
+  //     final body = response.data!;
+  //     final rawPage = body['serviceCategories'];
+  //     if (rawPage is! Map) {
+  //       return ApiResponse.error('errors.unexpectedShort'.trns());
+  //     }
 
-      final pageMap = Map<String, dynamic>.from(rawPage);
-      final rawList = pageMap['data'];
-      if (rawList is List) {
-        for (final entry in rawList.whereType<Map>()) {
-          final category = ServiceCategoryModel.fromJson(
-            Map<String, dynamic>.from(entry),
-          );
-          final id = category.id;
-          if (id == null || !seenIds.add(id)) continue;
-          categories.add(category);
-        }
-      }
+  //     final pageMap = Map<String, dynamic>.from(rawPage);
+  //     final rawList = pageMap['data'];
+  //     if (rawList is List) {
+  //       for (final entry in rawList.whereType<Map>()) {
+  //         final category = ServiceCategoryModel.fromJson(
+  //           Map<String, dynamic>.from(entry),
+  //         );
+  //         final id = category.id;
+  //         if (id == null || !seenIds.add(id)) continue;
+  //         categories.add(category);
+  //       }
+  //     }
 
-      final meta = PaginationMeta.fromJson(pageMap);
-      if (!meta.hasNextPage) break;
-      page = meta.currentPage + 1;
-    }
+  //     final meta = PaginationMeta.fromJson(pageMap);
+  //     if (!meta.hasNextPage) break;
+  //     page = meta.currentPage + 1;
+  //   }
 
-    return ApiResponse.completed(categories);
-  }
+  //   return ApiResponse.completed(categories);
+  // }
 
   /// GET /data/service-categories?branch_id=N — branch lookup for service forms.
   Future<ApiResponse<List<ServiceCategoryModel>>> getCategoriesByBranch(

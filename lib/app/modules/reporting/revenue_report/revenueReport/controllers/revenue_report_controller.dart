@@ -36,14 +36,16 @@ class RevenueReportController extends GetxController {
   final RxBool isRefreshing = false.obs;
 
   // ── Filter state ─────────────────────────────────────────────────────────
-  final Rx<DateTime> fromDate = DateTime.now().obs;
-  final Rx<DateTime> toDate = DateTime.now().obs;
+  /// Nullable dates: null = "no date filter" — nothing is sent to the API
+  /// until the user picks a date in the filter sheet and taps Apply.
+  final Rxn<DateTime> fromDate = Rxn<DateTime>();
+  final Rxn<DateTime> toDate = Rxn<DateTime>();
   final RxInt selectedBranchId = 0.obs; // 0 = All branches
   final RxString selectedBranchLabel = 'All Branches'.obs;
 
   // Temp filter (inside sheet before apply)
-  final Rx<DateTime> tempFromDate = DateTime.now().obs;
-  final Rx<DateTime> tempToDate = DateTime.now().obs;
+  final Rxn<DateTime> tempFromDate = Rxn<DateTime>();
+  final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final RxInt tempBranchId = 0.obs;
   final RxString tempBranchLabel = 'All Branches'.obs;
 
@@ -188,7 +190,14 @@ class RevenueReportController extends GetxController {
   int get selectedColumnCount => allColumns.where((c) => c.isSelected).length;
 
   String get dateRangeLabel {
-    return '${reportHumanDate(fromDate.value)} - ${reportHumanDate(toDate.value)}';
+    final from = fromDate.value;
+    final to = toDate.value;
+    if (from == null && to == null) {
+      return 'reports.common.allDates'.trns();
+    }
+    String fmt(DateTime? d) =>
+        d == null ? 'reports.common.selectDate'.trns() : reportHumanDate(d);
+    return '${fmt(from)} - ${fmt(to)}';
   }
 
   List<RevenueData> get pagedData {
@@ -207,19 +216,10 @@ class RevenueReportController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _initializeDates();
+    // No preset dates: the first load sends no from/to params so the
+    // backend decides the default range. Dates are only sent after the
+    // user picks them in the filter sheet and taps Apply.
     fetchRevenueReport();
-  }
-
-  void _initializeDates() {
-    final now = DateTime.now();
-    final firstDay = DateTime(now.year, now.month, 1);
-    final lastDay = DateTime(now.year, now.month + 1, 0);
-
-    fromDate.value = firstDay;
-    toDate.value = lastDay;
-    tempFromDate.value = firstDay;
-    tempToDate.value = lastDay;
   }
 
   // ── API Calls ────────────────────────────────────────────────────────────
@@ -306,9 +306,8 @@ class RevenueReportController extends GetxController {
   }
 
   void resetFilter() {
-    final now = DateTime.now();
-    tempFromDate.value = DateTime(now.year, now.month, 1);
-    tempToDate.value = DateTime(now.year, now.month + 1, 0);
+    tempFromDate.value = null;
+    tempToDate.value = null;
     tempBranchId.value = 0;
     tempBranchLabel.value = 'reports.revenue.filter.allBranches'.trns();
   }
@@ -484,7 +483,8 @@ class RevenueReportController extends GetxController {
 
   String _formatDate(DateTime date) => reportHumanDate(date);
 
-  String _formatDateApi(DateTime date) {
+  String? _formatDateApi(DateTime? date) {
+    if (date == null) return null;
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }
