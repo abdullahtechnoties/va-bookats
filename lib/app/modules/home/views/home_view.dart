@@ -22,64 +22,69 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: Column(
-        children: [
-          _HomeHeader(controller: controller),
-          Expanded(
-            child: RefreshIndicator(
-              color: AppColors.secondary,
-              onRefresh: controller.handleRefresh,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _HomeInsights(controller: controller),
-                    SizedBox(height: 24),
-                    _TodayBookingHeader(controller: controller),
-                    Obx(() {
-                      if (controller.isLoading.value) {
-                        return const _BookingShimmerList();
-                      }
-                      if (controller.loadFailed.value &&
-                          controller.todayBookings.isEmpty) {
-                        return _HomeErrorState(onRetry: controller.retry);
-                      }
-                      if (controller.todayBookings.isEmpty) {
-                        return const _HomeEmptyState();
-                      }
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: controller.todayBookings.length,
-                        itemBuilder: (context, index) {
-                          final booking = controller.todayBookings[index];
-                          return Obx(
-                            () => BookingCard(
-                              booking: booking,
-                              isBusy:
-                                  controller.busyBookingId.value == booking.id,
-                              onViewDetails: () =>
-                                  controller.openDetails(booking),
-                              onEdit: () => _openEdit(booking),
-                              onStatusTap: () =>
-                                  _showStatusSheet(context, booking),
-                            ),
-                          );
-                        },
-                      );
-                    }),
-                    const SizedBox(height: 24),
-                  ],
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F5F5),
+        body: Column(
+          children: [
+            _HomeHeader(controller: controller),
+            Expanded(
+              child: RefreshIndicator(
+                color: AppColors.secondary,
+                onRefresh: controller.handleRefresh,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _HomeInsights(controller: controller),
+                      SizedBox(height: 24),
+                      _TodayBookingHeader(controller: controller),
+                      Obx(() {
+                        if (controller.isLoading.value) {
+                          return const _BookingShimmerList();
+                        }
+                        if (controller.loadFailed.value &&
+                            controller.todayBookings.isEmpty) {
+                          return _HomeErrorState(onRetry: controller.retry);
+                        }
+                        if (controller.todayBookings.isEmpty) {
+                          return const _HomeEmptyState();
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: controller.todayBookings.length,
+                          itemBuilder: (context, index) {
+                            final booking = controller.todayBookings[index];
+                            return Obx(
+                              () => BookingCard(
+                                booking: booking,
+                                isBusy:
+                                    controller.busyBookingId.value == booking.id,
+                                onViewDetails: () =>
+                                    controller.openDetails(booking),
+                                onEdit: () => _openEdit(booking),
+                                onStatusTap: () =>
+                                    _showStatusSheet(context, booking),
+                              ),
+                            );
+                          },
+                        );
+                      }),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+                  
+      
+          ],
+        ),
       ),
     );
   }

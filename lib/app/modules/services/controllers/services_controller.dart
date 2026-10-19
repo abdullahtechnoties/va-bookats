@@ -9,6 +9,7 @@ import 'package:va_bookats/models/service_category_model.dart';
 import 'package:va_bookats/models/service_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
@@ -147,6 +148,11 @@ class ServicesController extends GetxController {
   void onInit() {
     super.onInit();
     scrollController.addListener(_onScroll);
+    // if (Permissions.can(AppPerm.services)) {
+      // fetchBranches();
+      // fetchCategories();
+      // fetchFirstPage();
+    // }
     fetchBranches();
     fetchCategories();
     fetchFirstPage();

@@ -23,7 +23,9 @@ class AppDrawerView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(context, controller),
+            GestureDetector(
+              onTap:() => Get.toNamed(Routes.PRODUCTS),
+              child: _buildHeader(context, controller)),
             const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
             const SizedBox(height: 8),
             Expanded(
@@ -50,6 +52,12 @@ class AppDrawerView extends StatelessWidget {
                       AppPerm.index(AppPerm.services),
                       AppPerm.index(AppPerm.serviceCategories),
                       AppPerm.index(AppPerm.packages),
+                      AppPerm.index(AppPerm.products),
+                      AppPerm.index(AppPerm.brands),
+                      AppPerm.index(AppPerm.productCategories),
+                      AppPerm.index(AppPerm.tags),
+                      AppPerm.index(AppPerm.units),
+                      AppPerm.index(AppPerm.productVariations),
                     ],
                     child: _DrawerExpandable(
                       icon: Icons.credit_card_outlined,
@@ -106,7 +114,7 @@ class AppDrawerView extends StatelessWidget {
                   // _DrawerSimpleItem(
                   //   icon: Icons.home_outlined,
                   //   label: 'Home',
-                  //   onTap: () => _openTab(0),
+                  //   onTap: () => Get.to(Routes.PRODUCTS),
                   // ),
                   // _DrawerSimpleItem(
                   //   icon: Icons.calendar_month_outlined,
@@ -160,6 +168,24 @@ class AppDrawerView extends StatelessWidget {
         break;
       case 'Packages':
         Get.toNamed(Routes.PACKAGES);
+        break;
+      case 'Products':
+        Get.toNamed(Routes.PRODUCTS);
+        break;
+      case 'Brands':
+        Get.toNamed(Routes.BRANDS);
+        break;
+      case 'Product Categories':
+        Get.toNamed(Routes.PRODUCT_CATEGORIES);
+        break;
+      case 'Tags':
+        Get.toNamed(Routes.TAGS);
+        break;
+      case 'Units':
+        Get.toNamed(Routes.UNITS);
+        break;
+      case 'Variations':
+        Get.toNamed(Routes.VARIATIONS);
         break;
     }
   }

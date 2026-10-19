@@ -46,6 +46,19 @@ abstract class Routes {
   static const CUSTOMER_DETAILS = _Paths.CUSTOMER_DETAILS;
   static const BOOKING_PAYMENT_DETAILS = _Paths.BOOKING_PAYMENT_DETAILS;
   static const ADD_NEW_PAYMENT = _Paths.ADD_NEW_PAYMENT;
+  static const PRODUCTS = _Paths.PRODUCTS;
+  static const PRODUCT_DETAIL = _Paths.PRODUCT_DETAIL;
+  static const ADD_PRODUCT = _Paths.ADD_PRODUCT;
+  static const UNITS = _Paths.UNITS;
+  static const TAGS = _Paths.TAGS;
+  static const VARIATIONS = _Paths.VARIATIONS;
+  static const ADD_VARIATIONS = _Paths.ADD_VARIATIONS;
+  static const ADD_UNIT = _Paths.ADD_UNIT;
+  static const ADD_TAG = _Paths.ADD_TAG;
+  static const BRANDS = _Paths.BRANDS;
+  static const PRODUCT_CATEGORIES = _Paths.PRODUCT_CATEGORIES;
+  static const ADD_BRAND = _Paths.ADD_BRAND;
+  static const ADD_PRODUCT_CATEGORY = _Paths.ADD_PRODUCT_CATEGORY;
 }
 
 abstract class _Paths {
@@ -93,4 +106,17 @@ abstract class _Paths {
   static const CUSTOMER_DETAILS = '/customer-details';
   static const BOOKING_PAYMENT_DETAILS = '/booking-payment-details';
   static const ADD_NEW_PAYMENT = '/add-new-payment';
+  static const PRODUCTS = '/products';
+  static const PRODUCT_DETAIL = '/product-detail';
+  static const ADD_PRODUCT = '/add-product';
+  static const UNITS = '/units';
+  static const TAGS = '/tags';
+  static const VARIATIONS = '/variations';
+  static const ADD_VARIATIONS = '/add-variations';
+  static const ADD_UNIT = '/add-unit';
+  static const ADD_TAG = '/add-tag';
+  static const BRANDS = '/brands';
+  static const PRODUCT_CATEGORIES = '/product-categories';
+  static const ADD_BRAND = '/add-brand';
+  static const ADD_PRODUCT_CATEGORY = '/add-product-category';
 }

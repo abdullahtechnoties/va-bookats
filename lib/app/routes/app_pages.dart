@@ -1,15 +1,27 @@
 import 'package:get/get.dart';
 
+import '../modules/addBrand/bindings/add_brand_binding.dart';
+import '../modules/addBrand/views/add_brand_view.dart';
 import '../modules/addCustomer/bindings/add_customer_binding.dart';
 import '../modules/addCustomer/views/add_customer_view.dart';
 import '../modules/addNewPayment/bindings/add_new_payment_binding.dart';
 import '../modules/addNewPayment/views/add_new_payment_view.dart';
 import '../modules/addPackage/bindings/add_package_binding.dart';
 import '../modules/addPackage/views/add_package_view.dart';
+import '../modules/addProduct/bindings/add_product_binding.dart';
+import '../modules/addProduct/views/add_product_view.dart';
+import '../modules/addProductCategory/bindings/add_product_category_binding.dart';
+import '../modules/addProductCategory/views/add_product_category_view.dart';
 import '../modules/addService/bindings/add_service_binding.dart';
 import '../modules/addService/views/add_service_view.dart';
 import '../modules/addServiceCategory/bindings/add_service_category_binding.dart';
 import '../modules/addServiceCategory/views/add_service_category_view.dart';
+import '../modules/addTag/bindings/add_tag_binding.dart';
+import '../modules/addTag/views/add_tag_view.dart';
+import '../modules/addUnit/bindings/add_unit_binding.dart';
+import '../modules/addUnit/views/add_unit_view.dart';
+import '../modules/addVariations/bindings/add_variations_binding.dart';
+import '../modules/addVariations/views/add_variations_view.dart';
 import '../modules/allBooking/bindings/all_booking_binding.dart';
 import '../modules/allBooking/views/all_booking_view.dart';
 import '../modules/appDrawer/bindings/app_drawer_binding.dart';
@@ -20,6 +32,8 @@ import '../modules/bookingPaymentDetails/bindings/booking_payment_details_bindin
 import '../modules/bookingPaymentDetails/views/booking_payment_details_view.dart';
 import '../modules/bottomnav/bindings/bottomnav_binding.dart';
 import '../modules/bottomnav/views/bottomnav_view.dart';
+import '../modules/brands/bindings/brands_binding.dart';
+import '../modules/brands/views/brands_view.dart';
 import '../modules/createBooking/bindings/create_booking_binding.dart';
 import '../modules/createBooking/views/create_booking_view.dart';
 import '../modules/customers/bindings/customers_binding.dart';
@@ -38,6 +52,12 @@ import '../modules/payments/bindings/payments_binding.dart';
 import '../modules/payments/views/payments_view.dart';
 import '../modules/personalInfo/bindings/personal_info_binding.dart';
 import '../modules/personalInfo/views/personal_info_view.dart';
+import '../modules/productCategories/bindings/product_categories_binding.dart';
+import '../modules/productCategories/views/product_categories_view.dart';
+import '../modules/productDetail/bindings/product_detail_binding.dart';
+import '../modules/productDetail/views/product_detail_view.dart';
+import '../modules/products/bindings/products_binding.dart';
+import '../modules/products/views/products_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/realPaymentDetails/bindings/real_payment_details_binding.dart';
@@ -80,8 +100,14 @@ import '../modules/services/bindings/services_binding.dart';
 import '../modules/services/views/services_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
+import '../modules/tags/bindings/tags_binding.dart';
+import '../modules/tags/views/tags_view.dart';
+import '../modules/units/bindings/units_binding.dart';
+import '../modules/units/views/units_view.dart';
 import '../modules/updatePassword/bindings/update_password_binding.dart';
 import '../modules/updatePassword/views/update_password_view.dart';
+import '../modules/variations/bindings/variations_binding.dart';
+import '../modules/variations/views/variations_view.dart';
 
 part 'app_routes.dart';
 
@@ -173,7 +199,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.BOTTOMNAV,
-      page: () => BottomnavView(),
+      page: () => const BottomnavView(),
       binding: BottomnavBinding(),
     ),
     GetPage(
@@ -295,6 +321,71 @@ class AppPages {
       name: _Paths.ADD_NEW_PAYMENT,
       page: () => const AddNewPaymentView(),
       binding: AddNewPaymentBinding(),
+    ),
+    GetPage(
+      name: _Paths.PRODUCTS,
+      page: () => const ProductsView(),
+      binding: ProductsBinding(),
+    ),
+    GetPage(
+      name: _Paths.PRODUCT_DETAIL,
+      page: () => const ProductDetailView(),
+      binding: ProductDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_PRODUCT,
+      page: () => const AddProductView(),
+      binding: AddProductBinding(),
+    ),
+    GetPage(
+      name: _Paths.UNITS,
+      page: () => const UnitsView(),
+      binding: UnitsBinding(),
+    ),
+    GetPage(
+      name: _Paths.TAGS,
+      page: () => const TagsView(),
+      binding: TagsBinding(),
+    ),
+    GetPage(
+      name: _Paths.VARIATIONS,
+      page: () => const VariationsView(),
+      binding: VariationsBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_VARIATIONS,
+      page: () => const AddVariationsView(),
+      binding: AddVariationsBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_UNIT,
+      page: () => const AddUnitView(),
+      binding: AddUnitBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_TAG,
+      page: () => const AddTagView(),
+      binding: AddTagBinding(),
+    ),
+    GetPage(
+      name: _Paths.BRANDS,
+      page: () => const BrandsView(),
+      binding: BrandsBinding(),
+    ),
+    GetPage(
+      name: _Paths.PRODUCT_CATEGORIES,
+      page: () => const ProductCategoriesView(),
+      binding: ProductCategoriesBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_BRAND,
+      page: () => const AddBrandView(),
+      binding: AddBrandBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_PRODUCT_CATEGORY,
+      page: () => const AddProductCategoryView(),
+      binding: AddProductCategoryBinding(),
     ),
   ];
 }

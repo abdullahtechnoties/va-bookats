@@ -30,10 +30,10 @@ class LoginController extends GetxController {
   void onInit() {
     super.onInit();
     // Pre-fill a previously saved company id if one exists.
-    final savedCompanyId = _authService.companyId.value;
-    if (savedCompanyId != null && savedCompanyId.isNotEmpty) {
-      companyIdController.text = savedCompanyId;
-    }
+    // final savedCompanyId = _authService.companyId.value;
+    // if (savedCompanyId != null && savedCompanyId.isNotEmpty) {
+    //   companyIdController.text = savedCompanyId;
+    // }
   }
 
   @override

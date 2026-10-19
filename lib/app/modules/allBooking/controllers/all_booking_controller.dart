@@ -6,6 +6,7 @@ import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
@@ -155,9 +156,11 @@ class AllBookingController extends GetxController {
       (_) => fetchFirstPage(),
       time: const Duration(milliseconds: 500),
     );
-    if (showBranch) fetchBranches();
-    _readArguments();
-    fetchFirstPage();
+    if (Permissions.can(AppPerm.create(AppPerm.bookings))) {
+      if (showBranch) fetchBranches();
+      _readArguments();
+      fetchFirstPage();
+    }
   }
 
   @override

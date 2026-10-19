@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:va_bookats/app/modules/allBooking/controllers/all_booking_controller.dart';
 import 'package:va_bookats/app/modules/appDrawer/views/app_drawer_view.dart';
 import 'package:va_bookats/app/modules/allBooking/views/all_booking_view.dart';
 import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
-import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
-import 'package:va_bookats/app/modules/profile/controllers/profile_controller.dart';
 import 'package:va_bookats/app/modules/profile/views/profile_view.dart';
 import 'package:va_bookats/app/modules/services/views/services_view.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/permissions_helper.dart';
 import '../../home/views/home_view.dart';
-
-
 
 // ─────────────────────────────────────────────
 //  Nav item model
@@ -56,29 +51,21 @@ const List<_NavItem> _navItems = [
   ),
 ];
 
-
 class BottomnavView extends GetView<BottomnavController> {
-  BottomnavView({super.key});
-
-  final List<Widget> pages = [
-    HomeView(),
-    AllBookingView(),
-    ServicesView(),
-    ProfileView(),
-  ];
+  const BottomnavView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final hcontroller = Get.put(HomeController());
-    final lcontroller = Get.put(AllBookingController());
-    final p = Get.put(ProfileController());
     return Scaffold(
       key: controller.scaffoldKey,
       drawer: const AppDrawerView(),
-      backgroundColor: AppColors.primary,
+      // backgroundColor: AppColors.primary,
       extendBody: true,
       body: Obx(
-        () => IndexedStack(index: controller.tabIndex.value, children: pages),
+        () => IndexedStack(
+          index: controller.tabIndex.value,
+          children: _buildPages(),
+        ),
       ),
       // Always visible so the bar keeps its shape; denied taps show a
       // graceful "no access" popup instead of navigating.
@@ -90,8 +77,6 @@ class BottomnavView extends GetView<BottomnavController> {
             return;
           }
           Get.toNamed(Routes.CREATE_BOOKING);
-          // AuthServices.logout();
-          // Get.offAllNamed(Routes.SPLASH);
         },
         shape: const CircleBorder(),
         child: Icon(Icons.add, color: AppColors.white, size: 48),
@@ -130,6 +115,29 @@ class BottomnavView extends GetView<BottomnavController> {
     );
   }
 
+  /// Builds the tab pages, replacing any tab that has not been opened yet
+  /// with an empty placeholder. GetX controllers are created lazily when the
+  /// real page is first built (their bindings register them with
+  /// `Get.lazyPut`), so API calls only start when the user opens the tab.
+  List<Widget> _buildPages() {
+    return List<Widget>.generate(BottomnavController.tabCount, (index) {
+      if (!controller.isTabInitialized(index)) {
+        return const SizedBox.shrink();
+      }
+      switch (index) {
+        case 1:
+          return const AllBookingView();
+        case 2:
+          return const ServicesView();
+        case 3:
+          return const ProfileView();
+        case 0:
+        default:
+          return const HomeView();
+      }
+    });
+  }
+
   /// Permission required to open a tab (`null` = always allowed).
   /// Tabs stay visible so the bar keeps its shape; denied taps show a
   /// graceful "no access" popup instead of navigating.
@@ -144,6 +152,7 @@ class BottomnavView extends GetView<BottomnavController> {
     }
   }
 
+  // ignore: library_private_types_in_public_api
   Widget navItem(_NavItem icon, int index) {
     return Obx(() {
       final isSelected = controller.tabIndex.value == index;
@@ -164,7 +173,7 @@ class BottomnavView extends GetView<BottomnavController> {
               height: 22,
               width: 22,
               isSelected ? navItem.activeAssetPath! : navItem.assetPath,
-              // color: 
+              // color:
               // isSelected ,
               // ? AppColors.primary : Colors.grey,
             ),
@@ -173,8 +182,8 @@ class BottomnavView extends GetView<BottomnavController> {
               navItem.label,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w500,    
-            color: isSelected ? AppColors.primary : Colors.grey,
+                fontWeight: FontWeight.w500,
+                color: isSelected ? AppColors.primary : Colors.grey,
               ),
             ),
           ],

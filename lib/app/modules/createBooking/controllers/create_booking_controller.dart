@@ -1840,8 +1840,15 @@ class CreateBookingController extends GetxController {
                   : 'Booking created successfully.'),
         );
         if (!context.mounted) return;
-        await Get.find<AllBookingController>().fetchFirstPage();
-        await Get.find<HomeController>().handleRefresh();
+        // Only refresh tabs whose controllers are already alive. Tabs that
+        // have never been opened are still lazily prepared, and touching
+        // them here would fire their API calls without the user opening them.
+        if (_isInstantiated<AllBookingController>()) {
+          await Get.find<AllBookingController>().fetchFirstPage();
+        }
+        if (_isInstantiated<HomeController>()) {
+          await Get.find<HomeController>().handleRefresh();
+        }
         // Pop with the booking so the list can jump to its status tab.
         await NavigationHelper.safePop(context, res.data);
       } else {
@@ -1854,6 +1861,12 @@ class CreateBookingController extends GetxController {
       isSaving.value = false;
     }
   }
+
+  /// True only when the controller already exists in memory. A `lazyPut`
+  /// registration alone means it has never been built, so finding it would
+  /// create it and trigger unwanted API calls.
+  static bool _isInstantiated<T>() =>
+      Get.isRegistered<T>() && !Get.isPrepared<T>();
 
   static String _capitalize(String s) {
     if (s.isEmpty) return s;

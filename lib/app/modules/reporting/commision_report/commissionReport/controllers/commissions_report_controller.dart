@@ -194,12 +194,12 @@ class CommissionsReportController extends GetxController {
       try {
         final data = CommissionsReportResponse.fromJson(response.data!);
         apiResponse.value = ApiResponse.completed(data);
-        syncDynamicColumns();
-        // First branch/staff become the default selection on first load —
-        // refetch once so the data matches the filter state.
-        if (_applyDefaultSelections()) {
-          await fetchReport();
-        }
+        // syncDynamicColumns();
+        // // First branch/staff become the default selection on first load —
+        // // refetch once so the data matches the filter state.
+        // if (_applyDefaultSelections()) {
+        //   await fetchReport();
+        // }
       } catch (e) {
         apiResponse.value = ApiResponse.error(
           'commissions.errors.parseFailed'.trns(),

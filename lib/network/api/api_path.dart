@@ -56,6 +56,11 @@ class ApiPath {
   static String package(int id) => '/packages/$id';
   static String packageStatus(int id) => '/packages/$id/status';
 
+  // Products
+  static const String products = '/products';
+  static String product(int id) => '/products/$id';
+  static String productStatus(int id) => '/products/$id/status';
+
   // Reports
   static const String revenueReport = '/reports/revenue';
   static const String revenueDetails = '/reports/revenue/show';
@@ -137,6 +142,42 @@ class ApiPath {
   // Payments
   static const String payments = '/payments';
   static String payment(int id) => '/payments/$id';
+
+  // Product form lookups (all branch-scoped, all support runtime creation)
+  static String dataBrands(int branchId) => '/data/brands?branch_id=$branchId';
+  static const String brands = '/brands';
+  static String dataProductCategories(int branchId) =>
+      '/data/product-categories?branch_id=$branchId';
+  static const String productCategories = '/product-categories';
+  static String dataTags(int branchId) => '/data/tags?branch_id=$branchId';
+  static const String tags = '/tags';
+  static String dataUnits(int branchId) => '/data/units?branch_id=$branchId';
+  static const String units = '/units';
+  static String dataProductVariations(int branchId) =>
+      '/data/product-variations?branch_id=$branchId';
+  static const String productVariations = '/product-variations';
+
+  /// Best-effort values lookup for one variation type. No documented
+  /// endpoint exists, so the conventional show routes are probed in order;
+  /// a miss degrades gracefully to an empty list.
+  static String productVariationValues(int typeId) =>
+      '/product-variations/$typeId';
+  static String dataProductVariationValues(int typeId) =>
+      '/data/product-variations/$typeId';
+
+  // Inventory item + status routes (list consts live with the lookups above)
+  static String brand(int id) => '/brands/$id';
+  static String brandStatus(int id) => '/brands/$id/status';
+  static String productCategory(int id) => '/product-categories/$id';
+  static String productCategoryStatus(int id) =>
+      '/product-categories/$id/status';
+  static String tag(int id) => '/tags/$id';
+  static String tagStatus(int id) => '/tags/$id/status';
+  static String unit(int id) => '/units/$id';
+  static String unitStatus(int id) => '/units/$id/status';
+  static String productVariation(int id) => '/product-variations/$id';
+  static String productVariationStatus(int id) =>
+      '/product-variations/$id/status';
 
   // Booking lookups
   static String bookingCustomers({int? branchId}) => branchId == null

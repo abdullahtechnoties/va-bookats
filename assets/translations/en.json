@@ -1608,7 +1608,6 @@
       "noData": "No Revenue Data",
       "noDataDesc": "No revenue records found for the selected period",
       "viewDetails": "View Details",
-
       "filter": {
         "title": "Filter Revenue",
         "button": "Filter",
@@ -1620,7 +1619,6 @@
         "apply": "Apply Filter",
         "reset": "Reset"
       },
-
       "columns": {
         "title": "Select Columns",
         "selected": "Columns Selected",
@@ -1660,24 +1658,20 @@
         "totalPackagesSold": "Total Packages Sold",
         "actions": "Actions"
       },
-
       "pagination": {
         "previous": "Previous",
         "next": "Next"
       }
     },
-
     "paymentDetails": {
       "title": "Revenue Report Details",
       "noPayments": "No Revenue Data Found",
       "noPaymentsDesc": "No revenue records for this period",
-
       "tabs": {
         "paid": "Paid",
         "unpaid": "Unpaid",
         "returned": "Returned"
       },
-
       "columns": {
         "customer": "Customer",
         "customerName": "Customer Name",
@@ -1692,7 +1686,6 @@
         "paymentMethod": "Payment Method",
         "status": "Status"
       },
-
       "pagination": {
         "previous": "Previous",
         "next": "Next"
@@ -2020,92 +2013,571 @@
     }
   },
   "bookingPaymentDetails": {
-  "title": "Payment Details",
-  "details": "Details",
-  "payments": "Payments",
-  "activities": "Activities",
-  "createNewPayment": "Create New Payment",
-  "print": "Print",
-  "retry": "Retry",
-  "table": {
-    "item": "Services/Products/Packages",
-    "staff": "Staff",
-    "category": "Categories",
-    "variation": "Variation",
-    "price": "Price",
-    "quantity": "Qty",
-    "total": "Total",
-    "discount": "Discount",
-    "afterDiscount": "After Discount"
+    "title": "Payment Details",
+    "details": "Details",
+    "payments": "Payments",
+    "activities": "Activities",
+    "createNewPayment": "Create New Payment",
+    "print": "Print",
+    "retry": "Retry",
+    "table": {
+      "item": "Services/Products/Packages",
+      "staff": "Staff",
+      "category": "Categories",
+      "variation": "Variation",
+      "price": "Price",
+      "quantity": "Qty",
+      "total": "Total",
+      "discount": "Discount",
+      "afterDiscount": "After Discount"
+    },
+    "summary": {
+      "title": "Payment Summary",
+      "totalAmount": "Total Amount",
+      "discount": "Discount",
+      "paidAmount": "Paid Amount",
+      "remainingAmount": "Remaining Amount",
+      "balance": "Balance"
+    },
+    "paymentsTab": {
+      "edit": "Edit"
+    },
+    "activitiesEmpty": {
+      "title": "No Activities Yet",
+      "message": "Activity updates for this booking will appear here."
+    },
+    "empty": {
+      "title": "No Details Available",
+      "message": "No payment details found for this booking."
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch payment details",
+      "unexpected": "An unexpected error occurred"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    }
   },
-  "summary": {
-    "title": "Payment Summary",
+  "addNewPayment": {
+    "title": "Add New Payment",
+    "heading": "Add New Payment",
+    "editTitle": "Edit Payment",
+    "editHeading": "Edit Payment",
     "totalAmount": "Total Amount",
-    "discount": "Discount",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
     "paidAmount": "Paid Amount",
-    "remainingAmount": "Remaining Amount",
-    "balance": "Balance"
+    "enterFullName": "Enter Full Name",
+    "enterAmount": "Enter amount",
+    "balance": "Balance",
+    "selectParentCategory": "Select Parent Category",
+    "date": "Date",
+    "paymentMethod": "Payment Method",
+    "selectPaymentMethod": "Select Payment Method",
+    "status": "Status",
+    "selectStatus": "Select Status",
+    "paymentSlip": "Payment Slip",
+    "chooseFile": "Choose File",
+    "changeFile": "Change",
+    "noFileChosen": "No File Chosen",
+    "existingSlip": "Existing slip attached",
+    "transactionId": "Transaction ID",
+    "enterTransactionId": "Enter Transaction ID",
+    "save": "Save",
+    "update": "Update",
+    "savedSuccess": "Payment added successfully",
+    "updatedSuccess": "Payment updated successfully",
+    "validation": {
+      "required": "Please fill in all required fields",
+      "invalidAmount": "Please enter valid amounts",
+      "paidExceedsTotal": "Paid amount cannot exceed the total amount"
+    },
+    "errors": {
+      "prefillFailed": "Failed to load payment data",
+      "createFailed": "Failed to create payment",
+      "updateFailed": "Failed to update payment",
+      "saveFailed": "Failed to save payment",
+      "unexpected": "An unexpected error occurred"
+    }
   },
-  "paymentsTab": {
-    "edit": "Edit"
+  "products": {
+    "title": "All Products",
+    "tabs": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "addNew": "Add New Products",
+    "card": {
+      "branchPlaceholder": "Branch Name Here",
+      "detailsBtn": "Details",
+      "active": "Active",
+      "inactive": "Inactive",
+      "status": "Status:",
+      "name": "Name:",
+      "branch": "Branch:",
+      "price": "Price:",
+      "stock": "Stock:",
+      "viewDetails": "View Details",
+      "edit": "Edit"
+    },
+    "filter": {
+      "title": "Filter",
+      "search": "Search",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "branches": "Branches",
+      "allBranches": "All Branches",
+      "quickRange": "Quick Range",
+      "reset": "Reset",
+      "applyFilter": "Apply Filter"
+    },
+    "errorTitle": "Error",
+    "loadError": "Failed to load products.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "empty": "No products found",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "deleteDialogTitle": "Delete Product",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Product deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status",
+    "statusConfirm": {
+      "active": "Are you sure you want to activate this product?",
+      "inactive": "Are you sure you want to deactivate this product?"
+    }
   },
-  "activitiesEmpty": {
-    "title": "No Activities Yet",
-    "message": "Activity updates for this booking will appear here."
+  "productDetails": {
+    "title": "Product Details",
+    "branchInfoTitle": "Branch Information:",
+    "labels": {
+      "name": "Name:",
+      "email": "Email:",
+      "phone": "Phone Number:",
+      "brand": "Brand:",
+      "unit": "Unit:",
+      "productType": "Product Type:",
+      "shortDescription": "Short Discription:",
+      "description": "Description:",
+      "price": "Price:",
+      "stock": "Stock:",
+      "sku": "SKU:"
+    },
+    "sections": {
+      "productInfo": "Product Information:",
+      "categories": "Categories:",
+      "tags": "Tags:",
+      "variations": "Variations:"
+    },
+    "retry": "Retry",
+    "empty": {
+      "title": "No Details Found",
+      "message": "No product details available."
+    },
+    "errors": {
+      "title": "Error",
+      "fetchFailed": "Failed to fetch product details"
+    }
   },
-  "empty": {
-    "title": "No Details Available",
-    "message": "No payment details found for this booking."
+  "addProduct": {
+    "title": "Add New Products",
+    "editTitle": "Edit Product",
+    "formTitle": "Product Information",
+    "editHeading": "Edit Product Information",
+    "labels": {
+      "branch": "Branch",
+      "name": "Name",
+      "shortDescription": "Short Description",
+      "addAnImage": "Add An Image",
+      "images": "Images",
+      "description": "Description",
+      "brand": "Brand",
+      "categories": "Categories",
+      "tags": "Tags",
+      "units": "Units",
+      "variation": "Variation",
+      "variationName": "Variation Name",
+      "status": "Status",
+      "addItem": "Add Item",
+      "productType": "Product Type",
+      "price": "Price",
+      "stock": "Stock",
+      "sku": "SKU",
+      "code": "Code",
+      "variationSets": "Variation Sets",
+      "variationSet": "Set",
+      "combinations": "Combinations",
+      "parentCategory": "Parent Category",
+      "logo": "Logo",
+      "valueNames": "Value Names"
+    },
+    "types": {
+      "simple": "Simple Product",
+      "variation": "Variation Product"
+    },
+    "placeholders": {
+      "selectBranch": "Select Branch",
+      "enterFullName": "Enter Full Name",
+      "enterShortDescription": "Enter Short Description",
+      "writeSomething": "Write something....",
+      "selectBrand": "Select Brand",
+      "selectCategories": "Select Categories",
+      "selectParentCategory": "Select Parent Category",
+      "noParent": "No Parent",
+      "selectTags": "Select...",
+      "selectUnits": "Select Units",
+      "selectVariation": "Select Variation",
+      "enterVariationName": "Enter Variation Name",
+      "enterName": "Enter Name",
+      "enterPrice": "Enter price",
+      "enterStock": "Enter stock",
+      "enterSku": "Enter SKU",
+      "enterCode": "Enter code",
+      "selectStatus": "Select Status",
+      "noFileChosen": "No File Chosen"
+    },
+    "actions": {
+      "chooseFile": "Choose File",
+      "changeFile": "Change",
+      "changeImages": "Change Images",
+      "addBrand": "+ Add Brand",
+      "addCategory": "+ Add Category",
+      "addTags": "+ Add Tags",
+      "addUnits": "+ Add Units",
+      "addVariation": "+ New Variation",
+      "addSet": "+ Add Set",
+      "addValue": "+ Add Value",
+      "remove": "Remove",
+      "addItem": "+ Add Item",
+      "save": "Save",
+      "update": "Update"
+    },
+    "popups": {
+      "addBrand": "Add New Brand",
+      "addCategory": "Add New Product Category",
+      "addTag": "Add New Tag",
+      "addUnit": "Add New Unit",
+      "addVariation": "Add New Product Variation"
+    },
+    "validation": {
+      "branchFirst": "Please select a branch first",
+      "branchRequired": "Please select a branch",
+      "nameRequired": "Please enter product name",
+      "brandRequired": "Please select a brand",
+      "categoryRequired": "Please select at least one category",
+      "tagRequired": "Please select at least one tag",
+      "unitRequired": "Please select a unit",
+      "priceRequired": "Please enter a valid price",
+      "stockRequired": "Please enter a valid stock quantity",
+      "setsRequired": "Please add at least one variation set with values",
+      "combinationsRequired": "No combinations generated yet",
+      "combinationFieldsRequired": "Every combination needs a valid price and stock"
+    },
+    "errors": {
+      "saveFailed": "Failed to save product"
+    },
+    "messages": {
+      "successTitle": "Success",
+      "successSaved": "Product saved successfully",
+      "updated": "Product updated successfully",
+      "noSets": "Add a variation set to generate combinations",
+      "selectTypeFirst": "Select a variation type first",
+      "noValues": "No values found for this type — create a new variation with values",
+      "noCombinations": "Select values in your sets to generate combinations"
+    }
   },
-  "errors": {
-    "fetchFailed": "Failed to fetch payment details",
-    "unexpected": "An unexpected error occurred"
+    "inventory": {
+    "all_units": "All Units",
+    "add_new_unit": "Add New Unit",
+    "all_tags": "All Tags",
+    "add_new_tag": "Add New Tag",
+    "all_product_variations": "All Product Variations",
+    "add_new_product_variation": "Add New Product Variation",
+    "add_new_product_variations": "Add New Product Variations",
+    "variation_name": "Variation Name",
+    "enter_variation_name": "Enter Variation Name",
+    "add_item": "Add Item",
+    "enter_name": "Enter Name",
+     "all_brands": "All Brands",
+    "add_new_brands": "Add New Brands",
+    "add_new_brand": "Add New Brand",
+    "all_product_categories": "All Product Categories",
+    "add_new_product_category": "Add New Product Category",
+    "status": "Status:",
+    "active": "Active",
+    "name": "Name:",
+    "branch": "Branch:",
+    "details": "Details",
+    "enter_full_name": "Enter Full Name",
+    "select_branch": "Select Branch",
+    "add_an_image": "Add An Image",
+    "no_file_chosen": "No File Chosen",
+    "choose_file": "Choose File",
+    "save": "Save",
+    "categories": "Categories",
+    "select_parent_category": "Select Parent Category",
+    "package_name_placeholder": "Package Name Here",
+    "branch_name_placeholder": "Branch Name Here"
   },
-  "pagination": {
-    "previous": "Previous",
-    "next": "Next"
+  "brands": {
+    "title": "All Brands",
+    "addNew": "Add New Brand",
+    "active": "Active",
+    "inactive": "Inactive",
+    "errorTitle": "Error",
+    "loadError": "Failed to load brands.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "empty": "No brands found",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Brand",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Brand deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status",
+    "filter": {
+      "search": "Search",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "status": "Status",
+      "branches": "Branches",
+      "allBranches": "All Branches",
+      "quickRange": "Quick Range"
+    }
+  },
+  "addBrand": {
+    "title": "Add New Brand",
+    "editTitle": "Edit Brand",
+    "formTitle": "Brand Information",
+    "editFormTitle": "Edit Brand Information",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
+    "name": "Name",
+    "enterName": "Enter Name",
+    "logo": "Logo",
+    "chooseLogo": "Choose Logo",
+    "changeLogo": "Change Logo",
+    "save": "Save",
+    "update": "Update",
+    "errorTitle": "Error",
+    "createSuccessTitle": "Created",
+    "createSuccessMessage": "Brand created successfully!",
+    "updateSuccessTitle": "Updated",
+    "updateSuccessMessage": "Brand updated successfully!",
+    "validation": {
+      "branchRequired": "Please select a branch",
+      "nameRequired": "Please enter brand name"
+    }
+  },
+  "productCategories": {
+    "title": "All Product Categories",
+    "addNew": "Add New Category",
+    "active": "Active",
+    "inactive": "Inactive",
+    "errorTitle": "Error",
+    "loadError": "Failed to load categories.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "empty": "No categories found",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Category",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Category deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status",
+    "filter": {
+      "search": "Search",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "status": "Status",
+      "branches": "Branches",
+      "allBranches": "All Branches",
+      "quickRange": "Quick Range"
+    }
+  },
+  "addProductCategory": {
+    "title": "Add New Category",
+    "editTitle": "Edit Category",
+    "formTitle": "Category Information",
+    "editFormTitle": "Edit Category Information",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
+    "name": "Name",
+    "enterName": "Enter Name",
+    "parent": "Parent Category",
+    "noParent": "No Parent",
+    "image": "Image",
+    "chooseImage": "Choose Image",
+    "changeImage": "Change Image",
+    "save": "Save",
+    "update": "Update",
+    "errorTitle": "Error",
+    "createSuccessTitle": "Created",
+    "createSuccessMessage": "Category created successfully!",
+    "updateSuccessTitle": "Updated",
+    "updateSuccessMessage": "Category updated successfully!",
+    "validation": {
+      "branchRequired": "Please select a branch",
+      "nameRequired": "Please enter category name"
+    }
+  },
+  "tags": {
+    "title": "All Tags",
+    "addNew": "Add New Tag",
+    "active": "Active",
+    "inactive": "Inactive",
+    "errorTitle": "Error",
+    "loadError": "Failed to load tags.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "empty": "No tags found",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Tag",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Tag deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status",
+    "filter": {
+      "search": "Search",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "status": "Status",
+      "branches": "Branches",
+      "allBranches": "All Branches",
+      "quickRange": "Quick Range"
+    }
+  },
+  "addTag": {
+    "title": "Add New Tag",
+    "editTitle": "Edit Tag",
+    "formTitle": "Tag Information",
+    "editFormTitle": "Edit Tag Information",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
+    "name": "Name",
+    "enterName": "Enter Name",
+    "save": "Save",
+    "update": "Update",
+    "errorTitle": "Error",
+    "createSuccessTitle": "Created",
+    "createSuccessMessage": "Tag created successfully!",
+    "updateSuccessTitle": "Updated",
+    "updateSuccessMessage": "Tag updated successfully!",
+    "validation": {
+      "branchRequired": "Please select a branch",
+      "nameRequired": "Please enter tag name"
+    }
+  },
+  "units": {
+    "title": "All Units",
+    "addNew": "Add New Unit",
+    "active": "Active",
+    "inactive": "Inactive",
+    "errorTitle": "Error",
+    "loadError": "Failed to load units.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "empty": "No units found",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Unit",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Unit deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status",
+    "filter": {
+      "search": "Search",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "status": "Status",
+      "branches": "Branches",
+      "allBranches": "All Branches",
+      "quickRange": "Quick Range"
+    }
+  },
+  "addUnit": {
+    "title": "Add New Unit",
+    "editTitle": "Edit Unit",
+    "formTitle": "Unit Information",
+    "editFormTitle": "Edit Unit Information",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
+    "name": "Name",
+    "enterName": "Enter Name",
+    "save": "Save",
+    "update": "Update",
+    "errorTitle": "Error",
+    "createSuccessTitle": "Created",
+    "createSuccessMessage": "Unit created successfully!",
+    "updateSuccessTitle": "Updated",
+    "updateSuccessMessage": "Unit updated successfully!",
+    "validation": {
+      "branchRequired": "Please select a branch",
+      "nameRequired": "Please enter unit name"
+    }
+  },
+  "variations": {
+    "title": "All Product Variations",
+    "addNew": "Add New Variation",
+    "active": "Active",
+    "inactive": "Inactive",
+    "errorTitle": "Error",
+    "loadError": "Failed to load variations.\nPull to refresh or try again.",
+    "retry": "Retry",
+    "empty": "No variations found",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Variation",
+    "deleteDialogMessage": "Are you sure you want to delete \":name\"?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Variation deleted successfully!",
+    "statusSuccessTitle": "Status Updated",
+    "statusSuccessMessage": "Status updated successfully!",
+    "changeStatusTitle": "Change Status",
+    "filter": {
+      "search": "Search",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "status": "Status",
+      "branches": "Branches",
+      "allBranches": "All Branches",
+      "quickRange": "Quick Range"
+    }
+  },
+  "addVariations": {
+    "title": "Add New Variation",
+    "editTitle": "Edit Variation",
+    "formTitle": "Variation Information",
+    "editFormTitle": "Edit Variation Information",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
+    "name": "Name",
+    "enterName": "Enter Name",
+    "values": "Values",
+    "enterValue": "Enter value",
+    "addValue": "Add Value",
+    "save": "Save",
+    "update": "Update",
+    "errorTitle": "Error",
+    "createSuccessTitle": "Created",
+    "createSuccessMessage": "Variation created successfully!",
+    "updateSuccessTitle": "Updated",
+    "updateSuccessMessage": "Variation updated successfully!",
+    "validation": {
+      "branchRequired": "Please select a branch",
+      "nameRequired": "Please enter variation name",
+      "valuesRequired": "Please add at least one value"
+    }
   }
-},
-"addNewPayment": {
-  "title": "Add New Payment",
-  "heading": "Add New Payment",
-  "editTitle": "Edit Payment",
-  "editHeading": "Edit Payment",
-  "totalAmount": "Total Amount",
-  "branch": "Branch",
-  "selectBranch": "Select Branch",
-  "paidAmount": "Paid Amount",
-  "enterFullName": "Enter Full Name",
-  "enterAmount": "Enter amount",
-  "balance": "Balance",
-  "selectParentCategory": "Select Parent Category",
-  "date": "Date",
-  "paymentMethod": "Payment Method",
-  "selectPaymentMethod": "Select Payment Method",
-  "status": "Status",
-  "selectStatus": "Select Status",
-  "paymentSlip": "Payment Slip",
-  "chooseFile": "Choose File",
-  "changeFile": "Change",
-  "noFileChosen": "No File Chosen",
-  "existingSlip": "Existing slip attached",
-  "transactionId": "Transaction ID",
-  "enterTransactionId": "Enter Transaction ID",
-  "save": "Save",
-  "update": "Update",
-  "savedSuccess": "Payment added successfully",
-  "updatedSuccess": "Payment updated successfully",
-  "validation": {
-    "required": "Please fill in all required fields",
-    "invalidAmount": "Please enter valid amounts",
-    "paidExceedsTotal": "Paid amount cannot exceed the total amount"
-  },
-  "errors": {
-    "prefillFailed": "Failed to load payment data",
-    "createFailed": "Failed to create payment",
-    "updateFailed": "Failed to update payment",
-    "saveFailed": "Failed to save payment",
-    "unexpected": "An unexpected error occurred"
-  }
-}
 }

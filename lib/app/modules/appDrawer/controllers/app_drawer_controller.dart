@@ -35,6 +35,24 @@ class AppDrawerController extends GetxController {
     if (Permissions.can(AppPerm.index(AppPerm.packages))) {
       items.add('Packages');
     }
+    if (Permissions.can(AppPerm.index(AppPerm.products))) {
+      items.add('Products');
+    }
+    if (Permissions.can(AppPerm.index(AppPerm.brands))) {
+      items.add('Brands');
+    }
+    if (Permissions.can(AppPerm.index(AppPerm.productCategories))) {
+      items.add('Product Categories');
+    }
+    if (Permissions.can(AppPerm.index(AppPerm.tags))) {
+      items.add('Tags');
+    }
+    if (Permissions.can(AppPerm.index(AppPerm.units))) {
+      items.add('Units');
+    }
+    if (Permissions.can(AppPerm.index(AppPerm.productVariations))) {
+      items.add('Variations');
+    }
     return items;
   }
 

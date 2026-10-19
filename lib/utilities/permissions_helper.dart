@@ -41,6 +41,10 @@ abstract class AppPerm {
   static const String serviceCategories = 'service-categories';
   static const String products = 'products';
   static const String productCategories = 'product-categories';
+  static const String brands = 'brands';
+  static const String tags = 'tags';
+  static const String units = 'units';
+  static const String productVariations = 'product-variations';
   static const String bookings = 'bookings';
   static const String media = 'media';
   static const String galleryImages = 'gallery-images';

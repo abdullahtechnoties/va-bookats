@@ -68,23 +68,27 @@ class HomeController extends GetxController {
   Future<void> fetchTodayBookings() async {
     isLoading.value = true;
     loadFailed.value = false;
+ 
+    
     // Today's bookings via date filter; backend ignores unknown params safely.
     final today = _todayApiDate();
     final response = await _repo.getBookings(
       page: 1,
       fromDate: today,
-      toDate: today,
+      // toDate: today,
     );
-    if (!response.isCompleted || response.data == null) {
+    if (response.isCompleted || response.data != null) {
       // Fallback: unfiltered first page so home never looks broken when the
       // backend doesn't support date params.
-      final fallback = await _repo.getBookings(page: 1);
-      if (!fallback.isCompleted || fallback.data == null) {
-        loadFailed.value = true;
-        isLoading.value = false;
-        return;
-      }
-      todayBookings.assignAll(fallback.data!.bookings);
+      // final fallback = await _repo.getBookings(page: 1);
+      // if (!fallback.isCompleted || fallback.data == null) {
+      //   loadFailed.value = true;
+      //   isLoading.value = false;
+      //   return;
+      // }
+      // todayBookings.assignAll(fallback.data!.bookings);
+      todayBookings.assignAll(response.data!.bookings);
+
       isLoading.value = false;
       return;
     }
