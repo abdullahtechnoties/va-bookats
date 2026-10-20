@@ -59,6 +59,20 @@ class ExpenseReportController extends GetxController {
   final Rx<ExpenseCategoryModel?> tempSelectedExpenseCategory =
       Rx<ExpenseCategoryModel?>(null);
 
+  /// Initial-state snapshot taken from the first report response (the API
+  /// echoes the effective filter). The sheet's Reset restores exactly this —
+  /// never nulls — then the sheet closes gracefully.
+  DateTime? _initialFromDate;
+  DateTime? _initialToDate;
+  BranchModel? _initialBranch;
+  ExpenseCategoryModel? _initialCategory;
+  bool get hasInitialState => _initialCategory != null;
+
+  /// While the linked category list refreshes after a branch change inside
+  /// the open filter sheet. The category dropdown stays visible but
+  /// unselectable with a loader during this fetch.
+  final RxBool isTempCategoriesLoading = false.obs;
+
   // ── Column Selector ─────────────────────────────────────────────────────
   // Keys are snake_case to match API `monthlyData` fields, so dynamic
   // discovery never duplicates them. `expense_category_id` is technical
@@ -166,10 +180,12 @@ class ExpenseReportController extends GetxController {
       expenseCategories.value = data.expenseCategories;
       monthlyData.value = data.monthlyData;
       syncDynamicColumns();
-      tempFromDate.value = DateTime.parse(response.data!.fromDate);
-      tempToDate.value = DateTime.parse(response.data!.toDate);
-      fromDate.value = DateTime.parse(response.data!.fromDate);
-      toDate.value = DateTime.parse(response.data!.toDate);
+      // Snapshot the effective initial state from the first success so
+      // Reset can restore exactly what onInit loaded.
+      tempFromDate.value = fromDate.value;
+      tempToDate.value = toDate.value;
+      fromDate.value = DateTime.tryParse(data.fromDate) ?? fromDate.value;
+      toDate.value = DateTime.tryParse(data.toDate) ?? toDate.value;
       // Auto-select first branch if owner and none selected
       if (isOwner && selectedBranch.value == null && branches.isNotEmpty) {
         selectedBranch.value = branches.firstWhere(
@@ -177,10 +193,18 @@ class ExpenseReportController extends GetxController {
                 orElse: () => branches.first,
               );
       }
-      selectedExpenseCategory.value = expenseCategories.firstWhere(
-        (c) => c.displayValue == data.expenseCategoryId,
-        orElse: () => expenseCategories.first,
-      );
+      if (expenseCategories.isNotEmpty) {
+        selectedExpenseCategory.value = expenseCategories.firstWhere(
+          (c) => c.displayValue == data.expenseCategoryId,
+          orElse: () => expenseCategories.first,
+        );
+      }
+      if (!hasInitialState) {
+        _initialFromDate = fromDate.value;
+        _initialToDate = toDate.value;
+        _initialBranch = selectedBranch.value;
+        _initialCategory = selectedExpenseCategory.value;
+      }
 
       status.value = Status.completed;
     } else {
@@ -214,10 +238,57 @@ class ExpenseReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = null;
-    tempToDate.value = null;
-    tempSelectedBranch.value = isOwner ? branches.firstOrNull : null;
+    // Restore the exact initial state from the first report response.
+    // Falls back to the applied values when the snapshot isn't ready yet.
+    tempFromDate.value = _initialFromDate ?? fromDate.value;
+    tempToDate.value = _initialToDate ?? toDate.value;
+    tempSelectedBranch.value = _initialBranch ?? selectedBranch.value;
+    tempSelectedExpenseCategory.value =
+        _initialCategory ?? selectedExpenseCategory.value;
+  }
+
+  /// Applies the temp filter, closes the sheet gracefully, then refetches.
+  void applyFilterAndClose() {
+    applyFilter();
+    Get.back();
+  }
+
+  /// Resets temp fields to the initial API state, applies them to the
+  /// report, closes the sheet gracefully, then refetches.
+  void resetFilterAndClose() {
+    resetFilter();
+    fromDate.value = tempFromDate.value;
+    toDate.value = tempToDate.value;
+    selectedBranch.value = tempSelectedBranch.value;
+    selectedExpenseCategory.value = tempSelectedExpenseCategory.value;
+    Get.back();
+    fetchExpenseReport();
+  }
+
+  /// Called when the branch changes inside the open filter sheet: clears
+  /// the selected category, refreshes the category list via the lookups API
+  /// (`/data/expense-categories?branch_id=N`), and keeps the category
+  /// dropdown unselectable with a loader until the fetch completes. The
+  /// report API is never hit here — only Apply refetches the report.
+  Future<void> onTempBranchChanged(BranchModel? branch) async {
+    tempSelectedBranch.value = branch;
     tempSelectedExpenseCategory.value = expenseCategories.firstOrNull;
+    final branchId = branch?.value;
+    if (branchId == null || isTempCategoriesLoading.value) return;
+    isTempCategoriesLoading.value = true;
+    try {
+      final response = await _repository.fetchExpenseCategories(
+        branchId: branchId.toString(),
+      );
+      if (response.isCompleted && response.data != null) {
+        // Swap only the category options for the sheet; the applied report
+        // state stays untouched until Apply.
+        expenseCategories.assignAll(response.data!);
+        tempSelectedExpenseCategory.value = expenseCategories.firstOrNull;
+      }
+    } finally {
+      isTempCategoriesLoading.value = false;
+    }
   }
 
   // ── Column Selector Actions ─────────────────────────────────────────────

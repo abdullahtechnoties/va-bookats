@@ -160,10 +160,17 @@ class PackageFilterSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Obx(
-            () => _DropdownField(
-              value: controller.tempPackageLabel.value,
-              onTap: () => _showPackagePicker(context),
-            ),
+            () {
+              final loading = controller.isTempPackagesLoading.value;
+              return _DropdownField(
+                value: loading
+                    ? 'common.loadingFilters'.trns()
+                    : controller.tempPackageLabel.value,
+                // Unselectable while the linked list refreshes.
+                onTap: loading ? null : () => _showPackagePicker(context),
+                loading: loading,
+              );
+            },
           ),
           const SizedBox(height: 16),
 
@@ -175,17 +182,14 @@ class PackageFilterSheet extends StatelessWidget {
               Expanded(
                 child: _OutlineBtn(
                   label: 'packageRevenue.filter.reset'.trns(),
-                  onTap: controller.resetFilter,
+                  onTap: controller.resetFilterAndClose,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: MainBtn(
                   text: 'packageRevenue.filter.apply'.trns(),
-                  onPressed: () {
-                    controller.applyFilter();
-                    Get.back();
-                  },
+                  onPressed: controller.applyFilterAndClose,
                 ),
               ),
             ],
@@ -216,27 +220,27 @@ class PackageFilterSheet extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => CommonDropdownBottomSheetThree(
+        isUnselectAllowed: false,
         title: 'packageRevenue.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
         dropdownItems: [
-          'packageRevenue.filter.allBranches'.trns(),
           ...controller.branches.map((b) => b.label),
         ],
         textController: TextEditingController(),
         selectedValue: [
-          '0',
           ...controller.branches.map((b) => b.value.toString()),
         ],
         currentlySelectedValue: controller.tempBranchId.value.toString(),
         onValueSelected: (v) {
           final id = int.tryParse(v.toString()) ?? 0;
-          controller.tempBranchId.value = id;
-          controller.tempBranchLabel.value = id == 0
-              ? 'packageRevenue.filter.allBranches'.trns()
-              : controller.branches
-                        .firstWhereOrNull((b) => b.value == id)
-                        ?.label ??
-                    '';
+          final label = controller.branches
+                      .firstWhereOrNull((b) => b.value == id)
+                      ?.label ??
+                  '';
+          // Branch change refreshes the linked package list via the
+          // lookups API (branch id in params); package picker stays
+          // unselectable with a loader until that fetch completes.
+          controller.onTempBranchChanged(id, label);
         },
         showSearch: true,
       ),
@@ -338,9 +342,14 @@ class _DateField extends StatelessWidget {
 // ── Dropdown Field ────────────────────────────────────────────────────────
 class _DropdownField extends StatelessWidget {
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool loading;
 
-  const _DropdownField({required this.value, required this.onTap});
+  const _DropdownField({
+    required this.value,
+    required this.onTap,
+    this.loading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +359,7 @@ class _DropdownField extends StatelessWidget {
         height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: loading ? const Color(0xFFF3F4F6) : AppColors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
         ),
@@ -359,18 +368,28 @@ class _DropdownField extends StatelessWidget {
             Expanded(
               child: Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.black,
+                  color: loading ? const Color(0xFF9CA3AF) : AppColors.black,
                 ),
               ),
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 22,
-              color: Color(0xFF9CA3AF),
-            ),
+            if (loading)
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              )
+            else
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 22,
+                color: Color(0xFF9CA3AF),
+              ),
           ],
         ),
       ),

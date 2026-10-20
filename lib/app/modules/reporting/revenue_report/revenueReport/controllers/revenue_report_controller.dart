@@ -49,6 +49,15 @@ class RevenueReportController extends GetxController {
   final RxInt tempBranchId = 0.obs;
   final RxString tempBranchLabel = 'All Branches'.obs;
 
+  /// Initial-state snapshot taken from the first report response (the API
+  /// echoes the effective filter). The sheet's Reset restores exactly this —
+  /// never nulls — then the sheet closes gracefully.
+  DateTime? _initialFromDate;
+  DateTime? _initialToDate;
+  int? _initialBranchId;
+  String? _initialBranchLabel;
+  bool get hasInitialState => _initialBranchLabel != null;
+
   // Branch options from API
   final RxList<BranchOption> branchOptions = <BranchOption>[].obs;
   List<String> get branchLabels => branchOptions.map((b) => b.label).toList();
@@ -246,17 +255,25 @@ class RevenueReportController extends GetxController {
         syncDynamicColumns();
         // select branch and date range from API response (first row) if available
         if (revenueDataList.isNotEmpty) {
-              tempFromDate.value = DateTime.parse(response.data!['from_date']);
-      tempToDate.value = DateTime.parse(response.data!['to_date']);
-      fromDate.value = DateTime.parse(response.data!['from_date']);
-      toDate.value = DateTime.parse(response.data!['to_date']);
-      selectedBranchId.value = response.data!['branch_id'] ?? 0;
-      selectedBranchLabel.value = branchOptions
-          .firstWhere(
-            (b) => b.value == selectedBranchId.value,
-            // orElse: () => BranchOption(id: 0, label: 'reports.revenue.filter.allBranches'.trns()),
-          )
-          .label;
+          tempFromDate.value = fromDate.value;
+          tempToDate.value = toDate.value;
+          fromDate.value =
+              DateTime.tryParse(response.data!['from_date']) ?? fromDate.value;
+          toDate.value =
+              DateTime.tryParse(response.data!['to_date']) ?? toDate.value;
+          selectedBranchId.value = int.tryParse(response.data!['branch_id'].toString()) ?? 0;
+          selectedBranchLabel.value = branchOptions
+              .firstWhere(
+                (b) => b.value == selectedBranchId.value,
+                // orElse: () => BranchOption(id: 0, label: 'reports.revenue.filter.allBranches'.trns()),
+              )
+              .label;
+          if (!hasInitialState) {
+            _initialFromDate = fromDate.value;
+            _initialToDate = toDate.value;
+            _initialBranchId = selectedBranchId.value;
+            _initialBranchLabel = selectedBranchLabel.value;
+          }
         } else {
           // No data returned, reset branch and date range
           tempFromDate.value = null;
@@ -267,16 +284,17 @@ class RevenueReportController extends GetxController {
           selectedBranchLabel.value = 'reports.revenue.filter.allBranches'.trns();
         }
       } else {
-        SnackbarService.showError(
-          title: 'errors.errorTitle'.trns(),
-          message: response.message ?? 'errors.unexpected'.trns(),
-        );
+        // SnackbarService.showError(
+        //   title: 'errors.errorTitle'.trns(),
+        //   message: response.message ?? 'errors.unexpected'.trns(),
+        // );
       }
     } catch (e) {
-      SnackbarService.showError(
-        title: 'errors.errorTitle'.trns(),
-        message: 'errors.unexpected'.trns(),
-      );
+      print('Error fetching revenue report: $e');
+      // SnackbarService.showError(
+      //   title: 'errors.errorTitle'.trns(),
+      //   message: 'errors.unexpected'.trns(),
+      // );
     } finally {
       isLoading.value = false;
       isRefreshing.value = false;
@@ -326,10 +344,30 @@ class RevenueReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = null;
-    tempToDate.value = null;
-    tempBranchId.value = 0;
-    tempBranchLabel.value = 'reports.revenue.filter.allBranches'.trns();
+    // Restore the exact initial state from the first report response.
+    // Falls back to the applied values when the snapshot isn't ready yet.
+    tempFromDate.value = _initialFromDate ?? fromDate.value;
+    tempToDate.value = _initialToDate ?? toDate.value;
+    tempBranchId.value = _initialBranchId ?? selectedBranchId.value;
+    tempBranchLabel.value = _initialBranchLabel ?? selectedBranchLabel.value;
+  }
+
+  /// Applies the temp filter, closes the sheet gracefully, then refetches.
+  void applyFilterAndClose() {
+    applyFilter();
+    Get.back();
+  }
+
+  /// Resets temp fields to the initial API state, applies them to the
+  /// report, closes the sheet gracefully, then refetches.
+  void resetFilterAndClose() {
+    resetFilter();
+    fromDate.value = tempFromDate.value;
+    toDate.value = tempToDate.value;
+    selectedBranchId.value = tempBranchId.value;
+    selectedBranchLabel.value = tempBranchLabel.value;
+    Get.back();
+    fetchRevenueReport();
   }
 
   void selectBranch(int id, String label) {

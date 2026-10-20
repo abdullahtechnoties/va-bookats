@@ -123,6 +123,20 @@ class ServiceRevenueResponse {
     this.serviceId,
   });
 
+  /// Copy with swapped service options (used when the branch changes inside
+  /// the open filter sheet — lookups refresh without a report refetch).
+  ServiceRevenueResponse copyWithServices(List<ServiceOption> services) {
+    return ServiceRevenueResponse(
+      branches: branches,
+      branchId: branchId,
+      fromDate: fromDate,
+      toDate: toDate,
+      monthlyData: monthlyData,
+      services: services,
+      serviceId: serviceId,
+    );
+  }
+
   factory ServiceRevenueResponse.fromJson(Map<String, dynamic> json) {
     return ServiceRevenueResponse(
       branches: json['branches'] != null

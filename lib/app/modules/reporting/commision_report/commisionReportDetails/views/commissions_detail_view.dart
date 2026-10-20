@@ -209,12 +209,12 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
             width: 130,
           ),
           _HeaderCell(
-            label: 'commissions.detail.table.totalPackages'.trns(),
-            width: 130,
-          ),
-          _HeaderCell(
             label: 'commissions.detail.table.serviceCommission'.trns(),
             width: 150,
+          ),
+          _HeaderCell(
+            label: 'commissions.detail.table.totalPackages'.trns(),
+            width: 130,
           ),
           _HeaderCell(
             label: 'commissions.detail.table.packageCommission'.trns(),
@@ -266,17 +266,17 @@ class CommissionsDetailView extends GetView<CommissionsDetailController> {
             ),
           ),
           _DataCell(
-            width: 130,
+            width: 150,
             child: Text(
-              row.totalPackages.toString(),
+              '${row.staff?.branch?.currency?.symbol ?? '\$'} ${row.serviceCommission}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),
           ),
           _DataCell(
-            width: 150,
+            width: 130,
             child: Text(
-              '${row.staff?.branch?.currency?.symbol ?? '\$'} ${row.serviceCommission}',
+              row.totalPackages.toString(),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),

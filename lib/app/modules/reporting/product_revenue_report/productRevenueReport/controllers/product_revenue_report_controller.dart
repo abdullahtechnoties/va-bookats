@@ -60,6 +60,20 @@ class ProductRevenueReportController extends GetxController {
   final RxInt tempBranchId = 0.obs;
   final RxString tempProductId = 'all'.obs;
 
+  /// Initial-state snapshot taken from the first report response (the API
+  /// echoes the effective filter). The sheet's Reset restores exactly this —
+  /// never nulls — then the sheet closes gracefully.
+  DateTime? _initialFromDate;
+  DateTime? _initialToDate;
+  int? _initialBranchId;
+  String? _initialProductId;
+  bool get hasInitialState => _initialProductId != null;
+
+  /// While the linked product list refreshes after a branch change inside
+  /// the open filter sheet. The product dropdown stays visible but
+  /// unselectable with a loader during this fetch.
+  final RxBool isTempProductsLoading = false.obs;
+
   String get selectedBranchName {
     if (selectedBranchId.value == 0) {
       return 'reports.product.filter.allBranches'.trns();
@@ -196,13 +210,29 @@ class ProductRevenueReportController extends GetxController {
     reportResponse.value = response;
 
     if (response.isCompleted) syncDynamicColumns();
-        tempFromDate.value = DateTime.parse(response.data!.fromDate);
-        tempToDate.value = DateTime.parse(response.data!.toDate);
-        fromDate.value = DateTime.parse(response.data!.fromDate);
-        toDate.value = DateTime.parse(response.data!.toDate);
-        selectedBranchId.value = response.data!.branchId;
+    if (response.isCompleted && response.data != null) {
+      // Snapshot the effective initial state from the first success so
+      // Reset can restore exactly what onInit loaded.
+      if (!hasInitialState) {
+        _initialFromDate = DateTime.tryParse(response.data!.fromDate);
+        _initialToDate = DateTime.tryParse(response.data!.toDate);
+        _initialBranchId = response.data!.branchId;
+        _initialProductId = response.data!.productId.isEmpty
+            ? 'all'
+            : response.data!.productId;
+      }
+      tempFromDate.value = fromDate.value;
+      tempToDate.value = toDate.value;
+      fromDate.value =
+          DateTime.tryParse(response.data!.fromDate) ?? fromDate.value;
+      toDate.value = DateTime.tryParse(response.data!.toDate) ?? toDate.value;
+      selectedBranchId.value = response.data!.branchId;
+      tempBranchId.value = response.data!.branchId;
+      
+      if (response.data!.productId.isNotEmpty) {
         selectedProductId.value = response.data!.productId;
-        
+      }
+    }
 
     if (response.isError) {
       SnackbarService.showError(
@@ -234,10 +264,57 @@ class ProductRevenueReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = null;
-    tempToDate.value = null;
-    tempBranchId.value = isOwner ? 0 : userBranchId;
+    // Restore the exact initial state from the first report response.
+    // Falls back to the applied values when the snapshot isn't ready yet.
+    tempFromDate.value = _initialFromDate ?? fromDate.value;
+    tempToDate.value = _initialToDate ?? toDate.value;
+    tempBranchId.value = _initialBranchId ?? selectedBranchId.value;
+    tempProductId.value = _initialProductId ?? selectedProductId.value;
+  }
+
+  /// Applies the temp filter, closes the sheet gracefully, then refetches.
+  void applyFilterAndClose() {
+    applyFilter();
+    Get.back();
+  }
+
+  /// Resets temp fields to the initial API state, applies them to the
+  /// report, closes the sheet gracefully, then refetches.
+  void resetFilterAndClose() {
+    resetFilter();
+    fromDate.value = tempFromDate.value;
+    toDate.value = tempToDate.value;
+    selectedBranchId.value = tempBranchId.value;
+    selectedProductId.value = tempProductId.value;
+    Get.back();
+    fetchReport();
+  }
+
+  /// Called when the branch changes inside the open filter sheet: clears
+  /// the selected product, refreshes the product list via the lookups API
+  /// (`/data/products?branch_id=N`), and keeps the product dropdown
+  /// unselectable with a loader until the fetch completes. The report API
+  /// is never hit here — only Apply refetches the report.
+  Future<void> onTempBranchChanged(int branchId) async {
+    tempBranchId.value = branchId;
     tempProductId.value = 'all';
+    if (isTempProductsLoading.value) return;
+    isTempProductsLoading.value = true;
+    try {
+      final response = await _repository.getBranchProducts(branchId);
+      if (response.isCompleted && response.data != null) {
+        // Swap only the product options for the sheet; the applied report
+        // state stays untouched until Apply.
+        final data = report;
+        if (data != null) {
+          reportResponse.value = ApiResponse.completed(
+            data.copyWithProducts(response.data!),
+          );
+        }
+      }
+    } finally {
+      isTempProductsLoading.value = false;
+    }
   }
 
   // ── Column Selection Actions ───────────────────────────────────────────

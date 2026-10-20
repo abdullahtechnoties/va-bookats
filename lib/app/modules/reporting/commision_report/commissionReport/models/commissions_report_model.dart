@@ -17,6 +17,20 @@ class CommissionsReportResponse {
     required this.monthlyData,
   });
 
+  /// Copy with swapped staff options (used when the branch changes inside
+  /// the open filter sheet — lookups refresh without a report refetch).
+  CommissionsReportResponse copyWithStaffs(List<DropdownOption> staffs) {
+    return CommissionsReportResponse(
+      branches: branches,
+      staffs: staffs,
+      branchId: branchId,
+      staffId: staffId,
+      fromDate: fromDate,
+      toDate: toDate,
+      monthlyData: monthlyData,
+    );
+  }
+
   factory CommissionsReportResponse.fromJson(Map<String, dynamic> json) {
     return CommissionsReportResponse(
       branches:

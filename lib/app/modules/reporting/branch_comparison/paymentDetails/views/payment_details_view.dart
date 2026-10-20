@@ -43,6 +43,11 @@ class BranchComparisonReportDetailsView
       width: 130,
     ),
     _ColDef(
+      key: 'total_after_discount',
+      label: 'reports.paymentDetails.columns.totalAfterDiscount',
+      width: 150,
+    ),
+    _ColDef(
       key: 'total_paid',
       label: 'branchComparison.details.columns.totalPaid',
       width: 130,

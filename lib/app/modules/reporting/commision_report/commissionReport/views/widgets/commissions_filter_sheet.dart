@@ -181,18 +181,27 @@ class CommissionsFilterSheet extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Obx(
-                        () => _DropdownField(
-                          value:
-                              controller.staffs
-                                  .firstWhereOrNull(
-                                    (s) =>
-                                        s.value.toString() ==
-                                        controller.tempStaffId.value,
-                                  )
-                                  ?.label ??
-                              'commissions.filter.selectStaff'.trns(),
-                          onTap: () => _showStaffPicker(context),
-                        ),
+                        () {
+                          final loading =
+                              controller.isTempStaffsLoading.value;
+                          return _DropdownField(
+                            value: loading
+                                ? 'common.loadingFilters'.trns()
+                                : (controller.staffs
+                                        .firstWhereOrNull(
+                                          (s) =>
+                                              s.value.toString() ==
+                                              controller.tempStaffId.value,
+                                        )
+                                        ?.label ??
+                                    'commissions.filter.selectStaff'.trns()),
+                            // Unselectable while the linked list refreshes.
+                            onTap: loading
+                                ? null
+                                : () => _showStaffPicker(context),
+                            loading: loading,
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -238,17 +247,14 @@ class CommissionsFilterSheet extends StatelessWidget {
               Expanded(
                 child: _OutlineBtn(
                   label: 'commissions.filter.reset'.trns(),
-                  onTap: controller.resetFilter,
+                  onTap: controller.resetFilterAndClose,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: MainBtn(
                   text: 'commissions.filter.apply'.trns(),
-                  onPressed: () {
-                    controller.applyFilter();
-                    Get.back();
-                  },
+                  onPressed: controller.applyFilterAndClose,
                 ),
               ),
             ],
@@ -279,6 +285,7 @@ class CommissionsFilterSheet extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => CommonDropdownBottomSheetThree(
+        isUnselectAllowed: false,
         title: 'commissions.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
         dropdownItems: controller.branches.map((b) => b.label).toList(),
@@ -289,7 +296,10 @@ class CommissionsFilterSheet extends StatelessWidget {
         currentlySelectedValue: controller.tempBranchId.value ?? '',
         onValueSelected: (v) {
           final raw = v.toString();
-          controller.tempBranchId.value = raw.isEmpty ? null : raw;
+          // Branch change refreshes the linked staff list via the
+          // lookups API (branch id in params); staff picker stays
+          // unselectable with a loader until that fetch completes.
+          controller.onTempBranchChanged(raw.isEmpty ? null : raw);
         },
         showSearch: true,
       ),
@@ -371,9 +381,14 @@ class _DateField extends StatelessWidget {
 // ── Dropdown Field ────────────────────────────────────────────────────────────
 class _DropdownField extends StatelessWidget {
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool loading;
 
-  const _DropdownField({required this.value, required this.onTap});
+  const _DropdownField({
+    required this.value,
+    required this.onTap,
+    this.loading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -383,7 +398,7 @@ class _DropdownField extends StatelessWidget {
         height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: loading ? const Color(0xFFF3F4F6) : AppColors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
         ),
@@ -392,19 +407,29 @@ class _DropdownField extends StatelessWidget {
             Expanded(
               child: Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.black,
+                  color: loading ? const Color(0xFF9CA3AF) : AppColors.black,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 22,
-              color: Color(0xFF9CA3AF),
-            ),
+            if (loading)
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              )
+            else
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 22,
+                color: Color(0xFF9CA3AF),
+              ),
           ],
         ),
       ),

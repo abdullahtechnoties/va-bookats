@@ -24,7 +24,10 @@ class AppDrawerView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
-              onTap:() => Get.toNamed(Routes.PRODUCTS),
+              onTap:() {
+                Get.find<BottomnavController>().closeDrawer();
+                Get.find<BottomnavController>().changeTabIndex(3);
+              },
               child: _buildHeader(context, controller)),
             const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
             const SizedBox(height: 8),

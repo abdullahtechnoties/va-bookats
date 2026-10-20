@@ -44,7 +44,11 @@ class OrangeHeader extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: onBack ?? () => Get.back(),
-            child: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+            child: const Icon(
+              Icons.arrow_back_ios,
+              color: AppColors.white,
+              size: 20,
+            ),
           ),
           Expanded(
             child: Text(
@@ -63,15 +67,20 @@ class OrangeHeader extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  const Icon(Icons.filter_alt_outlined,
-                      color: AppColors.white, size: 24),
+                  const Icon(
+                    Icons.filter_alt_outlined,
+                    color: AppColors.white,
+                    size: 24,
+                  ),
                   if (filterCount > 0)
                     Positioned(
                       right: -6,
                       top: -6,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 1),
+                          horizontal: 5,
+                          vertical: 1,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.white,
                           borderRadius: BorderRadius.circular(10),
@@ -93,10 +102,14 @@ class OrangeHeader extends StatelessWidget {
           if (onAdd != null)
             GestureDetector(
               onTap: onAdd,
-              child: const Icon(Icons.add_box, color: AppColors.white, size: 24),
+              child: const Icon(
+                Icons.add_box,
+                color: AppColors.white,
+                size: 24,
+              ),
             ),
           // Placeholder to balance the row if icons are missing on right but we want center title
-          if (onFilter == null && onAdd == null) const SizedBox(width: 20), 
+          if (onFilter == null && onAdd == null) const SizedBox(width: 20),
         ],
       ),
     );
@@ -199,7 +212,7 @@ class InventoryItemCard extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -208,7 +221,9 @@ class InventoryItemCard extends StatelessWidget {
           // Top Row: Image and Status
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: showImage
+                ? MainAxisAlignment.spaceBetween
+                : MainAxisAlignment.end,
             children: [
               if (showImage)
                 Container(
@@ -224,81 +239,145 @@ class InventoryItemCard extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                 ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'inventory.status'.trns(),
-                    style: const TextStyle(color: AppColors.black, fontSize: 13),
-                  ),
-                  const SizedBox(height: 4),
-                  if (onStatusTap != null && _allowed(statusPermission))
-                    GestureDetector(
-                      onTap: isBusy ? null : onStatusTap,
-                      child: Container(
+              if (showImage)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (onStatusTap != null && _allowed(statusPermission))
+                      GestureDetector(
+                        onTap: isBusy ? null : onStatusTap,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFDE3D9), // Light orange bg
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: isBusy
+                              ? const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.primary,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      status,
+                                      style: const TextStyle(
+                                        color: AppColors.black,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      size: 14,
+                                      color: AppColors.black,
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      )
+                    else
+                      Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6),
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color:
-                              const Color(0xFFFDE3D9), // Light orange bg
+                          color: const Color(0xFFFDE3D9), // Light orange bg
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: isBusy
-                            ? const SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppColors.primary,
-                                ),
-                              )
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    status,
-                                    style: const TextStyle(
-                                      color: AppColors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    size: 14,
-                                    color: AppColors.black,
-                                  ),
-                                ],
-                              ),
-                      ),
-                    )
-                  else
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(
-                        color:
-                            const Color(0xFFFDE3D9), // Light orange bg
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        status,
-                        style: const TextStyle(
-                          color: AppColors.black,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                        child: Text(
+                          status,
+                          style: const TextStyle(
+                            color: AppColors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                    )
-                ],
-              )
+                  ],
+                ),
             ],
           ),
+          if (showImage)
           const SizedBox(height: 16),
 
           // Details Rows
-          _buildInfoRow('inventory.name'.trns(), name),
+          if (showImage)
+            _buildInfoRow('inventory.name'.trns(), name)
+          else
+            Row(
+              children: [
+                SizedBox(
+                  width: 60,
+                  child: Text(
+                    'inventory.name'.trns(),
+                    style: const TextStyle(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: const TextStyle(color: AppColors.grey, fontSize: 14, overflow: TextOverflow.ellipsis),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: isBusy ? null : onStatusTap,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFDE3D9), // Light orange bg
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: isBusy
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.primary,
+                            ),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                status,
+                                style: const TextStyle(
+                                  color: AppColors.black,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: 14,
+                                color: AppColors.black,
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
+            ),
           if (showBranch) ...[
             const SizedBox(height: 12),
             const DashedDivider(),
@@ -310,7 +389,7 @@ class InventoryItemCard extends StatelessWidget {
           // Action Buttons
           Row(
             children: [
-              if (_allowed(detailsPermission))
+              if (_allowed(detailsPermission) && _allowed(editPermission))
                 Expanded(
                   child: SizedBox(
                     height: 48,
@@ -320,29 +399,35 @@ class InventoryItemCard extends StatelessWidget {
                         backgroundColor: AppColors.primary,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: Text(
-                        'inventory.details'.trns(),
+                        'packages.card.viewOrEdit'.trns(),
                         style: const TextStyle(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold),
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              if (_allowed(editPermission)) ...[
-                const SizedBox(width: 12),
-                _buildIconButton(Icons.edit_outlined, onEdit,
-                    busy: false, disabled: isBusy || isDeleting),
-              ],
+              // if (_allowed(editPermission)) ...[
+              //   const SizedBox(width: 12),
+              //   _buildIconButton(Icons.edit_outlined, onEdit,
+              //       busy: false, disabled: isBusy || isDeleting),
+              // ],
               if (_allowed(deletePermission)) ...[
                 const SizedBox(width: 12),
-                _buildIconButton(Icons.delete_outline, onDelete,
-                    busy: isDeleting, disabled: isBusy || isDeleting),
+                _buildIconButton(
+                  Icons.delete_outline,
+                  onDelete,
+                  busy: isDeleting,
+                  disabled: isBusy || isDeleting,
+                ),
               ],
             ],
-          )
+          ),
         ],
       ),
     );
@@ -355,7 +440,11 @@ class InventoryItemCard extends StatelessWidget {
           width: 60,
           child: Text(
             label,
-            style: const TextStyle(color: AppColors.black, fontWeight: FontWeight.w500, fontSize: 14),
+            style: const TextStyle(
+              color: AppColors.black,
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
           ),
         ),
         Expanded(
@@ -406,7 +495,11 @@ class FilePickerInput extends StatelessWidget {
   final String placeholder;
   final VoidCallback onTap;
 
-  const FilePickerInput({super.key, required this.placeholder, required this.onTap});
+  const FilePickerInput({
+    super.key,
+    required this.placeholder,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -435,15 +528,21 @@ class FilePickerInput extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               decoration: const BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.horizontal(right: Radius.circular(9)),
+                borderRadius: BorderRadius.horizontal(
+                  right: Radius.circular(9),
+                ),
               ),
               alignment: Alignment.center,
               child: Text(
                 'inventory.choose_file'.trns(),
-                style: const TextStyle(color: AppColors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: AppColors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

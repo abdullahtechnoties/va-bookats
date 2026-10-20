@@ -47,6 +47,37 @@ class ProductRevenueRepository {
     }
   }
 
+  /// Branch-scoped product lookups for the filter sheet
+  /// (`/data/products?branch_id=N`). Returns a top-level JSON array —
+  /// never hits the report endpoint.
+  Future<ApiResponse<List<ProductLookup>>> getBranchProducts(
+    int branchId,
+  ) async {
+    try {
+      final response = await _network.getRaw(
+        endpoint: ApiPath.lookupProducts(branchId),
+      );
+      if (!response.isCompleted || response.data == null) {
+        return ApiResponse.error(
+          response.message ?? 'reports.product.errors.fetchFailed'.trns(),
+        );
+      }
+      final raw = response.data;
+      if (raw is! List) {
+        return ApiResponse.error('reports.product.errors.unexpected'.trns());
+      }
+      final items = raw
+          .whereType<Map>()
+          .map(
+            (e) => ProductLookup.fromJson(Map<String, dynamic>.from(e)),
+          )
+          .toList();
+      return ApiResponse.completed(items);
+    } catch (e) {
+      return ApiResponse.error('reports.product.errors.unexpected'.trns());
+    }
+  }
+
   Future<ApiResponse<ProductRevenueDetails>> getProductRevenueDetails({
     required int branchId,
     required String fromDate,

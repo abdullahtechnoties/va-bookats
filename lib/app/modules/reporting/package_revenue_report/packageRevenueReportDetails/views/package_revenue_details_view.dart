@@ -183,12 +183,12 @@ class PackageRevenueDetailsView
             width: 100,
           ),
           _HeaderCell(
-            label: 'packageRevenueDetails.table.quantity'.trns(),
-            width: 90,
-          ),
-          _HeaderCell(
             label: 'packageRevenueDetails.table.packageAmount'.trns(),
             width: 140,
+          ),
+          _HeaderCell(
+            label: 'packageRevenueDetails.table.quantity'.trns(),
+            width: 90,
           ),
           _HeaderCell(
             label: 'packageRevenueDetails.table.totalAmount'.trns(),
@@ -249,19 +249,19 @@ class PackageRevenueDetailsView
             ),
           ),
           _DataCell(
-            width: 90,
+            width: 140,
             showDivider: true,
             child: Text(
-              '${summary.totalQty}',
+               '${summary.package?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(summary.packageAmount)}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),
           ),
           _DataCell(
-            width: 140,
+            width: 90,
             showDivider: true,
             child: Text(
-               '${summary.package?.branch?.currency?.symbol ?? '\$'} ${controller.formatCurrency(summary.packageAmount)}',
+              '${summary.totalQty}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
             ),

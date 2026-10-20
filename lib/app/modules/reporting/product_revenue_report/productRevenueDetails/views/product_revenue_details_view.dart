@@ -16,14 +16,14 @@ class ProductRevenueDetailsView
       width: 150,
     ),
     _ColDef(
-      key: 'quantity',
-      label: 'reports.product.details.quantity',
-      width: 100,
-    ),
-    _ColDef(
       key: 'unitPrice',
       label: 'reports.product.details.unitPrice',
       width: 120,
+    ),
+    _ColDef(
+      key: 'quantity',
+      label: 'reports.product.details.quantity',
+      width: 100,
     ),
     _ColDef(
       key: 'totalAmount',

@@ -170,9 +170,7 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
         const SizedBox(height: 8),
         Obx(
           () => _DropdownField(
-            value: controller.tempBranchId.value == null
-                ? 'reports.filter.allBranches'.trns()
-                : controller.branches
+            value: controller.branches
                           .firstWhereOrNull(
                             (b) => b.value == controller.tempBranchId.value,
                           )
@@ -199,17 +197,26 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Obx(
-          () => _DropdownField(
-            value: controller.tempServiceId.value == 'all'
-                ? 'reports.filter.allServices'.trns()
-                : controller.services
-                          .firstWhereOrNull(
-                            (s) => s.value == controller.tempServiceId.value,
-                          )
-                          ?.label ??
-                      'reports.filter.allServices'.trns(),
-            onTap: () => _showServicePicker(context),
-          ),
+          () {
+            final loading = controller.isTempServicesLoading.value;
+            return _DropdownField(
+              value: loading
+                  ? 'common.loadingFilters'.trns()
+                  : (controller.tempServiceId.value == 'all'
+                        ? 'reports.filter.allServices'.trns()
+                        : controller.services
+                                .firstWhereOrNull(
+                                  (s) =>
+                                      s.value ==
+                                      controller.tempServiceId.value,
+                                )
+                                ?.label ??
+                            'reports.filter.allServices'.trns()),
+              // Unselectable while the linked list refreshes.
+              onTap: loading ? null : () => _showServicePicker(context),
+              loading: loading,
+            );
+          },
         ),
       ],
     );
@@ -221,17 +228,14 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
         Expanded(
           child: _OutlineBtn(
             label: 'reports.filter.reset'.trns(),
-            onTap: controller.resetFilter,
+            onTap: controller.resetFilterAndClose,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: MainBtn(
             text: 'reports.filter.apply'.trns(),
-            onPressed: () {
-              controller.applyFilter();
-              Get.back();
-            },
+            onPressed: controller.applyFilterAndClose,
           ),
         ),
       ],
@@ -260,22 +264,24 @@ class ServiceRevenueFilterSheet extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'reports.filter.branch'.trns(),
+        isUnselectAllowed: false,
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
         dropdownItems: [
-          'reports.filter.allBranches'.trns(),
           ...controller.branches.map((b) => b.label),
         ],
         textController: TextEditingController(),
         selectedValue: [
-          '',
           ...controller.branches.map((b) => b.value.toString()),
         ],
         currentlySelectedValue: controller.tempBranchId.value?.toString() ?? '',
         onValueSelected: (v) {
           final raw = v.toString();
-          controller.tempBranchId.value = raw.isEmpty
-              ? null
-              : int.tryParse(raw);
+          // Branch change refreshes the linked service list via the
+          // lookups API (branch id in params); service picker stays
+          // unselectable with a loader until that fetch completes.
+          controller.onTempBranchChanged(
+            raw.isEmpty ? null : int.tryParse(raw),
+          );
         },
         showSearch: true,
       ),
@@ -367,9 +373,14 @@ class _DateField extends StatelessWidget {
 // ── Dropdown Field ────────────────────────────────────────────────────────────
 class _DropdownField extends StatelessWidget {
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool loading;
 
-  const _DropdownField({required this.value, required this.onTap});
+  const _DropdownField({
+    required this.value,
+    required this.onTap,
+    this.loading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -379,7 +390,9 @@ class _DropdownField extends StatelessWidget {
         height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: loading
+              ? const Color(0xFFF3F4F6)
+              : AppColors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: AppColors.black.withValues(alpha: 0.15)),
         ),
@@ -388,18 +401,30 @@ class _DropdownField extends StatelessWidget {
             Expanded(
               child: Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.black,
+                  color: loading
+                      ? const Color(0xFF9CA3AF)
+                      : AppColors.black,
                 ),
               ),
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 22,
-              color: Color(0xFF9CA3AF),
-            ),
+            if (loading)
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              )
+            else
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 22,
+                color: Color(0xFF9CA3AF),
+              ),
           ],
         ),
       ),

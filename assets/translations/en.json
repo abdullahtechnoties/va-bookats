@@ -1687,6 +1687,7 @@
         "paidAmount": "Total Paid",
         "balance": "Total Balance",
         "paymentMethod": "Payment Method",
+        "totalAfterDiscount": "Total After Discount",
         "status": "Status"
       },
       "pagination": {

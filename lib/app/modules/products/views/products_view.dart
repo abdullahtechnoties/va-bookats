@@ -98,6 +98,7 @@ class ProductsView extends GetView<ProductsController> {
                               controller.busyProductId.value == product.id,
                           isDeleting:
                               controller.busyDeleteId.value == product.id,
+                          onEdit: () => controller.openEditPage(product),
                           onViewDetails: () =>
                               controller.openDetails(product),
                           onDelete: () => controller.deleteProduct(product),

@@ -107,6 +107,21 @@ class ProductRevenueReport {
     this.currencySymbol,
   });
 
+  /// Copy with swapped product options (used when the branch changes inside
+  /// the open filter sheet — lookups refresh without a report refetch).
+  ProductRevenueReport copyWithProducts(List<ProductLookup> products) {
+    return ProductRevenueReport(
+      branches: branches,
+      branchId: branchId,
+      fromDate: fromDate,
+      toDate: toDate,
+      monthlyData: monthlyData,
+      products: products,
+      productId: productId,
+      currencySymbol: currencySymbol,
+    );
+  }
+
   factory ProductRevenueReport.fromJson(Map<String, dynamic> json) {
     return ProductRevenueReport(
       currencySymbol: json['currency_symbol']?.toString(),

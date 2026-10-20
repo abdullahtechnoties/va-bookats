@@ -59,6 +59,21 @@ class ServiceRevenueReportController extends GetxController {
   final RxnInt tempBranchId = RxnInt(null);
   final Rx<dynamic> tempServiceId = Rx<dynamic>('all');
 
+  /// Initial-state snapshot taken from the first report response (the API
+  /// echoes the effective filter: from/to dates, branch, service). The
+  /// sheet's Reset restores exactly this — never nulls — then the sheet
+  /// closes gracefully. Null until the first successful fetch.
+  DateTime? _initialFromDate;
+  DateTime? _initialToDate;
+  int? _initialBranchId;
+  dynamic _initialServiceId;
+  bool get hasInitialState => _initialServiceId != null || _initialFromDate != null || _initialToDate != null || _initialBranchId != null;
+
+  /// While the linked service list refreshes after a branch change inside
+  /// the open filter sheet. The service dropdown stays visible but
+  /// unselectable with a loader during this fetch.
+  final RxBool isTempServicesLoading = false.obs;
+
   // ── Column Selection ──────────────────────────────────────────────────
   // Keys are snake_case to match API `monthlyData` fields, so dynamic
   // discovery never duplicates them.
@@ -194,13 +209,30 @@ class ServiceRevenueReportController extends GetxController {
 
     reportResponse.value = response;
     if (response.isCompleted) syncDynamicColumns();
-      tempFromDate.value = DateTime.parse(response.data!.fromDate);
-      tempToDate.value = DateTime.parse(response.data!.toDate);
-      fromDate.value = DateTime.parse(response.data!.fromDate);
-      toDate.value = DateTime.parse(response.data!.toDate);
-      selectedBranchId.value = response.data!.branchId;
-      selectedServiceId.value = response.data!.serviceId;
-      
+    if (response.isCompleted && response.data != null) {
+      // Snapshot the effective initial state from the first success so
+      // Reset can restore exactly what onInit loaded.
+      if (_initialServiceId == null && !hasInitialState) {
+        _initialFromDate = DateTime.tryParse(response.data!.fromDate);
+        _initialToDate = DateTime.tryParse(response.data!.toDate);
+        _initialBranchId = response.data!.branchId;
+        _initialServiceId = response.data!.serviceId ?? 'all';
+      }
+      tempFromDate.value = fromDate.value;
+      tempToDate.value = toDate.value;
+      tempBranchId.value = selectedBranchId.value;
+      // Keep the applied selection unless the user already changed the
+      // temp branch inside the open sheet.
+      fromDate.value =
+          DateTime.tryParse(response.data!.fromDate) ?? fromDate.value;
+      toDate.value = DateTime.tryParse(response.data!.toDate) ?? toDate.value;
+      if (response.data!.branchId != null) {
+        selectedBranchId.value = response.data!.branchId;
+      }
+      if (response.data!.serviceId != null) {
+        selectedServiceId.value = response.data!.serviceId;
+      }
+    }
   }
 
   Future<void> refreshReport() async {
@@ -224,10 +256,61 @@ class ServiceRevenueReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = null;
-    tempToDate.value = null;
-    tempBranchId.value = null;
+    // Restore the exact initial state from the first report response.
+    // Falls back to the applied values when the snapshot isn't ready yet.
+    tempFromDate.value = _initialFromDate ?? fromDate.value;
+    tempToDate.value = _initialToDate ?? toDate.value;
+    tempBranchId.value = _initialBranchId ?? selectedBranchId.value;
+    tempServiceId.value = _initialServiceId ?? selectedServiceId.value ?? 'all';
+  }
+
+  /// Applies the temp filter, closes the sheet gracefully, then refetches.
+  void applyFilterAndClose() {
+    applyFilter();
+    Get.back();
+  }
+
+  /// Resets temp fields to the initial API state, applies them to the
+  /// report, closes the sheet gracefully, then refetches.
+  void resetFilterAndClose() {
+    resetFilter();
+    fromDate.value = tempFromDate.value;
+    toDate.value = tempToDate.value;
+    selectedBranchId.value = tempBranchId.value;
+    selectedServiceId.value = tempServiceId.value;
+    Get.back();
+    _fetchReport();
+  }
+
+  /// Called when the branch changes inside the open filter sheet: clears
+  /// the selected service, refreshes the service list via the lookups API
+  /// (`/data/services?branch_id=N`), and keeps the service dropdown
+  /// unselectable with a loader until the fetch completes. The report API
+  /// is never hit here — only Apply refetches the report.
+  Future<void> onTempBranchChanged(int? branchId) async {
+    tempBranchId.value = branchId;
     tempServiceId.value = 'all';
+    if (isTempServicesLoading.value) return;
+    isTempServicesLoading.value = true;
+    try {
+      final branchParam = isOwner
+          ? branchId
+          : (_auth.currentUser.value?.branchId ?? branchId);
+      if (branchParam == null) return;
+      final response = await _service.getBranchServices(branchParam);
+      if (response.isCompleted && response.data != null) {
+        // Swap only the service options for the sheet; the applied report
+        // state stays untouched until Apply.
+        final data = reportResponse.value.data;
+        if (data != null) {
+          reportResponse.value = ApiResponse.completed(
+            data.copyWithServices(response.data!),
+          );
+        }
+      }
+    } finally {
+      isTempServicesLoading.value = false;
+    }
   }
 
   // ── Column Selection ──────────────────────────────────────────────────

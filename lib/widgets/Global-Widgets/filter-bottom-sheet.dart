@@ -161,6 +161,7 @@ class FilterBottomSheet extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => CommonDropdownBottomSheetThree(
         title: field.label,
+        
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.6,
         dropdownItems: field.dropdownItems!,
         selectedItem: field.selectedValue,

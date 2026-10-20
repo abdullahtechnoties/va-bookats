@@ -1,4 +1,5 @@
 import 'package:va_bookats/app/modules/reporting/branch_comparison/branchComparison/models/branch_comparison_details.dart';
+import 'package:va_bookats/models/customer_model.dart';
 
 class PaymentItem {
   final int id;
@@ -17,6 +18,8 @@ class PaymentItem {
   final BookingInfo? booking;
   final ClosingBranchModel? branch;
   final String? currencySymbol;
+  // customer
+
 
   PaymentItem({
     required this.id,
@@ -86,6 +89,7 @@ class BookingInfo {
   final String endTime;
   final int bookingSerial;
   final String status;
+  final CustomerModel? customer;
 
   BookingInfo({
     required this.id,
@@ -100,6 +104,7 @@ class BookingInfo {
     required this.endTime,
     required this.bookingSerial,
     required this.status,
+    this.customer,
   });
 
   factory BookingInfo.fromJson(Map<String, dynamic> json) {
@@ -119,6 +124,9 @@ class BookingInfo {
       source: json['source']?.toString() ?? '',
       startTime: json['start_time']?.toString() ?? '',
       endTime: json['end_time']?.toString() ?? '',
+      customer: json['customer'] != null && json['customer'] is Map
+          ? CustomerModel.fromJson(json['customer'])
+          : null,
       bookingSerial: json['booking_serial'] ?? 0,
       status: json['status']?.toString() ?? '',
     );

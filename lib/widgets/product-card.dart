@@ -12,6 +12,7 @@ class ProductCard extends StatelessWidget {
   final VoidCallback? onViewDetails;
   final VoidCallback? onDelete;
   final VoidCallback? onStatusTap;
+  final VoidCallback? onEdit;
   final bool isBusy;
   final bool isDeleting;
 
@@ -21,6 +22,7 @@ class ProductCard extends StatelessWidget {
     this.onViewDetails,
     this.onDelete,
     this.onStatusTap,
+    this.onEdit,
     this.isBusy = false,
     this.isDeleting = false,
   });
@@ -194,6 +196,33 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                ),
+              // edit
+              if (Permissions.can(AppPerm.update(AppPerm.products)))
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: isBusy || isDeleting ? null : onEdit,
+                      child: Container(
+                        height: 48,
+                        width: 48,
+                        margin: const EdgeInsets.only(left: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.edit_outlined,
+                            color: AppColors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               if (onDelete != null)
                 Can(

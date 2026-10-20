@@ -22,29 +22,24 @@ class ServiceRevenueDetailsView
       width: 150,
     ),
     _ColDef(
-      key: 'totalCustomers',
-      labelKey: 'reports.serviceRevenue.details.totalCustomers',
-      width: 130,
-    ),
-    _ColDef(
-      key: 'status',
-      labelKey: 'reports.serviceRevenue.details.status',
-      width: 110,
-    ),
-    _ColDef(
       key: 'serviceAmount',
       labelKey: 'reports.serviceRevenue.details.serviceAmount',
       width: 140,
     ),
     _ColDef(
-      key: 'totalDiscount',
-      labelKey: 'reports.serviceRevenue.details.totalDiscount',
-      width: 140,
+      key: 'totalCustomers',
+      labelKey: 'reports.serviceRevenue.details.totalCustomers',
+      width: 130,
     ),
     _ColDef(
       key: 'totalAmount',
       labelKey: 'reports.serviceRevenue.details.totalAmount',
       width: 130,
+    ),
+    _ColDef(
+      key: 'totalDiscount',
+      labelKey: 'reports.serviceRevenue.details.totalDiscount',
+      width: 140,
     ),
     _ColDef(
       key: 'netRevenue',

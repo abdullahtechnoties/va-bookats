@@ -62,6 +62,22 @@ class PackageRevenueReportController extends GetxController {
   final Rx<dynamic> tempPackageId = Rx<dynamic>('all');
   final RxString tempPackageLabel = ''.obs;
 
+  /// Initial-state snapshot taken from the first report response (the API
+  /// echoes the effective filter). The sheet's Reset restores exactly this —
+  /// never nulls — then the sheet closes gracefully.
+  DateTime? _initialFromDate;
+  DateTime? _initialToDate;
+  int? _initialBranchId;
+  String? _initialBranchLabel;
+  dynamic _initialPackageId;
+  String? _initialPackageLabel;
+  bool get hasInitialState => _initialPackageId != null;
+
+  /// While the linked package list refreshes after a branch change inside
+  /// the open filter sheet. The package dropdown stays visible but
+  /// unselectable with a loader during this fetch.
+  final RxBool isTempPackagesLoading = false.obs;
+
   // ── Dropdown Options ──────────────────────────────────────────────────
   final RxList<BranchFilterOption> branches = <BranchFilterOption>[].obs;
   final RxList<PackageFilterOption> packages = <PackageFilterOption>[].obs;
@@ -189,10 +205,23 @@ class PackageRevenueReportController extends GetxController {
         branches.value = response.data!.branches;
         packages.value = response.data!.packages;
         syncDynamicColumns();
-        tempFromDate.value = DateTime.parse(response.data!.fromDate);
-        tempToDate.value = DateTime.parse(response.data!.toDate);
-        fromDate.value = DateTime.parse(response.data!.fromDate);
-        toDate.value = DateTime.parse(response.data!.toDate);
+        // Snapshot the effective initial state from the first success so
+        // Reset can restore exactly what onInit loaded.
+        if (!hasInitialState) {
+          _initialFromDate = DateTime.tryParse(response.data!.fromDate);
+          _initialToDate = DateTime.tryParse(response.data!.toDate);
+          _initialBranchId = response.data!.branchId;
+          _initialBranchLabel = null; // resolved below from options
+          _initialPackageId = response.data!.packageId ?? 'all';
+          _initialPackageLabel = null; // resolved below from options
+        }
+        tempFromDate.value = fromDate.value;
+        tempToDate.value = toDate.value;
+        tempBranchId.value = selectedBranchId.value;
+        tempBranchLabel.value = selectedBranchLabel.value;
+        fromDate.value =
+            DateTime.tryParse(response.data!.fromDate) ?? fromDate.value;
+        toDate.value = DateTime.tryParse(response.data!.toDate) ?? toDate.value;
         final responseBranchId = response.data!.branchId;
         selectedBranchId.value = responseBranchId;
         selectedBranchLabel.value = branches
@@ -218,6 +247,12 @@ class PackageRevenueReportController extends GetxController {
         tempBranchLabel.value = selectedBranchLabel.value;
         tempPackageId.value = selectedPackageId.value;
         tempPackageLabel.value = selectedPackageLabel.value;
+        if (_initialBranchLabel == null) {
+          _initialBranchLabel = selectedBranchLabel.value;
+        }
+        if (_initialPackageLabel == null) {
+          _initialPackageLabel = selectedPackageLabel.value;
+        }
       } else {
         errorMessage.value = response.message ?? 'errors.failedToFetch'.trns();
         SnackbarService.showError(
@@ -263,12 +298,58 @@ class PackageRevenueReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = null;
-    tempToDate.value = null;
-    tempBranchId.value = 0;
-    tempBranchLabel.value = 'packageRevenue.filter.allBranches'.trns();
+    // Restore the exact initial state from the first report response.
+    // Falls back to the applied values when the snapshot isn't ready yet.
+    tempFromDate.value = _initialFromDate ?? fromDate.value;
+    tempToDate.value = _initialToDate ?? toDate.value;
+    tempBranchId.value = _initialBranchId ?? selectedBranchId.value;
+    tempBranchLabel.value = _initialBranchLabel ?? selectedBranchLabel.value;
+    tempPackageId.value = _initialPackageId ?? selectedPackageId.value;
+    tempPackageLabel.value = _initialPackageLabel ?? selectedPackageLabel.value;
+  }
+
+  /// Applies the temp filter, closes the sheet gracefully, then refetches.
+  void applyFilterAndClose() {
+    applyFilter();
+    Get.back();
+  }
+
+  /// Resets temp fields to the initial API state, applies them to the
+  /// report, closes the sheet gracefully, then refetches.
+  void resetFilterAndClose() {
+    resetFilter();
+    fromDate.value = tempFromDate.value;
+    toDate.value = tempToDate.value;
+    selectedBranchId.value = tempBranchId.value;
+    selectedBranchLabel.value = tempBranchLabel.value;
+    selectedPackageId.value = tempPackageId.value;
+    selectedPackageLabel.value = tempPackageLabel.value;
+    Get.back();
+    fetchReport();
+  }
+
+  /// Called when the branch changes inside the open filter sheet: clears
+  /// the selected package, refreshes the package list via the lookups API
+  /// (`/data/packages?branch_id=N`), and keeps the package dropdown
+  /// unselectable with a loader until the fetch completes. The report API
+  /// is never hit here — only Apply refetches the report.
+  Future<void> onTempBranchChanged(int branchId, String label) async {
+    tempBranchId.value = branchId;
+    tempBranchLabel.value = label;
     tempPackageId.value = 'all';
     tempPackageLabel.value = 'packageRevenue.filter.allPackages'.trns();
+    if (isTempPackagesLoading.value) return;
+    isTempPackagesLoading.value = true;
+    try {
+      final response = await _repository.getBranchPackages(branchId);
+      if (response.isCompleted && response.data != null) {
+        // Swap only the package options for the sheet; the applied report
+        // state stays untouched until Apply.
+        packages.assignAll(response.data!);
+      }
+    } finally {
+      isTempPackagesLoading.value = false;
+    }
   }
 
   /// Main-view package picker: single-select, refetches immediately.

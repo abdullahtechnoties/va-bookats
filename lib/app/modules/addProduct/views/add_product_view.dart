@@ -285,7 +285,7 @@ class AddProductView extends GetView<AddProductController> {
                       text: controller.isEditMode
                           ? 'addProduct.actions.update'.trns()
                           : 'addProduct.actions.save'.trns(),
-                      isLoading: controller.isLoading.value,
+                      isLoading: controller.isLoading.value || controller.isLoadingVariationTypes.value,
                       onPressed: () => controller.save(context),
                     )),
               ],
@@ -352,7 +352,7 @@ class AddProductView extends GetView<AddProductController> {
         currentlySelectedValue: '',
         isMultiSelect: true,
         selectedValues: temp,
-        doneButtonText: 'reports.common.done'.trns(),
+        doneButtonText: 'Select'.trns(),
         onDone: () {
           selected.assignAll(
             temp.map((e) => int.tryParse(e)).whereType<int>().toSet(),
@@ -562,6 +562,7 @@ void showSinglePickerSheet(
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (_) => CommonDropdownBottomSheetThree(
+      doneButtonText: "Select",
       title: title,
       bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
       dropdownItems: items,
@@ -1274,6 +1275,7 @@ class _CategoryDialogState extends State<_CategoryDialog> {
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (_) => CommonDropdownBottomSheetThree(
+                  doneButtonText: "Select",
                   title: 'addProduct.placeholders.selectParentCategory'.trns(),
                   bottomSheetHeight:
                       MediaQuery.of(context).size.height * 0.55,

@@ -155,19 +155,14 @@ class BranchComparisonFilterSheet extends StatelessWidget {
               Expanded(
                 child: _OutlineBtn(
                   label: 'branchComparison.filter.reset'.trns(),
-                  onTap: () {
-                    controller.resetFilter();
-                  },
+                  onTap: controller.resetFilterAndClose,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: MainBtn(
                   text: 'branchComparison.filter.apply'.trns(),
-                  onPressed: () {
-                    controller.applyFilter();
-                    Get.back();
-                  },
+                  onPressed: controller.applyFilterAndClose,
                 ),
               ),
             ],
@@ -200,14 +195,16 @@ class BranchComparisonFilterSheet extends StatelessWidget {
       builder: (_) => CommonDropdownBottomSheetThree(
         title: 'branchComparison.filter.selectBranches'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
-        dropdownItems:
-            controller.availableBranches.map((b) => b.label).toList(),
+        dropdownItems: controller.availableBranches
+            .map((b) => b.label)
+            .toList(),
         textController: TextEditingController(),
         selectedValue: controller.availableBranches
             .map((b) => b.value.toString())
             .toList(),
         currentlySelectedValue: '',
         isMultiSelect: true,
+        isUnselectAllowed: false,
         selectedValues: controller.tempBranchIds,
         doneButtonText: 'reports.common.done'.trns(),
         showSearch: true,
@@ -247,9 +244,7 @@ class _DateField extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: v == null
-                      ? const Color(0xFF9CA3AF)
-                      : AppColors.black,
+                  color: v == null ? const Color(0xFF9CA3AF) : AppColors.black,
                 ),
               ),
             ),

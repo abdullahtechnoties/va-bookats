@@ -15,6 +15,7 @@ class PaymentCardModel {
   final String total;
   final String paid;
   final String remaining;
+  
 
 
   const PaymentCardModel({

@@ -97,6 +97,22 @@ class PackageRevenueReportModel {
     required this.packageId,
   });
 
+  /// Copy with swapped package options (used when the branch changes inside
+  /// the open filter sheet — lookups refresh without a report refetch).
+  PackageRevenueReportModel copyWithPackages(
+    List<PackageFilterOption> packages,
+  ) {
+    return PackageRevenueReportModel(
+      branches: branches,
+      branchId: branchId,
+      fromDate: fromDate,
+      toDate: toDate,
+      monthlyData: monthlyData,
+      packages: packages,
+      packageId: packageId,
+    );
+  }
+
   factory PackageRevenueReportModel.fromJson(Map<String, dynamic> json) {
     return PackageRevenueReportModel(
       branches:

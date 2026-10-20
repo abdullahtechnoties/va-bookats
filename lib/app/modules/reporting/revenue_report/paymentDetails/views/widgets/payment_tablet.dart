@@ -61,6 +61,11 @@ class PaymentTableWidget extends StatelessWidget {
       width: 120,
     ),
     _ColDef(
+      key: 'total_after_discount',
+      label: 'reports.paymentDetails.columns.totalAfterDiscount',
+      width: 150,
+    ),
+    _ColDef(
       key: 'total_paid',
       label: 'reports.paymentDetails.columns.paidAmount',
       width: 130,

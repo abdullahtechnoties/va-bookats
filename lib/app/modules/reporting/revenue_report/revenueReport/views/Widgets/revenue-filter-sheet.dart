@@ -156,17 +156,14 @@ class RevenueFilterSheet extends StatelessWidget {
               Expanded(
                 child: _OutlineBtn(
                   label: 'reports.revenue.filter.reset'.trns(),
-                  onTap: controller.resetFilter,
+                  onTap: controller.resetFilterAndClose,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: MainBtn(
                   text: 'reports.revenue.filter.apply'.trns(),
-                  onPressed: () {
-                    controller.applyFilter();
-                    Get.back();
-                  },
+                  onPressed: controller.applyFilterAndClose,
                 ),
               ),
             ],
@@ -201,6 +198,7 @@ class RevenueFilterSheet extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => CommonDropdownBottomSheetThree(
+        isUnselectAllowed: false,
         title: 'reports.revenue.filter.branch'.trns(),
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
         dropdownItems: options.map((o) => o.label).toList(),

@@ -50,6 +50,35 @@ class ServiceRevenueService extends GetxService {
     }
   }
 
+  /// Branch-scoped service lookups for the filter sheet
+  /// (`/data/services?branch_id=N`). Returns a top-level JSON array —
+  /// never hits the report endpoint.
+  Future<ApiResponse<List<ServiceOption>>> getBranchServices(
+    int branchId,
+  ) async {
+    try {
+      final response = await _network.getRaw(
+        endpoint: ApiPath.lookupServices(branchId),
+      );
+      if (!response.isCompleted || response.data == null) {
+        return ApiResponse.error(
+          response.message ?? 'reports.errors.fetchFailed'.trns(),
+        );
+      }
+      final raw = response.data;
+      if (raw is! List) {
+        return ApiResponse.error('reports.errors.unexpected'.trns());
+      }
+      final items = raw
+          .whereType<Map>()
+          .map((e) => ServiceOption.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      return ApiResponse.completed(items);
+    } catch (e) {
+      return ApiResponse.error('reports.errors.unexpected'.trns());
+    }
+  }
+
   Future<ApiResponse<ServiceRevenueDetailResponse>> getServiceRevenueDetails({
     required int branchId,
     required String fromDate,

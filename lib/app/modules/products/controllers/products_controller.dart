@@ -390,6 +390,12 @@ class ProductsController extends GetxController {
     }
   }
 
+  void openEditPage(ProductModel product) {
+    Get.toNamed(Routes.ADD_PRODUCT, arguments: product)?.then((_) {
+      handleRefresh();
+    });
+  }
+
   Future<void> updateStatus(ProductModel product) async {
     final id = product.id;
     if (id == null) return;

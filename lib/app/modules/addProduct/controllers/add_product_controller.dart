@@ -146,7 +146,9 @@ class AddProductController extends GetxController {
   void onInit() {
     super.onInit();
     _extractArguments();
+    if(!isEditMode){
     fetchBranches();
+    }
   }
 
   void _extractArguments() {
@@ -254,7 +256,7 @@ class AddProductController extends GetxController {
       _formRepo.getCategories(branchId),
       _formRepo.getTags(branchId),
       _formRepo.getUnits(branchId),
-      _formRepo.getVariationTypes(branchId),
+      if(productType.value == 'variation') _formRepo.getVariationTypes(branchId),
     ]);
     isLoadingBrands.value = false;
     isLoadingCategories.value = false;

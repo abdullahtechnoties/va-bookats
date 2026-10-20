@@ -17,6 +17,7 @@ class CommonDropdownBottomSheetThree extends StatefulWidget {
   final String currentlySelectedValue;
   final bool showSearch;
   final String? searchHint;
+  final bool isUnselectAllowed;
 
   /// Multi-select mode (reporting filters): taps toggle membership in
   /// [selectedValues] instead of popping, with a Done footer. Ids are
@@ -38,6 +39,7 @@ class CommonDropdownBottomSheetThree extends StatefulWidget {
     this.currentlySelectedValue = '',
     this.showSearch = false,
     this.searchHint,
+    this.isUnselectAllowed = true,
     this.isMultiSelect = false,
     this.selectedValues,
     this.doneButtonText,
@@ -116,156 +118,167 @@ class _CommonDropdownBottomSheetThreeState
     final Color selectedTextColor = themeController.isDarkMode.value
         ? AppColors.primary
         : AppColors.primary;
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    final availableHeight =
+        MediaQuery.sizeOf(context).height - keyboardInset - 16;
+    final sheetHeight = widget.bottomSheetHeight < availableHeight
+        ? widget.bottomSheetHeight
+        : availableHeight;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutQuart,
-      height: widget.bottomSheetHeight,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            backgroundColorTop.withValues(alpha: 0.95),
-            backgroundColorBottom.withValues(alpha: 0.95),
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: keyboardInset),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutQuart,
+        height: sheetHeight,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              backgroundColorTop.withValues(alpha: 0.95),
+              backgroundColorBottom.withValues(alpha: 0.95),
+            ],
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
+            topRight: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
+          ),
+          border: Border.all(
+            color: themeController.isDarkMode.value
+                ? AppColors.white.withValues(alpha: 0.20)
+                : AppColors.white.withValues(alpha: 0.10),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.black.withValues(alpha: 0.4),
+              blurRadius: ResponsiveUtil.scaleSize(context, 30),
+              spreadRadius: ResponsiveUtil.scaleSize(context, 5),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
-          topRight: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
-        ),
-        border: Border.all(
-          color: themeController.isDarkMode.value
-              ? AppColors.white.withValues(alpha: 0.20)
-              : AppColors.white.withValues(alpha: 0.10),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.4),
-            blurRadius: ResponsiveUtil.scaleSize(context, 30),
-            spreadRadius: ResponsiveUtil.scaleSize(context, 5),
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
+            topRight: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
-          topRight: Radius.circular(ResponsiveUtil.scaleSize(context, 28)),
-        ),
-        child: Column(
-          children: [
-            Column(
-              children: [
-                SizedBox(height: ResponsiveUtil.scaleSize(context, 12)),
-                Center(
-                  child: Container(
-                    width: ResponsiveUtil.scaleSize(context, 60),
-                    height: ResponsiveUtil.scaleSize(context, 5),
-                    decoration: BoxDecoration(
-                      color: themeController.isDarkMode.value
-                          ? AppColors.white.withValues(alpha: 0.16)
-                          : AppColors.black.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(
-                        ResponsiveUtil.scaleSize(context, 4),
+          child: Column(
+            children: [
+              Column(
+                children: [
+                  SizedBox(height: ResponsiveUtil.scaleSize(context, 12)),
+                  Center(
+                    child: Container(
+                      width: ResponsiveUtil.scaleSize(context, 60),
+                      height: ResponsiveUtil.scaleSize(context, 5),
+                      decoration: BoxDecoration(
+                        color: themeController.isDarkMode.value
+                            ? AppColors.white.withValues(alpha: 0.16)
+                            : AppColors.black.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveUtil.scaleSize(context, 4),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: Text(
-                        widget.title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: ResponsiveUtil.scaleSize(context, 16),
-                          color: textColor,
-                          letterSpacing: 0.5,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(
+                          widget.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: ResponsiveUtil.scaleSize(context, 16),
+                            color: textColor,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.close,
-                          color: themeController.isDarkMode.value
-                              ? AppColors.primary
-                              : AppColors.black,
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: themeController.isDarkMode.value
+                                ? AppColors.primary
+                                : AppColors.black,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          splashRadius: ResponsiveUtil.scaleSize(context, 20),
                         ),
-                        onPressed: () => Navigator.pop(context),
-                        splashRadius: ResponsiveUtil.scaleSize(context, 20),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            if (widget.showSearch) ...[
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveUtil.scaleSize(context, 24),
-                ),
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
-                  curve: Curves.easeOut,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.black.withValues(alpha: 0.05),
-                        spreadRadius: 0,
-                        blurRadius: 3,
                       ),
                     ],
                   ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: _filterItems,
-                    decoration: InputDecoration(
-                      hintText: 'home.common.search'.trns(),
-                      hintStyle: TextStyle(color: subTextColor, fontSize: 14),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.close,
-                                size: ResponsiveUtil.scaleSize(context, 20),
-                                color: subTextColor,
-                              ),
-                              onPressed: () {
-                                _searchController.clear();
-                                _filterItems('');
-                              },
-                            )
-                          : null,
-                      filled: true,
-                      fillColor: themeController.isDarkMode.value
-                          ? AppColors.secondary.withValues(alpha: 0.95)
-                          : AppColors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+                ],
+              ),
+              if (widget.showSearch) ...[
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveUtil.scaleSize(context, 24),
+                  ),
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    curve: Curves.easeOut,
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.black.withValues(alpha: 0.05),
+                          spreadRadius: 0,
+                          blurRadius: 3,
+                        ),
+                      ],
                     ),
-                    style: TextStyle(color: searchTextColor, fontSize: 13),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: _filterItems,
+                      decoration: InputDecoration(
+                        hintText: 'home.common.search'.trns(),
+                        hintStyle: TextStyle(color: subTextColor, fontSize: 14),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.close,
+                                  size: ResponsiveUtil.scaleSize(context, 20),
+                                  color: subTextColor,
+                                ),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  _filterItems('');
+                                },
+                              )
+                            : null,
+                        filled: true,
+                        fillColor: themeController.isDarkMode.value
+                            ? AppColors.secondary.withValues(alpha: 0.95)
+                            : AppColors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      style: TextStyle(color: searchTextColor, fontSize: 13),
+                    ),
                   ),
                 ),
-              ),
+              ],
+              _filteredItems.isEmpty
+                  ? Expanded(child: _buildEmptyState(textColor, subTextColor))
+                  : _buildItemsList(
+                      textColor,
+                      selectedColor,
+                      selectedBorderColor,
+                      selectedTextColor,
+                    ),
+              if (widget.isMultiSelect) _buildDoneFooter(),
             ],
-            _filteredItems.isEmpty
-                ? _buildEmptyState(textColor, subTextColor)
-                : _buildItemsList(
-                    textColor,
-                    selectedColor,
-                    selectedBorderColor,
-                    selectedTextColor,
-                  ),
-            if (widget.isMultiSelect) _buildDoneFooter(),
-          ],
+          ),
         ),
       ),
     );
@@ -300,7 +313,9 @@ class _CommonDropdownBottomSheetThreeState
               final set = widget.selectedValues;
               if (set != null) {
                 if (set.contains(uniqueId)) {
-                  set.remove(uniqueId);
+                  if (widget.isUnselectAllowed || set.length > 1) {
+                    set.remove(uniqueId);
+                  }
                 } else {
                   set.add(uniqueId);
                 }
@@ -309,6 +324,10 @@ class _CommonDropdownBottomSheetThreeState
               return;
             }
             if (widget.currentlySelectedValue == uniqueId) {
+              if (!widget.isUnselectAllowed) {
+                Get.back();
+                return;
+              }
               widget.selectedItem?.value = '';
               widget.textController.clear();
               widget.onValueSelected?.call(null);
@@ -369,7 +388,7 @@ class _CommonDropdownBottomSheetThreeState
         ResponsiveUtil.scaleSize(context, 20),
         4,
         ResponsiveUtil.scaleSize(context, 20),
-        MediaQuery.of(context).viewInsets.bottom + 20,
+        20,
       ),
       child: SizedBox(
         width: double.infinity,

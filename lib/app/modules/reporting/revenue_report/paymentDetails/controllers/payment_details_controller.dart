@@ -224,9 +224,9 @@ class PaymentDetailsController extends GetxController {
       case 'customer_name':
         return item.booking?.displayName ?? 'N/A';
       case 'customer_email':
-        return item.booking?.guestEmail ?? 'N/A';
+        return item.booking?.guestEmail ?? item.booking?.customer?.email ?? 'N/A';
       case 'customer_phone':
-        return item.booking?.guestPhone ?? 'N/A';
+        return item.booking?.guestPhone ?? item.booking?.customer?.phonePrimary ?? 'N/A';
       case 'payment_method':
         return item.paymentMethod ?? 'N/A';
       case 'date':
@@ -237,6 +237,9 @@ class PaymentDetailsController extends GetxController {
         return '${item.branch?.currency?.symbol ?? '\$'} ${formatReportCell(key, item.totalAmount)}';
       case 'discount':
         return '${item.branch?.currency?.symbol ?? '\$'} ${formatReportCell(key, item.discountAmount)}';
+      case 'total_after_discount':
+        final totalAfterDiscount = item.totalAmount - item.discountAmount;
+        return '${item.branch?.currency?.symbol ?? '\$'} ${formatReportCell(key, totalAfterDiscount)}';
       case 'total_paid':
         return '${item.branch?.currency?.symbol ?? '\$'} ${formatReportCell(key, item.paidAmount)}';
       case 'total_balance':

@@ -33,6 +33,20 @@ class CommissionsReportController extends GetxController {
   final RxnString tempBranchId = RxnString(null);
   final RxnString tempStaffId = RxnString(null);
 
+  /// Initial-state snapshot taken from the first report response (the API
+  /// echoes the effective filter). The sheet's Reset restores exactly this —
+  /// never nulls — then the sheet closes gracefully.
+  DateTime? _initialFromDate;
+  DateTime? _initialToDate;
+  String? _initialBranchId;
+  String? _initialStaffId;
+  bool get hasInitialState => _initialStaffId != null || _initialBranchId != null || _initialFromDate != null;
+
+  /// While the linked staff list refreshes after a branch change inside
+  /// the open filter sheet. The staff dropdown stays visible but
+  /// unselectable with a loader during this fetch.
+  final RxBool isTempStaffsLoading = false.obs;
+
   // ── Columns ───────────────────────────────────────────────────────────────
   // Keys are snake_case to match API `monthlyData` fields, so dynamic
   // discovery never duplicates them. Labels resolve via en.json first,
@@ -212,10 +226,16 @@ class CommissionsReportController extends GetxController {
         if (_applyDefaultSelections()) {
           // await fetchReport();
         }
-        tempFromDate.value = DateTime.parse(data.fromDate);
-        tempToDate.value = DateTime.parse(data.toDate);
-        fromDate.value = DateTime.parse(data.fromDate);
-        toDate.value = DateTime.parse(data.toDate);
+        tempFromDate.value = fromDate.value;
+        tempToDate.value = toDate.value;
+        fromDate.value = DateTime.tryParse(data.fromDate) ?? fromDate.value;
+        toDate.value = DateTime.tryParse(data.toDate) ?? toDate.value;
+        if (!hasInitialState) {
+          _initialFromDate = fromDate.value;
+          _initialToDate = toDate.value;
+          _initialBranchId = selectedBranchId.value;
+          _initialStaffId = selectedStaffId.value;
+        }
       } catch (e) {
         apiResponse.value = ApiResponse.error(
           'commissions.errors.parseFailed'.trns(),
@@ -245,14 +265,73 @@ class CommissionsReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = null;
-    tempToDate.value = null;
-    // Reset restores the defaults: first branch (owner) / own branch
-    // (non-owner) and first staff.
-    tempBranchId.value = isOwner
-        ? _idOf(_firstRealOption(branches))
-        : userBranchId?.toString();
-    tempStaffId.value = _idOf(_firstRealOption(staffs));
+    // Restore the exact initial state from the first report response.
+    // Falls back to the applied/default values when the snapshot isn't
+    // ready yet.
+    tempFromDate.value = _initialFromDate ?? fromDate.value;
+    tempToDate.value = _initialToDate ?? toDate.value;
+    tempBranchId.value =
+        _initialBranchId ??
+        (isOwner
+            ? _idOf(_firstRealOption(branches))
+            : userBranchId?.toString());
+    tempStaffId.value =
+        _initialStaffId ?? _idOf(_firstRealOption(staffs));
+  }
+
+  /// Applies the temp filter, closes the sheet gracefully, then refetches.
+  void applyFilterAndClose() {
+    applyFilter();
+    Get.back();
+  }
+
+  /// Resets temp fields to the initial API state, applies them to the
+  /// report, closes the sheet gracefully, then refetches.
+  void resetFilterAndClose() {
+    resetFilter();
+    fromDate.value = tempFromDate.value;
+    toDate.value = tempToDate.value;
+    selectedBranchId.value = tempBranchId.value;
+    selectedStaffId.value = tempStaffId.value;
+    Get.back();
+    fetchReport();
+  }
+
+  /// Called when the branch changes inside the open filter sheet: clears
+  /// the selected staff, refreshes the staff list via the lookups API
+  /// (`/data/staffs?branch_id=N`), and keeps the staff dropdown
+  /// unselectable with a loader until the fetch completes. The report API
+  /// is never hit here — only Apply refetches the report.
+  Future<void> onTempBranchChanged(String? branchId) async {
+    tempBranchId.value = branchId;
+    tempStaffId.value = null;
+    if (isTempStaffsLoading.value) return;
+    final branchParam = int.tryParse(
+      (isOwner ? branchId : userBranchId?.toString()) ?? '',
+    );
+    if (branchParam == null) return;
+    isTempStaffsLoading.value = true;
+    try {
+      final response = await _network.getRaw(
+        endpoint: ApiPath.lookupStaffs(branchParam),
+      );
+      if (response.isCompleted && response.data is List) {
+        final items = (response.data as List)
+            .whereType<Map>()
+            .map((e) => DropdownOption.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+        // Swap only the staff options for the sheet; the applied report
+        // state stays untouched until Apply.
+        final data = apiResponse.value.data;
+        if (data != null) {
+          apiResponse.value = ApiResponse.completed(
+            data.copyWithStaffs(items),
+          );
+        }
+      }
+    } finally {
+      isTempStaffsLoading.value = false;
+    }
   }
 
   /// First selectable API option, skipping any "All" entry so the default

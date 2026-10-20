@@ -51,6 +51,15 @@ class CustomerReportController extends GetxController {
   final Rx<BranchOption?> tempBranch = Rx<BranchOption?>(null);
   final Rx<CustomerOption?> tempCustomer = Rx<CustomerOption?>(null);
 
+  /// Initial-state snapshot taken from the first report response (the API
+  /// echoes the effective filter). The sheet's Reset restores exactly this —
+  /// never nulls — then the sheet closes gracefully.
+  DateTime? _initialFromDate;
+  DateTime? _initialToDate;
+  BranchOption? _initialBranch;
+  CustomerOption? _initialCustomer;
+  bool get hasInitialState => _initialCustomer != null || _initialBranch != null || _initialFromDate != null;
+
   // ── Column selector ───────────────────────────────────────────────────────
   final RxList<CustomerReportColumn> allColumns = <CustomerReportColumn>[
     CustomerReportColumn(
@@ -224,10 +233,10 @@ class CustomerReportController extends GetxController {
         reportResponse.value = ApiResponse.completed(parsed);
         currentPage.value = 1;
         syncDynamicColumns();
-        tempFromDate.value = DateTime.parse(parsed.fromDate);
-        tempToDate.value = DateTime.parse(parsed.toDate);
-        fromDate.value = DateTime.parse(parsed.fromDate);
-        toDate.value = DateTime.parse(parsed.toDate);
+        tempFromDate.value = fromDate.value;
+        tempToDate.value = toDate.value;
+        fromDate.value = DateTime.tryParse(parsed.fromDate) ?? fromDate.value;
+        toDate.value = DateTime.tryParse(parsed.toDate) ?? toDate.value;
         // SELECT DYNAMIC BRANCH AND CUSTOMER ACCORDING TO API RESPONSE (if any)
         if (isOwner) {
           if (parsed.branchId != null) {
@@ -240,6 +249,12 @@ class CustomerReportController extends GetxController {
           selectedCustomer.value = customers.firstWhereOrNull(
             (c) => c.value == parsed.customerId,
           );
+        }
+        if (!hasInitialState) {
+          _initialFromDate = fromDate.value;
+          _initialToDate = toDate.value;
+          _initialBranch = selectedBranch.value;
+          _initialCustomer = selectedCustomer.value;
         }
       } else {
         reportResponse.value = ApiResponse.error(
@@ -279,12 +294,33 @@ class CustomerReportController extends GetxController {
   }
 
   void resetFilter() {
-    fromDate.value = null;
-    toDate.value = null;
-    tempFromDate.value = null;
-    tempToDate.value = null;
-    tempBranch.value = null;
-    tempCustomer.value = null;
+    // Restore the exact initial state from the first report response.
+    // Falls back to the applied values when the snapshot isn't ready yet.
+    fromDate.value = _initialFromDate ?? fromDate.value;
+    toDate.value = _initialToDate ?? toDate.value;
+    tempFromDate.value = _initialFromDate ?? fromDate.value;
+    tempToDate.value = _initialToDate ?? toDate.value;
+    tempBranch.value = _initialBranch ?? selectedBranch.value;
+    tempCustomer.value = _initialCustomer ?? selectedCustomer.value;
+  }
+
+  /// Applies the temp filter, closes the sheet gracefully, then refetches.
+  void applyFilterAndClose() {
+    applyFilter();
+    Get.back();
+  }
+
+  /// Resets temp fields to the initial API state, applies them to the
+  /// report, closes the sheet gracefully, then refetches.
+  void resetFilterAndClose() {
+    resetFilter();
+    fromDate.value = tempFromDate.value;
+    toDate.value = tempToDate.value;
+    selectedBranch.value = tempBranch.value;
+    selectedCustomer.value = tempCustomer.value;
+    currentPage.value = 1;
+    Get.back();
+    fetchReport();
   }
 
   // ── Column Actions ────────────────────────────────────────────────────────

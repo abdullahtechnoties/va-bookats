@@ -79,18 +79,18 @@ class PaymentsController extends GetxController {
 
   bool get _currentHasMore => _hasMoreByTab[selectedTab.value];
 
-  String get allBranchesKey => 'payments.filter.allBranches'.trns();
+
 
   List<String> get branchFilterOptions => [
-    allBranchesKey,
+    // allBranchesKey,
     ...branches.map((b) => b.displayLabel),
   ];
 
   int? get _filterBranchId {
     final label = selectedBranchFilter.value;
-    if (label.isEmpty || label == allBranchesKey) {
-      return null;
-    }
+    // if (label.isEmpty || label == allBranchesKey) {
+    //   return null;
+    // }
     for (final b in branches) {
       if (b.displayLabel == label) return b.value;
     }
@@ -297,6 +297,7 @@ class PaymentsController extends GetxController {
 
   void _showFilterSheet(BuildContext context) {
     FilterBottomSheet.show(
+
       context,
       fields: [
         FilterField(
@@ -325,6 +326,7 @@ class PaymentsController extends GetxController {
           FilterField(
             label: 'payments.filter.branches'.trns(),
             type: FilterFieldType.dropdown,
+            showSearch: true,
             controller: branchFilterCtrl,
             dropdownItems: branchFilterOptions,
             selectedValue: selectedBranchFilter,

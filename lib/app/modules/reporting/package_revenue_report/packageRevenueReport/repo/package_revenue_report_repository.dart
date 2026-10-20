@@ -50,6 +50,37 @@ class PackageRevenueReportRepository {
     }
   }
 
+  /// Branch-scoped package lookups for the filter sheet
+  /// (`/data/packages?branch_id=N`). Returns a top-level JSON array —
+  /// never hits the report endpoint.
+  Future<ApiResponse<List<PackageFilterOption>>> getBranchPackages(
+    int branchId,
+  ) async {
+    try {
+      final response = await _network.getRaw(
+        endpoint: ApiPath.lookupPackages(branchId),
+      );
+      if (!response.isCompleted || response.data == null) {
+        return ApiResponse.error(
+          response.message ?? 'errors.failedToFetch'.trns(),
+        );
+      }
+      final raw = response.data;
+      if (raw is! List) {
+        return ApiResponse.error('errors.unexpected'.trns());
+      }
+      final items = raw
+          .whereType<Map>()
+          .map(
+            (e) => PackageFilterOption.fromJson(Map<String, dynamic>.from(e)),
+          )
+          .toList();
+      return ApiResponse.completed(items);
+    } catch (e) {
+      return ApiResponse.error('errors.unexpected'.trns());
+    }
+  }
+
   Future<ApiResponse<PackageRevenueDetailsModel>> getPackageRevenueDetails({
     required int branchId,
     required String fromDate,

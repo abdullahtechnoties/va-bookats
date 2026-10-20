@@ -67,10 +67,8 @@ abstract class InventoryListController extends GetxController {
   final RxString selectedStatusFilter = ''.obs;
   final RxString selectedQuickRange = ''.obs;
 
-  String get allBranchesKey => tr('filter.allBranches');
-
   List<String> get branchFilterOptions => [
-    allBranchesKey,
+    // allBranchesKey,
     ...branches.map((b) => b.displayLabel),
   ];
 
@@ -84,7 +82,6 @@ abstract class InventoryListController extends GetxController {
 
   int? get _filterBranchId {
     final label = selectedBranchFilter.value;
-    if (label.isEmpty || label == allBranchesKey) return null;
     for (final b in branches) {
       if (b.displayLabel == label) return b.value;
     }
@@ -317,6 +314,7 @@ abstract class InventoryListController extends GetxController {
           FilterField(
             label: tr('filter.branches'),
             type: FilterFieldType.dropdown,
+            showSearch: true,
             controller: branchFilterCtrl,
             dropdownItems: branchFilterOptions,
             selectedValue: selectedBranchFilter,

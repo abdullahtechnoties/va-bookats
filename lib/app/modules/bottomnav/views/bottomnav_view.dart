@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/appDrawer/views/app_drawer_view.dart';
 import 'package:va_bookats/app/modules/allBooking/views/all_booking_view.dart';
@@ -56,58 +57,116 @@ class BottomnavView extends GetView<BottomnavController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: controller.scaffoldKey,
-      drawer: const AppDrawerView(),
-      // backgroundColor: AppColors.primary,
-      extendBody: true,
-      body: Obx(
-        () => IndexedStack(
-          index: controller.tabIndex.value,
-          children: _buildPages(),
-        ),
-      ),
-      // Always visible so the bar keeps its shape; denied taps show a
-      // graceful "no access" popup instead of navigating.
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primary,
-        onPressed: () {
-          if (!Permissions.can(AppPerm.create(AppPerm.bookings))) {
-            showNoAccessDialog();
-            return;
-          }
-          Get.toNamed(Routes.CREATE_BOOKING);
-        },
-        shape: const CircleBorder(),
-        child: Icon(Icons.add, color: AppColors.white, size: 48),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10.0,
-              offset: Offset(0, -2), // Shadow position
+    return PopScope(
+      canPop: false, // prevents default pop behavior unless allowed
+      onPopInvokedWithResult: (popResult, isFinal) async {
+        // Show confirmation dialog manually
+        final shouldExit = await Get.dialog<bool>(
+          AlertDialog(
+            title: const Text('Exit'),
+            backgroundColor: AppColors.white,
+            content: const Text('Are you sure you want to exit?'),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
             ),
-          ],
+            actions: [
+              OutlinedButton(
+                style: ElevatedButton.styleFrom(
+                  // backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(
+                    color: AppColors.primary,
+                    style: BorderStyle.solid,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(
+                      color: AppColors.primary,
+                    style: BorderStyle.solid
+                    ),
+
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                onPressed: () {
+                  Get.back(result: false);
+                },
+                child: const Text('No', style: TextStyle(color: AppColors.primary)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                onPressed: () async {
+                  Get.back(result: true);
+                },
+                child: const Text('Yes', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        );
+          // If user confirmed, exit the app
+   
+    if (shouldExit == true) {
+      SystemNavigator.pop(); // or exit(0);
+    }
+      },
+      child: Scaffold(
+        key: controller.scaffoldKey,
+        drawer: const AppDrawerView(),
+        // backgroundColor: AppColors.primary,
+        extendBody: true,
+        body: Obx(
+          () => IndexedStack(
+            index: controller.tabIndex.value,
+            children: _buildPages(),
+          ),
         ),
-        child: BottomAppBar(
-          color: Colors.white,
-          shape: const CircularNotchedRectangle(),
-          notchMargin: 8.0,
-          elevation: 10,
-          child: SizedBox(
-            height: 60,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                navItem(_navItems[0], 0),
-                navItem(_navItems[1], 1),
-                const SizedBox(width: 40),
-                navItem(_navItems[2], 2),
-                navItem(_navItems[3], 3),
-              ],
+        // Always visible so the bar keeps its shape; denied taps show a
+        // graceful "no access" popup instead of navigating.
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: AppColors.primary,
+          onPressed: () {
+            if (!Permissions.can(AppPerm.create(AppPerm.bookings))) {
+              showNoAccessDialog();
+              return;
+            }
+            Get.toNamed(Routes.CREATE_BOOKING);
+          },
+          shape: const CircleBorder(),
+          child: Icon(Icons.add, color: AppColors.white, size: 48),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 10.0,
+                offset: Offset(0, -2), // Shadow position
+              ),
+            ],
+          ),
+          child: BottomAppBar(
+            color: Colors.white,
+            shape: const CircularNotchedRectangle(),
+            notchMargin: 8.0,
+            elevation: 10,
+            child: SizedBox(
+              height: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  navItem(_navItems[0], 0),
+                  navItem(_navItems[1], 1),
+                  const SizedBox(width: 40),
+                  navItem(_navItems[2], 2),
+                  navItem(_navItems[3], 3),
+                ],
+              ),
             ),
           ),
         ),

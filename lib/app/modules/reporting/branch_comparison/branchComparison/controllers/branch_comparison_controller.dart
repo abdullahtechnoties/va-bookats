@@ -60,6 +60,14 @@ class BranchComparisonReportController extends GetxController {
   final Rxn<DateTime> tempToDate = Rxn<DateTime>();
   final RxSet<String> tempBranchIds = <String>{}.obs;
 
+  /// Initial-state snapshot taken from the first report response (the API
+  /// echoes the effective filter). The sheet's Reset restores exactly this —
+  /// never nulls — then the sheet closes gracefully.
+  DateTime? _initialFromDate;
+  DateTime? _initialToDate;
+  Set<String>? _initialBranchIds;
+  bool get hasInitialState => _initialBranchIds != null;
+
   List<ReportOption> get branchOptions => availableBranches
       .map((b) => ReportOption(label: b.label, value: b.value.toString()))
       .toList();
@@ -67,14 +75,14 @@ class BranchComparisonReportController extends GetxController {
   String get branchFilterDisplay => multiSelectDisplay(
     selected: selectedBranchIds,
     options: branchOptions,
-    allLabel: 'branchComparison.filter.allBranches'.trns(),
+    allLabel: 'branchComparison.filter.selectBranches'.trns(),
     selectedSuffix: 'branchComparison.filter.branchesSelected'.trns(),
   );
 
   String get tempBranchFilterDisplay => multiSelectDisplay(
     selected: tempBranchIds,
     options: branchOptions,
-    allLabel: 'branchComparison.filter.allBranches'.trns(),
+    allLabel: 'branchComparison.filter.selectBranches'.trns(),
     selectedSuffix: 'branchComparison.filter.branchesSelected'.trns(),
   );
 
@@ -243,10 +251,16 @@ class BranchComparisonReportController extends GetxController {
       selectedBranchIds.assignAll(responseBranchIds);
       tempBranchIds.assignAll(responseBranchIds);
       syncDynamicColumns();
-      tempFromDate.value = DateTime.parse(response.data!.fromDate);
-      tempToDate.value = DateTime.parse(response.data!.toDate);
-      fromDate.value = DateTime.parse(response.data!.fromDate);
-      toDate.value = DateTime.parse(response.data!.toDate);
+      tempFromDate.value = fromDate.value;
+      tempToDate.value = toDate.value;
+      fromDate.value =
+          DateTime.tryParse(response.data!.fromDate) ?? fromDate.value;
+      toDate.value = DateTime.tryParse(response.data!.toDate) ?? toDate.value;
+      if (!hasInitialState) {
+        _initialFromDate = fromDate.value;
+        _initialToDate = toDate.value;
+        _initialBranchIds = Set<String>.from(responseBranchIds);
+      }
     } else if (response.isError) {
       SnackbarService.showError(
         title: 'errors.errorTitle'.trns(),
@@ -275,9 +289,32 @@ class BranchComparisonReportController extends GetxController {
   }
 
   void resetFilter() {
-    tempFromDate.value = null;
-    tempToDate.value = null;
-    tempBranchIds.clear();
+    // Restore the exact initial state from the first report response.
+    // Falls back to the applied values when the snapshot isn't ready yet.
+    tempFromDate.value = _initialFromDate ?? fromDate.value;
+    tempToDate.value = _initialToDate ?? toDate.value;
+    if (_initialBranchIds != null) {
+      tempBranchIds.assignAll(_initialBranchIds!);
+    } else {
+      initTempMulti(tempBranchIds, selectedBranchIds);
+    }
+  }
+
+  /// Applies the temp filter, closes the sheet gracefully, then refetches.
+  void applyFilterAndClose() {
+    applyFilter();
+    Get.back();
+  }
+
+  /// Resets temp fields to the initial API state, applies them to the
+  /// report, closes the sheet gracefully, then refetches.
+  void resetFilterAndClose() {
+    resetFilter();
+    fromDate.value = tempFromDate.value;
+    toDate.value = tempToDate.value;
+    selectedBranchIds.assignAll(tempBranchIds);
+    Get.back();
+    fetchReport();
   }
 
   void selectAllTempBranches() {

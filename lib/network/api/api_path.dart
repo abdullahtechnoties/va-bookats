@@ -115,6 +115,17 @@ class ApiPath {
   static String expenseCategories(int branchId) =>
       '/data/expense-categories?branch_id=$branchId';
 
+  // Reporting filter lookups (branch-scoped, used when the branch changes
+  // inside an open filter sheet — never a report refetch).
+  static String lookupServices(int branchId) =>
+      '/data/services?branch_id=$branchId';
+  static String lookupProducts(int branchId) =>
+      '/data/products?branch_id=$branchId';
+  static String lookupPackages(int branchId) =>
+      '/data/packages?branch_id=$branchId';
+  static String lookupStaffs(int branchId) =>
+      '/data/staffs?branch_id=$branchId';
+
   // Geo (Unauthenticated)
   static const String countries = '/data/countries';
   static String countryStates(int countryId) =>

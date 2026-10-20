@@ -37,15 +37,6 @@ Future<void> showFilterLoader() async {
                   color: AppColors.secondary,
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                'common.loadingFilters'.trns(),
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.black,
-                ),
-              ),
             ],
           ),
         ),
