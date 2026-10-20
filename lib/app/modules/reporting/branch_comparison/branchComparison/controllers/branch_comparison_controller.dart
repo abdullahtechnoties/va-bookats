@@ -23,10 +23,8 @@ class ReportColumn {
     this.isSelected = true,
   });
 
-  String get label => resolveReportColumnLabel(
-        'branchComparison.columns',
-        labelKey,
-      );
+  String get label =>
+      resolveReportColumnLabel('branchComparison.columns', labelKey);
 }
 
 class BranchComparisonReportController extends GetxController {
@@ -67,24 +65,23 @@ class BranchComparisonReportController extends GetxController {
       .toList();
 
   String get branchFilterDisplay => multiSelectDisplay(
-        selected: selectedBranchIds,
-        options: branchOptions,
-        allLabel: 'branchComparison.filter.allBranches'.trns(),
-        selectedSuffix: 'branchComparison.filter.branchesSelected'.trns(),
-      );
+    selected: selectedBranchIds,
+    options: branchOptions,
+    allLabel: 'branchComparison.filter.allBranches'.trns(),
+    selectedSuffix: 'branchComparison.filter.branchesSelected'.trns(),
+  );
 
   String get tempBranchFilterDisplay => multiSelectDisplay(
-        selected: tempBranchIds,
-        options: branchOptions,
-        allLabel: 'branchComparison.filter.allBranches'.trns(),
-        selectedSuffix: 'branchComparison.filter.branchesSelected'.trns(),
-      );
+    selected: tempBranchIds,
+    options: branchOptions,
+    allLabel: 'branchComparison.filter.allBranches'.trns(),
+    selectedSuffix: 'branchComparison.filter.branchesSelected'.trns(),
+  );
 
   /// Selected ids as ints for the indexed API params (null = All).
   List<int>? get filterBranchIds {
     if (selectedBranchIds.isEmpty) return null;
-    final ids =
-        selectedBranchIds.map(int.tryParse).whereType<int>().toList();
+    final ids = selectedBranchIds.map(int.tryParse).whereType<int>().toList();
     return ids.isEmpty ? null : ids;
   }
 
@@ -240,7 +237,16 @@ class BranchComparisonReportController extends GetxController {
     if (response.isCompleted && response.data != null) {
       // Update available branches
       availableBranches.assignAll(response.data!.branches);
+      final responseBranchIds = response.data!.branchIds
+          .map((id) => id.toString())
+          .toSet();
+      selectedBranchIds.assignAll(responseBranchIds);
+      tempBranchIds.assignAll(responseBranchIds);
       syncDynamicColumns();
+      tempFromDate.value = DateTime.parse(response.data!.fromDate);
+      tempToDate.value = DateTime.parse(response.data!.toDate);
+      fromDate.value = DateTime.parse(response.data!.fromDate);
+      toDate.value = DateTime.parse(response.data!.toDate);
     } else if (response.isError) {
       SnackbarService.showError(
         title: 'errors.errorTitle'.trns(),
@@ -275,9 +281,7 @@ class BranchComparisonReportController extends GetxController {
   }
 
   void selectAllTempBranches() {
-    tempBranchIds.assignAll(
-      availableBranches.map((b) => b.value.toString()),
-    );
+    tempBranchIds.assignAll(availableBranches.map((b) => b.value.toString()));
   }
 
   void clearTempBranches() {
@@ -293,10 +297,7 @@ class BranchComparisonReportController extends GetxController {
   /// opt-in columns. Technical ids never become columns.
   void syncDynamicColumns() {
     final known = allColumns.map((c) => c.key).toSet();
-    final fresh = discoverReportColumns(
-      items.map((r) => r.rawFields),
-      known,
-    );
+    final fresh = discoverReportColumns(items.map((r) => r.rawFields), known);
     if (fresh.isEmpty) return;
     for (final key in fresh) {
       allColumns.add(

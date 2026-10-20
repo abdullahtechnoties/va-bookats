@@ -32,26 +32,24 @@ class PaymentsController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   // Tabs: Paid | Unpaid | Returned.
-  //
-  // NOTE: the backend does not reliably honor a `status` query param (every
-  // tab was returning the full list), so tabs are filtered client-side from
-  // one master list. This stays correct whether or not the API filters.
   final RxInt selectedTab = 0.obs;
 
-  final RxList<PaymentModel> allPayments = <PaymentModel>[].obs;
+  static const List<String> _tabStatuses = ['Paid', 'Unpaid', 'Return'];
+  final List<RxList<PaymentModel>> _paymentsByTab = List.generate(
+    3,
+    (_) => <PaymentModel>[].obs,
+  );
+  final List<bool> _tabLoaded = List.filled(3, false);
+  final List<int> _currentPageByTab = List.filled(3, 1);
+  final List<int> _lastPageByTab = List.filled(3, 1);
+  final List<bool> _hasMoreByTab = List.filled(3, false);
+  final List<int> _generationByTab = List.filled(3, 0);
 
   final RxBool isLoading = true.obs;
   final RxBool isRefreshing = false.obs;
   final RxBool isLoadingMore = false.obs;
   final RxBool hasMore = false.obs;
   final RxBool loadFailed = false.obs;
-
-  int _currentPage = 1;
-  int _lastPage = 1;
-
-  /// Bumped on every list request so a stale response can never overwrite a
-  /// newer filter/search result.
-  int _generation = 0;
 
   // ─── Search (inside the filter sheet) ────────────────────────────────────
   final TextEditingController searchCtrl = TextEditingController();
@@ -71,22 +69,15 @@ class PaymentsController extends GetxController {
   final RxBool isFilterLoading = false.obs;
   bool _filterBranchesLoaded = false;
 
-  /// Tab index for a payment, derived from its own status string.
-  static int tabIndexFor(PaymentModel p) {
-    final s = p.status.trim().toLowerCase();
-    if (s.startsWith('paid')) return 0;
-    if (s.startsWith('return')) return 2;
-    return 1;
-  }
-
-  List<PaymentModel> paymentsForTab(int index) =>
-      allPayments.where((p) => tabIndexFor(p) == index).toList();
+  List<PaymentModel> paymentsForTab(int index) => _paymentsByTab[index];
 
   List<PaymentModel> get currentPayments => paymentsForTab(selectedTab.value);
 
-  int get paidCount => paymentsForTab(0).length;
-  int get unpaidCount => paymentsForTab(1).length;
-  int get returnedCount => paymentsForTab(2).length;
+  int get paidCount => _paymentsByTab[0].length;
+  int get unpaidCount => _paymentsByTab[1].length;
+  int get returnedCount => _paymentsByTab[2].length;
+
+  bool get _currentHasMore => _hasMoreByTab[selectedTab.value];
 
   String get allBranchesKey => 'payments.filter.allBranches'.trns();
 
@@ -185,15 +176,23 @@ class PaymentsController extends GetxController {
   }
 
   Future<void> fetchFirstPage() async {
+    await _fetchFirstPageForTab(selectedTab.value);
+  }
+
+  Future<void> _fetchFirstPageForTab(int tabIndex, {bool force = false}) async {
+    if (_tabLoaded[tabIndex] && !force) return;
     final query = searchCtrl.text.trim();
     final from = _toApiDate(fromDateCtrl.text);
     final to = _toApiDate(toDateCtrl.text);
     final branchId = _filterBranchId;
-    final gen = ++_generation;
-    isLoading.value = true;
-    loadFailed.value = false;
+    final gen = ++_generationByTab[tabIndex];
+    if (tabIndex == selectedTab.value) {
+      isLoading.value = true;
+      loadFailed.value = false;
+    }
     final response = await _repo.getPayments(
       page: 1,
+      status: _tabStatuses[tabIndex],
       search: query.isEmpty ? null : query,
       branchId: branchId,
       fromDate: from,
@@ -202,12 +201,14 @@ class PaymentsController extends GetxController {
     );
 
     // Superseded by a newer filter/search request — drop it.
-    if (gen != _generation) return;
+    if (gen != _generationByTab[tabIndex]) return;
 
     if (!response.isCompleted || response.data == null) {
-      loadFailed.value = true;
-      isLoading.value = false;
-      if (allPayments.isEmpty) {
+      if (tabIndex == selectedTab.value) {
+        loadFailed.value = true;
+        isLoading.value = false;
+      }
+      if (_paymentsByTab[tabIndex].isEmpty && tabIndex == selectedTab.value) {
         SnackbarService.showError(
           title: 'common.error'.trns(),
           message: response.message ?? 'errors.requestFailed'.trns(),
@@ -217,46 +218,56 @@ class PaymentsController extends GetxController {
     }
 
     final page = response.data!;
-    _currentPage = page.meta.currentPage;
-    _lastPage = page.meta.lastPage;
-    hasMore.value = page.meta.hasNextPage;
-    allPayments.assignAll(page.payments);
-    isLoading.value = false;
+    _currentPageByTab[tabIndex] = page.meta.currentPage;
+    _lastPageByTab[tabIndex] = page.meta.lastPage;
+    _hasMoreByTab[tabIndex] = page.meta.hasNextPage;
+    _paymentsByTab[tabIndex].assignAll(page.payments);
+    _tabLoaded[tabIndex] = true;
+    if (tabIndex == selectedTab.value) {
+      hasMore.value = page.meta.hasNextPage;
+      isLoading.value = false;
+    }
   }
 
   Future<void> handleRefresh() async {
     isRefreshing.value = true;
     loadFailed.value = false;
-    await fetchFirstPage();
-    isRefreshing.value = false;
+    try {
+      await _fetchFirstPageForTab(selectedTab.value, force: true);
+    } finally {
+      isRefreshing.value = false;
+    }
   }
 
   Future<void> loadMore() async {
-    if (_currentPage >= _lastPage || isLoadingMore.value) return;
+    final tabIndex = selectedTab.value;
+    if (!_currentHasMore || isLoadingMore.value) return;
     final query = searchCtrl.text.trim();
     final from = _toApiDate(fromDateCtrl.text);
     final to = _toApiDate(toDateCtrl.text);
     final branchId = _filterBranchId;
-    final gen = ++_generation;
+    final gen = _generationByTab[tabIndex];
     isLoadingMore.value = true;
     final response = await _repo.getPayments(
-      page: _currentPage + 1,
+      page: _currentPageByTab[tabIndex] + 1,
+      status: _tabStatuses[tabIndex],
       search: query.isEmpty ? null : query,
       branchId: branchId,
       fromDate: from,
       toDate: to,
       quickRange: _filterQuickRange,
     );
-    if (gen != _generation) {
+    if (gen != _generationByTab[tabIndex]) {
       isLoadingMore.value = false;
       return;
     }
     if (response.isCompleted && response.data != null) {
       final page = response.data!;
-      _currentPage = page.meta.currentPage;
-      _lastPage = page.meta.lastPage;
+      _currentPageByTab[tabIndex] = page.meta.currentPage;
+      _lastPageByTab[tabIndex] = page.meta.lastPage;
+      _hasMoreByTab[tabIndex] = page.meta.hasNextPage;
+      _paymentsByTab[tabIndex].addAll(page.payments);
       hasMore.value = page.meta.hasNextPage;
-      allPayments.addAll(page.payments);
     }
     isLoadingMore.value = false;
   }
@@ -266,9 +277,9 @@ class PaymentsController extends GetxController {
   void changeTab(int index) {
     if (selectedTab.value == index) return;
     selectedTab.value = index;
-    // Tabs are a client-side slice of the master list, so switching is
-    // instant. If nothing is loaded yet (and nothing is loading), fetch.
-    if (allPayments.isEmpty && !isLoading.value && !loadFailed.value) {
+    hasMore.value = _hasMoreByTab[index];
+    loadFailed.value = false;
+    if (!_tabLoaded[index]) {
       fetchFirstPage();
     }
   }
@@ -278,10 +289,7 @@ class PaymentsController extends GetxController {
   void openFilter(BuildContext context) async {
     final needsFetch =
         showBranch && (!_filterBranchesLoaded || branches.isEmpty);
-    await runWithFilterLoader(
-      () => ensureFilterData(),
-      shouldShow: needsFetch,
-    );
+    await runWithFilterLoader(() => ensureFilterData(), shouldShow: needsFetch);
     if (isClosed) return;
     if (!context.mounted) return;
     _showFilterSheet(context);
@@ -328,6 +336,7 @@ class PaymentsController extends GetxController {
   }
 
   void applyFilters() {
+    _invalidateTabCaches();
     fetchFirstPage();
   }
 
@@ -339,7 +348,20 @@ class PaymentsController extends GetxController {
     quickRangeCtrl.clear();
     selectedBranchFilter.value = '';
     selectedQuickRange.value = '';
+    _invalidateTabCaches();
     fetchFirstPage();
+  }
+
+  void _invalidateTabCaches() {
+    for (var i = 0; i < _tabLoaded.length; i++) {
+      _tabLoaded[i] = false;
+      _paymentsByTab[i].clear();
+      _currentPageByTab[i] = 1;
+      _lastPageByTab[i] = 1;
+      _hasMoreByTab[i] = false;
+      _generationByTab[i]++;
+    }
+    hasMore.value = false;
   }
 
   // ─── Navigation ──────────────────────────────────────────────────────────

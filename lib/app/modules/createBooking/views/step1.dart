@@ -104,12 +104,13 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                                   .trns(),
                               controller: controller.branchCtrl,
                               readOnly: true,
+                              enabled: !controller.isEditMode,
                               height: 50,
                               hintTextSize: 13,
                               showSuffixIcon: true,
                               suffixIcon: controller.isLoadingBranches.value
                                   ? _loaderSuffix()
-                                  : const Icon(
+                                  : controller.isEditMode ? null : const Icon(
                                       Icons.keyboard_arrow_down_rounded,
                                       color: Color(0xFF888888),
                                     ),
@@ -118,7 +119,7 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                                       controller.selectedBranchId.value == null
                                   ? 'Please select a branch'
                                   : null,
-                              onTap: controller.isLoadingBranches.value
+                              onTap: controller.isEditMode ? null: controller.isLoadingBranches.value
                                   ? null
                                   : () => _showThree(
                                       context,
@@ -156,17 +157,18 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                 hintText: 'createBooking.step1.selectBookingType'.trns(),
                 controller: controller.bookingTypeCtrl,
                 readOnly: true,
+                enabled: !controller.isEditMode,
                 height: 50,
                 hintTextSize: 13,
                 showSuffixIcon: true,
-                suffixIcon: const Icon(
+                suffixIcon: controller.isEditMode ? null: const Icon(
                   Icons.keyboard_arrow_down_rounded,
                   color: Color(0xFF888888),
                 ),
                 validator: (_) => controller.selectedBookingType.value.isEmpty
                     ? 'Please select a booking type'
                     : null,
-                onTap: () => _showThree(
+                onTap: () =>controller.isEditMode ? null: _showThree(
                   context,
                   title: 'createBooking.step1.bookingType'.trns(),
                   items: CreateBookingController.bookingTypes,
@@ -193,8 +195,8 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                               ),
                               Can(
                                 AppPerm.create(AppPerm.customers),
-                                child: GestureDetector(
-                                  onTap: () =>
+                                child: controller.isEditMode? SizedBox.shrink() : GestureDetector(
+                                  onTap: () =>controller.isEditMode ? null:
                                       Get.dialog(const AddCustomerDialog()),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -235,12 +237,13 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                                   .trns(),
                               controller: controller.customerCtrl,
                               readOnly: true,
+                              enabled: !controller.isEditMode,
                               height: 50,
                               hintTextSize: 13,
                               showSuffixIcon: true,
                               suffixIcon: controller.isLoadingCustomers.value
                                   ? _loaderSuffix()
-                                  : const Icon(
+                                  : controller.isEditMode ? null: const Icon(
                                       Icons.keyboard_arrow_down_rounded,
                                       color: Color(0xFF888888),
                                     ),
@@ -250,7 +253,7 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                                           null
                                   ? 'Please select a customer'
                                   : null,
-                              onTap: () => _showThree(
+                              onTap: () =>controller.isEditMode ? null: _showThree(
                                 context,
                                 title: 'createBooking.step1.customer'.trns(),
                                 items: controller.customerOptions
@@ -292,6 +295,7 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                           CommonTextInputField(
                             hintText: 'Enter guest name',
                             controller: controller.guestNameCtrl,
+                            readOnly: controller.isEditMode,
                             height: 50,
                             hintTextSize: 13,
                             validator: (_) =>
@@ -306,6 +310,7 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                           CommonTextInputField(
                             hintText: 'Enter guest email',
                             controller: controller.guestEmailCtrl,
+                            readOnly: controller.isEditMode,
                             keyboardType: TextInputType.emailAddress,
                             height: 50,
                             hintTextSize: 13,
@@ -325,6 +330,7 @@ class Step1BookingInfo extends GetView<CreateBookingController> {
                           _FieldLabel('Guest Phone'),
                           const SizedBox(height: 8),
                           CommonTextInputField(
+                            readOnly: controller.isEditMode,
                             hintText: 'Enter guest phone',
                             controller: controller.guestPhoneCtrl,
                             keyboardType: TextInputType.phone,

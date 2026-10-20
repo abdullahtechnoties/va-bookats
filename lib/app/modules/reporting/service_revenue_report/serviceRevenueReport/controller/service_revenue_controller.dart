@@ -194,6 +194,13 @@ class ServiceRevenueReportController extends GetxController {
 
     reportResponse.value = response;
     if (response.isCompleted) syncDynamicColumns();
+      tempFromDate.value = DateTime.parse(response.data!.fromDate);
+      tempToDate.value = DateTime.parse(response.data!.toDate);
+      fromDate.value = DateTime.parse(response.data!.fromDate);
+      toDate.value = DateTime.parse(response.data!.toDate);
+      selectedBranchId.value = response.data!.branchId;
+      selectedServiceId.value = response.data!.serviceId;
+      
   }
 
   Future<void> refreshReport() async {

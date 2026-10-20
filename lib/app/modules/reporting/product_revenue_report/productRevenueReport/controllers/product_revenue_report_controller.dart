@@ -196,6 +196,13 @@ class ProductRevenueReportController extends GetxController {
     reportResponse.value = response;
 
     if (response.isCompleted) syncDynamicColumns();
+        tempFromDate.value = DateTime.parse(response.data!.fromDate);
+        tempToDate.value = DateTime.parse(response.data!.toDate);
+        fromDate.value = DateTime.parse(response.data!.fromDate);
+        toDate.value = DateTime.parse(response.data!.toDate);
+        selectedBranchId.value = response.data!.branchId;
+        selectedProductId.value = response.data!.productId;
+        
 
     if (response.isError) {
       SnackbarService.showError(

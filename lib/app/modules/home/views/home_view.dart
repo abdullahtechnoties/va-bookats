@@ -317,18 +317,20 @@ class _StatsGrid extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.33,
+          childAspectRatio: 1.67,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
+          
           children: [
             _StatCard(
               value: '${home.totalBookings}',
               label: 'home.stats.totalBookings'.trns(),
               icon: Icons.calendar_today_rounded,
-              background: AppColors.secondary,
-              foreground: AppColors.white,
-              subColor: AppColors.white.withValues(alpha: 0.75),
-              onTap: controller.openAllBookings,
+              background: AppColors.white,
+              foreground: AppColors.black,
+              subColor: const Color(0xFF888888),
+              accent: const Color(0xFFF57F00),
+              // onTap: controller.openAllBookings,
             ),
             _StatCard(
               value: '${home.pendingBookings}',
@@ -422,7 +424,7 @@ class _StatCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(16),
@@ -448,6 +450,7 @@ class _StatCard extends StatelessWidget {
                   value,
                   style: TextStyle(
                     fontSize: 45,
+                    height: 1,
                     fontWeight: FontWeight.w900,
                     color: foreground,
                   ),
@@ -465,6 +468,7 @@ class _StatCard extends StatelessWidget {
             ),
             Spacer(),
             Container(
+              margin: const EdgeInsets.only(top:3),
               width: 34,
               height: 34,
               decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),

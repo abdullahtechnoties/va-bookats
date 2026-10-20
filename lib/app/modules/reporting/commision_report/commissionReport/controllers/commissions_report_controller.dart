@@ -191,8 +191,8 @@ class CommissionsReportController extends GetxController {
     }
 
     // Always send staff_id: 'all' when nothing is selected, else the id.
-    params['staff_id'] = (selectedStaffId.value == null ||
-            selectedStaffId.value!.isEmpty)
+    params['staff_id'] =
+        (selectedStaffId.value == null || selectedStaffId.value!.isEmpty)
         ? 'all'
         : selectedStaffId.value;
 
@@ -205,12 +205,17 @@ class CommissionsReportController extends GetxController {
       try {
         final data = CommissionsReportResponse.fromJson(response.data!);
         apiResponse.value = ApiResponse.completed(data);
+        _applyResponseSelections(data);
         // syncDynamicColumns();
         // // First branch/staff become the default selection on first load —
         // // refetch once so the data matches the filter state.
-        // if (_applyDefaultSelections()) {
-        //   await fetchReport();
-        // }
+        if (_applyDefaultSelections()) {
+          // await fetchReport();
+        }
+        tempFromDate.value = DateTime.parse(data.fromDate);
+        tempToDate.value = DateTime.parse(data.toDate);
+        fromDate.value = DateTime.parse(data.fromDate);
+        toDate.value = DateTime.parse(data.toDate);
       } catch (e) {
         apiResponse.value = ApiResponse.error(
           'commissions.errors.parseFailed'.trns(),
@@ -244,8 +249,9 @@ class CommissionsReportController extends GetxController {
     tempToDate.value = null;
     // Reset restores the defaults: first branch (owner) / own branch
     // (non-owner) and first staff.
-    tempBranchId.value =
-        isOwner ? _idOf(_firstRealOption(branches)) : userBranchId?.toString();
+    tempBranchId.value = isOwner
+        ? _idOf(_firstRealOption(branches))
+        : userBranchId?.toString();
     tempStaffId.value = _idOf(_firstRealOption(staffs));
   }
 
@@ -262,13 +268,39 @@ class CommissionsReportController extends GetxController {
 
   String? _idOf(DropdownOption? option) => option?.value?.toString();
 
+  void _applyResponseSelections(CommissionsReportResponse data) {
+    final backendBranchId = data.branchId?.toString();
+    final backendBranch = backendBranchId == null
+        ? null
+        : data.branches.firstWhereOrNull(
+            (branch) => branch.value.toString() == backendBranchId,
+          );
+    if (backendBranch != null) {
+      final id = _idOf(backendBranch);
+      selectedBranchId.value = id;
+      tempBranchId.value = id;
+    }
+
+    final backendStaffId = data.staffId?.trim();
+    final backendStaff = backendStaffId == null
+        ? null
+        : data.staffs.firstWhereOrNull(
+            (staff) => staff.value.toString() == backendStaffId,
+          );
+    if (backendStaff != null) {
+      final id = _idOf(backendStaff);
+      selectedStaffId.value = id;
+      tempStaffId.value = id;
+    }
+  }
+
   /// Selects the first branch (owner only — non-owner stays scoped to their
-  /// own branch) and the first staff by default once the API lists arrive.
+  /// own branch) and applies the API's staff selection once the lists arrive.
+  /// Falls back to the first real staff when the API does not return one.
   /// Returns true when a selection changed (caller refetches once).
   bool _applyDefaultSelections() {
     var changed = false;
-    if ((selectedBranchId.value == null ||
-            selectedBranchId.value!.isEmpty) &&
+    if ((selectedBranchId.value == null || selectedBranchId.value!.isEmpty) &&
         isOwner) {
       final id = _idOf(_firstRealOption(branches));
       if (id != null) {
@@ -278,7 +310,13 @@ class CommissionsReportController extends GetxController {
       }
     }
     if (selectedStaffId.value == null || selectedStaffId.value!.isEmpty) {
-      final id = _idOf(_firstRealOption(staffs));
+      final backendStaffId = apiResponse.value.data?.staffId?.trim();
+      final backendStaff = backendStaffId == null
+          ? null
+          : staffs.firstWhereOrNull(
+              (staff) => staff.value.toString() == backendStaffId,
+            );
+      final id = _idOf(backendStaff ?? _firstRealOption(staffs));
       if (id != null) {
         selectedStaffId.value = id;
         tempStaffId.value = id;

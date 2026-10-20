@@ -224,6 +224,23 @@ class CustomerReportController extends GetxController {
         reportResponse.value = ApiResponse.completed(parsed);
         currentPage.value = 1;
         syncDynamicColumns();
+        tempFromDate.value = DateTime.parse(parsed.fromDate);
+        tempToDate.value = DateTime.parse(parsed.toDate);
+        fromDate.value = DateTime.parse(parsed.fromDate);
+        toDate.value = DateTime.parse(parsed.toDate);
+        // SELECT DYNAMIC BRANCH AND CUSTOMER ACCORDING TO API RESPONSE (if any)
+        if (isOwner) {
+          if (parsed.branchId != null) {
+            selectedBranch.value = branches.firstWhereOrNull(
+              (b) => b.value == parsed.branchId,
+            );
+          }
+        }
+        if (parsed.customerId != null) {
+          selectedCustomer.value = customers.firstWhereOrNull(
+            (c) => c.value == parsed.customerId,
+          );
+        }
       } else {
         reportResponse.value = ApiResponse.error(
           response.message ?? 'customerReport.errors.fetchFailed'.trns(),

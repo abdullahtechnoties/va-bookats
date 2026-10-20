@@ -244,6 +244,28 @@ class RevenueReportController extends GetxController {
       if (response.isCompleted && response.data != null) {
         _parseRevenueResponse(response.data!);
         syncDynamicColumns();
+        // select branch and date range from API response (first row) if available
+        if (revenueDataList.isNotEmpty) {
+              tempFromDate.value = DateTime.parse(response.data!['from_date']);
+      tempToDate.value = DateTime.parse(response.data!['to_date']);
+      fromDate.value = DateTime.parse(response.data!['from_date']);
+      toDate.value = DateTime.parse(response.data!['to_date']);
+      selectedBranchId.value = response.data!['branch_id'] ?? 0;
+      selectedBranchLabel.value = branchOptions
+          .firstWhere(
+            (b) => b.value == selectedBranchId.value,
+            // orElse: () => BranchOption(id: 0, label: 'reports.revenue.filter.allBranches'.trns()),
+          )
+          .label;
+        } else {
+          // No data returned, reset branch and date range
+          tempFromDate.value = null;
+          tempToDate.value = null;
+          fromDate.value = null;
+          toDate.value = null;
+          selectedBranchId.value = 0;
+          selectedBranchLabel.value = 'reports.revenue.filter.allBranches'.trns();
+        }
       } else {
         SnackbarService.showError(
           title: 'errors.errorTitle'.trns(),
@@ -265,15 +287,13 @@ class RevenueReportController extends GetxController {
     // Parse branches
     if (data['branches'] != null && data['branches'] is List) {
       final List<BranchOption> branches = [
-        BranchOption(
-          label: 'reports.revenue.filter.allBranches'.trns(),
-          value: 0,
-        ),
+
       ];
       for (var b in data['branches']) {
         branches.add(BranchOption.fromJson(b));
       }
       branchOptions.value = branches;
+     
     }
 
     // Parse monthlyData

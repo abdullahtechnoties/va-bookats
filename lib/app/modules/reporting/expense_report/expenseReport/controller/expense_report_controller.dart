@@ -166,11 +166,21 @@ class ExpenseReportController extends GetxController {
       expenseCategories.value = data.expenseCategories;
       monthlyData.value = data.monthlyData;
       syncDynamicColumns();
-
+      tempFromDate.value = DateTime.parse(response.data!.fromDate);
+      tempToDate.value = DateTime.parse(response.data!.toDate);
+      fromDate.value = DateTime.parse(response.data!.fromDate);
+      toDate.value = DateTime.parse(response.data!.toDate);
       // Auto-select first branch if owner and none selected
       if (isOwner && selectedBranch.value == null && branches.isNotEmpty) {
-        selectedBranch.value = branches.first;
+        selectedBranch.value = branches.firstWhere(
+                (b) => b.value == data.branchId,
+                orElse: () => branches.first,
+              );
       }
+      selectedExpenseCategory.value = expenseCategories.firstWhere(
+        (c) => c.displayValue == data.expenseCategoryId,
+        orElse: () => expenseCategories.first,
+      );
 
       status.value = Status.completed;
     } else {

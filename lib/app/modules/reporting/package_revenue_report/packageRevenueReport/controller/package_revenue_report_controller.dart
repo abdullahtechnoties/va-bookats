@@ -23,10 +23,8 @@ class PackageRevenueColumn {
     this.isSelected = true,
   });
 
-  String get label => resolveReportColumnLabel(
-        'packageRevenue.table',
-        labelKey,
-      );
+  String get label =>
+      resolveReportColumnLabel('packageRevenue.table', labelKey);
 }
 
 class PackageRevenueReportController extends GetxController {
@@ -191,6 +189,35 @@ class PackageRevenueReportController extends GetxController {
         branches.value = response.data!.branches;
         packages.value = response.data!.packages;
         syncDynamicColumns();
+        tempFromDate.value = DateTime.parse(response.data!.fromDate);
+        tempToDate.value = DateTime.parse(response.data!.toDate);
+        fromDate.value = DateTime.parse(response.data!.fromDate);
+        toDate.value = DateTime.parse(response.data!.toDate);
+        final responseBranchId = response.data!.branchId;
+        selectedBranchId.value = responseBranchId;
+        selectedBranchLabel.value = branches
+            .firstWhere(
+              (b) => b.value == responseBranchId,
+              orElse: () => BranchFilterOption(
+                value: 0,
+                label: 'packageRevenue.filter.allBranches'.trns(),
+              ),
+            )
+            .label;
+        final responsePackageId = response.data!.packageId ?? 'all';
+        final packageOption = packages.firstWhere(
+          (p) => p.value.toString() == responsePackageId.toString(),
+          orElse: () => PackageFilterOption(
+            value: 'all',
+            label: 'packageRevenue.filter.allPackages'.trns(),
+          ),
+        );
+        selectedPackageId.value = packageOption.value;
+        selectedPackageLabel.value = packageOption.label;
+        tempBranchId.value = selectedBranchId.value;
+        tempBranchLabel.value = selectedBranchLabel.value;
+        tempPackageId.value = selectedPackageId.value;
+        tempPackageLabel.value = selectedPackageLabel.value;
       } else {
         errorMessage.value = response.message ?? 'errors.failedToFetch'.trns();
         SnackbarService.showError(

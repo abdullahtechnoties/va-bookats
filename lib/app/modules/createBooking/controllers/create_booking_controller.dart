@@ -307,7 +307,7 @@ class CreateBookingController extends GetxController {
       if (userBranch != null) selectedBranchId.value = userBranch;
     }
     _readArguments();
-    if (branches.isEmpty) {
+    if (branches.isEmpty && Get.arguments is! int && !isEditMode) {
       await fetchBranches();
     }
     // fetchCustomers();
@@ -1459,24 +1459,24 @@ class CreateBookingController extends GetxController {
   // ─── Prefill (edit) ────────────────────────────────────────────────────
 
   void _prefillFromBooking(BookingModel b) {
-    if (showBranch) {
-      selectedBranchId.value = b.branchId;
-      selectedBranchValue.value = b.branchId?.toString() ?? '';
-    } else {
-      selectedBranchId.value = b.branchId ?? _auth.currentUser.value?.branchId;
-      selectedBranchValue.value = selectedBranchId.value?.toString() ?? '';
-    }
+    final detailBranch = b.branch;
+    selectedBranchId.value =
+        b.branchId ?? detailBranch?.id ?? _auth.currentUser.value?.branchId;
+    selectedBranchValue.value = selectedBranchId.value?.toString() ?? '';
     if (selectedBranchId.value != null) {
-      // fetchBranches().then((_) {
-      for (final br in branches) {
-        if (br.value == selectedBranchId.value) {
-          selectedBranch.value = br.displayLabel;
-          branchCtrl.text = br.displayLabel;
-          break;
+      final branchName = detailBranch?.name;
+      if (branchName != null && branchName.isNotEmpty) {
+        selectedBranch.value = branchName;
+        branchCtrl.text = branchName;
+      } else {
+        for (final br in branches) {
+          if (br.value == selectedBranchId.value) {
+            selectedBranch.value = br.displayLabel;
+            branchCtrl.text = br.displayLabel;
+            break;
+          }
         }
-        // }
       }
-      // );
       // fetchBranchCatalogs();
     }
     final type = (b.bookingType ?? '').isEmpty
@@ -1486,7 +1486,9 @@ class CreateBookingController extends GetxController {
     bookingTypeCtrl.text = type;
     selectedCustomerId.value = b.customerId;
     if (b.customerId != null) {
-      fetchCustomers();
+      // fetchCustomers();
+      selectedCustomerValue.value = b.customerId.toString();
+      customerCtrl.text = b.customer?.name ?? '';
     } else {
       selectedCustomer.value = b.customer?.name ?? '';
       customerCtrl.text = b.customer?.name ?? '';
@@ -1543,7 +1545,7 @@ class CreateBookingController extends GetxController {
     }
     final detail = res.data!;
     _editing = detail;
-    // _prefillFromBooking(detail);
+    _prefillFromBooking(detail);
     _rebuildItems(detail);
   }
 
