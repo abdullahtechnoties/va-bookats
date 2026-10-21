@@ -37,7 +37,13 @@ class HomeView extends GetView<HomeController> {
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),
-                  child: Column(
+                  child:
+                      Can.any(
+                    [
+                      AppPerm.index(AppPerm.bookings),
+                    ],
+                    child: 
+                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _HomeInsights(controller: controller),
@@ -82,7 +88,7 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
             ),
-          ],
+         ) ],
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/createBooking/controllers/create_booking_controller.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
@@ -263,15 +264,18 @@ class Step5Payment extends GetView<CreateBookingController> {
                   const SizedBox(width: 12),
                   Expanded(
                     flex: 2,
-                    child: Obx(
-                      () => MainBtn(
-                        text: controller.isEditMode
-                            ? 'Update'
-                            : 'createBooking.save'.trns(),
-                        onPressed: controller.isSaving.value
-                            ? null
-                            : () => controller.submit(context),
-                        isLoading: controller.isSaving.value,
+                    child: Can(
+                     controller.isEditMode ? AppPerm.update(AppPerm.bookings) : AppPerm.store(AppPerm.bookings),
+                      child: Obx(
+                        () => MainBtn(
+                          text: controller.isEditMode
+                              ? 'Update'
+                              : 'createBooking.save'.trns(),
+                          onPressed: controller.isSaving.value
+                              ? null
+                              : () => controller.submit(context),
+                          isLoading: controller.isSaving.value,
+                        ),
                       ),
                     ),
                   ),

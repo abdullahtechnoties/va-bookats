@@ -43,7 +43,7 @@ class AuthService extends GetxService {
   // bool get isCompany => currentUser.value?.roles?.any((role) => role.name?.toLowerCase() == 'company') ?? false;
   bool get isCustomer =>
       currentUser.value?.roles?.any(
-        (role) => role.name?.toLowerCase() == 'Customer',
+        (role) => role.name?.toLowerCase() == 'customer',
       ) ??
       false;
   bool get isOwner =>

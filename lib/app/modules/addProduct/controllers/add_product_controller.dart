@@ -43,11 +43,11 @@ class CombinationDraft {
     String stock = '',
     String sku = '',
     String code = '',
-  })  : name = name.obs,
-        priceCtrl = TextEditingController(text: price),
-        stockCtrl = TextEditingController(text: stock),
-        skuCtrl = TextEditingController(text: sku),
-        codeCtrl = TextEditingController(text: code);
+  }) : name = name.obs,
+       priceCtrl = TextEditingController(text: price),
+       stockCtrl = TextEditingController(text: stock),
+       skuCtrl = TextEditingController(text: sku),
+       codeCtrl = TextEditingController(text: code);
 
   void dispose() {
     priceCtrl.dispose();
@@ -59,7 +59,7 @@ class CombinationDraft {
 
 class AddProductController extends GetxController {
   AddProductController({required AddProductRepository repository})
-      : _formRepo = repository;
+    : _formRepo = repository;
 
   final AddProductRepository _formRepo;
   final ProductRepository _productRepo = ProductRepository();
@@ -126,9 +126,9 @@ class AddProductController extends GetxController {
   final RxList<ProductMedia> keptMedia = <ProductMedia>[].obs;
 
   List<int> get initialImageIds => [
-        ...keptMedia.map((m) => m.id).whereType<int>(),
-        ...pickedImages.map((m) => m.mediaId),
-      ];
+    ...keptMedia.map((m) => m.id).whereType<int>(),
+    ...pickedImages.map((m) => m.mediaId),
+  ];
 
   List<int> get submitImageIds => initialImageIds;
 
@@ -146,8 +146,8 @@ class AddProductController extends GetxController {
   void onInit() {
     super.onInit();
     _extractArguments();
-    if(!isEditMode){
-    fetchBranches();
+    if (!isEditMode) {
+      fetchBranches();
     }
   }
 
@@ -157,8 +157,7 @@ class AddProductController extends GetxController {
       editingId = args.id;
       _prefillFromDetails();
     } else if (args is Map && args['id'] != null) {
-      editingId =
-          int.tryParse(args['id'].toString()) ?? args['id'] as int?;
+      editingId = int.tryParse(args['id'].toString()) ?? args['id'] as int?;
       if (editingId != null) _prefillFromDetails();
     }
   }
@@ -250,34 +249,45 @@ class AddProductController extends GetxController {
     isLoadingCategories.value = true;
     isLoadingTags.value = true;
     isLoadingUnits.value = true;
-    isLoadingVariationTypes.value = true;
     final results = await Future.wait([
       _formRepo.getBrands(branchId),
       _formRepo.getCategories(branchId),
       _formRepo.getTags(branchId),
       _formRepo.getUnits(branchId),
-      if(productType.value == 'variation') _formRepo.getVariationTypes(branchId),
     ]);
     isLoadingBrands.value = false;
     isLoadingCategories.value = false;
     isLoadingTags.value = false;
     isLoadingUnits.value = false;
-    isLoadingVariationTypes.value = false;
 
     final b = results[0];
     if (b.isCompleted && b.data != null) brands.assignAll(b.data!);
     final c = results[1];
     if (c.isCompleted && c.data != null) {
-      categories.assignAll(
-        c.data!.expand((o) => o.flattened).toList(),
-      );
+      categories.assignAll(c.data!.expand((o) => o.flattened).toList());
     }
     final t = results[2];
     if (t.isCompleted && t.data != null) tags.assignAll(t.data!);
     final u = results[3];
     if (u.isCompleted && u.data != null) units.assignAll(u.data!);
-    final v = results[4];
-    if (v.isCompleted && v.data != null) variationTypes.assignAll(v.data!);
+    if (productType.value == ProductType.variation) {
+      await loadVariationTypes();
+    }
+  }
+
+  Future<void> loadVariationTypes() async {
+    final branchId = selectedBranchId.value;
+    if (branchId == null ||
+        isLoadingVariationTypes.value ||
+        variationTypes.isNotEmpty) {
+      return;
+    }
+    isLoadingVariationTypes.value = true;
+    final response = await _formRepo.getVariationTypes(branchId);
+    isLoadingVariationTypes.value = false;
+    if (response.isCompleted && response.data != null) {
+      variationTypes.assignAll(response.data!);
+    }
   }
 
   // ── Single-select setters ───────────────────────────────────────────────
@@ -295,9 +305,12 @@ class AddProductController extends GetxController {
 
   void setStatus(String value) => status.value = value;
 
-  void setProductType(String value) {
+  Future<void> setProductType(String value) async {
     if (productType.value == value) return;
     productType.value = value;
+    if (value == ProductType.variation) {
+      await loadVariationTypes();
+    }
   }
 
   // ── Images ──────────────────────────────────────────────────────────────
@@ -335,18 +348,18 @@ class AddProductController extends GetxController {
   Future<void> selectSetType(VariationSetDraft set, int typeId) async {
     if (set.typeId.value == typeId && set.values.isNotEmpty) return;
     set.typeId.value = typeId;
-    set.typeLabel.value = variationTypes
-            .firstWhereOrNull((t) => t.value == typeId)
-            ?.label ??
-        '';
+    set.typeLabel.value =
+        variationTypes.firstWhereOrNull((t) => t.value == typeId)?.label ?? '';
     set.selectedValueIds.clear();
     await loadSetValues(set, force: true);
     rebuildCombinations();
   }
 
   /// Loads selectable values for a set's type (cached probe + runtime data).
-  Future<void> loadSetValues(VariationSetDraft set,
-      {bool force = false}) async {
+  Future<void> loadSetValues(
+    VariationSetDraft set, {
+    bool force = false,
+  }) async {
     final typeId = set.typeId.value;
     if (typeId == null) {
       set.values.clear();
@@ -463,8 +476,11 @@ class AddProductController extends GetxController {
     return true;
   }
 
-  Future<bool> createCategory(String name,
-      {int? parentId, int? mediaId}) async {
+  Future<bool> createCategory(
+    String name, {
+    int? parentId,
+    int? mediaId,
+  }) async {
     final branchId = selectedBranchId.value;
     if (branchId == null || name.trim().isEmpty) return false;
     isLoading.value = true;
@@ -487,9 +503,7 @@ class AddProductController extends GetxController {
     // then select the freshly created category.
     final reload = await _formRepo.getCategories(branchId);
     if (reload.isCompleted && reload.data != null) {
-      categories.assignAll(
-        reload.data!.expand((o) => o.flattened).toList(),
-      );
+      categories.assignAll(reload.data!.expand((o) => o.flattened).toList());
     } else if (!categories.any((c) => c.value == created.value)) {
       categories.insert(0, created);
     }
@@ -559,14 +573,13 @@ class AddProductController extends GetxController {
 
   /// Creates a variation type (with its values) and auto-selects it as a
   /// new set with all returned values selected.
-  Future<bool> createVariationType(
-    String name,
-    List<String> valueNames,
-  ) async {
+  Future<bool> createVariationType(String name, List<String> valueNames) async {
     final branchId = selectedBranchId.value;
     if (branchId == null || name.trim().isEmpty) return false;
-    final clean =
-        valueNames.map((v) => v.trim()).where((v) => v.isNotEmpty).toList();
+    final clean = valueNames
+        .map((v) => v.trim())
+        .where((v) => v.isNotEmpty)
+        .toList();
     if (clean.isEmpty) return false;
     isLoading.value = true;
     final response = await _formRepo.createVariationType(
@@ -589,8 +602,9 @@ class AddProductController extends GetxController {
         ProductLookup(label: created.name, value: created.id),
       );
     }
-    _valuesCache[created.id] =
-        created.values.where((v) => v.id != null).toList();
+    _valuesCache[created.id] = created.values
+        .where((v) => v.id != null)
+        .toList();
     final set = VariationSetDraft()
       ..typeId.value = created.id
       ..typeLabel.value = created.name
@@ -619,8 +633,7 @@ class AddProductController extends GetxController {
     if (!response.isCompleted || product == null) {
       SnackbarService.showError(
         title: 'common.error'.trns(),
-        message:
-            response.message ?? 'productDetails.errors.fetchFailed'.trns(),
+        message: response.message ?? 'productDetails.errors.fetchFailed'.trns(),
       );
       return;
     }
@@ -632,29 +645,23 @@ class AddProductController extends GetxController {
     status.value = (product.status ?? 'active').toLowerCase();
     productType.value =
         (product.productType ?? '').toLowerCase().contains('variation')
-            ? ProductType.variation
-            : ProductType.simple;
+        ? ProductType.variation
+        : ProductType.simple;
 
-    keptMedia.assignAll(
-      product.media.where((m) => m.id != null).toList(),
-    );
+    keptMedia.assignAll(product.media.where((m) => m.id != null).toList());
 
     // Branch first, then dependents, then id-based selections.
     final branchId = product.branchId;
     if (branchId != null) {
       selectedBranchId.value = branchId;
+      branchLabel.value = product.branchName;
       await loadDependents();
-      branchLabel.value =
-          branches.firstWhereOrNull((b) => b.value == branchId)?.displayLabel ??
-              '';
     }
 
     if (product.brandId != null) selectBrand(product.brandId!);
     if (product.unitId != null) selectUnit(product.unitId!);
     selectedCategoryIds.addAll(
-      product.categoryIds.where(
-        (id) => categories.any((c) => c.value == id),
-      ),
+      product.categoryIds.where((id) => categories.any((c) => c.value == id)),
     );
     selectedTagIds.addAll(
       product.tagIds.where((id) => tags.any((t) => t.value == id)),
@@ -818,19 +825,15 @@ class AddProductController extends GetxController {
       }
     } else {
       final usable = sets
-          .where(
-            (s) => s.typeId.value != null && s.selectedValueIds.isNotEmpty,
-          )
+          .where((s) => s.typeId.value != null && s.selectedValueIds.isNotEmpty)
           .toList();
       for (var i = 0; i < usable.length; i++) {
         fields['variationSets[$i][type]'] = usable[i].typeId.value;
         // Same deterministic options order as rebuildCombinations, so
         // set values and generated combination names always agree.
-        final valueIds = usable[i]
-            .values
+        final valueIds = usable[i].values
             .where(
-              (v) =>
-                  v.id != null && usable[i].selectedValueIds.contains(v.id),
+              (v) => v.id != null && usable[i].selectedValueIds.contains(v.id),
             )
             .map((v) => v.id!)
             .toList();
@@ -857,18 +860,12 @@ class AddProductController extends GetxController {
   Future<void> save(BuildContext context) async {
     final error = _validate();
     if (error != null) {
-      SnackbarService.showError(
-        title: 'common.error'.trns(),
-        message: error,
-      );
+      SnackbarService.showError(title: 'common.error'.trns(), message: error);
       return;
     }
     isLoading.value = true;
     final response = isEditMode
-        ? await _formRepo.updateProduct(
-            id: editingId!,
-            fields: _buildFields(),
-          )
+        ? await _formRepo.updateProduct(id: editingId!, fields: _buildFields())
         : await _formRepo.createProduct(_buildFields());
     isLoading.value = false;
 
@@ -881,7 +878,8 @@ class AddProductController extends GetxController {
     }
     SnackbarService.showSuccess(
       title: 'common.success'.trns(),
-      message: response.message ??
+      message:
+          response.message ??
           (isEditMode
               ? 'addProduct.messages.updated'.trns()
               : 'addProduct.messages.successSaved'.trns()),

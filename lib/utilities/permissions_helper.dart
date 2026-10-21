@@ -51,6 +51,7 @@ abstract class AppPerm {
 
   static String index(String resource) => '$resource.index';
   static String create(String resource) => '$resource.create';
+  static String store(String resource) => '$resource.store';
   static String show(String resource) => '$resource.show';
   static String edit(String resource) => '$resource.edit';
   static String update(String resource) => '$resource.update';

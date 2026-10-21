@@ -2046,6 +2046,8 @@
     "paymentsTab": {
       "edit": "Edit"
     },
+    "changeStatus": "Change Payment Status",
+    "statusUpdated": "Payment status updated successfully.",
     "activitiesEmpty": {
       "title": "No Activities Yet",
       "message": "Activity updates for this booking will appear here."

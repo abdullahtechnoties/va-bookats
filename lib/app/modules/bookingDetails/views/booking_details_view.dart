@@ -100,59 +100,25 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                       const SizedBox(height: 16),
                       Can(
                         AppPerm.show(AppPerm.bookings),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16),
-                              child: GestureDetector(
-                                onTap: controller.openPaymentDetails,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 52,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'home.bookingDetails.viewDetails'.trns(),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           children: [
-                            if (booking.isEditable &&
-                                Permissions.can(
-                                    AppPerm.edit(AppPerm.bookings)))
-                              Expanded(
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16),
                                 child: GestureDetector(
-                                  onTap: controller.openEdit,
+                                  onTap: controller.openPaymentDetails,
                                   child: Container(
+                                    width: double.infinity,
                                     height: 52,
                                     decoration: BoxDecoration(
-                                      color: AppColors.secondary,
-                                      borderRadius:
-                                          BorderRadius.circular(12),
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Center(
+                                    child: Center(
                                       child: Text(
-                                        'Edit Booking',
-                                        style: TextStyle(
+                                        'home.bookingDetails.viewDetails'.trns(),
+                                        style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
                                           color: AppColors.white,
@@ -162,10 +128,8 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                                   ),
                                 ),
                               ),
-                            if (booking.isEditable &&
-                                Permissions.can(
-                                    AppPerm.edit(AppPerm.bookings)))
-                              const SizedBox(width: 10),
+                            ),
+                            // const SizedBox(width: 10),
                             if (Permissions.can(
                                 AppPerm.update(AppPerm.bookings)))
                               Expanded(
@@ -174,6 +138,8 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                                       _showStatusSheet(context, booking),
                                   child: Container(
                                     height: 52,
+                                    width: double.infinity,
+                                    // padding: const EdgeInsets.symmetric(horizontal: 14),
                                     decoration: BoxDecoration(
                                       border: Border.all(
                                         color: AppColors.secondary,
@@ -205,9 +171,50 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                                   ),
                                 ),
                               ),
+                            const SizedBox(width: 20),
+
                           ],
                         ),
                       ),
+                      // Padding(
+                      //   padding:
+                      //       const EdgeInsets.symmetric(horizontal: 16),
+                      //   child: Row(
+                      //     children: [
+                      //       // if (booking.isEditable &&
+                      //       //     Permissions.can(
+                      //       //         AppPerm.edit(AppPerm.bookings)))
+                      //       //   Expanded(
+                      //       //     child: GestureDetector(
+                      //       //       onTap: controller.openEdit,
+                      //       //       child: Container(
+                      //       //         height: 52,
+                      //       //         decoration: BoxDecoration(
+                      //       //           color: AppColors.secondary,
+                      //       //           borderRadius:
+                      //       //               BorderRadius.circular(12),
+                      //       //         ),
+                      //       //         child: const Center(
+                      //       //           child: Text(
+                      //       //             'Edit Booking',
+                      //       //             style: TextStyle(
+                      //       //               fontSize: 14,
+                      //       //               fontWeight: FontWeight.w700,
+                      //       //               color: AppColors.white,
+                      //       //             ),
+                      //       //           ),
+                      //       //         ),
+                      //       //       ),
+                      //       //     ),
+                      //       //   ),
+                      //       // if (booking.isEditable &&
+                      //       //     Permissions.can(
+                      //       //         AppPerm.edit(AppPerm.bookings)))
+                      //       //   const SizedBox(width: 10),
+                            
+                      //     ],
+                      //   ),
+                      // ),
                       const SizedBox(height: 24),
                     ],
                   ),

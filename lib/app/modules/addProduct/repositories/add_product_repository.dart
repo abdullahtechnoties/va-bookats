@@ -75,29 +75,21 @@ class AddProductRepository {
   Future<ApiResponse<List<ProductLookup>>> getVariationTypes(int branchId) =>
       _getLookups(ApiPath.dataProductVariations(branchId));
 
-  /// Best-effort values for one variation type. No documented endpoint
-  /// exists, so the conventional show routes are probed in order; any
-  /// miss degrades gracefully to an empty list.
+  /// Values for one variation type from the data lookup endpoint.
   Future<List<VariationValue>> getVariationValues(int typeId) async {
-    for (final endpoint in [
-      ApiPath.productVariationValues(typeId),
-      ApiPath.dataProductVariationValues(typeId),
-    ]) {
-      try {
-        final response = await _network.get(endpoint: endpoint);
-        if (!response.isCompleted || response.data == null) continue;
-        final body = response.data!;
-        final raw = body['variation'] ?? body;
-        if (raw is! Map) continue;
-        final parsed = VariationTypeWithValues.fromJson(
-          Map<String, dynamic>.from(raw),
-        );
-        if (parsed.values.isNotEmpty) return parsed.values;
-      } catch (_) {
-        continue;
-      }
+    final response = await _network.getRaw(
+      endpoint: ApiPath.dataProductVariationValues(typeId),
+    );
+    if (!response.isCompleted || response.data is! List) {
+      return const [];
     }
-    return const [];
+    return (response.data as List)
+        .whereType<Map>()
+        .map(
+          (entry) => VariationValue.fromJson(Map<String, dynamic>.from(entry)),
+        )
+        .where((value) => value.id != null && value.name?.isNotEmpty == true)
+        .toList();
   }
 
   // ─── Runtime creation ──────────────────────────────────────────────────
@@ -109,11 +101,7 @@ class AddProductRepository {
   }) async {
     final response = await _network.post(
       endpoint: ApiPath.brands,
-      body: {
-        'branch_id': branchId,
-        'name': name,
-        'media_id': ?mediaId,
-      },
+      body: {'branch_id': branchId, 'name': name, 'media_id': ?mediaId},
     );
     return _mapLookup(response, 'brand');
   }

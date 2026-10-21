@@ -24,8 +24,11 @@ class AddProductView extends GetView<AddProductController> {
             ? 'addProduct.editTitle'.trns()
             : 'addProduct.title'.trns(),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              color: AppColors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.white,
+            size: 20,
+          ),
           onPressed: () => Get.back(),
         ),
       ),
@@ -44,13 +47,14 @@ class AddProductView extends GetView<AddProductController> {
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                  color: AppColors.navOutline.withValues(alpha: 0.5)),
+                color: AppColors.navOutline.withValues(alpha: 0.5),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
-                )
+                ),
               ],
             ),
             child: Column(
@@ -79,6 +83,7 @@ class AddProductView extends GetView<AddProductController> {
                   hint: 'addProduct.placeholders.selectBranch'.trns(),
                   value: controller.branchLabel.value,
                   isLoading: controller.isLoadingBranches.value,
+                  enabled: !controller.isEditMode,
                   onTap: () => _showBranchPicker(context),
                 ),
                 const SizedBox(height: 16),
@@ -94,8 +99,8 @@ class AddProductView extends GetView<AddProductController> {
                 // ── Short description ───────────────────────────────────
                 _FormLabel(text: 'addProduct.labels.shortDescription'.trns()),
                 CommonTextInputField(
-                  hintText:
-                      'addProduct.placeholders.enterShortDescription'.trns(),
+                  hintText: 'addProduct.placeholders.enterShortDescription'
+                      .trns(),
                   controller: controller.shortDescCtrl,
                 ),
                 const SizedBox(height: 16),
@@ -130,16 +135,15 @@ class AddProductView extends GetView<AddProductController> {
                     _showSinglePicker(
                       context,
                       title: 'addProduct.labels.brand'.trns(),
-                      items: controller.brands
-                          .map((b) => b.label)
-                          .toList(),
+                      items: controller.brands.map((b) => b.label).toList(),
                       values: controller.brands
                           .map((b) => b.value.toString())
                           .toList(),
-                      current: controller.selectedBrandId.value?.toString() ??
-                          '',
+                      current:
+                          controller.selectedBrandId.value?.toString() ?? '',
                       onPick: (v) => controller.selectBrand(
-                          int.tryParse(v.toString()) ?? 0),
+                        int.tryParse(v.toString()) ?? 0,
+                      ),
                     );
                   },
                 ),
@@ -155,8 +159,9 @@ class AddProductView extends GetView<AddProductController> {
                   hint: 'addProduct.placeholders.selectCategories'.trns(),
                   display: _multiDisplay(
                     controller.selectedCategoryIds,
-                    controller.categories
-                        .map((c) => MapEntry(c.value, c.label)),
+                    controller.categories.map(
+                      (c) => MapEntry(c.value, c.label),
+                    ),
                   ),
                   isLoading: controller.isLoadingCategories.value,
                   onTap: () {
@@ -211,15 +216,15 @@ class AddProductView extends GetView<AddProductController> {
                     _showSinglePicker(
                       context,
                       title: 'addProduct.labels.units'.trns(),
-                      items:
-                          controller.units.map((u) => u.label).toList(),
+                      items: controller.units.map((u) => u.label).toList(),
                       values: controller.units
                           .map((u) => u.value.toString())
                           .toList(),
                       current:
                           controller.selectedUnitId.value?.toString() ?? '',
                       onPick: (v) => controller.selectUnit(
-                          int.tryParse(v.toString()) ?? 0),
+                        int.tryParse(v.toString()) ?? 0,
+                      ),
                     );
                   },
                 ),
@@ -281,13 +286,17 @@ class AddProductView extends GetView<AddProductController> {
                 const SizedBox(height: 24),
 
                 // ── Save ────────────────────────────────────────────────
-                Obx(() => MainBtn(
-                      text: controller.isEditMode
-                          ? 'addProduct.actions.update'.trns()
-                          : 'addProduct.actions.save'.trns(),
-                      isLoading: controller.isLoading.value || controller.isLoadingVariationTypes.value,
-                      onPressed: () => controller.save(context),
-                    )),
+                Obx(
+                  () => MainBtn(
+                    text: controller.isEditMode
+                        ? 'addProduct.actions.update'.trns()
+                        : 'addProduct.actions.save'.trns(),
+                    isLoading:
+                        controller.isLoading.value ||
+                        controller.isLoadingVariationTypes.value,
+                    onPressed: () => controller.save(context),
+                  ),
+                ),
               ],
             ),
           ),
@@ -303,8 +312,7 @@ class AddProductView extends GetView<AddProductController> {
       context,
       title: 'addProduct.labels.branch'.trns(),
       items: controller.branches.map((b) => b.displayLabel).toList(),
-      values:
-          controller.branches.map((b) => b.value.toString()).toList(),
+      values: controller.branches.map((b) => b.value.toString()).toList(),
       current: controller.selectedBranchId.value?.toString() ?? '',
       onPick: (v) {
         final id = int.tryParse(v.toString());
@@ -337,8 +345,7 @@ class AddProductView extends GetView<AddProductController> {
     required List<ProductLookup> items,
     required RxSet<int> selected,
   }) {
-    final RxSet<String> temp =
-        selected.map((e) => e.toString()).toSet().obs;
+    final RxSet<String> temp = selected.map((e) => e.toString()).toSet().obs;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -369,8 +376,7 @@ class AddProductView extends GetView<AddProductController> {
   ) {
     if (selected.isEmpty) return '';
     final byId = {for (final o in options) o.key: o.value};
-    final names =
-        selected.map((id) => byId[id]).whereType<String>().toList();
+    final names = selected.map((id) => byId[id]).whereType<String>().toList();
     if (names.isEmpty) return '${selected.length} selected';
     if (names.length == 1) return names.first;
     return '${names.first} +${names.length - 1}';
@@ -387,10 +393,7 @@ class AddProductView extends GetView<AddProductController> {
       withImage: true,
     ).then((result) {
       if (result == null) return;
-      controller.createBrand(
-        result.name,
-        logoMediaId: result.mediaId,
-      );
+      controller.createBrand(result.name, logoMediaId: result.mediaId);
     });
   }
 
@@ -444,19 +447,16 @@ class AddProductView extends GetView<AddProductController> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-               shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        backgroundColor: AppColors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: AppColors.white,
           title: Text(title),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CommonTextInputField(
-                hintText: label,
-                controller: nameCtrl,
-              ),
+              CommonTextInputField(hintText: label, controller: nameCtrl),
               if (withImage) ...[
                 const SizedBox(height: 12),
                 Row(
@@ -541,7 +541,9 @@ class AddProductView extends GetView<AddProductController> {
 // ── Shared single-select sheet (used by the form + nested set rows) ─────────
 
 void showAddVariationDialog(
-    BuildContext context, AddProductController controller) {
+  BuildContext context,
+  AddProductController controller,
+) {
   if (!controller.ensureBranch()) return;
   showDialog(
     context: context,
@@ -658,19 +660,21 @@ class _PickerField extends StatelessWidget {
   final String hint;
   final String value;
   final bool isLoading;
+  final bool enabled;
   final VoidCallback onTap;
 
   const _PickerField({
     required this.hint,
     required this.value,
     this.isLoading = false,
+    this.enabled = true,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       child: Container(
         height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -700,7 +704,7 @@ class _PickerField extends StatelessWidget {
                 height: 18,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            else
+            else if (enabled)
               const Icon(
                 Icons.keyboard_arrow_down_rounded,
                 size: 22,
@@ -747,8 +751,7 @@ class _TypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final isSimple =
-          controller.productType.value == ProductType.simple;
+      final isSimple = controller.productType.value == ProductType.simple;
       return Row(
         children: [
           Expanded(
@@ -790,9 +793,7 @@ class _TypeOption extends StatelessWidget {
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          color: selected
-              ? AppColors.secondary
-              : AppColors.white,
+          color: selected ? AppColors.secondary : AppColors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: selected
@@ -842,7 +843,7 @@ class _ImagesField extends StatelessWidget {
                   final url = isKept
                       ? (kept[i].thumbnailUrl ?? kept[i].url)
                       : (picked[i - kept.length].thumbnailUrl ??
-                          picked[i - kept.length].networkUrl);
+                            picked[i - kept.length].networkUrl);
                   return Stack(
                     children: [
                       ClipRRect(
@@ -860,8 +861,9 @@ class _ImagesField extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () => isKept
                               ? controller.removeKeptMedia(kept[i])
-                              : controller
-                                  .removePickedImage(picked[i - kept.length]),
+                              : controller.removePickedImage(
+                                  picked[i - kept.length],
+                                ),
                           child: Container(
                             padding: const EdgeInsets.all(3),
                             decoration: const BoxDecoration(
@@ -881,8 +883,7 @@ class _ImagesField extends StatelessWidget {
                 },
               ),
             ),
-          if (kept.isNotEmpty || picked.isNotEmpty)
-            const SizedBox(height: 10),
+          if (kept.isNotEmpty || picked.isNotEmpty) const SizedBox(height: 10),
           GestureDetector(
             onTap: () => MediaSelectorSheet.show(
               context,
@@ -899,8 +900,11 @@ class _ImagesField extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.add_photo_alternate_outlined,
-                      color: AppColors.white, size: 18),
+                  const Icon(
+                    Icons.add_photo_alternate_outlined,
+                    color: AppColors.white,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     (kept.isNotEmpty || picked.isNotEmpty)
@@ -948,8 +952,7 @@ class _VariationSets extends StatelessWidget {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () =>
-                        showAddVariationDialog(context, controller),
+                    onTap: () => showAddVariationDialog(context, controller),
                     child: Text(
                       'addProduct.actions.addVariation'.trns(),
                       style: const TextStyle(
@@ -979,8 +982,7 @@ class _VariationSets extends StatelessWidget {
           if (controller.sets.isEmpty)
             Text(
               'addProduct.messages.noSets'.trns(),
-              style:
-                  const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
             ),
           ...controller.sets.asMap().entries.map((entry) {
             final index = entry.key;
@@ -1022,8 +1024,7 @@ class _VariationSets extends StatelessWidget {
                   _PickerField(
                     hint: 'addProduct.placeholders.selectVariation'.trns(),
                     value: set.typeLabel.value,
-                    isLoading:
-                        controller.isLoadingVariationTypes.value,
+                    isLoading: controller.isLoadingVariationTypes.value,
                     onTap: () {
                       if (!controller.ensureBranch()) return;
                       // ignore: invalid_use_of_protected_member
@@ -1046,9 +1047,7 @@ class _VariationSets extends StatelessWidget {
       context,
       title: 'addProduct.labels.variation'.trns(),
       items: controller.variationTypes.map((t) => t.label).toList(),
-      values: controller.variationTypes
-          .map((t) => t.value.toString())
-          .toList(),
+      values: controller.variationTypes.map((t) => t.value.toString()).toList(),
       current: set.typeId.value?.toString() ?? '',
       onPick: (v) {
         final id = int.tryParse(v.toString());
@@ -1094,19 +1093,15 @@ class _SetValues extends StatelessWidget {
         spacing: 8,
         runSpacing: 8,
         children: set.values.map((v) {
-          final selected =
-              v.id != null && set.selectedValueIds.contains(v.id);
+          final selected = v.id != null && set.selectedValueIds.contains(v.id);
           return GestureDetector(
             onTap: v.id == null
                 ? null
                 : () => controller.toggleSetValue(set, v.id!),
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: selected
-                    ? AppColors.secondary
-                    : AppColors.white,
+                color: selected ? AppColors.secondary : AppColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: selected
@@ -1252,10 +1247,8 @@ class _CategoryDialogState extends State<_CategoryDialog> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     return AlertDialog(
-           shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: AppColors.white,
       title: Text('addProduct.popups.addCategory'.trns()),
       content: SingleChildScrollView(
         child: Column(
@@ -1277,8 +1270,7 @@ class _CategoryDialogState extends State<_CategoryDialog> {
                 builder: (_) => CommonDropdownBottomSheetThree(
                   doneButtonText: "Select",
                   title: 'addProduct.placeholders.selectParentCategory'.trns(),
-                  bottomSheetHeight:
-                      MediaQuery.of(context).size.height * 0.55,
+                  bottomSheetHeight: MediaQuery.of(context).size.height * 0.55,
                   dropdownItems: [
                     'addProduct.placeholders.noParent'.trns(),
                     ...controller.categories.map((c) => c.label),
@@ -1292,15 +1284,15 @@ class _CategoryDialogState extends State<_CategoryDialog> {
                   onValueSelected: (v) {
                     final raw = v.toString();
                     setState(() {
-                      parentId =
-                          raw.isEmpty ? null : int.tryParse(raw);
+                      parentId = raw.isEmpty ? null : int.tryParse(raw);
                       parentLabel = raw.isEmpty
                           ? ''
                           : controller.categories
-                                  .firstWhereOrNull(
-                                      (c) => c.value.toString() == raw)
-                                  ?.label ??
-                              '';
+                                    .firstWhereOrNull(
+                                      (c) => c.value.toString() == raw,
+                                    )
+                                    ?.label ??
+                                '';
                     });
                   },
                   showSearch: true,
@@ -1314,8 +1306,7 @@ class _CategoryDialogState extends State<_CategoryDialog> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: AppCachedImage(
-                      imageUrl:
-                          logo!.thumbnailUrl ?? logo!.networkUrl,
+                      imageUrl: logo!.thumbnailUrl ?? logo!.networkUrl,
                       width: 44,
                       height: 44,
                       fit: BoxFit.cover,
@@ -1327,8 +1318,9 @@ class _CategoryDialogState extends State<_CategoryDialog> {
                     onTap: () => MediaSelectorSheet.show(
                       context,
                       allowMultiple: false,
-                      initialSelectedIds:
-                          logo == null ? const [] : [logo!.mediaId],
+                      initialSelectedIds: logo == null
+                          ? const []
+                          : [logo!.mediaId],
                       onConfirmed: (items) {
                         if (items.isNotEmpty) {
                           setState(() => logo = items.first);
@@ -1413,10 +1405,7 @@ class _VariationDialogState extends State<_VariationDialog> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       backgroundColor: AppColors.white,
       title: Text('addProduct.popups.addVariation'.trns()),
       content: SingleChildScrollView(
@@ -1472,9 +1461,8 @@ class _VariationDialogState extends State<_VariationDialog> {
               );
             }),
             GestureDetector(
-              onTap: () => setState(
-                () => valueCtrls.add(TextEditingController()),
-              ),
+              onTap: () =>
+                  setState(() => valueCtrls.add(TextEditingController())),
               child: Text(
                 'addProduct.actions.addValue'.trns(),
                 style: const TextStyle(
@@ -1492,38 +1480,36 @@ class _VariationDialogState extends State<_VariationDialog> {
           onPressed: () => Get.back(),
           child: Text('products.cancel'.trns()),
         ),
-        Obx(() => TextButton(
-              onPressed: controller.isLoading.value
-                  ? null
-                  : () {
-                      if (nameCtrl.text.trim().isEmpty) return;
-                      final values = valueCtrls
-                          .map((c) => c.text.trim())
-                          .where((v) => v.isNotEmpty)
-                          .toList();
-                      if (values.isEmpty) return;
-                      controller
-                          .createVariationType(
-                        nameCtrl.text.trim(),
-                        values,
-                      ).then((ok) {
-                        if (ok) Get.back();
-                      });
-                    },
-              child: controller.isLoading.value
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(
-                      'addProduct.actions.addVariation'.trns(),
-                      style:
-                          const TextStyle(color: AppColors.secondary),
-                    ),
-            )),
+        Obx(
+          () => TextButton(
+            onPressed: controller.isLoading.value
+                ? null
+                : () {
+                    if (nameCtrl.text.trim().isEmpty) return;
+                    final values = valueCtrls
+                        .map((c) => c.text.trim())
+                        .where((v) => v.isNotEmpty)
+                        .toList();
+                    if (values.isEmpty) return;
+                    controller
+                        .createVariationType(nameCtrl.text.trim(), values)
+                        .then((ok) {
+                          if (ok) Get.back();
+                        });
+                  },
+            child: controller.isLoading.value
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(
+                    'addProduct.actions.addVariation'.trns(),
+                    style: const TextStyle(color: AppColors.secondary),
+                  ),
+          ),
+        ),
       ],
     );
   }
 }
-

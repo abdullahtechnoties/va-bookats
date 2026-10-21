@@ -55,6 +55,7 @@ class AddNewPaymentView extends GetView<AddNewPaymentController> {
                   hintText: 'addNewPayment.selectBranch'.trns(),
                   controller: controller.branchController,
                   readOnly: true,
+                  enabled: false,
                 ),
                 const SizedBox(height: 14),
 
@@ -64,6 +65,8 @@ class AddNewPaymentView extends GetView<AddNewPaymentController> {
                   hintText: 'addNewPayment.enterAmount'.trns(),
                   controller: controller.totalAmountController,
                   keyboardType: TextInputType.number,
+                  readOnly: !controller.isEditMode,
+                  enabled: controller.isEditMode,
                 ),
                 const SizedBox(height: 14),
 
@@ -96,6 +99,7 @@ class AddNewPaymentView extends GetView<AddNewPaymentController> {
                   controller: controller.balanceController,
                   keyboardType: TextInputType.number,
                   readOnly: true,
+                  enabled: false,
                 ),
                 const SizedBox(height: 14),
 

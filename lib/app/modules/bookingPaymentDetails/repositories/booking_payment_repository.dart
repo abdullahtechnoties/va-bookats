@@ -30,14 +30,12 @@ class BookingPaymentRepository {
       );
 
       if (response.isCompleted && response.data != null) {
-        final model =
-            BookingPaymentDetailsResponse.fromJson(response.data!);
+        final model = BookingPaymentDetailsResponse.fromJson(response.data!);
         return ApiResponse.completed(model, message: response.message);
       }
 
       return ApiResponse.error(
-        response.message ??
-            'bookingPaymentDetails.errors.fetchFailed'.trns(),
+        response.message ?? 'bookingPaymentDetails.errors.fetchFailed'.trns(),
         errors: response.errors,
       );
     } catch (_) {
@@ -58,10 +56,7 @@ class BookingPaymentRepository {
       );
 
       if (response.isCompleted && response.data != null) {
-        return ApiResponse.completed(
-          response.data!,
-          message: response.message,
-        );
+        return ApiResponse.completed(response.data!, message: response.message);
       }
 
       return ApiResponse.error(
@@ -85,10 +80,7 @@ class BookingPaymentRepository {
       );
 
       if (response.isCompleted && response.data != null) {
-        return ApiResponse.completed(
-          response.data!,
-          message: response.message,
-        );
+        return ApiResponse.completed(response.data!, message: response.message);
       }
 
       return ApiResponse.error(
@@ -97,6 +89,30 @@ class BookingPaymentRepository {
       );
     } catch (_) {
       return ApiResponse.error('addNewPayment.errors.unexpected'.trns());
+    }
+  }
+
+  /// PUT /payments/{id}/status
+  Future<ApiResponse<Map<String, dynamic>>> updatePaymentStatus({
+    required int paymentId,
+    required String status,
+  }) async {
+    try {
+      final response = await _network.put(
+        endpoint: ApiPath.paymentStatus(paymentId),
+        body: {'status': status},
+      );
+
+      if (response.isCompleted && response.data != null) {
+        return ApiResponse.completed(response.data!, message: response.message);
+      }
+
+      return ApiResponse.error(
+        response.message ?? 'errors.requestFailed'.trns(),
+        errors: response.errors,
+      );
+    } catch (_) {
+      return ApiResponse.error('errors.requestFailed'.trns());
     }
   }
 }

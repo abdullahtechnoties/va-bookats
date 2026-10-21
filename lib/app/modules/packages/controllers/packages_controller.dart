@@ -268,8 +268,11 @@ class PackagesController extends GetxController {
   Future<void> handleRefresh() async {
     isRefreshing.value = true;
     loadFailed.value = false;
-    await fetchFirstPage();
-    isRefreshing.value = false;
+    try {
+      await fetchFirstPage();
+    } finally {
+      isRefreshing.value = false;
+    }
   }
 
   Future<void> loadMore() async {
@@ -332,12 +335,14 @@ class PackagesController extends GetxController {
 
   void changeTab(int index) {
     if (selectedTab.value == index) return;
-    // Reset filters on tab change so the other tab never inherits stale state.
-    resetFilters(silent: true);
+    // Keep the active filters while switching status so cached pages remain
+    // consistent with the request that populated them.
     selectedTab.value = index;
     hasMore.value = _hasMoreMap[_statusKey] ?? false;
     _generation++;
     final hasLoaded = _loadedForStatus.contains(_statusKey);
+    loadFailed.value = false;
+    isLoading.value = false;
     if (!hasLoaded) {
       fetchFirstPage();
     }
@@ -414,12 +419,26 @@ class PackagesController extends GetxController {
     _hasMoreMap.clear();
   }
 
-  void applyFilters() {
+  void _invalidatePackageCache() {
     _clearPagination();
+    activePackages.clear();
+    inactivePackages.clear();
+    hasMore.value = false;
+  }
+
+  void applyFilters() {
+    _invalidatePackageCache();
     fetchFirstPage();
   }
 
   void resetFilters({bool silent = false}) {
+    _resetFilterInputs();
+    if (silent) return;
+    _invalidatePackageCache();
+    fetchFirstPage();
+  }
+
+  void _resetFilterInputs() {
     searchCtrl.clear();
     fromDateCtrl.clear();
     toDateCtrl.clear();
@@ -429,9 +448,6 @@ class PackagesController extends GetxController {
     selectedBranchFilter.value = '';
     selectedServiceFilter.value = '';
     selectedQuickRange.value = '';
-    _clearPagination();
-    if (silent) return;
-    fetchFirstPage();
   }
 
   // ─── Mutations ───────────────────────────────────────────────────────────

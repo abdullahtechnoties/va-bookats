@@ -40,6 +40,7 @@ class BookingCard extends StatelessWidget {
   final VoidCallback? onViewDetails;
   final VoidCallback? onStatusTap;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
   final bool isBusy;
   final bool showShadow;
 
@@ -49,6 +50,7 @@ class BookingCard extends StatelessWidget {
     this.onViewDetails,
     this.onStatusTap,
     this.onEdit,
+    this.onDelete,
     this.isBusy = false,
     this.showShadow = true,
   });
@@ -246,10 +248,7 @@ class BookingCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      width: 1,
-                      color: const Color(0xFFDDDDDD),
-                    ),
+                    Container(width: 1, color: const Color(0xFFDDDDDD)),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -378,8 +377,7 @@ class BookingCard extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color:
-                                            _statusTextColor(booking.status),
+                                        color: _statusTextColor(booking.status),
                                       ),
                                     ),
                                     if (onStatusTap != null) ...[
@@ -387,8 +385,7 @@ class BookingCard extends StatelessWidget {
                                       Icon(
                                         Icons.arrow_drop_down,
                                         size: 16,
-                                        color: _statusTextColor(
-                                            booking.status),
+                                        color: _statusTextColor(booking.status),
                                       ),
                                     ],
                                   ],
@@ -426,6 +423,34 @@ class BookingCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    Can(
+                      AppPerm.destroy(AppPerm.bookings),
+                      child: GestureDetector(
+                        onTap: isBusy ? null : onDelete,
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.all(11),
+                          decoration: BoxDecoration(
+                            color: AppColors.error.withValues(alpha: 0.10),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: isBusy
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.error,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.delete_outline,
+                                  color: AppColors.error,
+                                  size: 19,
+                                ),
+                        ),
+                      ),
+                    ),
                     Can(
                       AppPerm.show(AppPerm.bookings),
                       child: GestureDetector(

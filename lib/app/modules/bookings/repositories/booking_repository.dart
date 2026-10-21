@@ -1,6 +1,8 @@
 // lib/app/modules/bookings/repositories/booking_repository.dart
 
 import 'package:get/get.dart';
+import 'package:va_bookats/app/modules/reporting/package_revenue_report/packageRevenueReport/models/package_revenue_report_model.dart';
+import 'package:va_bookats/app/modules/reporting/service_revenue_report/serviceRevenueReport/models/service_revenue_models.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/models/lookup_option.dart';
@@ -74,6 +76,72 @@ class ProductDraft {
 class BookingRepository {
   final NetworkService _network = Get.find<NetworkService>();
 
+  Future<ApiResponse<List<LookupOption>>> getBranchServices(
+    int branchId,
+  ) async {
+    try {
+      final response = await _network.getRaw(
+        endpoint: ApiPath.lookupServices(branchId),
+      );
+      if (!response.isCompleted || response.data == null) {
+        return ApiResponse.error(
+          response.message ?? 'reports.errors.fetchFailed'.trns(),
+        );
+      }
+      final raw = response.data;
+      if (raw is! List) {
+        return ApiResponse.error('reports.errors.unexpected'.trns());
+      }
+      final items = raw
+          .whereType<Map>()
+          .map((e) => LookupOption.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      return ApiResponse.completed(items);
+    } catch (e) {
+      return ApiResponse.error('reports.errors.unexpected'.trns());
+    }
+  }
+
+  /// Branch-scoped package lookups for the filter sheet
+  /// (`/data/packages?branch_id=N`). Returns a top-level JSON array —
+  /// never hits the report endpoint.
+  Future<ApiResponse<List<LookupOption>>> getBranchPackages(
+    int branchId,
+  ) async {
+    try {
+      final response = await _network.getRaw(
+        endpoint: ApiPath.lookupPackages(branchId),
+      );
+      if (!response.isCompleted || response.data == null) {
+        return ApiResponse.error(
+          response.message ?? 'errors.failedToFetch'.trns(),
+        );
+      }
+      final raw = response.data;
+      if (raw is! List) {
+        return ApiResponse.error('errors.unexpected'.trns());
+      }
+      final items = raw
+          .whereType<Map>()
+          .map((e) => LookupOption.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      return ApiResponse.completed(items);
+    } catch (e) {
+      return ApiResponse.error('errors.unexpected'.trns());
+    }
+  }
+
+  Future<ApiResponse<void>> deleteBooking(int id) async {
+    final response = await _network.delete(endpoint: ApiPath.booking(id));
+    if (!response.isCompleted) {
+      return ApiResponse.error(
+        response.message ?? 'errors.requestFailed'.trns(),
+        errors: response.errors,
+      );
+    }
+    return ApiResponse.completed(null, message: response.message);
+  }
+
   /// GET /bookings — paginated + filters.
   Future<ApiResponse<BookingsPage>> getBookings({
     required int page,
@@ -83,6 +151,8 @@ class BookingRepository {
     String? toDate,
     String? quickRange,
     int? branchId,
+    int? serviceId,
+    int? packageId,
     String? bookingType,
   }) async {
     final response = await _network.get(
@@ -95,7 +165,9 @@ class BookingRepository {
         if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
         if (quickRange != null && quickRange.isNotEmpty)
           'quick_range': quickRange,
-        if (branchId != null) 'branch_id': branchId,
+        'branch_id': ?branchId,
+        'service_id': ?serviceId,
+        'package_id': ?packageId,
         if (bookingType != null && bookingType.isNotEmpty)
           'booking_type': bookingType,
       },
@@ -275,7 +347,7 @@ class BookingRepository {
           'payment_method': paymentMethod,
         if (transactionId != null && transactionId.isNotEmpty)
           'transaction_id': transactionId,
-        if (mediaId != null) 'media_id': mediaId,
+        'media_id': ?mediaId,
       },
     );
     return _mapSingleBooking(response);
@@ -479,9 +551,9 @@ class BookingRepository {
     List<ProductDraft> products = const [],
   }) {
     return {
-      if (branchId != null) 'branch_id': branchId,
+      'branch_id': ?branchId,
       'booking_type': bookingType,
-      if (customerId != null) 'customer_id': customerId,
+      'customer_id': ?customerId,
       if (guestName != null && guestName.isNotEmpty) 'guest_name': guestName,
       if (guestEmail != null && guestEmail.isNotEmpty)
         'guest_email': guestEmail,
@@ -504,7 +576,7 @@ class BookingRepository {
       if (status != null && status.isNotEmpty) 'status': status,
       if (transactionId != null && transactionId.isNotEmpty)
         'transaction_id': transactionId,
-      if (mediaId != null) 'media_id': mediaId,
+      'media_id': ?mediaId,
       for (var i = 0; i < services.length; i++) ...{
         'serviceItems[$i][service_id]': services[i].serviceId,
         if (services[i].variationId != null)

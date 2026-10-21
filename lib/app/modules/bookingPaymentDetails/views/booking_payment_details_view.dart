@@ -13,26 +13,46 @@ class BookingPaymentDetailsView
 
   static const List<_ColDef> _columns = [
     _ColDef(key: 'name', label: 'bookingPaymentDetails.table.item', width: 150),
-    _ColDef(key: 'staff', label: 'bookingPaymentDetails.table.staff', width: 110),
     _ColDef(
-        key: 'category',
-        label: 'bookingPaymentDetails.table.category',
-        width: 110),
+      key: 'staff',
+      label: 'bookingPaymentDetails.table.staff',
+      width: 110,
+    ),
     _ColDef(
-        key: 'variation',
-        label: 'bookingPaymentDetails.table.variation',
-        width: 100),
-    _ColDef(key: 'price', label: 'bookingPaymentDetails.table.price', width: 110),
-    _ColDef(key: 'qty', label: 'bookingPaymentDetails.table.quantity', width: 70),
-    _ColDef(key: 'total', label: 'bookingPaymentDetails.table.total', width: 110),
+      key: 'category',
+      label: 'bookingPaymentDetails.table.category',
+      width: 110,
+    ),
     _ColDef(
-        key: 'discount',
-        label: 'bookingPaymentDetails.table.discount',
-        width: 100),
+      key: 'variation',
+      label: 'bookingPaymentDetails.table.variation',
+      width: 100,
+    ),
     _ColDef(
-        key: 'afterDiscount',
-        label: 'bookingPaymentDetails.table.afterDiscount',
-        width: 120),
+      key: 'price',
+      label: 'bookingPaymentDetails.table.price',
+      width: 110,
+    ),
+    _ColDef(
+      key: 'qty',
+      label: 'bookingPaymentDetails.table.quantity',
+      width: 70,
+    ),
+    _ColDef(
+      key: 'total',
+      label: 'bookingPaymentDetails.table.total',
+      width: 110,
+    ),
+    _ColDef(
+      key: 'discount',
+      label: 'bookingPaymentDetails.table.discount',
+      width: 100,
+    ),
+    _ColDef(
+      key: 'afterDiscount',
+      label: 'bookingPaymentDetails.table.afterDiscount',
+      width: 120,
+    ),
   ];
 
   @override
@@ -90,8 +110,11 @@ class BookingPaymentDetailsView
         padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () => Get.back(),
-          child: const Icon(Icons.chevron_left,
-              color: AppColors.white, size: 28),
+          child: const Icon(
+            Icons.chevron_left,
+            color: AppColors.white,
+            size: 28,
+          ),
         ),
       ),
       title: Text(
@@ -121,14 +144,12 @@ class BookingPaymentDetailsView
           children: [
             _TabItem(
               label: 'bookingPaymentDetails.details'.trns(),
-              isActive:
-                  controller.activeTab.value == PaymentDetailTab.details,
+              isActive: controller.activeTab.value == PaymentDetailTab.details,
               onTap: () => controller.setTab(PaymentDetailTab.details),
             ),
             _TabItem(
               label: 'bookingPaymentDetails.payments'.trns(),
-              isActive:
-                  controller.activeTab.value == PaymentDetailTab.payments,
+              isActive: controller.activeTab.value == PaymentDetailTab.payments,
               onTap: () => controller.setTab(PaymentDetailTab.payments),
             ),
             _TabItem(
@@ -156,42 +177,45 @@ class BookingPaymentDetailsView
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          // Create New Payment button
-          Can(
-            AppPerm.create(AppPerm.payments),
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: controller.openCreatePayment,
-                  child: Container(
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.add_circle_outline,
-                            color: AppColors.white, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          'bookingPaymentDetails.createNewPayment'.trns(),
-                          style: const TextStyle(
+            // Create New Payment button
+            Can(
+              AppPerm.create(AppPerm.payments),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: controller.openCreatePayment,
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.add_circle_outline,
                             color: AppColors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            size: 18,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            'bookingPaymentDetails.createNewPayment'.trns(),
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-              ],
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
-          ),
 
             // Print button
             // GestureDetector(
@@ -256,7 +280,8 @@ class BookingPaymentDetailsView
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: AppCachedImage(
-                imageUrl: booking.customer?.imageThumbUrl ??
+                imageUrl:
+                    booking.customer?.imageThumbUrl ??
                     booking.customer?.imageUrl,
                 width: 72,
                 height: 64,
@@ -283,7 +308,9 @@ class BookingPaymentDetailsView
                   Text(
                     '#${booking.bookingSerial} • ${controller.customerName}',
                     style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF6B7280)),
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -293,18 +320,30 @@ class BookingPaymentDetailsView
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (controller.branchEmail.isNotEmpty)
-                  Text(controller.branchEmail,
-                      style: const TextStyle(
-                          fontSize: 11, color: Color(0xFF6B7280))),
+                  Text(
+                    controller.branchEmail,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
                 const SizedBox(height: 3),
                 if (controller.branchPhone.isNotEmpty)
-                  Text(controller.branchPhone,
-                      style: const TextStyle(
-                          fontSize: 11, color: Color(0xFF6B7280))),
-                const SizedBox(height: 3),
-                Text(controller.branchDate,
+                  Text(
+                    controller.branchPhone,
                     style: const TextStyle(
-                        fontSize: 11, color: Color(0xFF6B7280))),
+                      fontSize: 11,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                const SizedBox(height: 3),
+                Text(
+                  controller.branchDate,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
               ],
             ),
           ],
@@ -332,8 +371,8 @@ class BookingPaymentDetailsView
             children: [
               _buildTableHeader(),
               ...items.asMap().entries.map(
-                    (e) => _buildTableRow(e.value, e.key % 2 == 0),
-                  ),
+                (e) => _buildTableRow(e.value, e.key % 2 == 0),
+              ),
             ],
           ),
         ),
@@ -349,7 +388,8 @@ class BookingPaymentDetailsView
         children: [
           _HeaderCell(label: '#', width: 36),
           ..._columns.map(
-              (c) => _HeaderCell(label: c.label.trns(), width: c.width)),
+            (c) => _HeaderCell(label: c.label.trns(), width: c.width),
+          ),
         ],
       ),
     );
@@ -382,10 +422,7 @@ class BookingPaymentDetailsView
               child: Text(
                 _cellValue(item, c.key),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF374151),
-                ),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF374151)),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -486,15 +523,12 @@ class BookingPaymentDetailsView
             parent: BouncingScrollPhysics(),
           ),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          itemCount: records.length +
-              (controller.showPaymentsPagination ? 1 : 0),
+          itemCount:
+              records.length + (controller.showPaymentsPagination ? 1 : 0),
           separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (ctx, i) {
             if (i >= records.length) return _buildPaymentsPagination();
-            return _PaymentCard(
-              payment: records[i],
-              controller: controller,
-            );
+            return _PaymentCard(payment: records[i], controller: controller);
           },
         );
       }),
@@ -512,8 +546,7 @@ class BookingPaymentDetailsView
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _PaginationBtn(
-              label:
-                  '« ${'bookingPaymentDetails.pagination.previous'.trns()}',
+              label: '« ${'bookingPaymentDetails.pagination.previous'.trns()}',
               onTap: controller.hasPrevPaymentsPage
                   ? controller.prevPaymentsPage
                   : null,
@@ -556,15 +589,15 @@ class BookingPaymentDetailsView
             parent: BouncingScrollPhysics(),
           ),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          itemCount: records.length +
-              (controller.showActivitiesPagination ? 1 : 0),
+          itemCount:
+              records.length + (controller.showActivitiesPagination ? 1 : 0),
           itemBuilder: (ctx, i) {
             if (i >= records.length) {
               return _buildActivitiesPagination();
             }
             final a = records[i];
-            final isLast = i == records.length - 1 &&
-                !controller.showActivitiesPagination;
+            final isLast =
+                i == records.length - 1 && !controller.showActivitiesPagination;
             return IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -573,8 +606,7 @@ class BookingPaymentDetailsView
                     children: [
                       ClipOval(
                         child: AppCachedImage(
-                          imageUrl: a.user?.imageThumbUrl ??
-                              a.user?.imageUrl,
+                          imageUrl: a.user?.imageThumbUrl ?? a.user?.imageUrl,
                           width: 32,
                           height: 32,
                           fit: BoxFit.cover,
@@ -597,17 +629,22 @@ class BookingPaymentDetailsView
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(a.comment,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
-                              )),
+                          Text(
+                            a.comment,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.black,
+                            ),
+                          ),
                           const SizedBox(height: 2),
-                          Text(controller.humanDateTime(a.createdAt),
-                              style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF9CA3AF))),
+                          Text(
+                            controller.humanDateTime(a.createdAt),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF9CA3AF),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -632,8 +669,7 @@ class BookingPaymentDetailsView
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _PaginationBtn(
-              label:
-                  '« ${'bookingPaymentDetails.pagination.previous'.trns()}',
+              label: '« ${'bookingPaymentDetails.pagination.previous'.trns()}',
               onTap: controller.hasPrevActivitiesPage
                   ? controller.prevActivitiesPage
                   : null,
@@ -660,22 +696,22 @@ class BookingPaymentDetailsView
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline,
-                size: 64, color: Color(0xFF9CA3AF)),
+            const Icon(Icons.error_outline, size: 64, color: Color(0xFF9CA3AF)),
             const SizedBox(height: 16),
             Text(
               controller.detailsResponse.value.message ??
                   'bookingPaymentDetails.errors.fetchFailed'.trns(),
               textAlign: TextAlign.center,
-              style:
-                  const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
             ),
             const SizedBox(height: 16),
             GestureDetector(
               onTap: controller.fetchDetails,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 26, vertical: 11),
+                  horizontal: 26,
+                  vertical: 11,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(10),
@@ -703,8 +739,11 @@ class BookingPaymentDetailsView
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.receipt_long_outlined,
-                size: 64, color: Color(0xFF9CA3AF)),
+            const Icon(
+              Icons.receipt_long_outlined,
+              size: 64,
+              color: Color(0xFF9CA3AF),
+            ),
             const SizedBox(height: 16),
             Text(
               title,
@@ -718,8 +757,7 @@ class BookingPaymentDetailsView
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 13, color: Color(0xFF6B7280)),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
             ),
           ],
         ),
@@ -766,20 +804,30 @@ class _PaymentCard extends StatelessWidget {
                     Text(
                       '${payment.paymentMethod ?? '-'} • ${controller.humanDate(payment.date)}',
                       style: const TextStyle(
-                          fontSize: 12, color: Color(0xFF6B7280)),
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${'bookingPaymentDetails.summary.balance'.trns()}: ${controller.currencySymbol}${payment.balance}',
                       style: const TextStyle(
-                          fontSize: 12, color: Color(0xFF6B7280)),
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
                     ),
                   ],
                 ),
               ),
-              _StatusPill(
-                label: controller.formatStatus(payment.status),
-                status: payment.status,
+              Can(
+                AppPerm.edit(AppPerm.payments),
+                child: GestureDetector(
+                  onTap: () => controller.changePaymentStatus(payment),
+                  child: _StatusPill(
+                    label: controller.formatStatus(payment.status),
+                    status: payment.status,
+                  ),
+                ),
               ),
             ],
           ),
@@ -796,14 +844,16 @@ class _PaymentCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(10),
-                      border:
-                          Border.all(color: AppColors.primary, width: 1.2),
+                      border: Border.all(color: AppColors.primary, width: 1.2),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.edit_outlined,
-                            color: AppColors.primary, size: 16),
+                        const Icon(
+                          Icons.edit_outlined,
+                          color: AppColors.primary,
+                          size: 16,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           'bookingPaymentDetails.paymentsTab.edit'.trns(),
@@ -843,8 +893,11 @@ class _SlipThumb extends StatelessWidget {
           color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Icon(Icons.receipt_outlined,
-            color: AppColors.primary, size: 22),
+        child: const Icon(
+          Icons.receipt_outlined,
+          color: AppColors.primary,
+          size: 22,
+        ),
       );
     }
     return GestureDetector(
@@ -866,8 +919,7 @@ void _showSlipDialog(String imageUrl) {
   Get.dialog(
     Dialog(
       backgroundColor: AppColors.transparent,
-      insetPadding:
-          const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
       child: Stack(
         children: [
           ClipRRect(
@@ -889,8 +941,11 @@ void _showSlipDialog(String imageUrl) {
                   color: Color(0x80000000),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.close,
-                    color: AppColors.white, size: 20),
+                child: const Icon(
+                  Icons.close,
+                  color: AppColors.white,
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -942,11 +997,7 @@ class _StatusPill extends StatelessWidget {
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: fg,
-        ),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: fg),
         overflow: TextOverflow.ellipsis,
       ),
     );
@@ -998,8 +1049,7 @@ class _SummaryRow extends StatelessWidget {
           ),
         ),
         if (!isLast)
-          const Divider(
-              height: 1, thickness: 0.8, color: Color(0xFFEEEEEE)),
+          const Divider(height: 1, thickness: 0.8, color: Color(0xFFEEEEEE)),
       ],
     );
   }

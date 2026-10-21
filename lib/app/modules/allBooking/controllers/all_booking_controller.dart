@@ -5,6 +5,7 @@ import 'package:va_bookats/app/modules/bookings/repositories/booking_repository.
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/models/branch_model.dart';
+import 'package:va_bookats/models/lookup_option.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
@@ -56,6 +57,8 @@ class AllBookingController extends GetxController {
   /// `/data/branches` hit per screen visit.
   final RxBool isFilterLoading = false.obs;
   bool _filterBranchesLoaded = false;
+  bool _filterServicesLoaded = false;
+  bool _filterPackagesLoaded = false;
 
   final Map<String, int> _page = {};
   final Map<String, int> _lastPage = {};
@@ -72,6 +75,7 @@ class AllBookingController extends GetxController {
   final FocusNode searchFocus = FocusNode();
   final RxString searchQuery = ''.obs;
   bool get isSearching => searchQuery.value.trim().isNotEmpty;
+  final AuthService auth = Get.find<AuthService>();
 
   // ─── Filters ─────────────────────────────────────────────────────────────
   final TextEditingController fromDateCtrl = TextEditingController();
@@ -79,11 +83,17 @@ class AllBookingController extends GetxController {
   final TextEditingController branchFilterCtrl = TextEditingController();
   final TextEditingController typeFilterCtrl = TextEditingController();
   final TextEditingController quickRangeCtrl = TextEditingController();
+  final TextEditingController serviceFilterCtrl = TextEditingController();
+  final TextEditingController packageFilterCtrl = TextEditingController();
   final RxString selectedBranchFilter = ''.obs;
   final RxString selectedTypeFilter = ''.obs;
   final RxString selectedQuickRange = ''.obs;
+  final RxString selectedServiceFilter = ''.obs;
+  final RxString selectedPackageFilter = ''.obs;
 
   final RxList<BranchModel> branches = <BranchModel>[].obs;
+  final RxList<LookupOption> services = <LookupOption>[].obs;
+  final RxList<LookupOption> packages = <LookupOption>[].obs;
   static const List<String> typeOptions = ['All', 'Guest', 'Customer'];
 
   String get _statusKey => isSearching ? 'all' : tabStatuses[selectedTab.value];
@@ -130,12 +140,24 @@ class AllBookingController extends GetxController {
     if (selectedBranchFilter.value.isNotEmpty) n++;
     if (selectedTypeFilter.value.isNotEmpty) n++;
     if (selectedQuickRange.value.isNotEmpty) n++;
+    if (!showBranch && selectedServiceFilter.value.isNotEmpty) n++;
+    if (!showBranch && selectedPackageFilter.value.isNotEmpty) n++;
     return n;
   }
 
   List<String> get branchFilterOptions => [
     'All Branches',
     ...branches.map((b) => b.displayLabel),
+  ];
+
+  List<String> get serviceFilterOptions => [
+    // 'All Services',
+    ...services.map((s) => s.label),
+  ];
+
+  List<String> get packageFilterOptions => [
+    // 'All Packages',
+    ...packages.map((p) => p.label),
   ];
 
   int? get _filterBranchId {
@@ -251,17 +273,57 @@ class AllBookingController extends GetxController {
     }
   }
 
-  /// Ensures filter lookups are ready before the sheet opens. Gracefully
-  /// shows a loader only on the first open (or when branches are empty).
+  /// Ensures role-specific filter lookups are ready before the sheet opens.
   Future<void> ensureFilterData() async {
-    if (_filterBranchesLoaded && branches.isNotEmpty) return;
-    if (!showBranch) return;
+    await auth.ready;
     isFilterLoading.value = true;
     try {
-      await fetchBranches();
+      if (showBranch) {
+        if (!_filterBranchesLoaded || branches.isEmpty) {
+          await fetchBranches();
+        }
+      } else {
+        if (!_filterServicesLoaded) {
+          await fetchServices();
+        }
+        if (!_filterPackagesLoaded) {
+          await fetchPackages();
+        }
+      }
     } finally {
       isFilterLoading.value = false;
     }
+  }
+
+  Future<void> fetchServices() async {
+    final branchId = auth.isOwner
+        ? _filterBranchId
+        : auth.currentUser.value?.branchId;
+    if (branchId == null) return;
+    final response = await _repo.getBranchServices(branchId);
+    if (response.isCompleted && response.data != null) {
+      services.assignAll(response.data!);
+      _filterServicesLoaded = true;
+    }
+  }
+
+  Future<void> fetchPackages() async {
+    final branchId = auth.isOwner
+        ? _filterBranchId
+        : auth.currentUser.value?.branchId;
+    if (branchId == null) return;
+    final response = await _repo.getBranchPackages(branchId);
+    if (response.isCompleted && response.data != null) {
+      packages.assignAll(response.data!);
+      _filterPackagesLoaded = true;
+    }
+  }
+
+  int? _lookupId(String selectedValue, List<LookupOption> options) {
+    if (selectedValue.isEmpty) return null;
+    return options
+        .firstWhereOrNull((option) => option.label == selectedValue)
+        ?.valueAsInt;
   }
 
   Future<void> fetchFirstPage() async {
@@ -273,6 +335,8 @@ class AllBookingController extends GetxController {
     final branchId = _filterBranchId;
     final bookingType = _filterBookingType;
     final quickRange = _filterQuickRange;
+    final serviceId = _lookupId(selectedServiceFilter.value, services);
+    final packageId = _lookupId(selectedPackageFilter.value, packages);
     final gen = ++_generation;
     isLoading.value = true;
     loadFailed.value = false;
@@ -285,6 +349,8 @@ class AllBookingController extends GetxController {
       quickRange: quickRange,
       branchId: branchId,
       bookingType: bookingType,
+      serviceId: serviceId,
+      packageId: packageId,
     );
 
     // Superseded by a newer tab/filter/search request — drop it so data can
@@ -347,6 +413,8 @@ class AllBookingController extends GetxController {
     final branchId = _filterBranchId;
     final bookingType = _filterBookingType;
     final quickRange = _filterQuickRange;
+    final serviceId = _lookupId(selectedServiceFilter.value, services);
+    final packageId = _lookupId(selectedPackageFilter.value, packages);
     final current = _page[key] ?? 1;
     final last = _lastPage[key] ?? current;
     if (current >= last || isLoadingMore.value) return;
@@ -361,6 +429,8 @@ class AllBookingController extends GetxController {
       quickRange: quickRange,
       branchId: branchId,
       bookingType: bookingType,
+      serviceId: serviceId,
+      packageId: packageId,
     );
     if (gen != _generation) {
       isLoadingMore.value = false;
@@ -397,12 +467,10 @@ class AllBookingController extends GetxController {
   // ─── Filters ─────────────────────────────────────────────────────────────
 
   void openFilter(BuildContext context) async {
-    final needsFetch =
-        showBranch && (!_filterBranchesLoaded || branches.isEmpty);
-    await runWithFilterLoader(
-      () => ensureFilterData(),
-      shouldShow: needsFetch,
-    );
+    final needsFetch = showBranch
+        ? (!_filterBranchesLoaded || branches.isEmpty)
+        : (!_filterServicesLoaded || !_filterPackagesLoaded);
+    await runWithFilterLoader(() => ensureFilterData(), shouldShow: needsFetch);
     if (isClosed) return;
     if (!context.mounted) return;
     _showFilterSheet(context);
@@ -443,6 +511,24 @@ class AllBookingController extends GetxController {
         dropdownItems: typeOptions,
         selectedValue: selectedTypeFilter,
       ),
+      if (!showBranch) ...[
+        FilterField(
+          label: 'Service',
+          type: FilterFieldType.dropdown,
+          controller: serviceFilterCtrl,
+          selectedValue: selectedServiceFilter,
+          dropdownItems: serviceFilterOptions,
+          showSearch: true,
+        ),
+        FilterField(
+          label: 'Package',
+          type: FilterFieldType.dropdown,
+          controller: packageFilterCtrl,
+          selectedValue: selectedPackageFilter,
+          dropdownItems: packageFilterOptions,
+          showSearch: true,
+        ),
+      ],
     ];
     FilterBottomSheet.show(
       context,
@@ -463,9 +549,13 @@ class AllBookingController extends GetxController {
     branchFilterCtrl.clear();
     typeFilterCtrl.clear();
     quickRangeCtrl.clear();
+    serviceFilterCtrl.clear();
+    packageFilterCtrl.clear();
     selectedBranchFilter.value = '';
     selectedTypeFilter.value = '';
     selectedQuickRange.value = '';
+    selectedServiceFilter.value = '';
+    selectedPackageFilter.value = '';
     _loaded.clear();
     fetchFirstPage();
   }
@@ -503,6 +593,53 @@ class AllBookingController extends GetxController {
         message: response.message ?? 'errors.requestFailed'.trns(),
       );
     }
+  }
+
+  Future<void> deleteBooking(BookingModel booking) async {
+    final confirmed = await _confirmDelete(booking);
+    if (confirmed != true || busyBookingId.value != null) return;
+
+    busyBookingId.value = booking.id;
+    final response = await _repo.deleteBooking(booking.id);
+    busyBookingId.value = null;
+
+    if (response.isCompleted) {
+      pendingBookings.removeWhere((b) => b.id == booking.id);
+      completedBookings.removeWhere((b) => b.id == booking.id);
+      cancelledBookings.removeWhere((b) => b.id == booking.id);
+      searchResults.removeWhere((b) => b.id == booking.id);
+      SnackbarService.showSuccess(
+        title: 'common.success'.trns(),
+        message: response.message ?? 'Booking deleted successfully.',
+      );
+    } else {
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: response.message ?? 'errors.requestFailed'.trns(),
+      );
+    }
+  }
+
+  Future<bool?> _confirmDelete(BookingModel booking) {
+    return Get.dialog<bool>(
+      AlertDialog(
+        title: const Text('Delete booking?'),
+        content: Text(
+          'Are you sure you want to delete booking #${booking.serial ?? booking.id}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
   }
 
   void _moveBooking(BookingModel old, BookingModel updated) {

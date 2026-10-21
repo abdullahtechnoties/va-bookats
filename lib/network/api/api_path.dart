@@ -153,6 +153,7 @@ class ApiPath {
   // Payments
   static const String payments = '/payments';
   static String payment(int id) => '/payments/$id';
+  static String paymentStatus(int id) => '/payments/$id/status';
 
   // Product form lookups (all branch-scoped, all support runtime creation)
   static String dataBrands(int branchId) => '/data/brands?branch_id=$branchId';
@@ -168,13 +169,8 @@ class ApiPath {
       '/data/product-variations?branch_id=$branchId';
   static const String productVariations = '/product-variations';
 
-  /// Best-effort values lookup for one variation type. No documented
-  /// endpoint exists, so the conventional show routes are probed in order;
-  /// a miss degrades gracefully to an empty list.
-  static String productVariationValues(int typeId) =>
-      '/product-variations/$typeId';
   static String dataProductVariationValues(int typeId) =>
-      '/data/product-variations/$typeId';
+      '/data/products/variations/$typeId/values';
 
   // Inventory item + status routes (list consts live with the lookups above)
   static String brand(int id) => '/brands/$id';

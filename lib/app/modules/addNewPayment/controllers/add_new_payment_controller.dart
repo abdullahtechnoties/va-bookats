@@ -61,8 +61,8 @@ class AddNewPaymentController extends GetxController {
 
   bool _suspendRecalc = false;
 
-  final List<String> paymentMethods = ['Cash', 'Card', 'Bank Transfer', 'Online'];
-  final List<String> statusOptions = ['Paid', 'Unpaid', 'Partial', 'Refunded'];
+  final List<String> paymentMethods = ['Cash', 'Card', 'Online'];
+  final List<String> statusOptions = ['Paid', 'Unpaid'];
 
   @override
   void onInit() {
@@ -89,6 +89,9 @@ class AddNewPaymentController extends GetxController {
       paymentId = args['paymentId'] == null
           ? null
           : int.tryParse(args['paymentId'].toString());
+      // amount
+      // paidAmountController.text = args['paidAmount']?.toString() ?? '';
+      totalAmountController.text = args['totalAmount']?.toString() ?? '';
       // NOTE: amount fields intentionally start empty in create mode so
       // the "Enter amount" placeholders show; balance is auto-computed.
     } else {
@@ -117,7 +120,7 @@ class AddNewPaymentController extends GetxController {
     }
 
     _suspendRecalc = true;
-    totalAmountController.text = edit.totalAmount;
+    // totalAmountController.text = edit.totalAmount;
     paidAmountController.text = edit.paidAmount;
     balanceController.text = edit.balance;
     _suspendRecalc = false;

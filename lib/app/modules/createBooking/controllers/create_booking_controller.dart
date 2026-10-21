@@ -256,7 +256,7 @@ class CreateBookingController extends GetxController {
   final TextEditingController totalAmountCtrl = TextEditingController();
   final TextEditingController discountCtrl = TextEditingController(text: '0');
   final TextEditingController balanceCtrl = TextEditingController();
-  final TextEditingController amountPaidCtrl = TextEditingController(text: '0');
+  final TextEditingController amountPaidCtrl = TextEditingController(text: '');
   final TextEditingController paymentMethodCtrl = TextEditingController();
   final TextEditingController bookingStatusCtrl = TextEditingController(
     text: BookingStatus.pending,
@@ -307,7 +307,7 @@ class CreateBookingController extends GetxController {
       if (userBranch != null) selectedBranchId.value = userBranch;
     }
     _readArguments();
-    if (branches.isEmpty && Get.arguments is! int && !isEditMode) {
+    if (branches.isEmpty && Get.arguments is! int && !isEditMode && showBranch) {
       await fetchBranches();
     }
     // fetchCustomers();
@@ -399,6 +399,21 @@ class CreateBookingController extends GetxController {
     isLoadingPackages.value = false;
     if (res.isCompleted && res.data != null) {
       packageOptions.assignAll(res.data!);
+      _syncRestoredPackageRows();
+    }
+  }
+
+  void _syncRestoredPackageRows() {
+    for (final row in packageItems) {
+      final packageId = int.tryParse(row.selectedPackageId.value);
+      if (packageId == null) continue;
+
+      final package = packageOptions.firstWhereOrNull(
+        (option) => option.value == packageId,
+      );
+      if (package != null) {
+        row.packageCtrl.text = package.cleanName;
+      }
     }
   }
 
@@ -410,6 +425,33 @@ class CreateBookingController extends GetxController {
     isLoadingServices.value = false;
     if (res.isCompleted && res.data != null) {
       serviceOptions.assignAll(res.data!);
+      _syncRestoredServiceRows();
+    }
+  }
+
+  void _syncRestoredServiceRows() {
+    for (final row in serviceItems) {
+      final serviceId = int.tryParse(row.selectedServiceId.value);
+      if (serviceId == null) continue;
+
+      final service = serviceOptions.firstWhereOrNull(
+        (option) => option.value == serviceId,
+      );
+      if (service == null) continue;
+
+      row.serviceCtrl.text = service.label;
+      row.isVariationType.value = service.isVariation;
+      row.variationOptions.assignAll(service.variations);
+
+      final variationId = int.tryParse(row.selectedVariationId.value);
+      if (variationId == null) continue;
+
+      final variation = service.variations.firstWhereOrNull(
+        (option) => option.id == variationId,
+      );
+      if (variation != null) {
+        row.variationCtrl.text = variation.name;
+      }
     }
   }
 
@@ -1558,6 +1600,7 @@ class CreateBookingController extends GetxController {
       final row = PackageFormItem();
       if (line.packageId != null) {
         row.selectedPackageId.value = line.packageId.toString();
+        row.packageCtrl.text = line.packageName ?? '';
         for (final p in packageOptions) {
           if (p.value == line.packageId) {
             row.packageCtrl.text = p.cleanName;
@@ -1588,6 +1631,7 @@ class CreateBookingController extends GetxController {
         _fetchPackageStaffs(row);
       }
     }
+    _syncRestoredPackageRows();
 
     for (final s in serviceItems) {
       s.dispose();
@@ -1597,6 +1641,7 @@ class CreateBookingController extends GetxController {
       final row = ServiceFormItem();
       if (line.serviceId != null) {
         row.selectedServiceId.value = line.serviceId.toString();
+        row.serviceCtrl.text = line.serviceName ?? '';
         for (final s in serviceOptions) {
           if (s.value == line.serviceId) {
             row.serviceCtrl.text = s.label;
@@ -1608,6 +1653,7 @@ class CreateBookingController extends GetxController {
       }
       if (line.variationId != null) {
         row.selectedVariationId.value = line.variationId.toString();
+        row.variationCtrl.text = line.variationName ?? '';
         for (final v in row.variationOptions) {
           if (v.id == line.variationId) {
             row.variationCtrl.text = v.name;
@@ -1627,6 +1673,7 @@ class CreateBookingController extends GetxController {
         _fetchServiceStaffs(row);
       }
     }
+    _syncRestoredServiceRows();
 
     for (final p in productItems) {
       p.dispose();

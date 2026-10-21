@@ -6,6 +6,7 @@ import 'package:va_bookats/network/response/api_response.dart';
 import 'package:va_bookats/utilities/report_filter_helpers.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/widgets/status_picker_sheet.dart';
 
 enum PaymentDetailTab { details, payments, activities }
 
@@ -19,6 +20,7 @@ class BookingPaymentDetailsController extends GetxController {
   final Rx<ApiResponse<BookingPaymentDetailsResponse>> detailsResponse =
       ApiResponse<BookingPaymentDetailsResponse>.loading().obs;
   final Rx<PaymentDetailTab> activeTab = PaymentDetailTab.details.obs;
+  final RxnInt updatingPaymentId = RxnInt();
 
   BookingPaymentDetailsResponse? get data => detailsResponse.value.data;
   BookingDetailsData? get booking => data?.booking;
@@ -35,11 +37,9 @@ class BookingPaymentDetailsController extends GetxController {
 
   bool get hasNextPaymentsPage => data?.payments.meta.hasNextPage ?? false;
   bool get hasPrevPaymentsPage => paymentsPage.value > 1;
-  bool get showPaymentsPagination =>
-      hasNextPaymentsPage || hasPrevPaymentsPage;
+  bool get showPaymentsPagination => hasNextPaymentsPage || hasPrevPaymentsPage;
 
-  bool get hasNextActivitiesPage =>
-      data?.activities.meta.hasNextPage ?? false;
+  bool get hasNextActivitiesPage => data?.activities.meta.hasNextPage ?? false;
   bool get hasPrevActivitiesPage => activitiesPage.value > 1;
   bool get showActivitiesPagination =>
       hasNextActivitiesPage || hasPrevActivitiesPage;
@@ -83,7 +83,8 @@ class BookingPaymentDetailsController extends GetxController {
     if (response.isError) {
       SnackbarService.showError(
         title: 'errors.errorTitle'.trns(),
-        message: response.message ??
+        message:
+            response.message ??
             'bookingPaymentDetails.errors.fetchFailed'.trns(),
       );
     }
@@ -123,7 +124,8 @@ class BookingPaymentDetailsController extends GetxController {
       paymentsPage.value--;
       SnackbarService.showError(
         title: 'errors.errorTitle'.trns(),
-        message: response.message ??
+        message:
+            response.message ??
             'bookingPaymentDetails.errors.fetchFailed'.trns(),
       );
     }
@@ -153,7 +155,8 @@ class BookingPaymentDetailsController extends GetxController {
       activitiesPage.value--;
       SnackbarService.showError(
         title: 'errors.errorTitle'.trns(),
-        message: response.message ??
+        message:
+            response.message ??
             'bookingPaymentDetails.errors.fetchFailed'.trns(),
       );
     }
@@ -170,7 +173,10 @@ class BookingPaymentDetailsController extends GetxController {
         BookingLineItem(
           index: ++i,
           name: p.packageName.isNotEmpty ? p.packageName : '-',
-          staff: p.staffs.map((s) => s.staffName).where((n) => n.isNotEmpty).join(', '),
+          staff: p.staffs
+              .map((s) => s.staffName)
+              .where((n) => n.isNotEmpty)
+              .join(', '),
           category: '-',
           variation: '-',
           price: money(p.amount),
@@ -188,7 +194,9 @@ class BookingPaymentDetailsController extends GetxController {
           name: s.serviceName.isNotEmpty ? s.serviceName : '-',
           staff: s.employeeName.isNotEmpty ? s.employeeName : '-',
           category: s.categoryName.isNotEmpty ? s.categoryName : '-',
-          variation: (s.variationName ?? '').isNotEmpty ? s.variationName! : '-',
+          variation: (s.variationName ?? '').isNotEmpty
+              ? s.variationName!
+              : '-',
           price: money(s.amount),
           qty: '1',
           total: money(s.totalAmount),
@@ -231,6 +239,8 @@ class BookingPaymentDetailsController extends GetxController {
         'branchId': b.branchId,
         'branchName': branchName,
         'customerId': b.customerId,
+        'totalAmount': b.remainingAmount,
+        // 'paidAmount': b.amountPaid,
       },
     );
     if (result == true) refreshDetails();
@@ -248,9 +258,50 @@ class BookingPaymentDetailsController extends GetxController {
         'branchName': branchName,
         'customerId': b?.customerId,
         'paymentId': payment.id,
+        'totalAmount': b?.remainingAmount,
+        // (double.tryParse(data?.editData?.totalAmount.toString() ?? '0') ?? 0) -
+        //   (double.tryParse(b?.remainingAmount.toString() ?? '0') ?? 0),
+        // 'paidAmount': payment.paidAmount,
       },
     );
     if (result == true) refreshDetails();
+  }
+
+  Future<void> changePaymentStatus(PaymentEntry payment) async {
+    if (updatingPaymentId.value != null) return;
+
+    final currentStatus = payment.status.trim().toLowerCase();
+    final picked = await showStatusPickerSheet(
+      title: 'bookingPaymentDetails.changeStatus'.trns(),
+      activeLabel: 'paymentDetails.paid'.trns(),
+      inactiveLabel: 'paymentDetails.unpaid'.trns(),
+      isActive: currentStatus == 'paid',
+    );
+    if (picked == null) return;
+
+    final newStatus = picked == 'active' ? 'Paid' : 'Unpaid';
+    if (newStatus.toLowerCase() == currentStatus) return;
+
+    updatingPaymentId.value = payment.id;
+    final response = await _repository.updatePaymentStatus(
+      paymentId: payment.id,
+      status: newStatus,
+    );
+    updatingPaymentId.value = null;
+
+    if (response.isCompleted) {
+      await fetchDetails();
+      SnackbarService.showSuccess(
+        title: 'common.success'.trns(),
+        message:
+            response.message ?? 'bookingPaymentDetails.statusUpdated'.trns(),
+      );
+    } else {
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: response.message ?? 'errors.requestFailed'.trns(),
+      );
+    }
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────
