@@ -221,9 +221,9 @@ class AddPackageController extends GetxController {
     } else {
       // Non-owner: scope services to the user's branch right away.
       final userBranchId = _authService.currentUser.value?.branchId;
-      if (userBranchId != null) {
-        await _fetchServicesForBranch(userBranchId);
-      }
+      // if (userBranchId != null) {
+      //   await _fetchServicesForBranch(userBranchId);
+      // }
     }
 
     if (isEditMode) await _prefillFromPackage();
@@ -635,7 +635,7 @@ class AddPackageController extends GetxController {
     final id = _editingPackage?.id;
     final response = id == null
         ? await _repository.createPackage(
-            branchId: showBranch ? selectedBranchId.value : null,
+            branchId: showBranch ? selectedBranchId.value : _authService.currentUser.value?.branchId,
             name: nameCtrl.text.trim(),
             startingFrom: _toApiDate(startDateCtrl.text),
             endingOn: _toApiDate(endDateCtrl.text),
@@ -646,7 +646,7 @@ class AddPackageController extends GetxController {
           )
         : await _repository.updatePackage(
             id: id,
-            branchId: showBranch ? selectedBranchId.value : null,
+            branchId: showBranch ? selectedBranchId.value : _authService.currentUser.value?.branchId,
             name: nameCtrl.text.trim(),
             startingFrom: _toApiDate(startDateCtrl.text),
             endingOn: _toApiDate(endDateCtrl.text),

@@ -20,6 +20,14 @@ class AddProductCategoryController extends InventoryFormController {
   final RxBool isLoadingParents = false.obs;
 
   @override
+  void onInit() {
+    super.onInit();
+    if (!showBranch && !isEditMode) {
+      fetchParents();
+    }
+  }
+
+  @override
   Future<void> onBranchChanged(int? branchId) async {
     super.onBranchChanged(branchId);
     selectedParentId.value = null;

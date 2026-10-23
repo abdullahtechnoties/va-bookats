@@ -77,12 +77,12 @@ class PackagesController extends GetxController {
   String get _statusKey => selectedTab.value == 0 ? 'active' : 'inactive';
 
   List<String> get branchFilterOptions => [
-    allBranchesKey,
+    // allBranchesKey,
     ...branches.map((b) => b.displayLabel),
   ];
 
   List<String> get serviceFilterOptions => [
-    allServicesKey,
+    // allServicesKey,
     ...serviceOptions.map((s) => s.label ?? ''),
   ];
 
@@ -397,6 +397,7 @@ class PackagesController extends GetxController {
             controller: branchFilterCtrl,
             dropdownItems: branchFilterOptions,
             selectedValue: selectedBranchFilter,
+            showSearch: true,
           ),
         if (!showBranch)
           FilterField(
@@ -405,6 +406,7 @@ class PackagesController extends GetxController {
             controller: serviceFilterCtrl,
             dropdownItems: serviceFilterOptions,
             selectedValue: selectedServiceFilter,
+            showSearch: true
           ),
       ],
       onReset: resetFilters,

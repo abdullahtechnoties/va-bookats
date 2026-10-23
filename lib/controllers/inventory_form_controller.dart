@@ -77,12 +77,12 @@ abstract class InventoryFormController extends GetxController {
   /// Prefill per-form state from the edit model.
   void prefillExtras(InventoryItem item) {}
 
-  // ─── Lifecycle ───────────────────────────────────────────────────────────
+  // ─── Lifecycle ───────────────────────────────────────────────────────
   @override
   void onInit() {
     super.onInit();
     _readArguments();
-    _guardPermission();
+    // _guardPermission();
     if (showBranch) fetchBranches();
   }
 
@@ -188,7 +188,7 @@ abstract class InventoryFormController extends GetxController {
       return;
     }
 
-    final branchId = showBranch ? selectedBranchId.value : null;
+    final branchId = showBranch ? selectedBranchId.value : userBranchId;
     final name = nameCtrl.text.trim();
     final fields = <String, dynamic>{
       'branch_id': ?branchId,

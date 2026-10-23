@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addCustomer/controllers/add_customer_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
 import 'package:va_bookats/widgets/app_touchable.dart';
@@ -421,15 +422,18 @@ class AddCustomerView extends GetView<AddCustomerController> {
                           const SizedBox(height: 26),
 
                           // Save Button
-                          Obx(
-                            () => MainBtn(
-                              text: controller.isEditMode
-                                  ? _t('addCustomer.update', 'Update')
-                                  : _t('addCustomer.save', 'Save'),
-                              onPressed: controller.isSaving.value
-                                  ? null
-                                  : () => controller.save(context),
-                              isLoading: controller.isSaving.value,
+                          Can(
+                            controller.isEditMode ? AppPerm.update(AppPerm.customers) : AppPerm.store(AppPerm.customers),
+                            child: Obx(
+                              () => MainBtn(
+                                text: controller.isEditMode
+                                    ? _t('addCustomer.update', 'Update')
+                                    : _t('addCustomer.save', 'Save'),
+                                onPressed: controller.isSaving.value
+                                    ? null
+                                    : () => controller.save(context),
+                                isLoading: controller.isSaving.value,
+                              ),
                             ),
                           ),
                         ],

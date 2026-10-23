@@ -205,8 +205,8 @@ class ServiceCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 5),
-                          Can(
-                            AppPerm.update(AppPerm.services),
+                          Can.all(
+                            [AppPerm.update(AppPerm.services), AppPerm.edit(AppPerm.services)],
                             fallback: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
@@ -317,8 +317,8 @@ class ServiceCard extends StatelessWidget {
                     ),
 
                     // Edit Service button
-                    Can(
-                      AppPerm.edit(AppPerm.services),
+                    Can.any(
+                      [AppPerm.edit(AppPerm.services), AppPerm.show(AppPerm.services)],
                       child: GestureDetector(
                         onTap: isDeleting || isBusy ? null : onEdit,
                         child: Container(
@@ -331,7 +331,7 @@ class ServiceCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            'services.card.editService'.trns(),
+                            'packages.card.viewOrEdit'.trns(),
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,

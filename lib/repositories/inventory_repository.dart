@@ -69,6 +69,7 @@ class InventoryRepository {
     String? toDate,
     String? quickRange,
     int? branchId,
+    int? parentCategoryId,
   }) async {
     final response = await _network.get(
       endpoint: base,
@@ -81,6 +82,7 @@ class InventoryRepository {
         if (quickRange != null && quickRange.isNotEmpty)
           'quick_range': quickRange,
         'branch_id': ?branchId,
+        'parent_id': ?parentCategoryId,
       },
     );
 
@@ -99,9 +101,7 @@ class InventoryRepository {
             ? rawList
                   .whereType<Map>()
                   .map(
-                    (e) => InventoryItem.fromJson(
-                      Map<String, dynamic>.from(e),
-                    ),
+                    (e) => InventoryItem.fromJson(Map<String, dynamic>.from(e)),
                   )
                   .where((item) => item.id != null)
                   .toList()
@@ -145,10 +145,7 @@ class InventoryRepository {
     required Map<String, dynamic> fields,
     String? resultKey,
   }) async {
-    final response = await _network.postForm(
-      endpoint: base,
-      fields: fields,
-    );
+    final response = await _network.postForm(endpoint: base, fields: fields);
     return _mapItem(response, resultKey);
   }
 

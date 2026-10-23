@@ -102,9 +102,13 @@ class AddServiceController extends GetxController {
     super.onInit();
     _readArguments();
     if (showBranch) {
+      print('Fetching branches for owner user...');
       fetchBranches();
     } else {
+      selectedBranchId.value = _authService.currentUser.value?.branchId;
+      print('Fetching categories for non-owner user...');
       categories.clear();
+      fetchCategories();
     }
   }
 
@@ -189,7 +193,13 @@ class AddServiceController extends GetxController {
   Future<void> fetchCategories() async {
     final branchId = selectedBranchId.value;
     if (branchId == null) {
-      categories.clear();
+      print('_authService.currentUser.value?.branchId: ${_authService.currentUser.value?.branchId}');
+      selectedBranchId.value == _authService.currentUser.value?.branchId;
+      // categories.clear();
+      // return;
+    }
+    if (branchId == null) {
+      print('No branch ID available; skipping category fetch.');
       return;
     }
 
@@ -467,7 +477,7 @@ class AddServiceController extends GetxController {
     }
 
     final int? id = _editingService?.id;
-    final branchId = showBranch ? selectedBranchId.value : null;
+    final branchId = showBranch ? selectedBranchId.value : _authService.currentUser.value?.branchId;
     final status = selectedStatus.value.isEmpty
         ? 'active'
         : selectedStatus.value.toLowerCase();
@@ -497,7 +507,7 @@ class AddServiceController extends GetxController {
             )
           : await _repository.updateService(
               id: id,
-              branchId: branchId,
+              branchId: branchId ?? _authService.currentUser.value?.branchId,
               categoryId: selectedCategoryId.value,
               name: nameCtrl.text.trim(),
               serviceDuration: durationCtrl.text.trim(),

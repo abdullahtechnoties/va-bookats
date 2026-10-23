@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addBrand/controllers/add_brand_controller.dart';
+import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/inventory-form-widgets.dart';
@@ -40,8 +42,10 @@ class AddBrandView extends GetView<AddBrandController> {
                         color: AppColors.black,
                       ),
                     ),
+                    if(controller.auth.isOwner) ...[
                     const SizedBox(height: 22),
-                    InventoryFieldLabel('addBrand.branch'.trns()),
+                     InventoryFieldLabel('addBrand.branch'.trns()),
+                    ],
                     const SizedBox(height: 8),
                     InventoryBranchField(
                       controller: controller,
@@ -65,13 +69,16 @@ class AddBrandView extends GetView<AddBrandController> {
                       changeKey: 'addBrand.changeLogo',
                     ),
                     const SizedBox(height: 28),
-                    Obx(() => MainBtn(
-                          text: controller.isEditMode
-                              ? 'addBrand.update'.trns()
-                              : 'addBrand.save'.trns(),
-                          isLoading: controller.isSaving.value,
-                          onPressed: () => controller.save(context),
-                        )),
+                    Can(
+                      controller.isEditMode ? AppPerm.update(AppPerm.brands) : AppPerm.store(AppPerm.brands),
+                      child: Obx(() => MainBtn(
+                            text: controller.isEditMode
+                                ? 'addBrand.update'.trns()
+                                : 'addBrand.save'.trns(),
+                            isLoading: controller.isSaving.value,
+                            onPressed: () => controller.save(context),
+                          )),
+                    ),
                   ],
                 ),
               ),

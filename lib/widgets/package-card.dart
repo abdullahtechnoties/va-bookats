@@ -56,8 +56,8 @@ class PackageCard extends StatelessWidget {
                   color: AppColors.black,
                 ),
               ),
-              Can(
-                AppPerm.update(AppPerm.packages),
+              Can.all(
+                [AppPerm.update(AppPerm.packages) , AppPerm.edit(AppPerm.packages)],
                 fallback: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -166,26 +166,28 @@ class PackageCard extends StatelessWidget {
           // Action Buttons
           Row(
             children: [
-              if (Permissions.can(AppPerm.edit(AppPerm.packages)))
-                Expanded(
-                  child: GestureDetector(
-                    onTap: isBusy || isDeleting ? null : onViewEdit,
-                    child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppColors.secondary,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'packages.card.viewOrEdit'.trns(),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                Can.any(
+                  [AppPerm.edit(AppPerm.packages), AppPerm.show(AppPerm.packages)],
+                  child: Expanded(
+                    child: GestureDetector(
+                      onTap: isBusy || isDeleting ? null : onViewEdit,
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          border: Border.all(
                             color: AppColors.secondary,
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'packages.card.viewOrEdit'.trns(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.secondary,
+                            ),
                           ),
                         ),
                       ),

@@ -52,37 +52,39 @@ class ServiceCategoriesView extends GetView<ServiceCategoriesController> {
                               decoration: BoxDecoration(
                                 color: AppColors.secondary,
                                 borderRadius: BorderRadius.circular(12),
-                              ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 22,
-                              height: 22,
-                              decoration: BoxDecoration(
-                                color: AppColors.white.withValues(alpha: 0.25),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                color: AppColors.white,
-                                size: 16,
+                              ), 
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 22,
+                                    height: 22,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.white.withValues(
+                                        alpha: 0.25,
+                                      ),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: AppColors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'serviceCategories.addNewCategory'.trns(),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Text(
-                              'serviceCategories.addNewCategory'.trns(),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                          ),
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
@@ -98,6 +100,8 @@ class ServiceCategoriesView extends GetView<ServiceCategoriesController> {
                           isBusy: controller.busyCategoryId.value == cat.id,
                           isDeleting: controller.busyDeleteId.value == cat.id,
                           onDelete: () => controller.deleteCategory(cat),
+                          onDetails: () =>
+                              controller.openAddPage(category: cat),
                           onEdit: () => controller.openAddPage(category: cat),
                           onStatusTap: () => controller.updateStatus(cat),
                         ),
@@ -249,6 +253,7 @@ class _CategoryCard extends StatelessWidget {
   final bool isBusy;
   final bool isDeleting;
   final VoidCallback? onDelete;
+  final VoidCallback? onDetails;
   final VoidCallback? onEdit;
   final VoidCallback? onStatusTap;
 
@@ -258,6 +263,7 @@ class _CategoryCard extends StatelessWidget {
     required this.isBusy,
     this.isDeleting = false,
     this.onDelete,
+    this.onDetails,
     this.onEdit,
     this.onStatusTap,
   });
@@ -279,41 +285,40 @@ class _CategoryCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Name + Branch
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category.name ?? '',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.black,
-                  ),
-                ),
-                if (showBranch && category.branchName.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    category.branchName,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF888888),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // Right: Status + Icons
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Name + Branch
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      category.name ?? '',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    if (showBranch && category.branchName.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        category.branchName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF888888),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
               // Status badge (tappable → change status)
               Can(
                 AppPerm.update(AppPerm.serviceCategories),
@@ -335,97 +340,176 @@ class _CategoryCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                child: GestureDetector(
-                  onTap: isBusy ? null : onStatusTap,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 7,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: isBusy
-                        ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.secondary,
-                            ),
-                          )
-                        : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                category.statusDisplay,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.secondary,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                size: 16,
+                child: Can.any(
+                  [
+                    AppPerm.edit(AppPerm.serviceCategories),
+                    AppPerm.update(AppPerm.serviceCategories),
+                  ],
+                  child: GestureDetector(
+                    onTap: isBusy ? null : onStatusTap,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: isBusy
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
                                 color: AppColors.secondary,
                               ),
-                            ],
-                          ),
+                            )
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  category.statusDisplay,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.secondary,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 16,
+                                  color: AppColors.secondary,
+                                ),
+                              ],
+                            ),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+            ],
+          ),
+          const SizedBox(height: 10),
 
-              // Delete + Edit Icons
-              Row(
-                children: [
-                  Can(
-                    AppPerm.destroy(AppPerm.serviceCategories),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        GestureDetector(
-                          onTap: isBusy || isDeleting ? null : onDelete,
-                          child: isDeleting
-                              ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColors.secondary,
-                                    ),
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.delete_outline,
-                                  size: 22,
-                                  color: AppColors.black,
+          // Full-width actions: edit, details, then delete.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Can.any(
+               [ AppPerm.edit(AppPerm.serviceCategories),
+                
+                AppPerm.show(AppPerm.serviceCategories),],
+                child: Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: _CategoryActionButton(
+                      text: 'packages.card.viewOrEdit'.trns(),
+                      isLoading: isBusy,
+                      onPressed: isBusy ? null : onDetails,
+                    ),
+                  ),
+                ),
+              ),
+              Can(
+                AppPerm.destroy(AppPerm.serviceCategories),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: GestureDetector(
+                    onTap: isBusy || isDeleting ? null : onDelete,
+                    child: isDeleting
+                        ? Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEEFEF),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: AppColors.red.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.secondary,
                                 ),
+                              ),
+                            ),
+                        )
+                        : Container(
+                                                    padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: AppColors.red.withValues(alpha: 0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Icon(
+                              Icons.delete_outline,
+                              size: 22,
+                              color: AppColors.primary,
+                            ),
                         ),
-                        const SizedBox(width: 12),
-                      ],
-                    ),
                   ),
-                  Can(
-                    AppPerm.edit(AppPerm.serviceCategories),
-                    child: GestureDetector(
-                      onTap: isBusy || isDeleting ? null : onEdit,
-                      child: const Icon(
-                        Icons.edit_outlined,
-                        size: 22,
-                        color: AppColors.black,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CategoryActionButton extends StatelessWidget {
+  final String text;
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  const _CategoryActionButton({
+    required this.text,
+    required this.isLoading,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onPressed != null && !isLoading;
+    return SizedBox(
+      height: 44,
+      child: ElevatedButton(
+        onPressed: enabled ? onPressed : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.secondary,
+          disabledBackgroundColor: AppColors.secondary.withValues(alpha: 0.6),
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.white,
+                ),
+              )
+            : Text(
+                text,
+                style: const TextStyle(
+                  color: AppColors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
       ),
     );
   }

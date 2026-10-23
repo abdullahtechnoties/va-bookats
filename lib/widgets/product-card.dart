@@ -198,7 +198,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               // edit
-              if (Permissions.can(AppPerm.update(AppPerm.products)))
+              if (Permissions.can(AppPerm.edit(AppPerm.products)))
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

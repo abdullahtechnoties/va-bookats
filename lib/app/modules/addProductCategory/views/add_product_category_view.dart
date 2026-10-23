@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addProductCategory/controllers/add_product_category_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
@@ -43,6 +44,7 @@ class AddProductCategoryView
                       ),
                     ),
                     const SizedBox(height: 22),
+                    if (controller.showBranch) ...[
                     InventoryFieldLabel(
                         'addProductCategory.branch'.trns()),
                     const SizedBox(height: 8),
@@ -51,6 +53,7 @@ class AddProductCategoryView
                       titleKey: 'addProductCategory.branch',
                       hintKey: 'addProductCategory.selectBranch',
                     ),
+                    ],
                     const SizedBox(height: 20),
                     InventoryFieldLabel('addProductCategory.name'.trns()),
                     const SizedBox(height: 8),
@@ -73,13 +76,18 @@ class AddProductCategoryView
                       changeKey: 'addProductCategory.changeImage',
                     ),
                     const SizedBox(height: 28),
-                    Obx(() => MainBtn(
-                          text: controller.isEditMode
-                              ? 'addProductCategory.update'.trns()
-                              : 'addProductCategory.save'.trns(),
-                          isLoading: controller.isSaving.value,
-                          onPressed: () => controller.save(context),
-                        )),
+                    Can(
+                      controller.isEditMode
+                          ? AppPerm.update(AppPerm.productCategories)
+                          : AppPerm.store(AppPerm.productCategories),
+                      child: Obx(() => MainBtn(
+                            text: controller.isEditMode
+                                ? 'addProductCategory.update'.trns()
+                                : 'addProductCategory.save'.trns(),
+                            isLoading: controller.isSaving.value,
+                            onPressed: () => controller.save(context),
+                          )),
+                    ),
                   ],
                 ),
               ),

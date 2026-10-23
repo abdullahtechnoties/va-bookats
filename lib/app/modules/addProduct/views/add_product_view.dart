@@ -5,6 +5,7 @@ import 'package:va_bookats/app/modules/mediaLibrary/controllers/media_library_co
 import 'package:va_bookats/app/modules/products/views/widgets/rounded_app_bar.dart';
 import 'package:va_bookats/models/product_model.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/media-selector-sheet.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
@@ -78,15 +79,17 @@ class AddProductView extends GetView<AddProductController> {
                 const SizedBox(height: 16),
 
                 // ── Branch (first: everything below depends on it) ─────
-                _FormLabel(text: 'addProduct.labels.branch'.trns()),
-                _PickerField(
-                  hint: 'addProduct.placeholders.selectBranch'.trns(),
-                  value: controller.branchLabel.value,
-                  isLoading: controller.isLoadingBranches.value,
+                if (controller.isOwner) ...[
+                  _FormLabel(text: 'addProduct.labels.branch'.trns()),
+                  _PickerField(
+                    hint: 'addProduct.placeholders.selectBranch'.trns(),
+                    value: controller.branchLabel.value,
+                    isLoading: controller.isLoadingBranches.value,
                   enabled: !controller.isEditMode,
                   onTap: () => _showBranchPicker(context),
                 ),
                 const SizedBox(height: 16),
+              ],
 
                 // ── Name ────────────────────────────────────────────────
                 _FormLabel(text: 'addProduct.labels.name'.trns()),
@@ -286,15 +289,18 @@ class AddProductView extends GetView<AddProductController> {
                 const SizedBox(height: 24),
 
                 // ── Save ────────────────────────────────────────────────
-                Obx(
-                  () => MainBtn(
-                    text: controller.isEditMode
-                        ? 'addProduct.actions.update'.trns()
-                        : 'addProduct.actions.save'.trns(),
-                    isLoading:
-                        controller.isLoading.value ||
-                        controller.isLoadingVariationTypes.value,
-                    onPressed: () => controller.save(context),
+                Can(
+                  controller.isEditMode ? AppPerm.update(AppPerm.products) : AppPerm.store(AppPerm.products),
+                  child: Obx(
+                    () => MainBtn(
+                      text: controller.isEditMode
+                          ? 'addProduct.actions.update'.trns()
+                          : 'addProduct.actions.save'.trns(),
+                      isLoading:
+                          controller.isLoading.value ||
+                          controller.isLoadingVariationTypes.value,
+                      onPressed: () => controller.save(context),
+                    ),
                   ),
                 ),
               ],

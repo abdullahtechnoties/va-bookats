@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addPackage/controllers/add_package_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_dropdown_bottom_sheet_three.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
@@ -98,13 +99,18 @@ class AddPackageView extends GetView<AddPackageController> {
                       const SizedBox(height: 20),
 
                       // Save
-                      Obx(
-                        () => MainBtn(
-                          text: controller.saveButtonText,
-                          isLoading: controller.isSaving.value,
-                          onPressed: controller.isSaving.value
-                              ? null
-                              : controller.save,
+                      Can(
+                        controller.isEditMode
+                            ? AppPerm.update(AppPerm.packages)
+                            : AppPerm.store(AppPerm.packages),
+                        child: Obx(
+                          () => MainBtn(
+                            text: controller.saveButtonText,
+                            isLoading: controller.isSaving.value,
+                            onPressed: controller.isSaving.value
+                                ? null
+                                : controller.save,
+                          ),
                         ),
                       ),
                     ],

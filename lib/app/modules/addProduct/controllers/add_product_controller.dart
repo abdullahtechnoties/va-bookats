@@ -146,8 +146,11 @@ class AddProductController extends GetxController {
   void onInit() {
     super.onInit();
     _extractArguments();
-    if (!isEditMode) {
+    if (!isEditMode && isOwner) {
       fetchBranches();
+    }
+    if (!isOwner && userBranchId != null) {
+      selectBranch(userBranchId!);
     }
   }
 
@@ -204,7 +207,10 @@ class AddProductController extends GetxController {
     selectedBranchId.value = id;
     branchLabel.value = match?.displayLabel ?? '';
     _clearDependents();
-    await loadDependents();
+    if (isOwner) {
+      await loadDependents();
+    }
+    // await loadDependents();
   }
 
   void _clearDependents() {
@@ -481,7 +487,7 @@ class AddProductController extends GetxController {
     int? parentId,
     int? mediaId,
   }) async {
-    final branchId = selectedBranchId.value;
+    final branchId = selectedBranchId.value ?? _auth.currentUser.value?.branchId;
     if (branchId == null || name.trim().isEmpty) return false;
     isLoading.value = true;
     final response = await _formRepo.createCategory(
@@ -516,7 +522,7 @@ class AddProductController extends GetxController {
   }
 
   Future<bool> createTag(String name) async {
-    final branchId = selectedBranchId.value;
+    final branchId = selectedBranchId.value ?? _auth.currentUser.value?.branchId;
     if (branchId == null || name.trim().isEmpty) return false;
     isLoading.value = true;
     final response = await _formRepo.createTag(
@@ -544,7 +550,7 @@ class AddProductController extends GetxController {
   }
 
   Future<bool> createUnit(String name) async {
-    final branchId = selectedBranchId.value;
+    final branchId = selectedBranchId.value ?? _auth.currentUser.value?.branchId;
     if (branchId == null || name.trim().isEmpty) return false;
     isLoading.value = true;
     final response = await _formRepo.createUnit(
@@ -574,7 +580,7 @@ class AddProductController extends GetxController {
   /// Creates a variation type (with its values) and auto-selects it as a
   /// new set with all returned values selected.
   Future<bool> createVariationType(String name, List<String> valueNames) async {
-    final branchId = selectedBranchId.value;
+    final branchId = selectedBranchId.value ?? _auth.currentUser.value?.branchId;
     if (branchId == null || name.trim().isEmpty) return false;
     final clean = valueNames
         .map((v) => v.trim())
@@ -793,7 +799,7 @@ class AddProductController extends GetxController {
 
   Map<String, dynamic> _buildFields() {
     final fields = <String, dynamic>{
-      'branch_id': selectedBranchId.value,
+      'branch_id': selectedBranchId.value ?? _auth.currentUser.value?.branchId,
       'name': nameCtrl.text.trim(),
       'short_description': shortDescCtrl.text.trim(),
       'description': descCtrl.text.trim(),

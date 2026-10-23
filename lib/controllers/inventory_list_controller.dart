@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/models/inventory_item.dart';
+import 'package:va_bookats/models/product_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/network/api/api_path.dart';
 import 'package:va_bookats/repositories/inventory_repository.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
@@ -35,6 +37,7 @@ abstract class InventoryListController extends GetxController {
   // ─── State ───────────────────────────────────────────────────────────────
   final RxList<InventoryItem> items = <InventoryItem>[].obs;
   final RxList<BranchModel> branches = <BranchModel>[].obs;
+  final RxList<ProductLookup> parentCategories = <ProductLookup>[].obs;
 
   final RxBool isLoading = true.obs;
   final RxBool isRefreshing = false.obs;
@@ -66,16 +69,20 @@ abstract class InventoryListController extends GetxController {
   final RxString selectedBranchFilter = ''.obs;
   final RxString selectedStatusFilter = ''.obs;
   final RxString selectedQuickRange = ''.obs;
+  final TextEditingController parentCategoryFilterCtrl =
+      TextEditingController();
+  final RxString selectedParentCategoryFilter = ''.obs;
+
+  List<String> get parentCategoryFilterOptions => [
+    ...parentCategories.map((category) => category.label),
+  ];
 
   List<String> get branchFilterOptions => [
     // allBranchesKey,
     ...branches.map((b) => b.displayLabel),
   ];
 
-  List<String> get statusFilterOptions => [
-    tr('active'),
-    tr('inactive'),
-  ];
+  List<String> get statusFilterOptions => [tr('active'), tr('inactive')];
 
   String statusLabel(InventoryItem item) =>
       item.isActive ? tr('active') : tr('inactive');
@@ -94,6 +101,13 @@ abstract class InventoryListController extends GetxController {
     if (v == tr('active')) return 'active';
     if (v == tr('inactive')) return 'inactive';
     return v.toLowerCase();
+  }
+
+  int? get _filterParentCategoryId {
+    final label = selectedParentCategoryFilter.value;
+    return parentCategories
+        .firstWhereOrNull((category) => category.label == label)
+        ?.value;
   }
 
   /// Capitalized for display; mapped to API values before hitting the API.
@@ -127,6 +141,7 @@ abstract class InventoryListController extends GetxController {
   /// [branches], so a separate call is rarely needed.
   final RxBool isFilterLoading = false.obs;
   bool _filterBranchesLoaded = false;
+  bool _filterSheetOpen = false;
 
   @override
   void onInit() {
@@ -144,6 +159,7 @@ abstract class InventoryListController extends GetxController {
     branchFilterCtrl.dispose();
     statusFilterCtrl.dispose();
     quickRangeCtrl.dispose();
+    parentCategoryFilterCtrl.dispose();
     super.onClose();
   }
 
@@ -169,14 +185,43 @@ abstract class InventoryListController extends GetxController {
     }
   }
 
+  Future<void> fetchParentCategories() async {
+    if (permResource != 'product-categories') return;
+    final branchId = showBranch
+        ? _filterBranchId
+        : _authService.currentUser.value?.branchId;
+    if (branchId == null) {
+      parentCategories.clear();
+      return;
+    }
+
+    final response = await _repository.fetchLookupOptions(
+      ApiPath.dataProductCategories(branchId),
+    );
+    if (response.isCompleted && response.data != null) {
+      parentCategories.assignAll(
+        response.data!.where((category) => category.children.isNotEmpty),
+      );
+    } else {
+      SnackbarService.showError(
+        title: tr('errorTitle'),
+        message: response.message ?? 'errors.requestFailed'.trns(),
+      );
+    }
+  }
+
   /// Ensures filter lookups are ready before the sheet opens, showing a
   /// graceful loader only while the (first) fetch is in flight.
   Future<void> ensureFilterData() async {
-    if (_filterBranchesLoaded && branches.isNotEmpty) return;
-    if (!showBranch) return;
+    final needsBranches =
+        showBranch && (!_filterBranchesLoaded || branches.isEmpty);
+    final needsParents =
+        permResource == 'product-categories' && parentCategories.isEmpty;
+    if (!needsBranches && !needsParents) return;
     isFilterLoading.value = true;
     try {
-      await fetchBranches();
+      if (needsBranches) await fetchBranches();
+      if (needsParents) await fetchParentCategories();
     } finally {
       isFilterLoading.value = false;
     }
@@ -195,6 +240,7 @@ abstract class InventoryListController extends GetxController {
       toDate: _toApiDate(toDateCtrl.text),
       quickRange: _filterQuickRange,
       branchId: _filterBranchId,
+      parentCategoryId: _filterParentCategoryId,
     );
 
     if (gen != _generation) return;
@@ -244,6 +290,7 @@ abstract class InventoryListController extends GetxController {
       toDate: _toApiDate(toDateCtrl.text),
       quickRange: _filterQuickRange,
       branchId: _filterBranchId,
+      parentCategoryId: _filterParentCategoryId,
     );
 
     if (gen != _generation) {
@@ -266,19 +313,27 @@ abstract class InventoryListController extends GetxController {
   // ─── Filtering ───────────────────────────────────────────────────────────
 
   void openFilter(BuildContext context) async {
-    final needsFetch =
+    if (_filterSheetOpen || isFilterLoading.value) return;
+
+    final needsBranches =
         showBranch && (!_filterBranchesLoaded || branches.isEmpty);
-    await runWithFilterLoader(
-      () => ensureFilterData(),
-      shouldShow: needsFetch,
-    );
-    if (isClosed) return;
-    if (!context.mounted) return;
-    _showFilterSheet(context);
+    final needsParents =
+        permResource == 'product-categories' && parentCategories.isEmpty;
+    _filterSheetOpen = true;
+    try {
+      await runWithFilterLoader(
+        () => ensureFilterData(),
+        shouldShow: needsBranches || needsParents,
+      );
+      if (isClosed || !context.mounted) return;
+      await _showFilterSheet(context);
+    } finally {
+      _filterSheetOpen = false;
+    }
   }
 
-  void _showFilterSheet(BuildContext context) {
-    FilterBottomSheet.show(
+  Future<void> _showFilterSheet(BuildContext context) {
+    return FilterBottomSheet.show(
       context,
       fields: [
         FilterField(
@@ -319,13 +374,27 @@ abstract class InventoryListController extends GetxController {
             dropdownItems: branchFilterOptions,
             selectedValue: selectedBranchFilter,
           ),
+        if (permResource == 'product-categories')
+          FilterField(
+            label: 'addProductCategory.parent'.trns(),
+            type: FilterFieldType.dropdown,
+            showSearch: true,
+            controller: parentCategoryFilterCtrl,
+            dropdownItems: parentCategoryFilterOptions,
+            selectedValue: selectedParentCategoryFilter,
+          ),
       ],
       onReset: resetFilters,
       onApply: applyFilters,
     );
   }
 
-  void applyFilters() => fetchFirstPage();
+  Future<void> applyFilters() async {
+    if (permResource == 'product-categories') {
+      await fetchParentCategories();
+    }
+    fetchFirstPage();
+  }
 
   void resetFilters() {
     searchCtrl.clear();
@@ -337,6 +406,8 @@ abstract class InventoryListController extends GetxController {
     selectedBranchFilter.value = '';
     selectedStatusFilter.value = '';
     selectedQuickRange.value = '';
+    parentCategoryFilterCtrl.clear();
+    selectedParentCategoryFilter.value = '';
     fetchFirstPage();
   }
 
@@ -348,14 +419,12 @@ abstract class InventoryListController extends GetxController {
 
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: AppColors.white,
         title: Text(tr('deleteDialogTitle')),
-        content: Text('$trPrefix.deleteDialogMessage'.trnsFormat({
-          'name': item.name ?? '',
-        })),
+        content: Text(
+          '$trPrefix.deleteDialogMessage'.trnsFormat({'name': item.name ?? ''}),
+        ),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
@@ -375,8 +444,7 @@ abstract class InventoryListController extends GetxController {
     if (confirmed != true) return;
 
     busyDeleteId.value = id;
-    final response =
-        await _repository.delete(base: resourceBase, id: id);
+    final response = await _repository.delete(base: resourceBase, id: id);
     busyDeleteId.value = null;
 
     if (response.isCompleted) {
@@ -417,9 +485,7 @@ abstract class InventoryListController extends GetxController {
     if (response.isCompleted) {
       final index = items.indexWhere((e) => e.id == id);
       if (index != -1) {
-        items[index] = items[index].copyWith(
-          status: response.data ?? next,
-        );
+        items[index] = items[index].copyWith(status: response.data ?? next);
       }
       SnackbarService.showSuccess(
         title: tr('statusSuccessTitle'),

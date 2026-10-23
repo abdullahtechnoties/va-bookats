@@ -330,8 +330,8 @@ class BookingCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Can(
-                      AppPerm.update(AppPerm.bookings),
+                    Can.all(
+                      [AppPerm.update(AppPerm.bookings), AppPerm.edit(AppPerm.bookings)], 
                       fallback: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,

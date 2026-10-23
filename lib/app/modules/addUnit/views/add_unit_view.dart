@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addUnit/controllers/add_unit_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/inventory-form-widgets.dart';
@@ -41,6 +42,7 @@ class AddUnitView extends GetView<AddUnitController> {
                       ),
                     ),
                     const SizedBox(height: 22),
+                    if (controller.showBranch) ...[
                     InventoryFieldLabel('addUnit.branch'.trns()),
                     const SizedBox(height: 8),
                     InventoryBranchField(
@@ -48,6 +50,7 @@ class AddUnitView extends GetView<AddUnitController> {
                       titleKey: 'addUnit.branch',
                       hintKey: 'addUnit.selectBranch',
                     ),
+                    ],
                     const SizedBox(height: 20),
                     InventoryFieldLabel('addUnit.name'.trns()),
                     const SizedBox(height: 8),
@@ -57,13 +60,18 @@ class AddUnitView extends GetView<AddUnitController> {
                       validator: controller.validateName,
                     ),
                     const SizedBox(height: 28),
-                    Obx(() => MainBtn(
-                          text: controller.isEditMode
-                              ? 'addUnit.update'.trns()
-                              : 'addUnit.save'.trns(),
-                          isLoading: controller.isSaving.value,
-                          onPressed: () => controller.save(context),
-                        )),
+                    Can(
+                      controller.isEditMode
+                          ? AppPerm.update(AppPerm.units)
+                          : AppPerm.store(AppPerm.units),
+                      child: Obx(() => MainBtn(
+                            text: controller.isEditMode
+                                ? 'addUnit.update'.trns()
+                                : 'addUnit.save'.trns(),
+                            isLoading: controller.isSaving.value,
+                            onPressed: () => controller.save(context),
+                          )),
+                    ),
                   ],
                 ),
               ),

@@ -168,6 +168,7 @@ class InventoryItemCard extends StatelessWidget {
   final String? editPermission;
   final String? deletePermission;
   final String? statusPermission;
+  final String? updatePermission;
 
   /// Hides the thumbnail box (name-only entities like tags/units).
   final bool showImage;
@@ -191,6 +192,7 @@ class InventoryItemCard extends StatelessWidget {
     this.editPermission,
     this.deletePermission,
     this.statusPermission,
+    this.updatePermission,
     this.showImage = true,
     this.showBranch = true,
   });
@@ -245,14 +247,14 @@ class InventoryItemCard extends StatelessWidget {
                   children: [
                     if (onStatusTap != null && _allowed(statusPermission))
                       GestureDetector(
-                        onTap: isBusy ? null : onStatusTap,
+                        onTap: _allowed(updatePermission) && _allowed(editPermission) ? null : onStatusTap,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFDE3D9), // Light orange bg
+                            color: const Color(0xFFFDE3D9), 
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: isBusy
@@ -275,12 +277,14 @@ class InventoryItemCard extends StatelessWidget {
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
+                                    if (_allowed(updatePermission) && _allowed(editPermission)) ...[
                                     const SizedBox(width: 4),
                                     const Icon(
                                       Icons.keyboard_arrow_down_rounded,
                                       size: 14,
                                       color: AppColors.black,
                                     ),
+                                    ],
                                   ],
                                 ),
                         ),
@@ -336,7 +340,7 @@ class InventoryItemCard extends StatelessWidget {
                   ),
                 ),
                 GestureDetector(
-                  onTap: isBusy ? null : onStatusTap,
+                  onTap: (_allowed(updatePermission)  && _allowed(editPermission)) ?  () => onStatusTap?.call() : null,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -366,12 +370,14 @@ class InventoryItemCard extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
+                              if (_allowed(updatePermission) && _allowed(editPermission)) ...[
                               const SizedBox(width: 4),
-                              const Icon(
+                               const Icon(
                                 Icons.keyboard_arrow_down_rounded,
                                 size: 14,
                                 color: AppColors.black,
                               ),
+                              ],
                             ],
                           ),
                   ),
@@ -389,7 +395,7 @@ class InventoryItemCard extends StatelessWidget {
           // Action Buttons
           Row(
             children: [
-              if (_allowed(detailsPermission) && _allowed(editPermission))
+              if (_allowed(detailsPermission) || _allowed(editPermission))
                 Expanded(
                   child: SizedBox(
                     height: 48,

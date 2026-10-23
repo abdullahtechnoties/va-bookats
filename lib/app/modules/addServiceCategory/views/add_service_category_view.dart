@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addServiceCategory/controllers/add_service_category_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/app_touchable.dart';
 import 'package:va_bookats/widgets/common_dropdown_bottom_sheet.dart';
@@ -135,15 +136,18 @@ class AddServiceCategoryView extends GetView<AddServiceCategoryController> {
                         const SizedBox(height: 28),
 
                         // Save Button
-                        Obx(
-                          () => MainBtn(
-                            text: controller.isEditMode
-                                ? 'addServiceCategory.update'.trns()
-                                : 'addServiceCategory.save'.trns(),
-                            onPressed: controller.isSaving.value
-                                ? null
-                                : () => controller.save(context),
-                            isLoading: controller.isSaving.value,
+                        Can(
+                          controller.isEditMode ? AppPerm.update(AppPerm.serviceCategories) : AppPerm.store(AppPerm.serviceCategories),
+                          child: Obx(
+                            () => MainBtn(
+                              text: controller.isEditMode
+                                  ? 'addServiceCategory.update'.trns()
+                                  : 'addServiceCategory.save'.trns(),
+                              onPressed: controller.isSaving.value
+                                  ? null
+                                  : () => controller.save(context),
+                              isLoading: controller.isSaving.value,
+                            ),
                           ),
                         ),
                       ],

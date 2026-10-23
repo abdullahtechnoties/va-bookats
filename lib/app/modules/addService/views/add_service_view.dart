@@ -371,15 +371,18 @@ class AddServiceView extends GetView<AddServiceController> {
                           const SizedBox(height: 26),
 
                           // Save Button
-                          Obx(
-                            () => MainBtn(
-                              text: controller.isEditMode
-                                  ? 'addService.update'.trns()
-                                  : 'addService.save'.trns(),
-                              onPressed: controller.isSaving.value
-                                  ? null
-                                  : () => controller.save(context),
-                              isLoading: controller.isSaving.value,
+                          Can(
+                     controller.isEditMode ? AppPerm.update(AppPerm.services) : AppPerm.store(AppPerm.services),
+                            child: Obx(
+                              () => MainBtn(
+                                text: controller.isEditMode
+                                    ? 'addService.update'.trns()
+                                    : 'addService.save'.trns(),
+                                onPressed: controller.isSaving.value
+                                    ? null
+                                    : () => controller.save(context),
+                                isLoading: controller.isSaving.value,
+                              ),
                             ),
                           ),
                         ],

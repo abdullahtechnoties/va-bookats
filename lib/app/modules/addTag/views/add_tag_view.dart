@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addTag/controllers/add_tag_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/inventory-form-widgets.dart';
@@ -41,6 +42,7 @@ class AddTagView extends GetView<AddTagController> {
                       ),
                     ),
                     const SizedBox(height: 22),
+                    if (controller.showBranch) ...[
                     InventoryFieldLabel('addTag.branch'.trns()),
                     const SizedBox(height: 8),
                     InventoryBranchField(
@@ -48,6 +50,7 @@ class AddTagView extends GetView<AddTagController> {
                       titleKey: 'addTag.branch',
                       hintKey: 'addTag.selectBranch',
                     ),
+                    ],
                     const SizedBox(height: 20),
                     InventoryFieldLabel('addTag.name'.trns()),
                     const SizedBox(height: 8),
@@ -57,13 +60,16 @@ class AddTagView extends GetView<AddTagController> {
                       validator: controller.validateName,
                     ),
                     const SizedBox(height: 28),
-                    Obx(() => MainBtn(
-                          text: controller.isEditMode
-                              ? 'addTag.update'.trns()
-                              : 'addTag.save'.trns(),
-                          isLoading: controller.isSaving.value,
-                          onPressed: () => controller.save(context),
-                        )),
+                    Can(
+                      controller.isEditMode ? AppPerm.update(AppPerm.tags) : AppPerm.store(AppPerm.tags),
+                      child: Obx(() => MainBtn(
+                            text: controller.isEditMode
+                                ? 'addTag.update'.trns()
+                                : 'addTag.save'.trns(),
+                            isLoading: controller.isSaving.value,
+                            onPressed: () => controller.save(context),
+                          )),
+                    ),
                   ],
                 ),
               ),

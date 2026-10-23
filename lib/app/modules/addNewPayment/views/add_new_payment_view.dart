@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addNewPayment/controllers/add_new_payment_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/media-selector-sheet.dart';
 import 'package:va_bookats/widgets/app_cached_image.dart';
@@ -177,13 +178,16 @@ class AddNewPaymentView extends GetView<AddNewPaymentController> {
               const SizedBox(height: 24),
 
               // ── Save Button ──────────────────────────────────────────────
-              Obx(() => MainBtn(
-                    text: controller.isEditMode
-                        ? 'addNewPayment.update'.trns()
-                        : 'addNewPayment.save'.trns(),
-                    isLoading: controller.isLoading.value,
-                    onPressed: () => controller.save(context),
-                  )),
+              Can(
+                controller.isEditMode ? AppPerm.update(AppPerm.payments) : AppPerm.store(AppPerm.payments),
+                child: Obx(() => MainBtn(
+                      text: controller.isEditMode
+                          ? 'addNewPayment.update'.trns()
+                          : 'addNewPayment.save'.trns(),
+                      isLoading: controller.isLoading.value,
+                      onPressed: () => controller.save(context),
+                    )),
+              ),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/addVariations/controllers/add_variations_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/inventory-form-widgets.dart';
@@ -40,6 +41,7 @@ class AddVariationsView extends GetView<AddVariationsController> {
                         color: AppColors.black,
                       ),
                     ),
+                    if (controller.showBranch) ...[
                     const SizedBox(height: 22),
                     InventoryFieldLabel('addVariations.branch'.trns()),
                     const SizedBox(height: 8),
@@ -48,6 +50,7 @@ class AddVariationsView extends GetView<AddVariationsController> {
                       titleKey: 'addVariations.branch',
                       hintKey: 'addVariations.selectBranch',
                     ),
+                    ],
                     const SizedBox(height: 20),
                     InventoryFieldLabel('addVariations.name'.trns()),
                     const SizedBox(height: 8),
@@ -118,13 +121,18 @@ class AddVariationsView extends GetView<AddVariationsController> {
                       ),
                     ),
                     const SizedBox(height: 28),
-                    Obx(() => MainBtn(
-                          text: controller.isEditMode
-                              ? 'addVariations.update'.trns()
-                              : 'addVariations.save'.trns(),
-                          isLoading: controller.isSaving.value,
-                          onPressed: () => controller.save(context),
-                        )),
+                    Can(
+                      controller.isEditMode
+                          ? AppPerm.update(AppPerm.productVariations)
+                          : AppPerm.store(AppPerm.productVariations),
+                      child: Obx(() => MainBtn(
+                            text: controller.isEditMode
+                                ? 'addVariations.update'.trns()
+                                : 'addVariations.save'.trns(),
+                            isLoading: controller.isSaving.value,
+                            onPressed: () => controller.save(context),
+                          )),
+                    ),
                   ],
                 ),
               ),

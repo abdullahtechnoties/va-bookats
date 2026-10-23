@@ -110,7 +110,7 @@ class AddServiceCategoryController extends GetxController {
     final name = nameCtrl.text.trim();
     isSaving.value = true;
     try {
-      final branchId = showBranch ? selectedBranchId.value : null;
+      final branchId = showBranch ? selectedBranchId.value : _authService.currentUser.value?.branchId;
       final int? id = _editingCategory?.id;
 
       final response = id == null

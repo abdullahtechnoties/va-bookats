@@ -130,8 +130,8 @@ class BookingDetailsView extends GetView<BookingDetailsController> {
                               ),
                             ),
                             // const SizedBox(width: 10),
-                            if (Permissions.can(
-                                AppPerm.update(AppPerm.bookings)))
+                           if (Permissions.canAll([ 
+                                AppPerm.update(AppPerm.bookings), AppPerm.edit(AppPerm.bookings)]))
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () =>

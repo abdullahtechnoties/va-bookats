@@ -123,7 +123,6 @@ class ServicesController extends GetxController {
   }
 
   List<String> get categoryFilterOptions => [
-    allCategoriesKey,
     ...categories.map((c) => c.name ?? ''),
   ];
 
@@ -440,6 +439,7 @@ class ServicesController extends GetxController {
             controller: categoryFilterCtrl,
             dropdownItems: categoryFilterOptions,
             selectedValue: selectedCategoryFilter,
+            showSearch: true
           ),
       ],
       onReset: resetFilters,

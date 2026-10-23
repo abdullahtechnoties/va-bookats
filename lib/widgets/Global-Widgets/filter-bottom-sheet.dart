@@ -38,13 +38,13 @@ class FilterBottomSheet extends StatelessWidget {
     required this.onApply,
   });
 
-  static void show(
+  static Future<void> show(
     BuildContext context, {
     required List<FilterField> fields,
     required VoidCallback onReset,
     required VoidCallback onApply,
   }) {
-    showModalBottomSheet(
+    return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -161,7 +161,7 @@ class FilterBottomSheet extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => CommonDropdownBottomSheetThree(
         title: field.label,
-        
+
         bottomSheetHeight: MediaQuery.of(context).size.height * 0.6,
         dropdownItems: field.dropdownItems!,
         selectedItem: field.selectedValue,
@@ -486,4 +486,3 @@ class _DropdownField extends StatelessWidget {
     );
   }
 }
-

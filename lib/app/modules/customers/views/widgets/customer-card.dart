@@ -110,8 +110,8 @@ class CustomerCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Can(
-                    AppPerm.update(AppPerm.customers),
+                  Can.all(
+                    [AppPerm.update(AppPerm.customers), AppPerm.edit(AppPerm.customers)],
                     fallback: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,

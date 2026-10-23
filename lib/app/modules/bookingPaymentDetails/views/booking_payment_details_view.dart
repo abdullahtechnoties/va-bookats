@@ -819,8 +819,8 @@ class _PaymentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Can(
-                AppPerm.edit(AppPerm.payments),
+              Can.all(
+                [AppPerm.edit(AppPerm.payments), AppPerm.update(AppPerm.payments)],
                 child: GestureDetector(
                   onTap: () => controller.changePaymentStatus(payment),
                   child: _StatusPill(
