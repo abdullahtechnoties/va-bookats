@@ -15,8 +15,6 @@ class PaymentCardModel {
   final String total;
   final String paid;
   final String remaining;
-  
-
 
   const PaymentCardModel({
     required this.grandTotal,
@@ -35,6 +33,7 @@ class PaymentCard extends StatelessWidget {
   final PaymentCardModel payment;
   final VoidCallback? onViewDetails;
   final VoidCallback? onDelete;
+  final VoidCallback? onStatusTap;
   final String? currencySymbol;
 
   const PaymentCard({
@@ -42,11 +41,16 @@ class PaymentCard extends StatelessWidget {
     required this.payment,
     this.onViewDetails,
     this.onDelete,
+    this.onStatusTap,
     this.currencySymbol,
   });
 
   @override
   Widget build(BuildContext context) {
+    final canChangeStatus =
+        onStatusTap != null &&
+        payment.status.toLowerCase() != 'return' &&
+        Permissions.can(AppPerm.update(AppPerm.payments));
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
@@ -93,21 +97,35 @@ class PaymentCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    payment.status,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.secondary,
+                GestureDetector(
+                  onTap: canChangeStatus ? onStatusTap : null,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          payment.status,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                        if (canChangeStatus)
+                          const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 16,
+                            color: AppColors.secondary,
+                          ),
+                      ],
                     ),
                   ),
                 ),

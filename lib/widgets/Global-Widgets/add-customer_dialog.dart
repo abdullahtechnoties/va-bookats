@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/createBooking/controllers/create_booking_controller.dart';
 import 'package:va_bookats/utilities/colors.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/common_text_input_field.dart';
 import 'package:va_bookats/widgets/main_btn.dart';
@@ -95,13 +96,16 @@ class AddCustomerDialog extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              Obx(() => MainBtn(
-                    text: 'createBooking.addCustomer.addNow'.trns(),
-                    onPressed: controller.isAddingCustomer.value
-                        ? null
-                        : controller.quickAddCustomer,
-                    isLoading: controller.isAddingCustomer.value,
-                  )),
+              Obx(() => Can(
+                 AppPerm.store(AppPerm.customers),
+                child: MainBtn(
+                      text: 'createBooking.addCustomer.addNow'.trns(),
+                      onPressed: controller.isAddingCustomer.value
+                          ? null
+                          : controller.quickAddCustomer,
+                      isLoading: controller.isAddingCustomer.value,
+                    ),
+              )),
             ],
           ),
         ),

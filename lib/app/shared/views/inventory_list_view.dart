@@ -13,8 +13,7 @@ import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/orange-header.dart';
 
-class InventoryListView<C extends InventoryListController>
-    extends GetView<C> {
+class InventoryListView<C extends InventoryListController> extends GetView<C> {
   final String titleKey;
   final String addLabelKey;
   final String emptyKey;
@@ -49,13 +48,10 @@ class InventoryListView<C extends InventoryListController>
           ),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value &&
-                  controller.items.isEmpty) {
-                return const Center(
-                    child: CircularProgressIndicator());
+              if (controller.isLoading.value && controller.items.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
               }
-              if (controller.loadFailed.value &&
-                  controller.items.isEmpty) {
+              if (controller.loadFailed.value && controller.items.isEmpty) {
                 return _ErrorState(
                   onRetry: controller.retry,
                   loadError: controller.tr('loadError'),
@@ -92,7 +88,8 @@ class InventoryListView<C extends InventoryListController>
                                     height: 22,
                                     decoration: BoxDecoration(
                                       color: AppColors.white.withValues(
-                                          alpha: 0.25),
+                                        alpha: 0.25,
+                                      ),
                                       borderRadius: BorderRadius.circular(5),
                                     ),
                                     child: const Icon(
@@ -119,40 +116,35 @@ class InventoryListView<C extends InventoryListController>
                       ),
                     ),
                     if (controller.items.isEmpty)
-                      _EmptyState(
-                        icon: emptyIcon,
-                        message: emptyKey.trns(),
-                      )
+                      _EmptyState(icon: emptyIcon, message: emptyKey.trns())
                     else
                       ...controller.items.map(
                         (item) => InventoryItemCard(
-                          imageUrl: showImage
-                              ? (item.displayUrl ?? '')
-                              : '',
+                          imageUrl: showImage ? (item.displayUrl ?? '') : '',
                           showImage: showImage,
                           status: controller.statusLabel(item),
                           name: item.name ?? '',
                           branch: item.branchName,
                           showBranch: controller.showBranch,
-                          onDetails: () =>
-                              controller.openAddPage(item: item),
-                          onEdit: () =>
-                              controller.openAddPage(item: item),
+                          onDetails: () => controller.openAddPage(item: item),
+                          onEdit: () => controller.openAddPage(item: item),
                           onDelete: () => controller.deleteItem(item),
-                          onStatusTap: () =>
-                              controller.updateStatus(item),
-                          isBusy:
-                              controller.busyItemId.value == item.id,
-                          isDeleting:
-                              controller.busyDeleteId.value == item.id,
-                          detailsPermission:
-                              AppPerm.show(controller.permResource),
-                          editPermission:
-                              AppPerm.edit(controller.permResource),
-                          deletePermission:
-                              AppPerm.destroy(controller.permResource),
-                          statusPermission:
-                              AppPerm.update(controller.permResource),
+                          onStatusTap: () => controller.updateStatus(item),
+                          isBusy: controller.busyItemId.value == item.id,
+                          isDeleting: controller.busyDeleteId.value == item.id,
+                          detailsPermission: AppPerm.show(
+                            controller.permResource,
+                          ),
+                          editPermission: AppPerm.edit(controller.permResource),
+                          deletePermission: AppPerm.destroy(
+                            controller.permResource,
+                          ),
+                          statusPermission: AppPerm.update(
+                            controller.permResource,
+                          ),
+                          updatePermission: AppPerm.update(
+                            controller.permResource,
+                          ),
                         ),
                       ),
                     if (controller.isLoadingMore.value)

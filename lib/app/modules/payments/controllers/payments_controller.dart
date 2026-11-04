@@ -9,8 +9,10 @@ import 'package:va_bookats/models/payment_model.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/filter_loader.dart';
+import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
+import 'package:va_bookats/widgets/status_picker_sheet.dart';
 
 class PaymentsController extends GetxController {
   PaymentsController({PaymentRepository? repository})
@@ -50,6 +52,7 @@ class PaymentsController extends GetxController {
   final RxBool isLoadingMore = false.obs;
   final RxBool hasMore = false.obs;
   final RxBool loadFailed = false.obs;
+  final RxnInt updatingPaymentId = RxnInt();
 
   // ─── Search (inside the filter sheet) ────────────────────────────────────
   final TextEditingController searchCtrl = TextEditingController();
@@ -78,8 +81,6 @@ class PaymentsController extends GetxController {
   int get returnedCount => _paymentsByTab[2].length;
 
   bool get _currentHasMore => _hasMoreByTab[selectedTab.value];
-
-
 
   List<String> get branchFilterOptions => [
     // allBranchesKey,
@@ -284,6 +285,107 @@ class PaymentsController extends GetxController {
     }
   }
 
+  // ─── Actions ─────────────────────────────────────────────────────────────
+  Future<void> deletePayment(PaymentModel payment) async {
+    final confirmed = await _confirmDelete();
+    if (confirmed != true) return;
+
+    final response = await _repo.deletePayment(payment.id);
+    if (response.isCompleted) {
+      for (final payments in _paymentsByTab) {
+        payments.removeWhere((item) => item.id == payment.id);
+      }
+      SnackbarService.showSuccess(
+        title: 'payments.deleteSuccessTitle'.trns(),
+        message: response.message ?? 'payments.deleteSuccessMessage'.trns(),
+      );
+      return;
+    }
+
+    SnackbarService.showError(
+      title: 'common.error'.trns(),
+      message: response.message ?? 'errors.requestFailed'.trns(),
+    );
+  }
+
+  Future<void> updatePaymentStatus(PaymentModel payment) async {
+    if (updatingPaymentId.value != null ||
+        payment.status.trim().toLowerCase() == 'return' ||
+        !_auth.can(AppPerm.update(AppPerm.payments))) {
+      return;
+    }
+
+    final currentStatus = payment.status.trim().toLowerCase();
+    final picked = await showStatusPickerSheet(
+      title: 'bookingPaymentDetails.changeStatus'.trns(),
+      activeLabel: 'paymentDetails.paid'.trns(),
+      inactiveLabel: 'paymentDetails.unpaid'.trns(),
+      isActive: currentStatus == 'paid',
+    );
+    if (picked == null) return;
+
+    final newStatus = picked == 'active' ? 'Paid' : 'Unpaid';
+    if (newStatus.toLowerCase() == currentStatus) return;
+
+    updatingPaymentId.value = payment.id;
+    final response = await _repo.updatePaymentStatus(
+      paymentId: payment.id,
+      status: newStatus,
+    );
+    updatingPaymentId.value = null;
+
+    if (!response.isCompleted) {
+      SnackbarService.showError(
+        title: 'common.error'.trns(),
+        message: response.message ?? 'errors.requestFailed'.trns(),
+      );
+      return;
+    }
+
+    final returnedStatus = response.data?['status']?.toString();
+    final updatedPayment = payment.copyWith(
+      status: returnedStatus?.isNotEmpty == true ? returnedStatus : newStatus,
+    );
+    for (final payments in _paymentsByTab) {
+      payments.removeWhere((item) => item.id == payment.id);
+    }
+    final targetTab = updatedPayment.status.trim().toLowerCase() == 'paid'
+        ? 0
+        : updatedPayment.status.trim().toLowerCase() == 'unpaid'
+        ? 1
+        : null;
+    if (targetTab != null) {
+      _paymentsByTab[targetTab].insert(0, updatedPayment);
+    }
+    SnackbarService.showSuccess(
+      title: 'common.success'.trns(),
+      message: response.message ?? 'bookingPaymentDetails.statusUpdated'.trns(),
+    );
+  }
+
+  Future<bool?> _confirmDelete() {
+    return Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        title: Text('payments.deleteDialogTitle'.trns()),
+        content: Text('payments.deleteDialogMessage'.trns()),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('payments.cancel'.trns()),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text(
+              'payments.delete'.trns(),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ─── Filters ─────────────────────────────────────────────────────────────
 
   void openFilter(BuildContext context) async {
@@ -297,7 +399,6 @@ class PaymentsController extends GetxController {
 
   void _showFilterSheet(BuildContext context) {
     FilterBottomSheet.show(
-
       context,
       fields: [
         FilterField(

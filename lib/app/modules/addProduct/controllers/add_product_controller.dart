@@ -150,6 +150,7 @@ class AddProductController extends GetxController {
       fetchBranches();
     }
     if (!isOwner && userBranchId != null) {
+      print('AddProductController: auto-selecting user branch $userBranchId');
       selectBranch(userBranchId!);
     }
   }
@@ -207,9 +208,9 @@ class AddProductController extends GetxController {
     selectedBranchId.value = id;
     branchLabel.value = match?.displayLabel ?? '';
     _clearDependents();
-    if (isOwner) {
+    // if (isOwner) {
       await loadDependents();
-    }
+    // }
     // await loadDependents();
   }
 

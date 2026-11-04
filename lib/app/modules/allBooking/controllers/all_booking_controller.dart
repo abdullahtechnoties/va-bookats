@@ -11,6 +11,7 @@ import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/filter_loader.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/utilities/booking_closing_guard.dart';
 import 'package:va_bookats/widgets/Global-Widgets/filter-bottom-sheet.dart';
 
 class AllBookingController extends GetxController {
@@ -571,6 +572,13 @@ class AllBookingController extends GetxController {
     int? mediaId,
   }) async {
     if (newStatus == booking.status) return;
+    if (!await ensureBookingClosingAllowed(
+      repository: _repo,
+      auth: _auth,
+      branchId: booking.branchId,
+    )) {
+      return;
+    }
     busyBookingId.value = booking.id;
     final response = await _repo.changeBookingStatus(
       id: booking.id,
@@ -664,6 +672,14 @@ class AllBookingController extends GetxController {
   }
 
   Future<void> openCreate({BookingModel? booking}) async {
+    if (booking == null &&
+        !await ensureBookingClosingAllowed(
+          repository: _repo,
+          auth: _auth,
+          branchId: _auth.currentUser.value?.branchId,
+        )) {
+      return;
+    }
     final result = await Get.toNamed(Routes.CREATE_BOOKING, arguments: booking);
     // After submission the form pops with the created/updated booking so the
     // list can jump to its status tab and reflect it immediately.

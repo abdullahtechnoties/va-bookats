@@ -36,7 +36,9 @@ class PaymentsView extends GetView<PaymentsController> {
                   onRefresh: controller.handleRefresh,
                   child: ListView(
                     children: [
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.2,
+                      ),
                       const _EmptyState(),
                     ],
                   ),
@@ -70,7 +72,9 @@ class PaymentsView extends GetView<PaymentsController> {
                     return PaymentCard(
                       payment: payment.toCardModel(),
                       onViewDetails: () => controller.openDetails(payment),
-                      onDelete: null,
+                      onDelete: () => controller.deletePayment(payment),
+                      onStatusTap: () =>
+                          controller.updatePaymentStatus(payment),
                       currencySymbol: payment.branchh?.currency?.symbol ?? '\$',
                     );
                   },

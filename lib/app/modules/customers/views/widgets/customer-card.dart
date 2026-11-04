@@ -220,13 +220,45 @@ class CustomerCard extends StatelessWidget {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          const Spacer(),
-                          if (onDelete != null)
+                          // const Spacer(),
+                          
+                          if (onEdit != null)
+                            Can.any(
+                             [ AppPerm.edit(AppPerm.customers), AppPerm.show(AppPerm.customers)],
+                              child: Expanded(
+                                child: GestureDetector(
+                                  onTap:
+                                      isBusy || isDeleting ? null : onEdit,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 22,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.secondary,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      'packages.card.viewOrEdit'.trns(),
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.white,
+                                      ),
+                                       textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (onDelete != null)
                             Can(
                               AppPerm.destroy(AppPerm.customers),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  const SizedBox(width: 10),
+
                                   GestureDetector(
                                     onTap: isBusy || isDeleting
                                         ? null
@@ -257,37 +289,7 @@ class CustomerCard extends StatelessWidget {
                                             ),
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
                                 ],
-                              ),
-                            ),
-                          if (onEdit != null)
-                            Can(
-                              AppPerm.edit(AppPerm.customers),
-                              child: GestureDetector(
-                                onTap:
-                                    isBusy || isDeleting ? null : onEdit,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 22,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.secondary,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    'customers.card.edit'.trns() ==
-                                            'customers.card.edit'
-                                        ? 'Edit'
-                                        : 'customers.card.edit'.trns(),
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                ),
                               ),
                             ),
                         ],

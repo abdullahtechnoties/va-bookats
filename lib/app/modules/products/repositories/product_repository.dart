@@ -13,6 +13,40 @@ import 'package:va_bookats/utilities/translation_extention.dart';
 class ProductRepository {
   final NetworkService _network = Get.find<NetworkService>();
 
+  Future<ApiResponse<List<ProductLookup>>> _getLookups(String endpoint) async {
+    final response = await _network.getRaw(endpoint: endpoint);
+    if (!response.isCompleted || response.data == null) {
+      return ApiResponse.error(
+        response.message ?? 'errors.requestFailed'.trns(),
+        errors: response.errors,
+      );
+    }
+    if (response.data is! List) {
+      return ApiResponse.error('errors.unexpectedShort'.trns());
+    }
+    return ApiResponse.completed(
+      (response.data as List)
+          .whereType<Map>()
+          .map(
+            (entry) => ProductLookup.fromJson(Map<String, dynamic>.from(entry)),
+          )
+          .where((lookup) => lookup.label.isNotEmpty && lookup.value != 0)
+          .toList(),
+    );
+  }
+
+  Future<ApiResponse<List<ProductLookup>>> getBrands(int branchId) =>
+      _getLookups(ApiPath.dataBrands(branchId));
+
+  Future<ApiResponse<List<ProductLookup>>> getCategories(int branchId) =>
+      _getLookups(ApiPath.dataProductCategories(branchId));
+
+  Future<ApiResponse<List<ProductLookup>>> getTags(int branchId) =>
+      _getLookups(ApiPath.dataTags(branchId));
+
+  Future<ApiResponse<List<ProductLookup>>> getUnits(int branchId) =>
+      _getLookups(ApiPath.dataUnits(branchId));
+
   // ─── Branches ──────────────────────────────────────────────────────────
 
   Future<ApiResponse<List<BranchModel>>> getBranches() async {
@@ -49,6 +83,11 @@ class ProductRepository {
     String? toDate,
     String? quickRange,
     int? branchId,
+    String? productType,
+    int? brandId,
+    int? categoryId,
+    int? tagId,
+    int? unitId,
   }) async {
     final response = await _network.get(
       endpoint: ApiPath.products,
@@ -61,6 +100,12 @@ class ProductRepository {
         if (quickRange != null && quickRange.isNotEmpty)
           'quick_range': quickRange,
         'branch_id': ?branchId,
+        if (productType != null && productType.isNotEmpty)
+          'product_type': productType,
+        'brand_id': ?brandId,
+        'category_id': ?categoryId,
+        'tag_id': ?tagId,
+        'unit_id': ?unitId,
       },
     );
 

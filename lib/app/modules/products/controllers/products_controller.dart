@@ -25,6 +25,10 @@ class ProductsController extends GetxController {
   final RxList<ProductModel> activeProducts = <ProductModel>[].obs;
   final RxList<ProductModel> inactiveProducts = <ProductModel>[].obs;
   final RxList<BranchModel> branches = <BranchModel>[].obs;
+  final RxList<ProductLookup> brands = <ProductLookup>[].obs;
+  final RxList<ProductLookup> categories = <ProductLookup>[].obs;
+  final RxList<ProductLookup> tags = <ProductLookup>[].obs;
+  final RxList<ProductLookup> units = <ProductLookup>[].obs;
 
   final RxBool isLoading = true.obs;
   final RxBool isRefreshing = false.obs;
@@ -55,12 +59,29 @@ class ProductsController extends GetxController {
   final TextEditingController toDateCtrl = TextEditingController();
   final TextEditingController branchFilterCtrl = TextEditingController();
   final TextEditingController quickRangeCtrl = TextEditingController();
+  final TextEditingController statusFilterCtrl = TextEditingController();
+  final TextEditingController productTypeFilterCtrl = TextEditingController();
+  final TextEditingController brandFilterCtrl = TextEditingController();
+  final TextEditingController categoryFilterCtrl = TextEditingController();
+  final TextEditingController tagFilterCtrl = TextEditingController();
+  final TextEditingController unitFilterCtrl = TextEditingController();
   final RxString selectedBranchFilter = ''.obs;
   final RxString selectedQuickRange = ''.obs;
+  final RxString selectedStatusFilter = ''.obs;
+  final RxString selectedProductTypeFilter = ''.obs;
+  final RxString selectedBrandFilter = ''.obs;
+  final RxString selectedCategoryFilter = ''.obs;
+  final RxString selectedTagFilter = ''.obs;
+  final RxString selectedUnitFilter = ''.obs;
 
   String get allBranchesKey => 'products.filter.allBranches'.trns();
+  String get allBrandsKey => 'inventory.all_brands'.trns();
+  String get allCategoriesKey => 'inventory.all_product_categories'.trns();
+  String get allTagsKey => 'inventory.all_tags'.trns();
+  String get allUnitsKey => 'inventory.all_units'.trns();
 
-  /// Branch name in the card and the filter dropdown only for owners.
+  /// Branch names in cards are owner-only; branch filtering is available to
+  /// every profile.
   bool get showBranch => _authService.isOwner;
 
   List<ProductModel> get currentProducts =>
@@ -75,6 +96,67 @@ class ProductsController extends GetxController {
     allBranchesKey,
     ...branches.map((b) => b.displayLabel),
   ];
+
+  List<String> get statusFilterOptions => [
+    'inventory.active'.trns(),
+    'variations.inactive'.trns(),
+  ];
+
+  List<String> get productTypeFilterOptions => [
+    'addProduct.types.simple'.trns(),
+    'addProduct.types.variation'.trns(),
+  ];
+
+  List<String> get brandFilterOptions => [
+    allBrandsKey,
+    ...brands.map((item) => item.label),
+  ];
+
+  List<String> get categoryFilterOptions => [
+    allCategoriesKey,
+    ...categories.expand((item) => item.flattened).map((item) => item.label),
+  ];
+
+  List<String> get tagFilterOptions => [
+    allTagsKey,
+    ...tags.map((item) => item.label),
+  ];
+
+  List<String> get unitFilterOptions => [
+    allUnitsKey,
+    ...units.map((item) => item.label),
+  ];
+
+  String? get _filterStatus {
+    final value = selectedStatusFilter.value;
+    if (value.isEmpty) return null;
+    if (value == 'inventory.active'.trns()) return 'active';
+    if (value == 'inventory.inactive'.trns()) return 'inactive';
+    return null;
+  }
+
+  String? get _filterProductType {
+    final value = selectedProductTypeFilter.value;
+    if (value == 'addProduct.types.simple'.trns()) return 'simple';
+    if (value == 'addProduct.types.variation'.trns()) return 'variation';
+    return null;
+  }
+
+  int? _lookupId(String selected, List<ProductLookup> options, String allKey) {
+    if (selected.isEmpty || selected == allKey) return null;
+    for (final option in options.expand((item) => item.flattened)) {
+      if (option.label == selected) return option.value;
+    }
+    return null;
+  }
+
+  int? get _filterBrandId =>
+      _lookupId(selectedBrandFilter.value, brands, allBrandsKey);
+  int? get _filterCategoryId =>
+      _lookupId(selectedCategoryFilter.value, categories, allCategoriesKey);
+  int? get _filterTagId => _lookupId(selectedTagFilter.value, tags, allTagsKey);
+  int? get _filterUnitId =>
+      _lookupId(selectedUnitFilter.value, units, allUnitsKey);
 
   int? get _filterBranchId {
     final label = selectedBranchFilter.value;
@@ -107,6 +189,12 @@ class ProductsController extends GetxController {
     if (toDateCtrl.text.trim().isNotEmpty) n++;
     if (selectedBranchFilter.value.isNotEmpty) n++;
     if (selectedQuickRange.value.isNotEmpty) n++;
+    if (selectedStatusFilter.value.isNotEmpty) n++;
+    if (selectedProductTypeFilter.value.isNotEmpty) n++;
+    if (selectedBrandFilter.value.isNotEmpty) n++;
+    if (selectedCategoryFilter.value.isNotEmpty) n++;
+    if (selectedTagFilter.value.isNotEmpty) n++;
+    if (selectedUnitFilter.value.isNotEmpty) n++;
     return n;
   }
 
@@ -114,6 +202,7 @@ class ProductsController extends GetxController {
   /// (see [openFilter]), never on controller init.
   final RxBool isFilterLoading = false.obs;
   bool _filterBranchesLoaded = false;
+  bool _filterLookupsLoaded = false;
 
   @override
   void onInit() {
@@ -130,6 +219,12 @@ class ProductsController extends GetxController {
     toDateCtrl.dispose();
     branchFilterCtrl.dispose();
     quickRangeCtrl.dispose();
+    statusFilterCtrl.dispose();
+    productTypeFilterCtrl.dispose();
+    brandFilterCtrl.dispose();
+    categoryFilterCtrl.dispose();
+    tagFilterCtrl.dispose();
+    unitFilterCtrl.dispose();
     super.onClose();
   }
 
@@ -157,14 +252,48 @@ class ProductsController extends GetxController {
     }
   }
 
+  Future<void> fetchFilterLookups() async {
+    if (_filterLookupsLoaded) return;
+    final branchId = _authService.currentUser.value?.branchId;
+    if (branchId == null) {
+      brands.clear();
+      categories.clear();
+      tags.clear();
+      units.clear();
+      return;
+    }
+    final responses = await Future.wait([
+      _repository.getBrands(branchId),
+      _repository.getCategories(branchId),
+      _repository.getTags(branchId),
+      _repository.getUnits(branchId),
+    ]);
+    if (responses[0].isCompleted && responses[0].data != null) {
+      brands.assignAll(responses[0].data!);
+    }
+    if (responses[1].isCompleted && responses[1].data != null) {
+      categories.assignAll(responses[1].data!);
+    }
+    if (responses[2].isCompleted && responses[2].data != null) {
+      tags.assignAll(responses[2].data!);
+    }
+    if (responses[3].isCompleted && responses[3].data != null) {
+      units.assignAll(responses[3].data!);
+    }
+    _filterLookupsLoaded = responses.every((response) => response.isCompleted);
+  }
+
   /// Ensures filter lookups are ready before the sheet opens, showing a
   /// graceful loader only while the (first) fetch is in flight.
   Future<void> ensureFilterData() async {
-    if (_filterBranchesLoaded && branches.isNotEmpty) return;
-    if (!showBranch) return;
     isFilterLoading.value = true;
     try {
+      if (showBranch){
       await fetchBranches();
+      }
+      if (!showBranch) {
+        await fetchFilterLookups();
+      }
     } finally {
       isFilterLoading.value = false;
     }
@@ -177,12 +306,17 @@ class ProductsController extends GetxController {
     loadFailed.value = false;
     final response = await _repository.getProducts(
       page: 1,
-      status: key,
+      status: _filterStatus ?? key,
       search: searchCtrl.text.trim(),
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
       quickRange: _filterQuickRange,
       branchId: _filterBranchId,
+      productType: _filterProductType,
+      brandId: _filterBrandId,
+      categoryId: _filterCategoryId,
+      tagId: _filterTagId,
+      unitId: _filterUnitId,
     );
 
     // Superseded — a newer request (filter change / tab switch / refresh)
@@ -226,12 +360,17 @@ class ProductsController extends GetxController {
     isLoadingMore.value = true;
     final response = await _repository.getProducts(
       page: current + 1,
-      status: key,
+      status: _filterStatus ?? key,
       search: searchCtrl.text.trim(),
       fromDate: _toApiDate(fromDateCtrl.text),
       toDate: _toApiDate(toDateCtrl.text),
       quickRange: _filterQuickRange,
       branchId: _filterBranchId,
+      productType: _filterProductType,
+      brandId: _filterBrandId,
+      categoryId: _filterCategoryId,
+      tagId: _filterTagId,
+      unitId: _filterUnitId,
     );
 
     // Superseded — drop the stale page so it never appends onto a reloaded
@@ -292,11 +431,8 @@ class ProductsController extends GetxController {
 
   void openFilter(BuildContext context) async {
     final needsFetch =
-        showBranch && (!_filterBranchesLoaded || branches.isEmpty);
-    await runWithFilterLoader(
-      () => ensureFilterData(),
-      shouldShow: needsFetch,
-    );
+        !_filterBranchesLoaded || (!showBranch && !_filterLookupsLoaded);
+    await runWithFilterLoader(() => ensureFilterData(), shouldShow: needsFetch);
     if (isClosed) return;
     if (!context.mounted) return;
     _showFilterSheet(context);
@@ -318,6 +454,22 @@ class ProductsController extends GetxController {
           dropdownItems: quickRangeOptions,
           selectedValue: selectedQuickRange,
         ),
+        if (!showBranch)
+          FilterField(
+            label: 'inventory.status'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: statusFilterCtrl,
+            dropdownItems: statusFilterOptions,
+            selectedValue: selectedStatusFilter,
+          ),
+        if (!showBranch)
+          FilterField(
+            label: 'addProduct.labels.productType'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: productTypeFilterCtrl,
+            dropdownItems: productTypeFilterOptions,
+            selectedValue: selectedProductTypeFilter,
+          ),
         FilterField(
           label: 'products.filter.fromDate'.trns(),
           type: FilterFieldType.date,
@@ -329,12 +481,48 @@ class ProductsController extends GetxController {
           controller: toDateCtrl,
         ),
         if (showBranch)
+        FilterField(
+          label: 'products.filter.branches'.trns(),
+          type: FilterFieldType.dropdown,
+          controller: branchFilterCtrl,
+          dropdownItems: branchFilterOptions,
+          selectedValue: selectedBranchFilter,
+        ),
+        if (!showBranch)
           FilterField(
-            label: 'products.filter.branches'.trns(),
+            label: 'addProduct.labels.brand'.trns(),
             type: FilterFieldType.dropdown,
-            controller: branchFilterCtrl,
-            dropdownItems: branchFilterOptions,
-            selectedValue: selectedBranchFilter,
+            controller: brandFilterCtrl,
+            dropdownItems: brandFilterOptions,
+            selectedValue: selectedBrandFilter,
+            showSearch: true,
+          ),
+        if (!showBranch)
+          FilterField(
+            label: 'addProduct.labels.categories'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: categoryFilterCtrl,
+            dropdownItems: categoryFilterOptions,
+            selectedValue: selectedCategoryFilter,
+            showSearch: true,
+          ),
+        if (!showBranch)
+          FilterField(
+            label: 'addProduct.labels.tags'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: tagFilterCtrl,
+            dropdownItems: tagFilterOptions,
+            selectedValue: selectedTagFilter,
+            showSearch: true,
+          ),
+        if (!showBranch)
+          FilterField(
+            label: 'addProduct.labels.units'.trns(),
+            type: FilterFieldType.dropdown,
+            controller: unitFilterCtrl,
+            dropdownItems: unitFilterOptions,
+            selectedValue: selectedUnitFilter,
+            showSearch: true,
           ),
       ],
       onReset: resetFilters,
@@ -374,8 +562,20 @@ class ProductsController extends GetxController {
     toDateCtrl.clear();
     branchFilterCtrl.clear();
     quickRangeCtrl.clear();
+    statusFilterCtrl.clear();
+    productTypeFilterCtrl.clear();
+    brandFilterCtrl.clear();
+    categoryFilterCtrl.clear();
+    tagFilterCtrl.clear();
+    unitFilterCtrl.clear();
     selectedBranchFilter.value = '';
     selectedQuickRange.value = '';
+    selectedStatusFilter.value = '';
+    selectedProductTypeFilter.value = '';
+    selectedBrandFilter.value = '';
+    selectedCategoryFilter.value = '';
+    selectedTagFilter.value = '';
+    selectedUnitFilter.value = '';
   }
 
   // ─── Mutations ───────────────────────────────────────────────────────────

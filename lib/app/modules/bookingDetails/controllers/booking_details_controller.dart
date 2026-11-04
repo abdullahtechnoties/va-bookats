@@ -6,10 +6,12 @@ import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/utilities/booking_closing_guard.dart';
 
 class BookingDetailsController extends GetxController {
   BookingDetailsController({BookingRepository? repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final BookingRepository? _repository;
   BookingRepository get _repo {
@@ -26,6 +28,7 @@ class BookingDetailsController extends GetxController {
   final RxBool isLoading = true.obs;
   final RxBool loadFailed = false.obs;
   final RxnInt busyStatus = RxnInt();
+  final AuthService _auth = Get.find<AuthService>();
 
   int? _bookingId;
 
@@ -89,8 +92,7 @@ class BookingDetailsController extends GetxController {
       );
       return;
     }
-    final result =
-        await Get.toNamed(Routes.CREATE_BOOKING, arguments: current);
+    final result = await Get.toNamed(Routes.CREATE_BOOKING, arguments: current);
     if (result is BookingModel) {
       booking.value = result;
     } else {
@@ -107,6 +109,13 @@ class BookingDetailsController extends GetxController {
   }) async {
     final current = booking.value;
     if (current == null || newStatus == current.status) return;
+    if (!await ensureBookingClosingAllowed(
+      repository: _repo,
+      auth: _auth,
+      branchId: current.branchId,
+    )) {
+      return;
+    }
     busyStatus.value = current.id;
     final res = await _repo.changeBookingStatus(
       id: current.id,

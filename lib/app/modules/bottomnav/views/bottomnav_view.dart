@@ -9,6 +9,9 @@ import 'package:va_bookats/app/modules/services/views/services_view.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/permissions_helper.dart';
+import 'package:va_bookats/app/modules/bookings/repositories/booking_repository.dart';
+import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/utilities/booking_closing_guard.dart';
 import '../../home/views/home_view.dart';
 
 // ─────────────────────────────────────────────
@@ -81,7 +84,7 @@ class BottomnavView extends GetView<BottomnavController> {
                   shape: RoundedRectangleBorder(
                     side: const BorderSide(
                       color: AppColors.primary,
-                    style: BorderStyle.solid
+                      style: BorderStyle.solid,
                     ),
 
                     borderRadius: BorderRadius.circular(5),
@@ -90,7 +93,10 @@ class BottomnavView extends GetView<BottomnavController> {
                 onPressed: () {
                   Get.back(result: false);
                 },
-                child: const Text('No', style: TextStyle(color: AppColors.primary)),
+                child: const Text(
+                  'No',
+                  style: TextStyle(color: AppColors.primary),
+                ),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -108,11 +114,11 @@ class BottomnavView extends GetView<BottomnavController> {
             ],
           ),
         );
-          // If user confirmed, exit the app
-   
-    if (shouldExit == true) {
-      SystemNavigator.pop(); // or exit(0);
-    }
+        // If user confirmed, exit the app
+
+        if (shouldExit == true) {
+          SystemNavigator.pop(); // or exit(0);
+        }
       },
       child: Scaffold(
         key: controller.scaffoldKey,
@@ -129,11 +135,17 @@ class BottomnavView extends GetView<BottomnavController> {
         // graceful "no access" popup instead of navigating.
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppColors.primary,
-          onPressed: () {
+          onPressed: () async {
             if (!Permissions.can(AppPerm.create(AppPerm.bookings))) {
               showNoAccessDialog();
               return;
             }
+            final allowed = await ensureBookingClosingAllowed(
+              repository: Get.find<BookingRepository>(),
+              auth: Get.find<AuthService>(),
+              branchId: Get.find<AuthService>().currentUser.value?.branchId,
+            );
+            if (!allowed) return;
             Get.toNamed(Routes.CREATE_BOOKING);
           },
           shape: const CircleBorder(),

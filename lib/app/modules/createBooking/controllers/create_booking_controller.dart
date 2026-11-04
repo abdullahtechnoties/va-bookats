@@ -307,7 +307,10 @@ class CreateBookingController extends GetxController {
       if (userBranch != null) selectedBranchId.value = userBranch;
     }
     _readArguments();
-    if (branches.isEmpty && Get.arguments is! int && !isEditMode && showBranch) {
+    if (branches.isEmpty &&
+        Get.arguments is! int &&
+        !isEditMode &&
+        showBranch) {
       await fetchBranches();
     }
     // fetchCustomers();

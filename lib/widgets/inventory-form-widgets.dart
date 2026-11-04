@@ -218,6 +218,7 @@ class InventoryImageField extends StatelessWidget {
     return Obx(() {
       final picked = controller.pickedImage.value;
       final preview = controller.imagePreviewUrl;
+
       return Row(
         children: [
           if (preview != null && preview.isNotEmpty)
@@ -253,7 +254,7 @@ class InventoryImageField extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  (picked == null ? chooseKey : changeKey).trns(),
+                  (preview == null ? chooseKey : changeKey).trns(),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,

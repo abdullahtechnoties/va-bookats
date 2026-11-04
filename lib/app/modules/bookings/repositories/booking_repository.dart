@@ -76,6 +76,28 @@ class ProductDraft {
 class BookingRepository {
   final NetworkService _network = Get.find<NetworkService>();
 
+  Future<ApiResponse<bool>> checkBookingClosing(int branchId) async {
+    final response = await _network.post(
+      endpoint: ApiPath.bookingClosingCheck,
+      body: {'branch_id': branchId},
+    );
+    if (!response.isCompleted || response.data == null) {
+      return ApiResponse.error(
+        response.message ?? 'errors.requestFailed'.trns(),
+        errors: response.errors,
+      );
+    }
+
+    final body = response.data!;
+    final success = body['success'];
+    final allowed =
+        success == true || success?.toString().toLowerCase() == 'true';
+    return ApiResponse.completed(
+      allowed,
+      message: body['message']?.toString() ?? response.message,
+    );
+  }
+
   Future<ApiResponse<List<LookupOption>>> getBranchServices(
     int branchId,
   ) async {

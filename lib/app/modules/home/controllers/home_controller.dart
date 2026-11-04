@@ -12,6 +12,7 @@ import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
+import 'package:va_bookats/utilities/booking_closing_guard.dart';
 
 class HomeController extends GetxController {
   HomeController({BookingRepository? repository}) : _repository = repository;
@@ -123,6 +124,13 @@ class HomeController extends GetxController {
   }
 
   Future<void> openCreate() async {
+    if (!await ensureBookingClosingAllowed(
+      repository: _repo,
+      auth: auth,
+      branchId: auth.currentUser.value?.branchId,
+    )) {
+      return;
+    }
     await Get.toNamed(Routes.CREATE_BOOKING);
     handleRefresh();
   }
@@ -136,6 +144,13 @@ class HomeController extends GetxController {
     int? mediaId,
   }) async {
     if (newStatus == booking.status) return;
+    if (!await ensureBookingClosingAllowed(
+      repository: _repo,
+      auth: auth,
+      branchId: booking.branchId,
+    )) {
+      return;
+    }
     busyBookingId.value = booking.id;
     final response = await _repo.changeBookingStatus(
       id: booking.id,

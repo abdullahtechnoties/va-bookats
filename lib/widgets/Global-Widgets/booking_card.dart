@@ -161,7 +161,7 @@ class BookingCard extends StatelessWidget {
                       Text(
                         booking.displayName,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: AppColors.black,
                         ),
@@ -192,6 +192,84 @@ class BookingCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+                // Spacer(),
+                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'home.booking.card.bookingStatus'.trns(),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF888888),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Can.all(
+                      [AppPerm.update(AppPerm.bookings), AppPerm.edit(AppPerm.bookings)], 
+                      fallback: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _statusColor(booking.status),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          booking.status,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: _statusTextColor(booking.status),
+                          ),
+                        ),
+                      ),
+                      child: GestureDetector(
+                        onTap: isBusy ? null : onStatusTap,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _statusColor(booking.status),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: isBusy
+                              ? const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      booking.status,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: _statusTextColor(booking.status),
+                                      ),
+                                    ),
+                                    if (onStatusTap != null) ...[
+                                      const SizedBox(width: 2),
+                                      Icon(
+                                        Icons.arrow_drop_down,
+                                        size: 16,
+                                        color: _statusTextColor(booking.status),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -318,83 +396,7 @@ class BookingCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'home.booking.card.bookingStatus'.trns(),
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF888888),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Can.all(
-                      [AppPerm.update(AppPerm.bookings), AppPerm.edit(AppPerm.bookings)], 
-                      fallback: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _statusColor(booking.status),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          booking.status,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: _statusTextColor(booking.status),
-                          ),
-                        ),
-                      ),
-                      child: GestureDetector(
-                        onTap: isBusy ? null : onStatusTap,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _statusColor(booking.status),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: isBusy
-                              ? const SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      booking.status,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: _statusTextColor(booking.status),
-                                      ),
-                                    ),
-                                    if (onStatusTap != null) ...[
-                                      const SizedBox(width: 2),
-                                      Icon(
-                                        Icons.arrow_drop_down,
-                                        size: 16,
-                                        color: _statusTextColor(booking.status),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+               
                 Row(
                   children: [
                     if (onEdit != null && booking.isEditable)
@@ -457,7 +459,7 @@ class BookingCard extends StatelessWidget {
                         onTap: onViewDetails,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 22,
+                            horizontal: 52,
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(

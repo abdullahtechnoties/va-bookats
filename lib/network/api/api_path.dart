@@ -146,6 +146,7 @@ class ApiPath {
 
   // Bookings
   static const String bookings = '/bookings';
+  static const String bookingClosingCheck = '/bookings/closing-check';
   static String booking(int id) => '/bookings/$id';
   static String bookingStatus(int id) => '/bookings/$id/status';
   static String bookingDetails(int id) => '/bookings/$id/details';

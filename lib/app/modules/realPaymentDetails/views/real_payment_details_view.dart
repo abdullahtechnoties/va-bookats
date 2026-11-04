@@ -50,7 +50,7 @@ class RealPaymentDetailsView extends GetView<RealPaymentDetailsController> {
                         _SlipCard(payment: payment),
                         const SizedBox(height: 14),
                       ],
-                      if (payment.branch != null) ...[
+                      if (payment.branch != null && controller.showBranch) ...[
                         _BranchCard(branch: payment.branch!),
                         const SizedBox(height: 14),
                       ],

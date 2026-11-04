@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/appDrawer/controllers/app_drawer_controller.dart';
+import 'package:va_bookats/app/modules/bookings/repositories/booking_repository.dart';
 import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/utilities/booking_closing_guard.dart';
 import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
@@ -24,11 +26,12 @@ class AppDrawerView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
-              onTap:() {
+              onTap: () {
                 Get.find<BottomnavController>().closeDrawer();
                 Get.find<BottomnavController>().changeTabIndex(3);
               },
-              child: _buildHeader(context, controller)),
+              child: _buildHeader(context, controller),
+            ),
             const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
             const SizedBox(height: 8),
             Expanded(
@@ -93,17 +96,17 @@ class AppDrawerView extends StatelessWidget {
                       },
                     ),
                   ),
-                  if(Get.find<AuthService>().isOwner)
-                  _DrawerExpandable(
-                    icon: Icons.insert_drive_file_outlined,
-                    label: 'drawer.reporting'.trns(),
-                    isExpanded: controller.isReportingExpanded,
-                    onTap: controller.toggleReporting,
-                    subItems: controller.reportingSubItems,
-                    onSubItemTap: (item) {
-                      _handleReportNavigation(item);
-                    },
-                  ),
+                  if (Get.find<AuthService>().isOwner)
+                    _DrawerExpandable(
+                      icon: Icons.insert_drive_file_outlined,
+                      label: 'drawer.reporting'.trns(),
+                      isExpanded: controller.isReportingExpanded,
+                      onTap: controller.toggleReporting,
+                      subItems: controller.reportingSubItems,
+                      onSubItemTap: (item) {
+                        _handleReportNavigation(item);
+                      },
+                    ),
                   _DrawerSimpleItem(
                     icon: Icons.person_outline_rounded,
                     label: 'drawer.profile'.trns(),
@@ -155,9 +158,18 @@ class AppDrawerView extends StatelessWidget {
         Get.toNamed(Routes.ALL_BOOKING);
         break;
       case 'Add Booking':
-        Get.toNamed(Routes.CREATE_BOOKING);
+        _openCreateBooking();
         break;
     }
+  }
+
+  Future<void> _openCreateBooking() async {
+    final allowed = await ensureBookingClosingAllowed(
+      repository: Get.find<BookingRepository>(),
+      auth: Get.find<AuthService>(),
+      branchId: Get.find<AuthService>().currentUser.value?.branchId,
+    );
+    if (allowed) Get.toNamed(Routes.CREATE_BOOKING);
   }
 
   void _handleInventoryNavigation(String item) {

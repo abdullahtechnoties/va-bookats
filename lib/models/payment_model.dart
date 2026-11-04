@@ -138,6 +138,29 @@ class PaymentModel {
     this.branchh,
   });
 
+  PaymentModel copyWith({String? status}) {
+    return PaymentModel(
+      id: id,
+      bookingId: bookingId,
+      branchId: branchId,
+      customerId: customerId,
+      transactionId: transactionId,
+      totalAmount: totalAmount,
+      paidAmount: paidAmount,
+      balance: balance,
+      discountAmount: discountAmount,
+      paymentMethod: paymentMethod,
+      date: date,
+      status: status ?? this.status,
+      createdAt: createdAt,
+      slipUrl: slipUrl,
+      slipThumbUrl: slipThumbUrl,
+      branch: branch,
+      booking: booking,
+      branchh: branchh,
+    );
+  }
+
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic>? map(dynamic v) =>
         v is Map ? Map<String, dynamic>.from(v) : null;
@@ -164,9 +187,7 @@ class PaymentModel {
           ? null
           : PaymentBooking.fromJson(bookingJson),
       branchh: json['branch'] != null
-          ? ClosingBranchModel.fromJson(
-              json['branch'] as Map<String, dynamic>,
-            )
+          ? ClosingBranchModel.fromJson(json['branch'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -184,8 +205,16 @@ class PaymentModel {
       grandTotal: totalAmount ?? '0.00',
       status: status,
       customerName: booking?.displayName ?? '—',
-      customerEmail: customer?.email ?? booking?.guestEmail ?? booking?.customer?.email ?? '—',
-      customerPhone: customer?.phone ?? booking?.guestPhone ?? booking?.customer?.phone ?? '—',
+      customerEmail:
+          customer?.email ??
+          booking?.guestEmail ??
+          booking?.customer?.email ??
+          '—',
+      customerPhone:
+          customer?.phone ??
+          booking?.guestPhone ??
+          booking?.customer?.phone ??
+          '—',
       branch: branch?.name ?? '—',
       total: totalAmount ?? '0.00',
       paid: paidAmount ?? '0.00',

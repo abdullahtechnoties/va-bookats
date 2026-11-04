@@ -1441,6 +1441,12 @@
     "paid": "Paid",
     "remaining": "Remaining",
     "viewDetails": "View Details",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteDialogTitle": "Delete Payment",
+    "deleteDialogMessage": "Are you sure you want to delete this payment?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMessage": "Payment deleted successfully.",
     "empty": "No payments found",
     "loadError": "Failed to load payments.\nPull to refresh or try again.",
     "retry": "Retry"

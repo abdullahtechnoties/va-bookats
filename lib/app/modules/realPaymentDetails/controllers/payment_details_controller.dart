@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:va_bookats/app/modules/payments/repositories/payment_repository.dart';
 import 'package:va_bookats/models/payment_model.dart';
+import 'package:va_bookats/network/service/auth_service.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/translation_extention.dart';
 
@@ -17,6 +18,10 @@ class RealPaymentDetailsController extends GetxController {
     }
     return PaymentRepository();
   }
+
+  final AuthService _authService = Get.find<AuthService>();
+
+  bool get showBranch => _authService.isOwner;
 
   final Rxn<PaymentModel> payment = Rxn<PaymentModel>();
   final RxBool isLoading = true.obs;

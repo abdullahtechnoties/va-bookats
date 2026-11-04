@@ -200,6 +200,9 @@ class InventoryItemCard extends StatelessWidget {
   bool _allowed(String? permission) =>
       permission == null || Permissions.can(permission);
 
+  bool get _canChangeStatus =>
+      updatePermission != null && Permissions.can(updatePermission!);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -245,16 +248,16 @@ class InventoryItemCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (onStatusTap != null && _allowed(statusPermission))
+                    if (onStatusTap != null && _canChangeStatus)
                       GestureDetector(
-                        onTap: _allowed(updatePermission) && _allowed(editPermission) ? null : onStatusTap,
+                        onTap: onStatusTap,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFDE3D9), 
+                            color: const Color(0xFFFDE3D9),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: isBusy
@@ -277,13 +280,14 @@ class InventoryItemCard extends StatelessWidget {
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    if (_allowed(updatePermission) && _allowed(editPermission)) ...[
-                                    const SizedBox(width: 4),
-                                    const Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      size: 14,
-                                      color: AppColors.black,
-                                    ),
+                                    if (_allowed(updatePermission) &&
+                                        _allowed(editPermission)) ...[
+                                      const SizedBox(width: 4),
+                                      const Icon(
+                                        Icons.keyboard_arrow_down_rounded,
+                                        size: 14,
+                                        color: AppColors.black,
+                                      ),
                                     ],
                                   ],
                                 ),
@@ -312,8 +316,7 @@ class InventoryItemCard extends StatelessWidget {
                 ),
             ],
           ),
-          if (showImage)
-          const SizedBox(height: 16),
+          if (showImage) const SizedBox(height: 16),
 
           // Details Rows
           if (showImage)
@@ -335,12 +338,16 @@ class InventoryItemCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     name,
-                    style: const TextStyle(color: AppColors.grey, fontSize: 14, overflow: TextOverflow.ellipsis),
+                    style: const TextStyle(
+                      color: AppColors.grey,
+                      fontSize: 14,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 GestureDetector(
-                  onTap: (_allowed(updatePermission)  && _allowed(editPermission)) ?  () => onStatusTap?.call() : null,
+                  onTap: _canChangeStatus ? onStatusTap : null,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -370,13 +377,14 @@ class InventoryItemCard extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              if (_allowed(updatePermission) && _allowed(editPermission)) ...[
-                              const SizedBox(width: 4),
-                               const Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                size: 14,
-                                color: AppColors.black,
-                              ),
+                              if (_allowed(updatePermission) &&
+                                  _allowed(editPermission)) ...[
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 14,
+                                  color: AppColors.black,
+                                ),
                               ],
                             ],
                           ),

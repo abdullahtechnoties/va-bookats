@@ -573,9 +573,9 @@ class _ProfileImageField extends StatelessWidget {
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Center(
+                child:  Center(
                   child: Text(
-                    'Choose File',
+                    imageUrl != null ? 'addProductCategory.changeImage'.trns() : 'addProductCategory.chooseImage'.trns(),
                     style: TextStyle(
                       color: AppColors.white,
                       fontSize: 13,

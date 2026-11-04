@@ -35,7 +35,7 @@ class PaymentRepository {
         'page': page,
         if (status != null && status.isNotEmpty) 'status': status,
         if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
-        if (branchId != null) 'branch_id': branchId,
+        'branch_id': ?branchId,
         if (fromDate != null && fromDate.isNotEmpty) 'from_date': fromDate,
         if (toDate != null && toDate.isNotEmpty) 'to_date': toDate,
         if (quickRange != null && quickRange.isNotEmpty)
@@ -84,6 +84,36 @@ class PaymentRepository {
       PaymentModel.fromJson(Map<String, dynamic>.from(raw)),
       message: response.message,
     );
+  }
+
+  /// DELETE /payments/{id}
+  Future<ApiResponse<void>> deletePayment(int id) async {
+    final response = await _network.delete(endpoint: ApiPath.payment(id));
+    if (!response.isCompleted) {
+      return ApiResponse.error(
+        response.message ?? 'errors.requestFailed'.trns(),
+        errors: response.errors,
+      );
+    }
+    return ApiResponse.completed(null, message: response.message);
+  }
+
+  /// PUT /payments/{id}/status
+  Future<ApiResponse<Map<String, dynamic>>> updatePaymentStatus({
+    required int paymentId,
+    required String status,
+  }) async {
+    final response = await _network.put(
+      endpoint: ApiPath.paymentStatus(paymentId),
+      body: {'status': status},
+    );
+    if (!response.isCompleted || response.data == null) {
+      return ApiResponse.error(
+        response.message ?? 'errors.requestFailed'.trns(),
+        errors: response.errors,
+      );
+    }
+    return ApiResponse.completed(response.data!, message: response.message);
   }
 
   /// GET /data/branches — top-level JSON array (for the branch filter).

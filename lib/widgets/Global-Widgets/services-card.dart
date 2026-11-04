@@ -209,7 +209,7 @@ class ServiceCard extends StatelessWidget {
                             [AppPerm.update(AppPerm.services), AppPerm.edit(AppPerm.services)],
                             fallback: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
+                                horizontal: 10,
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
@@ -231,7 +231,7 @@ class ServiceCard extends StatelessWidget {
                               onTap: isBusy ? null : onStatusTap,
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
+                                  horizontal: 10,
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
