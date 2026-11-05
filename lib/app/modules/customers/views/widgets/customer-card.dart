@@ -211,6 +211,7 @@ class CustomerCard extends StatelessWidget {
               // Actions — edit / delete (status toggles via the pill above)
               Can.any(
                 [
+                  AppPerm.show(AppPerm.customers),
                   AppPerm.edit(AppPerm.customers),
                   AppPerm.destroy(AppPerm.customers),
                 ],

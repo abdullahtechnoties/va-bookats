@@ -147,9 +147,10 @@ class AddProductController extends GetxController {
     super.onInit();
     _extractArguments();
     if (!isEditMode && isOwner) {
+      print('AddProductController: fetching branches for owner');
       fetchBranches();
     }
-    if (!isOwner && userBranchId != null) {
+    if (!isOwner && userBranchId != null && !isEditMode) {
       print('AddProductController: auto-selecting user branch $userBranchId');
       selectBranch(userBranchId!);
     }
@@ -317,6 +318,11 @@ class AddProductController extends GetxController {
     productType.value = value;
     if (value == ProductType.variation) {
       await loadVariationTypes();
+    }
+    // add a new empty set when switching to variation product type
+    if (value == ProductType.variation && sets.isEmpty) {
+      addSet();
+
     }
   }
 

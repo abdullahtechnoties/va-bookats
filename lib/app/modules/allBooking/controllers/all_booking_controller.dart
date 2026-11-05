@@ -572,35 +572,38 @@ class AllBookingController extends GetxController {
     int? mediaId,
   }) async {
     if (newStatus == booking.status) return;
-    if (!await ensureBookingClosingAllowed(
+    await runBookingClosingProtected(
       repository: _repo,
       auth: _auth,
       branchId: booking.branchId,
-    )) {
-      return;
-    }
-    busyBookingId.value = booking.id;
-    final response = await _repo.changeBookingStatus(
-      id: booking.id,
-      status: newStatus,
-      returnAmount: returnAmount,
-      paymentMethod: paymentMethod,
-      transactionId: transactionId,
-      mediaId: mediaId,
+      action: () async {
+        busyBookingId.value = booking.id;
+        try {
+          final response = await _repo.changeBookingStatus(
+            id: booking.id,
+            status: newStatus,
+            returnAmount: returnAmount,
+            paymentMethod: paymentMethod,
+            transactionId: transactionId,
+            mediaId: mediaId,
+          );
+          if (response.isCompleted && response.data != null) {
+            _moveBooking(booking, response.data!);
+            SnackbarService.showSuccess(
+              title: 'common.success'.trns(),
+              message: response.message ?? 'Status updated successfully!',
+            );
+          } else {
+            SnackbarService.showError(
+              title: 'common.error'.trns(),
+              message: response.message ?? 'errors.requestFailed'.trns(),
+            );
+          }
+        } finally {
+          busyBookingId.value = null;
+        }
+      },
     );
-    busyBookingId.value = null;
-    if (response.isCompleted && response.data != null) {
-      _moveBooking(booking, response.data!);
-      SnackbarService.showSuccess(
-        title: 'common.success'.trns(),
-        message: response.message ?? 'Status updated successfully!',
-      );
-    } else {
-      SnackbarService.showError(
-        title: 'common.error'.trns(),
-        message: response.message ?? 'errors.requestFailed'.trns(),
-      );
-    }
   }
 
   Future<void> deleteBooking(BookingModel booking) async {
@@ -672,17 +675,26 @@ class AllBookingController extends GetxController {
   }
 
   Future<void> openCreate({BookingModel? booking}) async {
-    if (booking == null &&
-        !await ensureBookingClosingAllowed(
-          repository: _repo,
-          auth: _auth,
-          branchId: _auth.currentUser.value?.branchId,
-        )) {
+    if (booking == null) {
+      await runBookingClosingProtected(
+        repository: _repo,
+        auth: _auth,
+        branchId: _auth.currentUser.value?.branchId,
+        action: () async {
+          final result = await Get.toNamed(
+            Routes.CREATE_BOOKING,
+            arguments: booking,
+          );
+          _handleCreateResult(result);
+        },
+      );
       return;
     }
     final result = await Get.toNamed(Routes.CREATE_BOOKING, arguments: booking);
-    // After submission the form pops with the created/updated booking so the
-    // list can jump to its status tab and reflect it immediately.
+    _handleCreateResult(result);
+  }
+
+  void _handleCreateResult(dynamic result) {
     if (result is BookingModel) {
       final idx = tabStatuses.indexWhere(
         (s) => s.toLowerCase() == result.status.toLowerCase(),

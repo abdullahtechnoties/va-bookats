@@ -19,6 +19,41 @@ class BookingsPage {
   const BookingsPage({required this.bookings, required this.meta});
 }
 
+class BookingPricingRules {
+  final bool serviceAmountEdit;
+  final bool serviceAdditionalAmount;
+  final bool packageAmountEdit;
+  final bool packageAdditionalAmount;
+
+  const BookingPricingRules({
+    required this.serviceAmountEdit,
+    required this.serviceAdditionalAmount,
+    required this.packageAmountEdit,
+    required this.packageAdditionalAmount,
+  });
+
+  const BookingPricingRules.defaults()
+      : serviceAmountEdit = false,
+        serviceAdditionalAmount = false,
+        packageAmountEdit = false,
+        packageAdditionalAmount = false;
+
+  factory BookingPricingRules.fromJson(Map<String, dynamic> json) {
+    final service = json['service'] is Map
+        ? Map<String, dynamic>.from(json['service'] as Map)
+        : const <String, dynamic>{};
+    final package = json['package'] is Map
+        ? Map<String, dynamic>.from(json['package'] as Map)
+        : const <String, dynamic>{};
+    return BookingPricingRules(
+      serviceAmountEdit: service['amount_edit'] == true,
+      serviceAdditionalAmount: service['additional_amount'] == true,
+      packageAmountEdit: package['amount_edit'] == true,
+      packageAdditionalAmount: package['additional_amount'] == true,
+    );
+  }
+}
+
 class ServiceDraft {
   final int serviceId;
   final int? variationId;
@@ -26,6 +61,7 @@ class ServiceDraft {
   final String amount;
   final String discount;
   final String totalAmount;
+  final String additionalAmount;
 
   const ServiceDraft({
     required this.serviceId,
@@ -34,6 +70,7 @@ class ServiceDraft {
     required this.amount,
     required this.discount,
     required this.totalAmount,
+    this.additionalAmount = '0',
   });
 }
 
@@ -42,6 +79,7 @@ class PackageDraft {
   final String amount;
   final String discount;
   final String totalAmount;
+  final String additionalAmount;
   final List<int> staffIds;
 
   const PackageDraft({
@@ -50,6 +88,7 @@ class PackageDraft {
     required this.discount,
     required this.totalAmount,
     this.staffIds = const [],
+    this.additionalAmount = '0',
   });
 }
 
@@ -75,6 +114,22 @@ class ProductDraft {
 
 class BookingRepository {
   final NetworkService _network = Get.find<NetworkService>();
+
+  Future<ApiResponse<BookingPricingRules>> getPricingRules() async {
+    final response = await _network.get(
+      endpoint: ApiPath.bookingPricingRules,
+    );
+    if (!response.isCompleted || response.data == null) {
+      return ApiResponse.error(
+        response.message ?? 'errors.requestFailed'.trns(),
+        errors: response.errors,
+      );
+    }
+    return ApiResponse.completed(
+      BookingPricingRules.fromJson(response.data!),
+      message: response.message,
+    );
+  }
 
   Future<ApiResponse<bool>> checkBookingClosing(int branchId) async {
     final response = await _network.post(
@@ -608,12 +663,14 @@ class BookingRepository {
         'serviceItems[$i][amount]': services[i].amount,
         'serviceItems[$i][discount]': services[i].discount,
         'serviceItems[$i][total_amount]': services[i].totalAmount,
+        'serviceItems[$i][additional_amount]': services[i].additionalAmount,
       },
       for (var i = 0; i < packages.length; i++) ...{
         'packageItems[$i][package_id]': packages[i].packageId,
         'packageItems[$i][amount]': packages[i].amount,
         'packageItems[$i][discount]': packages[i].discount,
         'packageItems[$i][total_amount]': packages[i].totalAmount,
+        'packageItems[$i][additional_amount]': packages[i].additionalAmount,
         for (var j = 0; j < packages[i].staffIds.length; j++)
           'packageItems[$i][staff_ids][$j]': packages[i].staffIds[j],
       },

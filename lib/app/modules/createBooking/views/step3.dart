@@ -232,16 +232,34 @@ class Step3Services extends GetView<CreateBookingController> {
                             ),
                           ),
                         const SizedBox(height: 16),
+                        if (controller.canAddServiceAmount) ...[
+                          _FieldLabel(
+                            'createBooking.step3.additionalAmount'.trns(),
+                          ),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintText: '00',
+                            controller: item.additionalAmountCtrl,
+                            keyboardType: TextInputType.number,
+                            height: 50,
+                            hintTextSize: 13,
+                            onChanged: (_) =>
+                                controller.recalcServiceRow(item),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         _FieldLabel('createBooking.step3.amount'.trns()),
                         const SizedBox(height: 8),
                         CommonTextInputField(
                           hintText: '00',
                           controller: item.amountCtrl,
                           keyboardType: TextInputType.number,
-                          readOnly: true,
-                          enabled: false,
+                          readOnly: !controller.canEditServiceAmount,
+                          enabled: controller.canEditServiceAmount,
                           height: 50,
                           hintTextSize: 13,
+                          onChanged: (_) =>
+                              controller.recalcServiceRow(item),
                         ),
                         const SizedBox(height: 16),
                         _FieldLabel('createBooking.step3.discount'.trns()),

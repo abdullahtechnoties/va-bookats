@@ -213,18 +213,36 @@ class Step2Packages extends GetView<CreateBookingController> {
                             ),
                           ),
                         const SizedBox(height: 16),
+                        if (controller.canAddPackageAmount) ...[
+                          _FieldLabel(
+                            'createBooking.step2.additionalAmount'.trns(),
+                          ),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintTextColor: AppColors.grey,
+                            hintText: '00',
+                            controller: item.additionalAmountCtrl,
+                            keyboardType: TextInputType.number,
+                            height: 50,
+                            hintTextSize: 13,
+                            onChanged: (_) =>
+                                controller.recalcPackageRow(item),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         _FieldLabel('createBooking.step2.amount'.trns()),
                         const SizedBox(height: 8),
                         CommonTextInputField(
-                          
                           hintTextColor: AppColors.grey,
                           hintText: '00',
                           controller: item.amountCtrl,
                           keyboardType: TextInputType.number,
-                          readOnly:  true,
-                          enabled: false,
+                          readOnly: !controller.canEditPackageAmount,
+                          enabled: controller.canEditPackageAmount,
                           height: 50,
                           hintTextSize: 13,
+                          onChanged: (_) =>
+                              controller.recalcPackageRow(item),
                         ),
                         const SizedBox(height: 16),
                         _FieldLabel('createBooking.step2.discount'.trns()),

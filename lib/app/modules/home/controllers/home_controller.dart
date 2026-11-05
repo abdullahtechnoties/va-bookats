@@ -124,15 +124,15 @@ class HomeController extends GetxController {
   }
 
   Future<void> openCreate() async {
-    if (!await ensureBookingClosingAllowed(
+    await runBookingClosingProtected(
       repository: _repo,
       auth: auth,
       branchId: auth.currentUser.value?.branchId,
-    )) {
-      return;
-    }
-    await Get.toNamed(Routes.CREATE_BOOKING);
-    handleRefresh();
+      action: () async {
+        await Get.toNamed(Routes.CREATE_BOOKING);
+        handleRefresh();
+      },
+    );
   }
 
   Future<void> changeStatus(
@@ -144,35 +144,38 @@ class HomeController extends GetxController {
     int? mediaId,
   }) async {
     if (newStatus == booking.status) return;
-    if (!await ensureBookingClosingAllowed(
+    await runBookingClosingProtected(
       repository: _repo,
       auth: auth,
       branchId: booking.branchId,
-    )) {
-      return;
-    }
-    busyBookingId.value = booking.id;
-    final response = await _repo.changeBookingStatus(
-      id: booking.id,
-      status: newStatus,
-      returnAmount: returnAmount,
-      paymentMethod: paymentMethod,
-      transactionId: transactionId,
-      mediaId: mediaId,
+      action: () async {
+        busyBookingId.value = booking.id;
+        try {
+          final response = await _repo.changeBookingStatus(
+            id: booking.id,
+            status: newStatus,
+            returnAmount: returnAmount,
+            paymentMethod: paymentMethod,
+            transactionId: transactionId,
+            mediaId: mediaId,
+          );
+          if (response.isCompleted && response.data != null) {
+            final index = todayBookings.indexWhere((b) => b.id == booking.id);
+            if (index != -1) todayBookings[index] = response.data!;
+            SnackbarService.showSuccess(
+              title: 'common.success'.trns(),
+              message: response.message ?? 'Status updated successfully!',
+            );
+          } else {
+            SnackbarService.showError(
+              title: 'common.error'.trns(),
+              message: response.message ?? 'errors.requestFailed'.trns(),
+            );
+          }
+        } finally {
+          busyBookingId.value = null;
+        }
+      },
     );
-    busyBookingId.value = null;
-    if (response.isCompleted && response.data != null) {
-      final index = todayBookings.indexWhere((b) => b.id == booking.id);
-      if (index != -1) todayBookings[index] = response.data!;
-      SnackbarService.showSuccess(
-        title: 'common.success'.trns(),
-        message: response.message ?? 'Status updated successfully!',
-      );
-    } else {
-      SnackbarService.showError(
-        title: 'common.error'.trns(),
-        message: response.message ?? 'errors.requestFailed'.trns(),
-      );
-    }
   }
 }

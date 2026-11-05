@@ -25,6 +25,7 @@ class PackageFormItem {
   final TextEditingController packageCtrl = TextEditingController();
   final TextEditingController employeeCtrl = TextEditingController();
   final TextEditingController amountCtrl = TextEditingController();
+  final TextEditingController additionalAmountCtrl = TextEditingController();
   final TextEditingController discountCtrl = TextEditingController(text: '');
   final TextEditingController totalCtrl = TextEditingController();
 
@@ -40,6 +41,7 @@ class PackageFormItem {
     packageCtrl.dispose();
     employeeCtrl.dispose();
     amountCtrl.dispose();
+    additionalAmountCtrl.dispose();
     discountCtrl.dispose();
     totalCtrl.dispose();
   }
@@ -60,6 +62,7 @@ class ServiceFormItem {
   final TextEditingController variationCtrl = TextEditingController();
   final TextEditingController employeeCtrl = TextEditingController();
   final TextEditingController amountCtrl = TextEditingController();
+  final TextEditingController additionalAmountCtrl = TextEditingController();
   final TextEditingController discountCtrl = TextEditingController(text: '');
   final TextEditingController totalCtrl = TextEditingController();
 
@@ -80,6 +83,7 @@ class ServiceFormItem {
     variationCtrl.dispose();
     employeeCtrl.dispose();
     amountCtrl.dispose();
+    additionalAmountCtrl.dispose();
     discountCtrl.dispose();
     totalCtrl.dispose();
   }
@@ -254,6 +258,8 @@ class CreateBookingController extends GetxController {
 
   // ── Step 5 ─────────────────────────────────────────────────────────────
   final TextEditingController totalAmountCtrl = TextEditingController();
+  final TextEditingController totalAdditionalAmountCtrl =
+      TextEditingController();
   final TextEditingController discountCtrl = TextEditingController(text: '0');
   final TextEditingController balanceCtrl = TextEditingController();
   final TextEditingController amountPaidCtrl = TextEditingController(text: '');
@@ -274,9 +280,17 @@ class CreateBookingController extends GetxController {
   // ── States ─────────────────────────────────────────────────────────────
   final RxBool isSaving = false.obs;
   final RxBool isLoadingDetail = false.obs;
+  final Rx<BookingPricingRules> pricingRules =
+      const BookingPricingRules.defaults().obs;
 
   BookingModel? _editing;
   bool get isEditMode => _editing != null;
+  bool get canEditServiceAmount => pricingRules.value.serviceAmountEdit;
+  bool get canAddServiceAmount => pricingRules.value.serviceAdditionalAmount;
+  bool get canEditPackageAmount => pricingRules.value.packageAmountEdit;
+  bool get canAddPackageAmount => pricingRules.value.packageAdditionalAmount;
+  bool get showAdditionalAmountTotal =>
+      canAddServiceAmount || canAddPackageAmount;
 
   bool get isDirty {
     if (branchCtrl.text.isNotEmpty ||
@@ -307,6 +321,7 @@ class CreateBookingController extends GetxController {
       if (userBranch != null) selectedBranchId.value = userBranch;
     }
     _readArguments();
+    await fetchPricingRules();
     if (branches.isEmpty &&
         Get.arguments is! int &&
         !isEditMode &&
@@ -319,6 +334,13 @@ class CreateBookingController extends GetxController {
     if (packageItems.isEmpty && _editing == null) addPackage();
     if (serviceItems.isEmpty && _editing == null) addService();
     if (productItems.isEmpty && _editing == null) addProduct();
+  }
+
+  Future<void> fetchPricingRules() async {
+    final response = await _repo.getPricingRules();
+    if (response.isCompleted && response.data != null) {
+      pricingRules.value = response.data!;
+    }
   }
 
   void _readArguments() {
@@ -784,7 +806,8 @@ class CreateBookingController extends GetxController {
     }
     if (found != null) {
       item.amountCtrl.text = found.price;
-      _recalcRowTotal(item.amountCtrl, item.discountCtrl, item.totalCtrl);
+      item.additionalAmountCtrl.clear();
+      recalcPackageRow(item);
     } else {
       item.amountCtrl.clear();
       item.totalCtrl.clear();
@@ -887,6 +910,7 @@ class CreateBookingController extends GetxController {
     }
     if (found == null) {
       item.amountCtrl.clear();
+      item.additionalAmountCtrl.clear();
       item.totalCtrl.clear();
       return;
     }
@@ -979,7 +1003,7 @@ class CreateBookingController extends GetxController {
       item.totalCtrl.clear();
       return;
     }
-    _recalcRowTotal(item.amountCtrl, item.discountCtrl, item.totalCtrl);
+    recalcServiceRow(item);
   }
 
   // ─── Products ──────────────────────────────────────────────────────────
@@ -1082,27 +1106,40 @@ class CreateBookingController extends GetxController {
 
   static void _recalcRowTotal(
     TextEditingController amount,
+    TextEditingController additionalAmount,
     TextEditingController discount,
     TextEditingController total,
   ) {
     final a = BookingFormHelpers.parseMoney(amount.text);
+    final additional = BookingFormHelpers.parseMoney(additionalAmount.text);
     var d = BookingFormHelpers.parseMoney(discount.text);
-    if (d > a) {
-      d = a;
+    final subtotal = a + additional;
+    if (d > subtotal) {
+      d = subtotal;
       discount.text = BookingFormHelpers.formatMoney(d);
       discount.selection = TextSelection.collapsed(
         offset: discount.text.length,
       );
     }
-    final t = BookingFormHelpers.rowTotal(a, d);
-    total.text = a == 0 && d == 0 ? '' : BookingFormHelpers.formatMoney(t);
+    final t = BookingFormHelpers.rowTotal(subtotal, d);
+    total.text = subtotal == 0 && d == 0
+        ? ''
+        : BookingFormHelpers.formatMoney(t);
   }
 
-  void recalcPackageRow(PackageFormItem item) =>
-      _recalcRowTotal(item.amountCtrl, item.discountCtrl, item.totalCtrl);
+  void recalcPackageRow(PackageFormItem item) => _recalcRowTotal(
+    item.amountCtrl,
+    item.additionalAmountCtrl,
+    item.discountCtrl,
+    item.totalCtrl,
+  );
 
-  void recalcServiceRow(ServiceFormItem item) =>
-      _recalcRowTotal(item.amountCtrl, item.discountCtrl, item.totalCtrl);
+  void recalcServiceRow(ServiceFormItem item) => _recalcRowTotal(
+    item.amountCtrl,
+    item.additionalAmountCtrl,
+    item.discountCtrl,
+    item.totalCtrl,
+  );
 
   // ─── Payment ───────────────────────────────────────────────────────────
 
@@ -1135,12 +1172,33 @@ class CreateBookingController extends GetxController {
 
   double get computedGrandTotal => packagesSum + servicesSum + productsSum;
 
+  double get additionalAmountTotal {
+    var sum = 0.0;
+    if (canAddPackageAmount) {
+      for (final item in packageItems) {
+        if (!item.isEmptyRow) {
+          sum += BookingFormHelpers.parseMoney(item.additionalAmountCtrl.text);
+        }
+      }
+    }
+    if (canAddServiceAmount) {
+      for (final item in serviceItems) {
+        if (!item.isEmptyRow) {
+          sum += BookingFormHelpers.parseMoney(item.additionalAmountCtrl.text);
+        }
+      }
+    }
+    return sum;
+  }
+
   /// Gross (before discount) per section — used for step 5 totals.
   double get packagesGross {
     var sum = 0.0;
     for (final p in packageItems) {
       if (p.isEmptyRow) continue;
-      sum += BookingFormHelpers.parseMoney(p.amountCtrl.text);
+      sum +=
+          BookingFormHelpers.parseMoney(p.amountCtrl.text) +
+          BookingFormHelpers.parseMoney(p.additionalAmountCtrl.text);
     }
     return sum;
   }
@@ -1149,7 +1207,9 @@ class CreateBookingController extends GetxController {
     var sum = 0.0;
     for (final s in serviceItems) {
       if (s.isEmptyRow) continue;
-      sum += BookingFormHelpers.parseMoney(s.amountCtrl.text);
+      sum +=
+          BookingFormHelpers.parseMoney(s.amountCtrl.text) +
+          BookingFormHelpers.parseMoney(s.additionalAmountCtrl.text);
     }
     return sum;
   }
@@ -1192,6 +1252,9 @@ class CreateBookingController extends GetxController {
   void recalcPaymentTotals() {
     // Step 5 amounts are display-only (except amount paid):
     // total = gross, discount = sum of row discounts.
+    totalAdditionalAmountCtrl.text = BookingFormHelpers.formatMoney(
+      additionalAmountTotal,
+    );
     totalAmountCtrl.text = BookingFormHelpers.formatMoney(computedGrossTotal);
     discountCtrl.text = BookingFormHelpers.formatMoney(allRowsDiscountSum);
     final payable = computedPayable;
@@ -1627,6 +1690,7 @@ class CreateBookingController extends GetxController {
         }
       }
       row.amountCtrl.text = line.amount ?? '';
+      row.additionalAmountCtrl.text = line.additionalAmount ?? '0';
       row.discountCtrl.text = line.discount ?? '0';
       row.totalCtrl.text = line.totalAmount ?? '';
       packageItems.add(row);
@@ -1669,6 +1733,7 @@ class CreateBookingController extends GetxController {
         row.employeeCtrl.text = line.employeeName ?? '';
       }
       row.amountCtrl.text = line.amount ?? '';
+      row.additionalAmountCtrl.text = line.additionalAmount ?? '0';
       row.discountCtrl.text = line.discount ?? '0';
       row.totalCtrl.text = line.totalAmount ?? '';
       serviceItems.add(row);
@@ -1741,6 +1806,9 @@ class CreateBookingController extends GetxController {
           amount: s.amountCtrl.text.trim().isEmpty
               ? '0'
               : s.amountCtrl.text.trim(),
+          additionalAmount: s.additionalAmountCtrl.text.trim().isEmpty
+              ? '0'
+              : s.additionalAmountCtrl.text.trim(),
           discount: s.discountCtrl.text.trim().isEmpty
               ? '0'
               : s.discountCtrl.text.trim(),
@@ -1775,6 +1843,9 @@ class CreateBookingController extends GetxController {
           totalAmount: p.totalCtrl.text.trim().isEmpty
               ? '0'
               : p.totalCtrl.text.trim(),
+          additionalAmount: p.additionalAmountCtrl.text.trim().isEmpty
+              ? '0'
+              : p.additionalAmountCtrl.text.trim(),
           staffIds: staffIds,
         ),
       );
@@ -1814,6 +1885,7 @@ class CreateBookingController extends GetxController {
   }
 
   Future<void> submit(BuildContext context) async {
+    if (isSaving.value) return;
     // Validate every step's form before submitting.
     for (var i = 0; i < totalSteps; i++) {
       if (!_validateStep(i)) {
@@ -1829,8 +1901,9 @@ class CreateBookingController extends GetxController {
       return;
     }
 
-    recalcPaymentTotals();
     isSaving.value = true;
+
+    recalcPaymentTotals();
     try {
       final type = selectedBookingType.value.isEmpty
           ? 'Guest'
@@ -1971,10 +2044,10 @@ class CreateBookingController extends GetxController {
         // Pop with the booking so the list can jump to its status tab.
         await NavigationHelper.safePop(context, res.data);
       } else {
-        SnackbarService.showError(
-          title: 'common.error'.trns(),
-          message: res.message ?? 'errors.requestFailed'.trns(),
-        );
+        // SnackbarService.showError(
+        //   title: 'common.error'.trns(),
+        //   message: res.message ?? 'errors.requestFailed'.trns(),
+        // );
       }
     } finally {
       isSaving.value = false;
@@ -2016,6 +2089,7 @@ class CreateBookingController extends GetxController {
     addCustomerPhoneCtrl.dispose();
     addCustomerEmailCtrl.dispose();
     totalAmountCtrl.dispose();
+    totalAdditionalAmountCtrl.dispose();
     discountCtrl.dispose();
     balanceCtrl.dispose();
     amountPaidCtrl.dispose();

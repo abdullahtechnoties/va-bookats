@@ -140,13 +140,14 @@ class BottomnavView extends GetView<BottomnavController> {
               showNoAccessDialog();
               return;
             }
-            final allowed = await ensureBookingClosingAllowed(
+            await runBookingClosingProtected(
               repository: Get.find<BookingRepository>(),
               auth: Get.find<AuthService>(),
               branchId: Get.find<AuthService>().currentUser.value?.branchId,
+              action: () async {
+                await Get.toNamed(Routes.CREATE_BOOKING);
+              },
             );
-            if (!allowed) return;
-            Get.toNamed(Routes.CREATE_BOOKING);
           },
           shape: const CircleBorder(),
           child: Icon(Icons.add, color: AppColors.white, size: 48),

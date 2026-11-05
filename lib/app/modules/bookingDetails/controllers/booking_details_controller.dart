@@ -109,34 +109,37 @@ class BookingDetailsController extends GetxController {
   }) async {
     final current = booking.value;
     if (current == null || newStatus == current.status) return;
-    if (!await ensureBookingClosingAllowed(
+    await runBookingClosingProtected(
       repository: _repo,
       auth: _auth,
       branchId: current.branchId,
-    )) {
-      return;
-    }
-    busyStatus.value = current.id;
-    final res = await _repo.changeBookingStatus(
-      id: current.id,
-      status: newStatus,
-      returnAmount: returnAmount,
-      paymentMethod: paymentMethod,
-      transactionId: transactionId,
-      mediaId: mediaId,
+      action: () async {
+        busyStatus.value = current.id;
+        try {
+          final res = await _repo.changeBookingStatus(
+            id: current.id,
+            status: newStatus,
+            returnAmount: returnAmount,
+            paymentMethod: paymentMethod,
+            transactionId: transactionId,
+            mediaId: mediaId,
+          );
+          if (res.isCompleted && res.data != null) {
+            booking.value = res.data;
+            SnackbarService.showSuccess(
+              title: 'common.success'.trns(),
+              message: res.message ?? 'Status updated successfully!',
+            );
+          } else {
+            SnackbarService.showError(
+              title: 'common.error'.trns(),
+              message: res.message ?? 'errors.requestFailed'.trns(),
+            );
+          }
+        } finally {
+          busyStatus.value = null;
+        }
+      },
     );
-    busyStatus.value = null;
-    if (res.isCompleted && res.data != null) {
-      booking.value = res.data;
-      SnackbarService.showSuccess(
-        title: 'common.success'.trns(),
-        message: res.message ?? 'Status updated successfully!',
-      );
-    } else {
-      SnackbarService.showError(
-        title: 'common.error'.trns(),
-        message: res.message ?? 'errors.requestFailed'.trns(),
-      );
-    }
   }
 }

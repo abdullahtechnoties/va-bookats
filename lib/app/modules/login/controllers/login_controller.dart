@@ -65,10 +65,10 @@ class LoginController extends GetxController {
       );
 
       if (!response.isCompleted || response.data == null) {
-        SnackbarService.showError(
-          title: 'auth.login.errorTitle'.trns(),
-          message: response.message ?? 'errors.requestFailed'.trns(),
-        );
+        // SnackbarService.showError(
+        //   title: 'auth.login.errorTitle'.trns(),
+        //   message: response.message ?? 'errors.requestFailed'.trns(),
+        // );
         return;
       }
 

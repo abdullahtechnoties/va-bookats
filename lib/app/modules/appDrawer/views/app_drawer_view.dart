@@ -164,12 +164,14 @@ class AppDrawerView extends StatelessWidget {
   }
 
   Future<void> _openCreateBooking() async {
-    final allowed = await ensureBookingClosingAllowed(
+    await runBookingClosingProtected(
       repository: Get.find<BookingRepository>(),
       auth: Get.find<AuthService>(),
       branchId: Get.find<AuthService>().currentUser.value?.branchId,
+      action: () async {
+        await Get.toNamed(Routes.CREATE_BOOKING);
+      },
     );
-    if (allowed) Get.toNamed(Routes.CREATE_BOOKING);
   }
 
   void _handleInventoryNavigation(String item) {

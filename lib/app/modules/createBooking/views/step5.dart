@@ -108,6 +108,30 @@ class Step5Payment extends GetView<CreateBookingController> {
               ),
               const SizedBox(height: 16),
 
+              Obx(
+                () => controller.showAdditionalAmountTotal
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _FieldLabel(
+                            'createBooking.step5.totalAdditionalAmount'.trns(),
+                          ),
+                          const SizedBox(height: 8),
+                          CommonTextInputField(
+                            hintText: '00',
+                            controller: controller.totalAdditionalAmountCtrl,
+                            keyboardType: TextInputType.number,
+                            readOnly: true,
+                            enabled: false,
+                            height: 50,
+                            hintTextSize: 13,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
+
               // Discount (auto sum of previous discounts, display-only)
               _FieldLabel('createBooking.step5.discount'.trns()),
               const SizedBox(height: 8),
@@ -265,7 +289,9 @@ class Step5Payment extends GetView<CreateBookingController> {
                   Expanded(
                     flex: 2,
                     child: Can(
-                     controller.isEditMode ? AppPerm.update(AppPerm.bookings) : AppPerm.store(AppPerm.bookings),
+                      controller.isEditMode
+                          ? AppPerm.update(AppPerm.bookings)
+                          : AppPerm.store(AppPerm.bookings),
                       child: Obx(
                         () => MainBtn(
                           text: controller.isEditMode

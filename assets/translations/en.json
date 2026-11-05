@@ -900,6 +900,7 @@
       "employee": "Employee",
       "selectEmployee": "Select Employee",
       "amount": "Amount",
+      "additionalAmount": "Additional Amount",
       "discount": "Discount",
       "total": "Total",
       "nSelected": "{count} selected",
@@ -916,6 +917,7 @@
       "employee": "Employee",
       "selectEmployee": "Select Employee",
       "amount": "Amount",
+      "additionalAmount": "Additional Amount",
       "discount": "Discount",
       "total": "Total",
       "noStaffAvailable": "No staff available for this service",
@@ -943,6 +945,7 @@
     "step5": {
       "paymentInfo": "Payment Information",
       "totalAmount": "Total Amount",
+      "totalAdditionalAmount": "Total Additional Amount",
       "discount": "Discount",
       "balance": "Balance",
       "amountPaid": "Amount Paid",

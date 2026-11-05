@@ -80,6 +80,7 @@ class BookingServiceLine {
   final String? amount;
   final String? discount;
   final String? totalAmount;
+  final String? additionalAmount;
   final String? serviceName;
   final String? variationName;
   final String? employeeName;
@@ -92,6 +93,7 @@ class BookingServiceLine {
     this.amount,
     this.discount,
     this.totalAmount,
+    this.additionalAmount,
     this.serviceName,
     this.variationName,
     this.employeeName,
@@ -111,6 +113,7 @@ class BookingServiceLine {
       amount: json['amount']?.toString(),
       discount: json['discount']?.toString(),
       totalAmount: json['total_amount']?.toString(),
+      additionalAmount: json['additional_amount']?.toString(),
       serviceName: service?['name']?.toString(),
       variationName: variation?['name']?.toString(),
       employeeName: employee?['name']?.toString(),
@@ -124,6 +127,7 @@ class BookingPackageLine {
   final String? amount;
   final String? discount;
   final String? totalAmount;
+  final String? additionalAmount;
   final String? packageName;
   final List<int> staffIds;
   final List<String> staffNames;
@@ -134,6 +138,7 @@ class BookingPackageLine {
     this.amount,
     this.discount,
     this.totalAmount,
+    this.additionalAmount,
     this.packageName,
     this.staffIds = const [],
     this.staffNames = const [],
@@ -150,7 +155,8 @@ class BookingPackageLine {
       for (final e in rawStaffs) {
         if (e is Map) {
           final m = Map<String, dynamic>.from(e);
-          final staffId = _parseInt(m['staff_id']) ?? _parseInt(_map(m['staff'])?['id']);
+          final staffId =
+              _parseInt(m['staff_id']) ?? _parseInt(_map(m['staff'])?['id']);
           if (staffId != null) staffIds.add(staffId);
           final staff = _map(m['staff']);
           final name = staff?['name']?.toString();
@@ -164,6 +170,7 @@ class BookingPackageLine {
       amount: json['amount']?.toString(),
       discount: json['discount']?.toString(),
       totalAmount: json['total_amount']?.toString(),
+      additionalAmount: json['additional_amount']?.toString(),
       packageName: pkg?['name']?.toString(),
       staffIds: staffIds,
       staffNames: staffs,
@@ -262,11 +269,9 @@ class BookingPayment {
     return BookingPayment(
       id: _parseInt(json['id']),
       totalAmount: json['total_amount']?.toString(),
-      paidAmount:
-          (json['paid_amount'] ?? json['amount_paid'])?.toString(),
+      paidAmount: (json['paid_amount'] ?? json['amount_paid'])?.toString(),
       balance: json['balance']?.toString(),
-      discountAmount:
-          (json['discount_amount'] ?? json['discount'])?.toString(),
+      discountAmount: (json['discount_amount'] ?? json['discount'])?.toString(),
       status: json['status']?.toString(),
       paymentMethod: json['payment_method']?.toString(),
       transactionId: json['transaction_id']?.toString(),
@@ -339,8 +344,7 @@ class BookingModel {
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic>? _map(dynamic v) =>
         v is Map ? Map<String, dynamic>.from(v) : null;
-    List<T> _list<T>(
-        dynamic v, T Function(Map<String, dynamic>) f) {
+    List<T> _list<T>(dynamic v, T Function(Map<String, dynamic>) f) {
       if (v is! List) return <T>[];
       return v
           .whereType<Map>()
@@ -356,8 +360,7 @@ class BookingModel {
       startTime: json['start_time']?.toString(),
       endTime: json['end_time']?.toString(),
       totalAmount: json['total_amount']?.toString(),
-      amountPaid:
-          (json['amount_paid'] ?? json['paid_amount'])?.toString(),
+      amountPaid: (json['amount_paid'] ?? json['paid_amount'])?.toString(),
       discount: json['discount']?.toString(),
       remainingAmount: (json['remaining_amount'] ?? json['balance'])
           ?.toString(),
@@ -486,8 +489,19 @@ class BookingModel {
     try {
       final dt = DateTime.parse(iso);
       const months = [
-        '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        '',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
       ];
       return '${months[dt.month]} ${dt.day}, ${dt.year}';
     } catch (_) {
@@ -530,8 +544,7 @@ class PackageLookup {
     final rawLabel = json['label']?.toString() ?? '';
     // Backend appends " - {json}" to the label; strip it for display.
     final dash = rawLabel.indexOf(' - {');
-    final clean =
-        dash == -1 ? rawLabel : rawLabel.substring(0, dash).trim();
+    final clean = dash == -1 ? rawLabel : rawLabel.substring(0, dash).trim();
     return PackageLookup(
       value: _parseInt(json['value']) ?? 0,
       label: rawLabel,
@@ -580,10 +593,13 @@ class ServiceLookup {
     final rawVar = json['variations'];
     final vars = rawVar is List
         ? rawVar
-            .whereType<Map>()
-            .map((e) =>
-                ServiceVariationLookup.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
+              .whereType<Map>()
+              .map(
+                (e) => ServiceVariationLookup.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
+              .toList()
         : <ServiceVariationLookup>[];
     return ServiceLookup(
       value: _parseInt(json['value']) ?? 0,
@@ -619,8 +635,7 @@ class ProductVariantLookup {
     );
   }
 
-  String get displayName =>
-      name.isEmpty ? 'Variant #$id' : name;
+  String get displayName => name.isEmpty ? 'Variant #$id' : name;
 }
 
 class ProductLookup {
@@ -642,10 +657,12 @@ class ProductLookup {
     final rawVar = json['variants'];
     final vars = rawVar is List
         ? rawVar
-            .whereType<Map>()
-            .map((e) =>
-                ProductVariantLookup.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
+              .whereType<Map>()
+              .map(
+                (e) =>
+                    ProductVariantLookup.fromJson(Map<String, dynamic>.from(e)),
+              )
+              .toList()
         : <ProductVariantLookup>[];
     return ProductLookup(
       value: _parseInt(json['value']) ?? _parseInt(json['id']) ?? 0,
