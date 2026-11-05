@@ -1223,8 +1223,20 @@ class CreateBookingController extends GetxController {
     return sum;
   }
 
-  double get computedGrossTotal =>
-      packagesGross + servicesGross + productsGross;
+  double get computedBaseTotal {
+    var sum = 0.0;
+    for (final p in packageItems) {
+      if (!p.isEmptyRow) {
+        sum += BookingFormHelpers.parseMoney(p.amountCtrl.text);
+      }
+    }
+    for (final s in serviceItems) {
+      if (!s.isEmptyRow) {
+        sum += BookingFormHelpers.parseMoney(s.amountCtrl.text);
+      }
+    }
+    return sum + productsGross;
+  }
 
   /// Sum of every row-level discount (packages + services + products).
   double get allRowsDiscountSum {
@@ -1244,18 +1256,19 @@ class CreateBookingController extends GetxController {
     return sum;
   }
 
-  /// Net payable = gross - discounts, never negative.
-  double get computedPayable => (computedGrossTotal - allRowsDiscountSum)
-      .clamp(0, double.infinity)
-      .toDouble();
+  /// Final payable = base total - discounts + additional amounts.
+  double get computedPayable =>
+      (computedBaseTotal - allRowsDiscountSum + additionalAmountTotal)
+          .clamp(0, double.infinity)
+          .toDouble();
 
   void recalcPaymentTotals() {
-    // Step 5 amounts are display-only (except amount paid):
-    // total = gross, discount = sum of row discounts.
+    // Step 5 separates the base total and additional amounts. Additional
+    // amounts are included in the payable balance, but not the total field.
     totalAdditionalAmountCtrl.text = BookingFormHelpers.formatMoney(
       additionalAmountTotal,
     );
-    totalAmountCtrl.text = BookingFormHelpers.formatMoney(computedGrossTotal);
+    totalAmountCtrl.text = BookingFormHelpers.formatMoney(computedBaseTotal);
     discountCtrl.text = BookingFormHelpers.formatMoney(allRowsDiscountSum);
     final payable = computedPayable;
     var paid = BookingFormHelpers.parseMoney(amountPaidCtrl.text);

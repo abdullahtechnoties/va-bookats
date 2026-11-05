@@ -397,90 +397,104 @@ class BookingCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                
-                Row(
-                  children: [
-                    if (onEdit != null && booking.isEditable)
-                      Can(
-                        AppPerm.edit(AppPerm.bookings),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                       Can(
+                        AppPerm.show(AppPerm.bookings),
                         child: GestureDetector(
-                          onTap: isBusy ? null : onEdit,
+                          onTap: onViewDetails,
                           child: Container(
-                            margin: const EdgeInsets.only(right: 8),
+                            margin: const EdgeInsets.only(right: 4),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
+                              horizontal: 52,
+                              vertical: 16,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.secondary,
+                              border: Border.all(
+                                color: AppColors.secondary,
+                                width: 1.5,
+                              ),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Text(
-                              'Edit',
-                              style: TextStyle(
+                            child: Text(
+                              'home.booking.card.viewDetails'.trns(),
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.white,
+                                color: AppColors.secondary,
                               ),
                             ),
                           ),
                         ),
                       ),
-                    Can(
-                      AppPerm.destroy(AppPerm.bookings),
-                      child: GestureDetector(
-                        onTap: isBusy ? null : onDelete,
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.all(11),
-                          decoration: BoxDecoration(
-                            color: AppColors.error.withValues(alpha: 0.10),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: isBusy
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.error,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.delete_outline,
-                                  color: AppColors.error,
-                                  size: 19,
+                  
+                      if (onEdit != null && booking.isEditable)
+                        Can(
+                          AppPerm.edit(AppPerm.bookings),
+                          child: Expanded(
+                            child: GestureDetector(
+                              onTap: isBusy ? null : onEdit,
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  // horizontal: 22,
+                                  vertical: 16,
                                 ),
-                        ),
-                      ),
-                    ),
-                    Can(
-                      AppPerm.show(AppPerm.bookings),
-                      child: GestureDetector(
-                        onTap: onViewDetails,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 52,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.secondary,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            'home.booking.card.viewDetails'.trns(),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.secondary,
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.edit_outlined,
+                                    color: AppColors.white,
+                                    size: 19,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
+                      Can(
+                        AppPerm.destroy(AppPerm.bookings),
+                        child: Expanded(
+                          child: GestureDetector(
+                            onTap: isBusy ? null : onDelete,
+                            child: Container(
+                              
+                              margin: const EdgeInsets.only(right: 4),
+                              padding: const EdgeInsets.symmetric(
+                                // horizontal: 22,
+                                vertical: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: isBusy
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.error,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.delete_outline,
+                                      color: AppColors.white,
+                                      size: 19,
+                                    ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                     
+                    ],
+                  ),
                 ),
               ],
             ),

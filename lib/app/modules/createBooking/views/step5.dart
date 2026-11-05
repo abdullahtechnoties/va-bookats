@@ -108,6 +108,20 @@ class Step5Payment extends GetView<CreateBookingController> {
               ),
               const SizedBox(height: 16),
 
+              // Discount (auto sum of previous discounts, display-only)
+              _FieldLabel('createBooking.step5.discount'.trns()),
+              const SizedBox(height: 8),
+              CommonTextInputField(
+                hintText: '00',
+                controller: controller.discountCtrl,
+                keyboardType: TextInputType.number,
+                readOnly: true,
+                enabled: false,
+                height: 50,
+                hintTextSize: 13,
+              ),
+              const SizedBox(height: 16),
+
               Obx(
                 () => controller.showAdditionalAmountTotal
                     ? Column(
@@ -132,12 +146,12 @@ class Step5Payment extends GetView<CreateBookingController> {
                     : const SizedBox.shrink(),
               ),
 
-              // Discount (auto sum of previous discounts, display-only)
-              _FieldLabel('createBooking.step5.discount'.trns()),
+              // Balance (auto)
+              _FieldLabel('createBooking.step5.balance'.trns()),
               const SizedBox(height: 8),
               CommonTextInputField(
                 hintText: '00',
-                controller: controller.discountCtrl,
+                controller: controller.balanceCtrl,
                 keyboardType: TextInputType.number,
                 readOnly: true,
                 enabled: false,
@@ -172,20 +186,6 @@ class Step5Payment extends GetView<CreateBookingController> {
                   return null;
                 },
                 onChanged: controller.onAmountPaidChanged,
-              ),
-              const SizedBox(height: 16),
-
-              // Balance (auto)
-              _FieldLabel('createBooking.step5.balance'.trns()),
-              const SizedBox(height: 8),
-              CommonTextInputField(
-                hintText: '00',
-                controller: controller.balanceCtrl,
-                keyboardType: TextInputType.number,
-                readOnly: true,
-                enabled: false,
-                height: 50,
-                hintTextSize: 13,
               ),
               const SizedBox(height: 16),
 

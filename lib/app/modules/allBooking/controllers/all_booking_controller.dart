@@ -7,6 +7,7 @@ import 'package:va_bookats/models/booking_model.dart';
 import 'package:va_bookats/models/branch_model.dart';
 import 'package:va_bookats/models/lookup_option.dart';
 import 'package:va_bookats/network/service/auth_service.dart';
+import 'package:va_bookats/utilities/colors.dart';
 import 'package:va_bookats/utilities/permissions_helper.dart';
 import 'package:va_bookats/utilities/snackbar_service.dart';
 import 'package:va_bookats/utilities/filter_loader.dart';
@@ -634,6 +635,7 @@ class AllBookingController extends GetxController {
   Future<bool?> _confirmDelete(BookingModel booking) {
     return Get.dialog<bool>(
       AlertDialog(
+        backgroundColor: AppColors.white,
         title: const Text('Delete booking?'),
         content: Text(
           'Are you sure you want to delete booking #${booking.serial ?? booking.id}?',

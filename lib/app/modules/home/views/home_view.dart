@@ -72,6 +72,7 @@ class HomeView extends GetView<HomeController> {
                                 isBusy:
                                     controller.busyBookingId.value ==
                                     booking.id,
+                                onDelete: () => controller.deleteBooking(booking),
                                 onViewDetails: () =>
                                     controller.openDetails(booking),
                                 onEdit: () => _openEdit(booking),

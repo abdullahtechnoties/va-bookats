@@ -1,12 +1,12 @@
 class ApiPath {
   // // Common Endpoints
-  // static const String baseUrl = 'https://va_bookats.screenlinktechnologies.com/api/admin';
-  // static const String imageUrl = 'https://va_bookats.screenlinktechnologies.com/storage';
+  static const String baseUrl = 'https://www.bookats.com/api/admin';
+  static const String imageUrl = 'https://www.bookats.com/storage';
   // Local Endpoints
-  static const String baseUrl =
-      'https://subregular-lauretta-nonprovocatively.ngrok-free.dev/api/admin';
-  static const String imageUrl =
-      'https://subregular-lauretta-nonprovocatively.ngrok-free.dev/storage';
+  // static const String baseUrl =
+  //     'https://subregular-lauretta-nonprovocatively.ngrok-free.dev/api/admin';
+  // static const String imageUrl =
+  //     'https://subregular-lauretta-nonprovocatively.ngrok-free.dev/storage';
 
   // Common Endpoints
   static const String getSetupFcm = '/users/fcm-token';
