@@ -46,6 +46,7 @@ abstract class AppPerm {
   static const String units = 'units';
   static const String productVariations = 'product-variations';
   static const String bookings = 'bookings';
+  static const String dailyClosings = 'daily-closings';
   static const String media = 'media';
   static const String galleryImages = 'gallery-images';
 
@@ -110,24 +111,24 @@ class Can extends StatelessWidget {
     super.key,
     required this.child,
     this.fallback = const SizedBox.shrink(),
-  })  : permissions = null,
-        requireAll = false;
+  }) : permissions = null,
+       requireAll = false;
 
   const Can.any(
     this.permissions, {
     super.key,
     required this.child,
     this.fallback = const SizedBox.shrink(),
-  })  : permission = null,
-        requireAll = false;
+  }) : permission = null,
+       requireAll = false;
 
   const Can.all(
     this.permissions, {
     super.key,
     required this.child,
     this.fallback = const SizedBox.shrink(),
-  })  : permission = null,
-        requireAll = true;
+  }) : permission = null,
+       requireAll = true;
 
   @override
   Widget build(BuildContext context) {
@@ -135,8 +136,8 @@ class Can extends StatelessWidget {
       final allowed = permission != null
           ? Permissions.can(permission!)
           : requireAll
-              ? Permissions.canAll(permissions ?? const [])
-              : Permissions.canAny(permissions ?? const []);
+          ? Permissions.canAll(permissions ?? const [])
+          : Permissions.canAny(permissions ?? const []);
       return allowed ? child : fallback;
     });
   }
@@ -150,9 +151,7 @@ Future<void> showNoAccessDialog() {
   return Get.dialog(
     Dialog(
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       insetPadding: const EdgeInsets.symmetric(horizontal: 48),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
@@ -185,10 +184,7 @@ Future<void> showNoAccessDialog() {
             Text(
               'permissions.noAccess.message'.trns(),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF6B7280),
-              ),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
             ),
             const SizedBox(height: 16),
             GestureDetector(

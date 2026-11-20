@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:va_bookats/app/modules/bottomnav/controllers/bottomnav_controller.dart';
+import 'package:va_bookats/app/modules/dailyClosing/controllers/opening_balance_controller.dart';
+import 'package:va_bookats/app/modules/dailyClosing/views/widgets/opening_balance_card.dart';
 import 'package:va_bookats/app/modules/home/controllers/home_controller.dart';
 import 'package:va_bookats/app/routes/app_pages.dart';
 import 'dart:math' as math;
@@ -37,59 +39,76 @@ class HomeView extends GetView<HomeController> {
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),
-                  child:
-                      Can.any(
-                    [
-                      AppPerm.index(AppPerm.bookings),
-                    ],
-                    child: 
-                   Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _HomeInsights(controller: controller),
-                      SizedBox(height: 24),
-                      _TodayBookingHeader(controller: controller),
-                      Obx(() {
-                        if (controller.isLoading.value) {
-                          return const _BookingShimmerList();
-                        }
-                        if (controller.loadFailed.value &&
-                            controller.todayBookings.isEmpty) {
-                          return _HomeErrorState(onRetry: controller.retry);
-                        }
-                        if (controller.todayBookings.isEmpty) {
-                          return const _HomeEmptyState();
-                        }
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: controller.todayBookings.length,
-                          itemBuilder: (context, index) {
-                            final booking = controller.todayBookings[index];
-                            return Obx(
-                              () => BookingCard(
-                                booking: booking,
-                                isBusy:
-                                    controller.busyBookingId.value ==
-                                    booking.id,
-                                onDelete: () => controller.deleteBooking(booking),
-                                onViewDetails: () =>
-                                    controller.openDetails(booking),
-                                onEdit: () => _openEdit(booking),
-                                onStatusTap: () =>
-                                    _showStatusSheet(context, booking),
-                              ),
-                            );
-                          },
-                        );
-                      }),
-                      const SizedBox(height: 24),
+                      // Today's opening balance (daily closing) — kept outside
+                      // the bookings gate so roles without booking access
+                      // still see it.
+                      Can(
+                        AppPerm.index(AppPerm.dailyClosings),
+                        child: Builder(
+                          builder: (_) => OpeningBalanceCard(
+                            controller: ensureOpeningBalanceController(),
+                          ),
+                        ),
+                      ),
+                      Can.any(
+                        [AppPerm.index(AppPerm.bookings)],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _HomeInsights(controller: controller),
+                            SizedBox(height: 24),
+                            _TodayBookingHeader(controller: controller),
+                            Obx(() {
+                              if (controller.isLoading.value) {
+                                return const _BookingShimmerList();
+                              }
+                              if (controller.loadFailed.value &&
+                                  controller.todayBookings.isEmpty) {
+                                return _HomeErrorState(
+                                  onRetry: controller.retry,
+                                );
+                              }
+                              if (controller.todayBookings.isEmpty) {
+                                return const _HomeEmptyState();
+                              }
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: controller.todayBookings.length,
+                                itemBuilder: (context, index) {
+                                  final booking =
+                                      controller.todayBookings[index];
+                                  return Obx(
+                                    () => BookingCard(
+                                      booking: booking,
+                                      isBusy:
+                                          controller.busyBookingId.value ==
+                                          booking.id,
+                                      onDelete: () =>
+                                          controller.deleteBooking(booking),
+                                      onViewDetails: () =>
+                                          controller.openDetails(booking),
+                                      onEdit: () => _openEdit(booking),
+                                      onStatusTap: () =>
+                                          _showStatusSheet(context, booking),
+                                    ),
+                                  );
+                                },
+                              );
+                            }),
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-         ) ],
+          ],
         ),
       ),
     );
@@ -169,6 +188,44 @@ class _HomeHeader extends StatelessWidget {
                   ),
                   Row(
                     children: [
+                      Can(
+                        AppPerm.create(AppPerm.dailyClosings),
+                        child: GestureDetector(
+                          onTap: () {
+                            ensureOpeningBalanceController().openCreateSheet(
+                              context,
+                            );
+                          },
+                          child: Container(
+                            height: 32,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.wallet_outlined,
+                                  color: AppColors.white,
+                                  size: 15,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  'dailyClosing.action'.trns(),
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       // Stack(
                       //   children: [
                       //     GestureDetector(
@@ -327,7 +384,7 @@ class _StatsGrid extends StatelessWidget {
           childAspectRatio: 1.67,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          
+
           children: [
             _StatCard(
               value: '${home.totalBookings}',
@@ -475,7 +532,7 @@ class _StatCard extends StatelessWidget {
             ),
             Spacer(),
             Container(
-              margin: const EdgeInsets.only(top:3),
+              margin: const EdgeInsets.only(top: 3),
               width: 34,
               height: 34,
               decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),

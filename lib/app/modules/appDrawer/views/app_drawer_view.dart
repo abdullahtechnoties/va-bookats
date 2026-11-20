@@ -96,6 +96,17 @@ class AppDrawerView extends StatelessWidget {
                       },
                     ),
                   ),
+                  Can(
+                    AppPerm.index(AppPerm.dailyClosings),
+                    child: _DrawerSimpleItem(
+                      icon: Icons.account_balance_wallet_outlined,
+                      label: 'drawer.dailyClosing'.trns(),
+                      onTap: () {
+                        Get.find<BottomnavController>().closeDrawer();
+                        Get.toNamed(Routes.DAILY_CLOSINGS);
+                      },
+                    ),
+                  ),
                   if (Get.find<AuthService>().isOwner)
                     _DrawerExpandable(
                       icon: Icons.insert_drive_file_outlined,

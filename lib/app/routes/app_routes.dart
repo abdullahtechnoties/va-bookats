@@ -17,6 +17,8 @@ abstract class Routes {
   static const PACKAGES = _Paths.PACKAGES;
   static const ADD_PACKAGE = _Paths.ADD_PACKAGE;
   static const CUSTOMERS = _Paths.CUSTOMERS;
+  static const DAILY_CLOSINGS = _Paths.DAILY_CLOSINGS;
+  static const DAILY_CLOSING_DETAILS = _Paths.DAILY_CLOSING_DETAILS;
   static const ADD_CUSTOMER = _Paths.ADD_CUSTOMER;
   static const REVENUE_REPORT = _Paths.REVENUE_REPORT;
   static const BOTTOMNAV = _Paths.BOTTOMNAV;
@@ -77,6 +79,8 @@ abstract class _Paths {
   static const PACKAGES = '/packages';
   static const ADD_PACKAGE = '/add-package';
   static const CUSTOMERS = '/customers';
+  static const DAILY_CLOSINGS = '/daily-closings';
+  static const DAILY_CLOSING_DETAILS = '/daily-closing-details';
   static const ADD_CUSTOMER = '/add-customer';
   static const REVENUE_REPORT = '/revenue-report';
   static const BOTTOMNAV = '/bottomnav';

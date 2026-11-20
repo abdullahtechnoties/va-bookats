@@ -152,6 +152,13 @@ class ApiPath {
   static String bookingStatus(int id) => '/bookings/$id/status';
   static String bookingDetails(int id) => '/bookings/$id/details';
 
+  // Daily Closings
+  static const String dailyClosings = '/daily-closings';
+  static String dailyClosing(int id) => '/daily-closings/$id';
+  static String dailyClosingStatus(int id) => '/daily-closings/$id/status';
+  static String dailyClosingToday({required int branchId}) =>
+      '/daily-closings/today?branch_id=$branchId';
+
   // Payments
   static const String payments = '/payments';
   static String payment(int id) => '/payments/$id';

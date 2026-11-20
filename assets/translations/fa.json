@@ -16,7 +16,6 @@
   "explore_bookmarkPost": "ذخیره پست",
   "explore_composeNewPost": "ایجاد پست جدید",
   "explore_playVideo": "پخش ویدیو",
-
   "welcome": {
     "title": "خوش آمدید به",
     "appName": "عروسی",
@@ -744,7 +743,9 @@
     "yes": "بله",
     "no": "خیر",
     "success": "موفقیت",
-    "error": "خطا"
+    "error": "خطا",
+    "retry": "تلاش دوباره",
+    "loading": "در حال بارگذاری"
   },
   "newPassword": {
     "title": "رمز عبور جدید",
@@ -1046,5 +1047,113 @@
       "passwordRequired": "رمز عبور الزامی است",
       "passwordMinLength": "رمز عبور باید حداقل 6 کاراکتر باشد"
     }
+  },
+  "dailyClosing": {
+    "title": "بستن روزانه",
+    "detailsTitle": "جزئیات بستن روزانه",
+    "action": "بستن روزانه",
+    "createOpening": "ایجاد موجودی افتتاحیه",
+    "createOpeningHint": "موجودی افتتاحیه شعبه برای امروز را قبل از ثبت نوبت‌ها تعیین کنید.",
+    "addOpening": "افزودن موجودی",
+    "openingBalance": "موجودی افتتاحیه",
+    "date": "تاریخ",
+    "branch": "شعبه",
+    "selectBranch": "انتخاب شعبه",
+    "today": "امروز",
+    "todayOpening": "موجودی افتتاحیه امروز",
+    "todayOpeningHint": "موجودی افتتاحیه برای امروز",
+    "notCreated": "برای امروز موجودی افتتاحیه ثبت نشده است",
+    "viewAll": "مشاهده همه",
+    "viewDetails": "مشاهده جزئیات",
+    "changeStatus": "تغییر وضعیت",
+    "createdBy": "ایجاد توسط",
+    "approvedBy": "تأیید توسط",
+    "unknownUser": "سیستم",
+    "by": "توسط",
+    "createSuccess": "بستن روزانه با موفقیت ایجاد شد.",
+    "statusUpdated": "وضعیت بستن روزانه با موفقیت به‌روزرسانی شد.",
+    "loadMore": "بیشتر",
+    "loadFailed": "بارگذاری بستن‌های روزانه ناموفق بود. برای تازه‌سازی بکشید یا دوباره تلاش کنید.",
+    "loadFailedShort": "موجودی افتتاحیه امروز بارگذاری نشد.",
+    "emptyList": "بستن روزانه‌ای یافت نشد",
+    "searchHint": "جستجوی بستن‌های روزانه",
+    "status": {
+      "pending": "در انتظار",
+      "approved": "تأیید شده"
+    },
+    "validation": {
+      "openingRequired": "لطفاً موجودی افتتاحیه را وارد کنید",
+      "openingInvalid": "لطفاً موجودی افتتاحیه معتبر وارد کنید"
+    },
+    "filter": {
+      "action": "فیلتر",
+      "quickRange": "بازه سریع",
+      "fromDate": "از تاریخ",
+      "toDate": "تا تاریخ",
+      "status": "وضعیت",
+      "branch": "شعبه"
+    },
+    "tab": {
+      "overview": "نمای کلی",
+      "bookings": "نوبت‌ها",
+      "payments": "پرداخت‌ها",
+      "staff": "کارکنان",
+      "expenses": "هزینه‌ها",
+      "sales": "فروش",
+      "activity": "فعالیت"
+    },
+    "section": {
+      "revenue": "درآمد",
+      "payments": "تفکیک پرداخت‌ها",
+      "activityCounts": "نوبت‌ها و مشتریان",
+      "cashFlow": "جریان نقدی",
+      "remarks": "یادداشت",
+      "topSellers": "پرفروش‌ترین‌ها",
+      "services": "خدمات",
+      "products": "محصولات",
+      "packages": "پکیج‌ها"
+    },
+    "metric": {
+      "totalRevenue": "کل درآمد",
+      "totalAmount": "مبلغ کل",
+      "totalDiscount": "کل تخفیف",
+      "totalBalance": "کل مانده",
+      "totalExpense": "کل هزینه",
+      "unpaidAmount": "مبلغ پرداخت‌نشده",
+      "staffCommission": "کمیسیون کارکنان",
+      "additionalAmount": "مبلغ اضافی",
+      "cash": "نقدی",
+      "card": "کارت",
+      "online": "آنلاین",
+      "return": "برگشتی",
+      "totalBookings": "کل نوبت‌ها",
+      "customers": "مشتریان",
+      "repeatCustomers": "مشتریان تکراری",
+      "cancelled": "لغو شده",
+      "paid": "پرداخت شده",
+      "unpaid": "پرداخت نشده"
+    },
+    "cashFlow": {
+      "in": "کل ورودی",
+      "out": "کل خروجی",
+      "net": "خالص"
+    },
+    "top": {
+      "service": "برترین خدمت",
+      "product": "برترین محصول",
+      "package": "برترین پکیج"
+    },
+    "empty": {
+      "bookings": "برای این روز نوبتی ثبت نشده",
+      "payments": "برای این روز پرداختی ثبت نشده",
+      "staff": "برای این روز کمیسیونی ثبت نشده",
+      "expenses": "برای این روز هزینه‌ای ثبت نشده",
+      "sales": "برای این روز خلاصه فروشی ثبت نشده",
+      "section": "چیزی ثبت نشده",
+      "activity": "فعالیتی ثبت نشده"
+    }
+  },
+  "drawer": {
+    "dailyClosing": "بستن روزانه"
   }
 }

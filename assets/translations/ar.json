@@ -419,5 +419,117 @@
       "passwordRequired": "كلمة المرور مطلوبة",
       "passwordMinLength": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل"
     }
+  },
+  "dailyClosing": {
+    "title": "الإغلاق اليومي",
+    "detailsTitle": "تفاصيل الإغلاق اليومي",
+    "action": "الإغلاق اليومي",
+    "createOpening": "إنشاء رصيد افتتاحي",
+    "createOpeningHint": "حدد الرصيد الافتتاحي للفرع لليوم قبل بدء الحجوزات.",
+    "addOpening": "إضافة رصيد",
+    "openingBalance": "الرصيد الافتتاحي",
+    "date": "التاريخ",
+    "branch": "الفرع",
+    "selectBranch": "اختر الفرع",
+    "today": "اليوم",
+    "todayOpening": "الرصيد الافتتاحي لليوم",
+    "todayOpeningHint": "الرصيد الافتتاحي لهذا اليوم",
+    "notCreated": "لم يتم إنشاء رصيد افتتاحي لهذا اليوم",
+    "viewAll": "عرض الكل",
+    "viewDetails": "عرض التفاصيل",
+    "changeStatus": "تغيير الحالة",
+    "createdBy": "أنشأه",
+    "approvedBy": "اعتمده",
+    "unknownUser": "النظام",
+    "by": "بواسطة",
+    "createSuccess": "تم إنشاء الإغلاق اليومي بنجاح.",
+    "statusUpdated": "تم تحديث حالة الإغلاق اليومي بنجاح.",
+    "loadMore": "تحميل المزيد",
+    "loadFailed": "تعذر تحميل الإغلاقات اليومية. اسحب للتحديث أو أعد المحاولة.",
+    "loadFailedShort": "تعذر تحميل الرصيد الافتتاحي لليوم.",
+    "emptyList": "لا توجد إغلاقات يومية",
+    "searchHint": "ابحث في الإغلاقات اليومية",
+    "status": {
+      "pending": "قيد الانتظار",
+      "approved": "معتمد"
+    },
+    "validation": {
+      "openingRequired": "يرجى إدخال الرصيد الافتتاحي",
+      "openingInvalid": "يرجى إدخال رصيد افتتاحي صالح"
+    },
+    "filter": {
+      "action": "تصفية",
+      "quickRange": "نطاق سريع",
+      "fromDate": "من تاريخ",
+      "toDate": "إلى تاريخ",
+      "status": "الحالة",
+      "branch": "الفرع"
+    },
+    "tab": {
+      "overview": "نظرة عامة",
+      "bookings": "الحجوزات",
+      "payments": "المدفوعات",
+      "staff": "الموظفون",
+      "expenses": "المصروفات",
+      "sales": "المبيعات",
+      "activity": "السجل"
+    },
+    "section": {
+      "revenue": "الإيرادات",
+      "payments": "تفصيل المدفوعات",
+      "activityCounts": "الحجوزات والعملاء",
+      "cashFlow": "التدفق النقدي",
+      "remarks": "ملاحظات",
+      "topSellers": "الأكثر مبيعًا",
+      "services": "الخدمات",
+      "products": "المنتجات",
+      "packages": "الباقات"
+    },
+    "metric": {
+      "totalRevenue": "إجمالي الإيرادات",
+      "totalAmount": "المبلغ الإجمالي",
+      "totalDiscount": "إجمالي الخصم",
+      "totalBalance": "إجمالي الرصيد",
+      "totalExpense": "إجمالي المصروفات",
+      "unpaidAmount": "المبلغ غير المدفوع",
+      "staffCommission": "عمولة الموظفين",
+      "additionalAmount": "المبلغ الإضافي",
+      "cash": "نقدًا",
+      "card": "بطاقة",
+      "online": "عبر الإنترنت",
+      "return": "مرتجع",
+      "totalBookings": "إجمالي الحجوزات",
+      "customers": "العملاء",
+      "repeatCustomers": "العملاء المتكررون",
+      "cancelled": "ملغاة",
+      "paid": "مدفوعة",
+      "unpaid": "غير مدفوعة"
+    },
+    "cashFlow": {
+      "in": "إجمالي الداخل",
+      "out": "إجمالي الخارج",
+      "net": "الصافي"
+    },
+    "top": {
+      "service": "أفضل خدمة",
+      "product": "أفضل منتج",
+      "package": "أفضل باقة"
+    },
+    "empty": {
+      "bookings": "لا توجد حجوزات لهذا اليوم",
+      "payments": "لا توجد مدفوعات لهذا اليوم",
+      "staff": "لا توجد عمولات موظفين لهذا اليوم",
+      "expenses": "لا توجد مصروفات لهذا اليوم",
+      "sales": "لا يوجد ملخص مبيعات لهذا اليوم",
+      "section": "لا توجد بيانات",
+      "activity": "لا يوجد سجل"
+    }
+  },
+  "common": {
+    "retry": "إعادة المحاولة",
+    "loading": "جار التحميل"
+  },
+  "drawer": {
+    "dailyClosing": "الإغلاق اليومي"
   }
 }

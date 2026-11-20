@@ -589,7 +589,9 @@
     "no": "No",
     "success": "Success",
     "error": "Error",
-    "loadingFilters": "Loading filters…"
+    "loadingFilters": "Loading filters…",
+    "retry": "Retry",
+    "loading": "Loading"
   },
   "permissions": {
     "noAccess": {
@@ -1341,7 +1343,8 @@
       "commissionsReport": "Commissions Report",
       "expensesReport": "Expenses Report",
       "customersReport": "Customers Report"
-    }
+    },
+    "dailyClosing": "Daily Closing"
   },
   "profile": {
     "title": "Profile",
@@ -2305,7 +2308,7 @@
       "noCombinations": "Select values in your sets to generate combinations"
     }
   },
-    "inventory": {
+  "inventory": {
     "all_units": "All Units",
     "add_new_unit": "Add New Unit",
     "all_tags": "All Tags",
@@ -2317,7 +2320,7 @@
     "enter_variation_name": "Enter Variation Name",
     "add_item": "Add Item",
     "enter_name": "Enter Name",
-     "all_brands": "All Brands",
+    "all_brands": "All Brands",
     "add_new_brands": "Add New Brands",
     "add_new_brand": "Add New Brand",
     "all_product_categories": "All Product Categories",
@@ -2593,6 +2596,111 @@
       "branchRequired": "Please select a branch",
       "nameRequired": "Please enter variation name",
       "valuesRequired": "Please add at least one value"
+    }
+  },
+  "dailyClosing": {
+    "title": "Daily Closing",
+    "detailsTitle": "Daily Closing Details",
+    "action": "Daily Closing",
+    "createOpening": "Create Opening Balance",
+    "createOpeningHint": "Set the branch opening balance for the day before taking bookings.",
+    "addOpening": "Add Opening",
+    "openingBalance": "Opening Balance",
+    "date": "Date",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
+    "today": "Today",
+    "todayOpening": "Today's Opening Balance",
+    "todayOpeningHint": "Opening balance for today",
+    "notCreated": "No opening balance created for today",
+    "viewAll": "View All",
+    "viewDetails": "View Details",
+    "changeStatus": "Change Status",
+    "createdBy": "Created by",
+    "approvedBy": "Approved by",
+    "unknownUser": "System",
+    "by": "Created by",
+    "createSuccess": "Daily closing created successfully.",
+    "statusUpdated": "Daily closing status updated successfully.",
+    "loadMore": "Load More",
+    "loadFailed": "Failed to load daily closings. Pull to refresh or try again.",
+    "loadFailedShort": "Couldn't load today's opening balance.",
+    "emptyList": "No daily closings found",
+    "searchHint": "Search daily closings",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved"
+    },
+    "validation": {
+      "openingRequired": "Please enter the opening balance",
+      "openingInvalid": "Please enter a valid opening balance"
+    },
+    "filter": {
+      "action": "Filter",
+      "quickRange": "Quick Range",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "status": "Status",
+      "branch": "Branch"
+    },
+    "tab": {
+      "overview": "Overview",
+      "bookings": "Bookings",
+      "payments": "Payments",
+      "staff": "Staff",
+      "expenses": "Expenses",
+      "sales": "Sales",
+      "activity": "Activity"
+    },
+    "section": {
+      "revenue": "Revenue",
+      "payments": "Payment Breakdown",
+      "activityCounts": "Bookings & Customers",
+      "cashFlow": "Cash Flow",
+      "remarks": "Remarks",
+      "topSellers": "Top Sellers",
+      "services": "Services",
+      "products": "Products",
+      "packages": "Packages"
+    },
+    "metric": {
+      "totalRevenue": "Total Revenue",
+      "totalAmount": "Total Amount",
+      "totalDiscount": "Total Discount",
+      "totalBalance": "Total Balance",
+      "totalExpense": "Total Expense",
+      "unpaidAmount": "Unpaid Amount",
+      "staffCommission": "Staff Commission",
+      "additionalAmount": "Additional Amount",
+      "cash": "Cash",
+      "card": "Card",
+      "online": "Online",
+      "return": "Return",
+      "totalBookings": "Total Bookings",
+      "customers": "Customers",
+      "repeatCustomers": "Repeat Customers",
+      "cancelled": "Cancelled",
+      "paid": "Paid",
+      "unpaid": "Unpaid"
+    },
+    "cashFlow": {
+      "in": "Total In",
+      "out": "Total Out",
+      "net": "Net"
+    },
+    "top": {
+      "service": "Top Service",
+      "product": "Top Product",
+      "package": "Top Package"
+    },
+    "empty": {
+      "bookings": "No bookings for this day",
+      "payments": "No payments for this day",
+      "staff": "No staff commissions for this day",
+      "expenses": "No expenses for this day",
+      "sales": "No sales summary for this day",
+      "section": "Nothing recorded",
+      "activity": "No activity recorded"
     }
   }
 }

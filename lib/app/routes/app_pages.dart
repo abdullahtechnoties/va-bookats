@@ -38,6 +38,10 @@ import '../modules/createBooking/bindings/create_booking_binding.dart';
 import '../modules/createBooking/views/create_booking_view.dart';
 import '../modules/customers/bindings/customers_binding.dart';
 import '../modules/customers/views/customers_view.dart';
+import '../modules/dailyClosing/bindings/daily_closing_details_binding.dart';
+import '../modules/dailyClosing/bindings/daily_closings_binding.dart';
+import '../modules/dailyClosing/views/daily_closing_details_view.dart';
+import '../modules/dailyClosing/views/daily_closings_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -186,6 +190,16 @@ class AppPages {
       name: _Paths.CUSTOMERS,
       page: () => const CustomersView(),
       binding: CustomersBinding(),
+    ),
+    GetPage(
+      name: _Paths.DAILY_CLOSINGS,
+      page: () => const DailyClosingsView(),
+      binding: DailyClosingsBinding(),
+    ),
+    GetPage(
+      name: _Paths.DAILY_CLOSING_DETAILS,
+      page: () => const DailyClosingDetailsView(),
+      binding: DailyClosingDetailsBinding(),
     ),
     GetPage(
       name: _Paths.ADD_CUSTOMER,
