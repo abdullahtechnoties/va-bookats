@@ -314,7 +314,7 @@ class _BookatsLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image.asset(
-      'assets/images/logow.png',
+      'assets/images/logob.png',
       width: 120,
       height: 40,
       fit: BoxFit.contain,
